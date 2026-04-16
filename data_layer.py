@@ -5,6 +5,7 @@ Replaces fetch_yfinance, fetch_crypto, and get_frames from bot.py.
 
 import time
 import logging
+import requests as _requests
 from datetime import datetime, timezone
 from typing import Dict, Optional
 
@@ -17,6 +18,7 @@ logger = logging.getLogger("nqcalls.data")
 # Configuration
 # ---------------------------------------------------------------------------
 DATABENTO_API_KEY: Optional[str] = None   # Set to enable Databento for NQ/GC
+TWELVE_DATA_API_KEY = "fef556d1f9244c0f9db09cb9828c26a2"
 
 CACHE_TTL = 60  # seconds
 
@@ -163,7 +165,76 @@ def _resample_to_4h(df_60m: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# yfinance fetcher
+# Twelve Data fetcher (primary source for NQ / GC)
+# ---------------------------------------------------------------------------
+_TD_SYMBOL_MAP = {"NQ": "NQ/USD", "GC": "XAU/USD"}
+_TD_TF_MAP     = {"15m": "15min", "1h": "1h", "4h": "4h", "1d": "1day"}
+_TD_BAR_COUNT  = {"15m": 500, "1h": 500, "4h": 500, "1d": 730}
+
+
+def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
+    """Fetch OHLCV data via Twelve Data REST API for NQ or GC."""
+    symbol = _TD_SYMBOL_MAP.get(market)
+    if symbol is None:
+        logger.warning("No Twelve Data symbol for market %s", market)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    interval = _TD_TF_MAP.get(timeframe)
+    if interval is None:
+        logger.warning("No Twelve Data interval for timeframe %s", timeframe)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    outputsize = _TD_BAR_COUNT.get(timeframe, 500)
+
+    logger.info("TwelveData fetch: %s  interval=%s  bars=%d", symbol, interval, outputsize)
+
+    try:
+        resp = _requests.get(
+            "https://api.twelvedata.com/time_series",
+            params={
+                "symbol":     symbol,
+                "interval":   interval,
+                "outputsize": outputsize,
+                "apikey":     TWELVE_DATA_API_KEY,
+                "format":     "JSON",
+            },
+            timeout=15,
+        )
+        data = resp.json()
+
+        if data.get("status") == "error" or "values" not in data:
+            msg = data.get("message", "unknown error")
+            logger.warning("TwelveData error for %s %s: %s", market, timeframe, msg)
+            return pd.DataFrame(columns=_STANDARD_COLS)
+
+        values = data["values"]  # list of dicts: datetime, open, high, low, close, volume
+        if not values:
+            logger.warning("TwelveData returned empty values for %s %s", market, timeframe)
+            return pd.DataFrame(columns=_STANDARD_COLS)
+
+        df = pd.DataFrame(values)
+        df = df.rename(columns={
+            "datetime": "timestamp",
+            "open":     "Open",
+            "high":     "High",
+            "low":      "Low",
+            "close":    "Close",
+            "volume":   "Volume",
+        })
+        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+        df = df.set_index("timestamp")
+        df = _normalise_df(df)
+
+        logger.info("TwelveData got %d bars for %s %s", len(df), market, timeframe)
+        return df
+
+    except Exception as exc:
+        logger.warning("TwelveData exception for %s %s: %s", market, timeframe, exc)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+
+# ---------------------------------------------------------------------------
+# yfinance fetcher (backup for NQ / GC)
 # ---------------------------------------------------------------------------
 def _fetch_yfinance(market: str, timeframe: str) -> pd.DataFrame:
     """Fetch OHLCV data via yfinance for NQ or GC."""
@@ -351,10 +422,14 @@ def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
         return _fetch_crypto(market_upper, timeframe)
 
     if market_upper in _FUTURES_MARKETS:
-        if DATABENTO_API_KEY is not None:
-            return _fetch_databento(market_upper, timeframe)
-        else:
-            return _fetch_yfinance(market_upper, timeframe)
+        # Primary: Twelve Data (no rate limiting issues)
+        df = _fetch_twelvedata(market_upper, timeframe)
+        if df is not None and len(df) >= MIN_BARS:
+            logger.info("Using TwelveData for %s %s (%d bars)", market_upper, timeframe, len(df))
+            return df
+        # Fallback: yfinance
+        logger.info("TwelveData insufficient for %s %s, falling back to yfinance", market_upper, timeframe)
+        return _fetch_yfinance(market_upper, timeframe)
 
     logger.error("Unknown market: %s", market)
     return pd.DataFrame(columns=_STANDARD_COLS)
