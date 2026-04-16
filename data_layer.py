@@ -178,6 +178,7 @@ def _fetch_yfinance(market: str, timeframe: str) -> pd.DataFrame:
     logger.info("yfinance fetch: %s  interval=%s  period=%s", ticker, yf_interval, yf_period)
 
     try:
+        time.sleep(1)  # space out requests to avoid Yahoo rate limiting
         tk = yf.Ticker(ticker)
         df = tk.history(interval=yf_interval, period=yf_period, auto_adjust=True)
     except Exception as exc:
