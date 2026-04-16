@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+bot_log.txt
+data/dashboard.html
+*.bat
+.git/

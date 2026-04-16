@@ -1,0 +1,30 @@
+NQ CALLS DAILY REPORT
+Date: Sunday, April 12, 2026
+Generated: 13:09 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  0
+Closed today:        0
+Wins:                0
+Losses:              0
+Skipped:             0
+Still open:          0
+Today win rate:      0.0%
+
+ALL-TIME STATS
+------------------------------
+Total closed: 0
+All-time W/L: 0W / 0L (0.0% WR)
+
+ALL-TIME LEARNING FILE:
+------------------------------
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  No open trades.
+
+==================================================
+END OF REPORT
+Paste this into Claude to review and update bot settings.

@@ -1,0 +1,97 @@
+NQ CALLS DAILY REPORT
+Date: Monday, April 13, 2026
+Generated: 20:06 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  33
+Closed today:        30
+Wins:                12
+Losses:              18
+Skipped:             0
+Still open:          3
+Today win rate:      40.0%
+
+TODAY'S ALERTS:
+------------------------------
+  ❌ BTC | VWAP_REJECT_BEAR | SHORT | Conv:75 | RR:2.5 | Tier:MEDIUM | Entry:71011.68 Stop:71283.9554 Target:70330.9916 | Exit:71283.9554 | 2026-04-13 02:13
+  ❌ SOL | EMA50_BREAKDOWN | SHORT | Conv:80 | RR:3.25 | Tier:HIGH | Entry:82.06 Stop:82.2846 Target:81.33 | Exit:82.29 | 2026-04-13 02:13
+  ❌ SOL | VWAP_REJECT_BEAR | SHORT | Conv:72 | RR:2.5 | Tier:MEDIUM | Entry:82.06 Stop:82.4706 Target:81.0335 | Exit:82.4706 | 2026-04-13 02:13
+  ❌ SOL | VWAP_REJECT_BEAR | SHORT | Conv:80 | RR:2.5 | Tier:HIGH | Entry:81.98 Stop:82.4723 Target:80.7493 | Exit:82.4723 | 2026-04-13 02:43
+  ❌ BTC | VWAP_REJECT_BEAR | SHORT | Conv:75 | RR:2.5 | Tier:MEDIUM | Entry:71051.13 Stop:71357.225 Target:70285.8926 | Exit:71357.225 | 2026-04-13 03:14
+  ❌ SOL | VWAP_REJECT_BEAR | SHORT | Conv:80 | RR:2.5 | Tier:HIGH | Entry:81.87 Stop:82.5788 Target:80.098 | Exit:82.5788 | 2026-04-13 03:39
+  ❌ BTC | VWAP_REJECT_BEAR | SHORT | Conv:70 | RR:2.5 | Tier:MEDIUM | Entry:70998.23 Stop:71358.348 Target:70097.9351 | Exit:71358.348 | 2026-04-13 03:44
+  ✅ NQ | VWAP_BOUNCE_BULL | LONG | Conv:100 | RR:2.5 | Tier:HIGH | Entry:25060.5 Stop:24979.5734 Target:25262.8164 | Exit:25262.8164 | 2026-04-13 04:00
+  ❌ BTC | VWAP_REJECT_BEAR | SHORT | Conv:62 | RR:2.5 | Tier:LOW | Entry:70990.04 Stop:71232.4831 Target:70383.9322 | Exit:71232.4831 | 2026-04-13 04:15
+  ✅ NQ | VWAP_BOUNCE_BULL | LONG | Conv:93 | RR:2.5 | Tier:HIGH | Entry:25071.5 Stop:24933.4304 Target:25416.674 | Exit:25416.674 | 2026-04-13 04:30
+  ❌ BTC | VWAP_REJECT_BEAR | SHORT | Conv:67 | RR:2.5 | Tier:MEDIUM | Entry:71000.97 Stop:71234.538 Target:70417.0501 | Exit:71234.538 | 2026-04-13 04:45
+  ✅ NQ | VWAP_BOUNCE_BULL | LONG | Conv:93 | RR:2.5 | Tier:HIGH | Entry:25067.25 Stop:24933.4268 Target:25401.808 | Exit:25401.808 | 2026-04-13 05:01
+  ✅ NQ | VWAP_BOUNCE_BULL | LONG | Conv:100 | RR:2.5 | Tier:HIGH | Entry:25200.75 Stop:25059.6125 Target:25553.5938 | Exit:25553.5938 | 2026-04-13 13:46
+  ✅ BTC | VWAP_BOUNCE_BULL | LONG | Conv:92 | RR:2.5 | Tier:HIGH | Entry:71056.57 Stop:70695.4996 Target:71959.246 | Exit:71959.246 | 2026-04-13 13:46
+  ❌ SOL | APPROACH_RESIST | WATCH_SHORT | Conv:80 | RR:5.31 | Tier:HIGH | Entry:82.82 Stop:82.9555 Target:82.1 | Exit:82.9555 | 2026-04-13 13:46
+  ❌ BTC | APPROACH_RESIST | WATCH_SHORT | Conv:69 | RR:2.5 | Tier:MEDIUM | Entry:71408.84 Stop:71506.6834 Target:71164.2315 | Exit:71506.6834 | 2026-04-13 13:49
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:71 | RR:2.5 | Tier:MEDIUM | Entry:4750.6001 Stop:4721.2494 Target:4823.9768 | Exit:open | 2026-04-13 13:50
+  ✅ BTC | APPROACH_RESIST | WATCH_SHORT | Conv:62 | RR:2.06 | Tier:LOW | Entry:71856.79 Stop:71971.8227 Target:71619.94 | Exit:71619.94 | 2026-04-13 14:41
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:94 | RR:2.5 | Tier:HIGH | Entry:25293.25 Stop:25141.4027 Target:25672.8683 | Exit:open | 2026-04-13 14:51
+  ❌ SOL | APPROACH_RESIST | WATCH_SHORT | Conv:80 | RR:8.38 | Tier:HIGH | Entry:83.78 Stop:83.9804 Target:82.1 | Exit:83.9804 | 2026-04-13 14:56
+  ✅ BTC | VWAP_BOUNCE_BULL | LONG | Conv:86 | RR:2.5 | Tier:HIGH | Entry:72031.3 Stop:71354.7321 Target:73722.7198 | Exit:73722.7198 | 2026-04-13 15:09
+  ❌ SOL | VWAP_REJECT_BEAR | SHORT | Conv:85 | RR:2.5 | Tier:HIGH | Entry:82.47 Stop:83.005 Target:81.1324 | Exit:83.005 | 2026-04-13 15:51
+  ❌ GC | VWAP_REJECT_BEAR | SHORT | Conv:81 | RR:2.5 | Tier:HIGH | Entry:4732.5 Stop:4747.319 Target:4695.4524 | Exit:4747.319 | 2026-04-13 16:12
+  ❌ BTC | APPROACH_RESIST | WATCH_SHORT | Conv:65 | RR:4.2 | Tier:MEDIUM | Entry:72515.42 Stop:72743.0401 Target:71558.46 | Exit:72743.0401 | 2026-04-13 16:25
+  ✅ BTC | VWAP_BOUNCE_BULL | LONG | Conv:100 | RR:2.5 | Tier:HIGH | Entry:72117.92 Stop:71585.0255 Target:73450.1562 | Exit:73450.1562 | 2026-04-13 16:55
+  ❌ BTC | APPROACH_RESIST | WATCH_SHORT | Conv:65 | RR:7.39 | Tier:MEDIUM | Entry:72633.75 Stop:72770.9198 Target:71619.94 | Exit:72770.9198 | 2026-04-13 17:31
+  ✅ BTC | VWAP_BOUNCE_BULL | LONG | Conv:100 | RR:2.5 | Tier:HIGH | Entry:72192.44 Stop:71612.1214 Target:73643.2364 | Exit:73643.2364 | 2026-04-13 17:52
+  ❌ BTC | APPROACH_RESIST | WATCH_SHORT | Conv:65 | RR:5.12 | Tier:MEDIUM | Entry:72743.21 Stop:72974.5396 Target:71558.46 | Exit:72974.5396 | 2026-04-13 19:21
+  ❌ SOL | APPROACH_RESIST | WATCH_SHORT | Conv:80 | RR:7.03 | Tier:HIGH | Entry:83.96 Stop:84.1522 Target:82.61 | Exit:84.1522 | 2026-04-13 19:46
+  ✅ SOL | APPROACH_RESIST | WATCH_SHORT | Conv:70 | RR:2.64 | Tier:MEDIUM | Entry:84.41 Stop:84.5992 Target:83.91 | Exit:83.91 | 2026-04-13 21:13
+  ✅ SOL | APPROACH_RESIST | WATCH_SHORT | Conv:92 | RR:3.68 | Tier:HIGH | Entry:84.61 Stop:84.8002 Target:83.91 | Exit:83.91 | 2026-04-13 22:13
+  ✅ BTC | APPROACH_RESIST | WATCH_SHORT | Conv:62 | RR:7.79 | Tier:LOW | Entry:74480.0 Stop:74639.5622 Target:73236.98 | Exit:73236.98 | 2026-04-13 22:26
+  🔄 SOL | APPROACH_RESIST | WATCH_SHORT | Conv:100 | RR:5.87 | Tier:HIGH | Entry:86.59 Stop:86.8369 Target:85.14 | Exit:open | 2026-04-13 23:13
+
+SETUP BREAKDOWN TODAY:
+------------------------------
+  BTC:APPROACH_RESIST: 2W / 4L (33% WR)
+  BTC:VWAP_BOUNCE_BULL: 4W / 0L (100% WR)
+  BTC:VWAP_REJECT_BEAR: 0W / 5L (0% WR)
+  GC:VWAP_REJECT_BEAR: 0W / 1L (0% WR)
+  NQ:VWAP_BOUNCE_BULL: 4W / 0L (100% WR)
+  SOL:APPROACH_RESIST: 2W / 3L (40% WR)
+  SOL:EMA50_BREAKDOWN: 0W / 1L (0% WR)
+  SOL:VWAP_REJECT_BEAR: 0W / 4L (0% WR)
+
+ALL-TIME STATS
+------------------------------
+Total closed: 30
+All-time W/L: 12W / 18L (40.0% WR)
+
+LEARNING UPDATES TODAY:
+------------------------------
+  BTC:APPROACH_RESIST: 33.3% WR over 6 trades → Conv adj: -15
+  BTC:VWAP_BOUNCE_BULL: 100.0% WR over 4 trades → Conv adj: 0
+  BTC:VWAP_REJECT_BEAR: 0.0% WR over 5 trades → Conv adj: -15
+  GC:VWAP_REJECT_BEAR: 0.0% WR over 1 trades → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 100.0% WR over 4 trades → Conv adj: 0
+  SOL:APPROACH_RESIST: 40.0% WR over 5 trades → Conv adj: -8
+  SOL:VWAP_REJECT_BEAR: 0.0% WR over 4 trades → Conv adj: 0
+
+ALL-TIME LEARNING FILE:
+------------------------------
+  BTC:APPROACH_RESIST: 2W/4L (33.3% WR) → Conv adj: -15
+  BTC:VWAP_REJECT_BEAR: 0W/5L (0.0% WR) → Conv adj: -15
+  SOL:APPROACH_RESIST: 2W/3L (40.0% WR) → Conv adj: -8
+  SOL:VWAP_REJECT_BEAR: 0W/4L (0.0% WR) → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 4W/0L (100.0% WR) → Conv adj: 0
+  BTC:VWAP_BOUNCE_BULL: 4W/0L (100.0% WR) → Conv adj: 0
+  SOL:EMA50_BREAKDOWN: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:VWAP_REJECT_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  🔄 GC | VWAP_BOUNCE_BULL | Entry:4750.6001 Target:4823.9768 | ID:5b90c61f03 | 2026-04-13 13:50
+  🔄 NQ | VWAP_BOUNCE_BULL | Entry:25293.25 Target:25672.8683 | ID:bb1cfa6171 | 2026-04-13 14:51
+  🔄 SOL | APPROACH_RESIST | Entry:86.59 Target:85.14 | ID:fe2759ac51 | 2026-04-13 23:13
+
+==================================================
+END OF REPORT
+Paste this into Claude to review and update bot settings.

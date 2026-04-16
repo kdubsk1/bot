@@ -1,0 +1,18 @@
+{
+  "NQ:mean_rev_long": {
+    "expiry": "2026-04-15T10:06:29.163449+00:00",
+    "reason": "LOSS"
+  },
+  "BTC:cont_long": {
+    "expiry": "2026-04-15T08:51:28.303052+00:00",
+    "reason": "LOSS"
+  },
+  "BTC:mean_rev_long": {
+    "expiry": "2026-04-15T08:55:00.062994+00:00",
+    "reason": "LOSS"
+  },
+  "BTC:cont_short": {
+    "expiry": "2026-04-15T09:29:07.239332+00:00",
+    "reason": "LOSS"
+  }
+}

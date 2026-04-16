@@ -1,0 +1,68 @@
+{
+  "UNKNOWN|||UNKNOWN": {
+    "wins": 0,
+    "losses": 0,
+    "total_win_r": 0.0,
+    "total_loss_r": 0.0
+  },
+  "UNKNOWN|||ALL": {
+    "wins": 0,
+    "losses": 0,
+    "total_win_r": 0.0,
+    "total_loss_r": 0.0
+  },
+  "APPROACH_SUPPORT|||HH_HL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "APPROACH_SUPPORT|||ALL": {
+    "wins": 0,
+    "losses": 2,
+    "total_win_r": 0.0,
+    "total_loss_r": 2.0
+  },
+  "EMA21_PULLBACK_BULL|||MIXED": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "EMA21_PULLBACK_BULL|||ALL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "APPROACH_SUPPORT|||MIXED": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "BREAK_RETEST_BEAR|||MIXED": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "BREAK_RETEST_BEAR|||ALL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "VWAP_BOUNCE_BULL|||HH_HL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "VWAP_BOUNCE_BULL|||ALL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  }
+}

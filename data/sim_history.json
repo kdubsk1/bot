@@ -1,0 +1,20 @@
+[
+  {
+    "date": "2026-04-13",
+    "pnl": 7470.97,
+    "trades": 21,
+    "wins": 7,
+    "losses": 14,
+    "balance": 57470.75,
+    "preset": "50k"
+  },
+  {
+    "date": "2026-04-14",
+    "pnl": 15184.73,
+    "trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "balance": 72655.48,
+    "preset": "50k"
+  }
+]

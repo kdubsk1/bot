@@ -1,0 +1,93 @@
+NQ CALLS DAILY REPORT
+Date: Tuesday, April 14, 2026
+Generated: 20:00 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  18
+Closed today:        17
+Wins:                1
+Losses:              16
+Skipped:             0
+Still open:          1
+Today win rate:      5.9%
+
+TODAY'S ALERTS:
+------------------------------
+  ❌ SOL | VWAP_REJECT_BEAR | SHORT | Conv:93 | RR:3.13 | Tier:HIGH | Entry:86.45 Stop:86.8681 Target:85.14 | Exit:86.8681 | 2026-04-14 00:06
+  ❌ SOL | APPROACH_RESIST | WATCH_SHORT | Conv:85 | RR:7.09 | Tier:HIGH | Entry:86.83 Stop:87.0682 Target:85.14 | Exit:87.0682 | 2026-04-14 00:16
+  ❌ SOL | VWAP_REJECT_BEAR | SHORT | Conv:95 | RR:2.52 | Tier:HIGH | Entry:86.07 Stop:86.9597 Target:83.83 | Exit:86.9597 | 2026-04-14 01:23
+  ✅ BTC | EMA21_PULLBACK_BULL | LONG | Conv:77 | RR:3.7 | Tier:MEDIUM | Entry:74300.0 Stop:74127.8962 Target:74936.9 | Exit:74936.9 | 2026-04-14 03:29
+  ❌ NQ | EMA21_PULLBACK_BULL | LONG | Conv:91 | RR:3.35 | Tier:HIGH | Entry:25577.5 Stop:25565.0427 Target:25619.25 | Exit:25565.0427 | 2026-04-14 03:39
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:72 | RR:2.7 | Tier:MEDIUM | Entry:74418.81 Stop:74227.0676 Target:74936.9 | Exit:74227.0676 | 2026-04-14 03:39
+  ❌ NQ | VWAP_BOUNCE_BULL | LONG | Conv:78 | RR:2.59 | Tier:MEDIUM | Entry:25584.75 Stop:25571.4447 Target:25619.25 | Exit:25571.4447 | 2026-04-14 03:59
+  ❌ BTC | EMA21_PULLBACK_BULL | LONG | Conv:91 | RR:2.72 | Tier:HIGH | Entry:74442.57 Stop:74261.0448 Target:74936.9 | Exit:74261.0448 | 2026-04-14 04:50
+  ❌ BTC | BREAK_RETEST_BULL | LONG | Conv:80 | RR:7.12 | Tier:HIGH | Entry:74814.0 Stop:74831.2627 Target:74936.9 | Exit:74831.2627 | 2026-04-14 15:11
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:95 | RR:1.57 | Tier:HIGH | Entry:75302.88 Stop:74777.955 Target:76127.18 | Exit:74777.955 | 2026-04-14 15:45
+  ❌ BTC | BREAK_RETEST_BULL | LONG | Conv:75 | RR:2.93 | Tier:MEDIUM | Entry:75418.19 Stop:75176.3843 Target:76127.18 | Exit:75176.3843 | 2026-04-14 16:00
+  ❌ BTC | EMA21_PULLBACK_BULL | LONG | Conv:80 | RR:3.98 | Tier:HIGH | Entry:75221.46 Stop:74993.7962 Target:76127.18 | Exit:74993.7962 | 2026-04-14 16:46
+  ❌ BTC | EMA50_RECLAIM | LONG | Conv:80 | RR:5.7 | Tier:HIGH | Entry:74783.59 Stop:74547.8638 Target:76127.18 | Exit:74547.8638 | 2026-04-14 17:05
+  ❌ BTC | EMA50_RECLAIM | LONG | Conv:80 | RR:6.09 | Tier:HIGH | Entry:74715.31 Stop:74546.2334 Target:75745.59 | Exit:74546.2334 | 2026-04-14 17:50
+  ❌ BTC | EMA21_PULLBACK_BULL | LONG | Conv:90 | RR:2.45 | Tier:HIGH | Entry:74357.69 Stop:74121.2178 Target:74936.9 | Exit:74121.2178 | 2026-04-14 18:37
+  ❌ BTC | APPROACH_SUPPORT | WATCH_LONG | Conv:75 | RR:3.87 | Tier:MEDIUM | Entry:73874.42 Stop:73700.6909 Target:74546.13 | Exit:73700.6909 | 2026-04-14 18:57
+  ❌ NQ | BREAK_RETEST_BULL | LONG | Conv:78 | RR:11.35 | Tier:MEDIUM | Entry:25926.0 Stop:25922.1901 Target:25969.25 | Exit:25922.1901 | 2026-04-14 19:12
+  🔄 BTC | EMA21_PULLBACK_BULL | LONG | Conv:100 | RR:2.9 | Tier:HIGH | Entry:74315.17 Stop:73690.9726 Target:76127.18 | Exit:open | 2026-04-14 19:56
+
+SETUP BREAKDOWN TODAY:
+------------------------------
+  BTC:APPROACH_SUPPORT: 0W / 1L (0% WR)
+  BTC:BREAK_RETEST_BULL: 0W / 2L (0% WR)
+  BTC:EMA21_PULLBACK_BULL: 1W / 3L (25% WR)
+  BTC:EMA50_RECLAIM: 0W / 2L (0% WR)
+  BTC:VWAP_BOUNCE_BULL: 0W / 2L (0% WR)
+  NQ:BREAK_RETEST_BULL: 0W / 1L (0% WR)
+  NQ:EMA21_PULLBACK_BULL: 0W / 1L (0% WR)
+  NQ:VWAP_BOUNCE_BULL: 0W / 1L (0% WR)
+  SOL:APPROACH_RESIST: 0W / 1L (0% WR)
+  SOL:VWAP_REJECT_BEAR: 0W / 2L (0% WR)
+
+ALL-TIME STATS
+------------------------------
+Total closed: 50
+All-time W/L: 15W / 35L (30.0% WR)
+
+LEARNING UPDATES TODAY:
+------------------------------
+  BTC:APPROACH_SUPPORT: 0.0% WR over 1 trades → Conv adj: 0
+  BTC:BREAK_RETEST_BULL: 0.0% WR over 2 trades → Conv adj: 0
+  BTC:EMA21_PULLBACK_BULL: 25.0% WR over 4 trades → Conv adj: 0
+  BTC:EMA50_RECLAIM: 0.0% WR over 2 trades → Conv adj: 0
+  BTC:VWAP_BOUNCE_BULL: 66.7% WR over 6 trades → Conv adj: +8
+  GC:VWAP_BOUNCE_BULL: 100.0% WR over 1 trades → Conv adj: 0
+  NQ:BREAK_RETEST_BULL: 0.0% WR over 1 trades → Conv adj: 0
+  NQ:EMA21_PULLBACK_BULL: 0.0% WR over 1 trades → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 83.3% WR over 6 trades → Conv adj: +15
+  SOL:APPROACH_RESIST: 28.6% WR over 7 trades → Conv adj: -15
+  SOL:VWAP_REJECT_BEAR: 0.0% WR over 6 trades → Conv adj: -15
+
+ALL-TIME LEARNING FILE:
+------------------------------
+  SOL:APPROACH_RESIST: 2W/5L (28.6% WR) → Conv adj: -15
+  SOL:VWAP_REJECT_BEAR: 0W/6L (0.0% WR) → Conv adj: -15
+  BTC:APPROACH_RESIST: 2W/4L (33.3% WR) → Conv adj: -15
+  NQ:VWAP_BOUNCE_BULL: 5W/1L (83.3% WR) → Conv adj: +15
+  BTC:VWAP_BOUNCE_BULL: 4W/2L (66.7% WR) → Conv adj: +8
+  BTC:VWAP_REJECT_BEAR: 0W/5L (0.0% WR) → Conv adj: -15
+  BTC:EMA21_PULLBACK_BULL: 1W/3L (25.0% WR) → Conv adj: 0
+  BTC:BREAK_RETEST_BULL: 0W/2L (0.0% WR) → Conv adj: 0
+  BTC:EMA50_RECLAIM: 0W/2L (0.0% WR) → Conv adj: 0
+  SOL:EMA50_BREAKDOWN: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:VWAP_REJECT_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+  NQ:EMA21_PULLBACK_BULL: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:VWAP_BOUNCE_BULL: 1W/0L (100.0% WR) → Conv adj: 0
+  BTC:APPROACH_SUPPORT: 0W/1L (0.0% WR) → Conv adj: 0
+  NQ:BREAK_RETEST_BULL: 0W/1L (0.0% WR) → Conv adj: 0
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  🔄 BTC | EMA21_PULLBACK_BULL | Entry:74315.17 Target:76127.18 | ID:23ef337051 | 2026-04-14 19:56
+
+==================================================
+END OF REPORT
+Paste this into Claude to review and update bot settings.

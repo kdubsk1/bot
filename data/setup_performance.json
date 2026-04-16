@@ -1,0 +1,121 @@
+{
+  "SOL:EMA50_BREAKDOWN": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-12T22:28:34.924032"
+  },
+  "BTC:VWAP_REJECT_BEAR": {
+    "wins": 0,
+    "losses": 5,
+    "total": 5,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-13T09:49:22.717365"
+  },
+  "SOL:VWAP_REJECT_BEAR": {
+    "wins": 0,
+    "losses": 6,
+    "total": 6,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-14T10:56:01.114457"
+  },
+  "SOL:APPROACH_RESIST": {
+    "wins": 2,
+    "losses": 5,
+    "total": 7,
+    "win_rate": 28.6,
+    "last_updated": "2026-04-14T10:56:01.112407"
+  },
+  "BTC:APPROACH_RESIST": {
+    "wins": 2,
+    "losses": 4,
+    "total": 6,
+    "win_rate": 33.3,
+    "last_updated": "2026-04-13T18:27:29.951007"
+  },
+  "NQ:VWAP_BOUNCE_BULL": {
+    "wins": 5,
+    "losses": 2,
+    "total": 7,
+    "win_rate": 71.4,
+    "last_updated": "2026-04-15T04:36:28.758147"
+  },
+  "BTC:VWAP_BOUNCE_BULL": {
+    "wins": 4,
+    "losses": 2,
+    "total": 6,
+    "win_rate": 66.7,
+    "last_updated": "2026-04-14T11:50:53.833753"
+  },
+  "GC:VWAP_REJECT_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-13T12:30:22.508004"
+  },
+  "NQ:EMA21_PULLBACK_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-14T09:22:39.647398"
+  },
+  "BTC:EMA21_PULLBACK_BULL": {
+    "wins": 1,
+    "losses": 4,
+    "total": 5,
+    "win_rate": 20.0,
+    "last_updated": "2026-04-15T03:21:27.899941"
+  },
+  "GC:VWAP_BOUNCE_BULL": {
+    "wins": 1,
+    "losses": 0,
+    "total": 1,
+    "win_rate": 100.0,
+    "last_updated": "2026-04-14T10:56:00.500749"
+  },
+  "BTC:BREAK_RETEST_BULL": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-14T12:06:02.689023"
+  },
+  "BTC:EMA50_RECLAIM": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-14T13:51:13.768600"
+  },
+  "BTC:APPROACH_SUPPORT": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-15T03:24:59.554197"
+  },
+  "NQ:BREAK_RETEST_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-14T15:17:11.543378"
+  },
+  "NQ:APPROACH_SUPPORT": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-15T01:41:25.433836"
+  },
+  "BTC:BREAK_RETEST_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-15T03:59:06.823035"
+  }
+}

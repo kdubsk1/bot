@@ -1,0 +1,24 @@
+# Logs
+bot_log.txt
+data/crash_log.txt
+
+# Sensitive config — set these as Railway env vars instead
+# config.py  (keep this — Railway needs it, env vars override values inside)
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Data files that reset each session — don't deploy these
+data/sim_account.json
+data/dashboard.html
+
+# Archive data — too large, stays local
+data/archive/
+
+# Keep these data files (they are the bot's brain)
+# data/setup_performance.json
+# data/edge_estimates.json
+# data/suspended_setups.json
+# data/strategy_log.csv

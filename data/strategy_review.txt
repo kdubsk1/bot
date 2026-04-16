@@ -1,0 +1,237 @@
+============================================================
+  NQ CALLS AUTO STRATEGY REVIEW
+  Period: last 30 days
+  Generated: 2026-04-13 22:42
+============================================================
+
+OVERVIEW
+----------------------------------------
+  Total scan decisions:      1253
+  FIRED (alerts sent):       36
+  REJECTED (filtered out):   1187
+  ALMOST (close call):       30
+
+  Real trades: 12W / 18L (40.0% WR)
+
+  Rejected that WOULD HAVE WON:   213
+  Rejected that WOULD HAVE LOST:  484
+  Rejected unresolved:             520
+
+  FILTER ACCURACY: 69.4%
+  (% of rejected setups that correctly would have lost)
+  >> Filters are OK but missing some winners
+
+============================================================
+SECTION 1: MISSED WINNERS — WHY?
+============================================================
+
+MISSED WINNERS BY REJECTION REASON:
+----------------------------------------
+  [ 28x] ( 13.1%)  RR 2.5 < min 3.5
+  [ 21x] (  9.9%)  ADX 12.7 < min 18
+  [ 20x] (  9.4%)  RR 2.5 < min 4.0
+  [ 14x] (  6.6%)  Conv 41 < min 65
+  [ 10x] (  4.7%)  Conv 37 < min 62
+  [  9x] (  4.2%)  ADX 13.5 < min 18
+  [  9x] (  4.2%)  Conv 42 < min 62
+  [  8x] (  3.8%)  Conv 22 < min 62
+  [  6x] (  2.8%)  Conv 45 < min 62
+  [  5x] (  2.3%)  RR 2.5 < min 5.0
+  [  5x] (  2.3%)  Conv 37 < min 65
+  [  5x] (  2.3%)  RR 1.61 < min 2.0
+  [  5x] (  2.3%)  Conv 30 < min 62
+  [  5x] (  2.3%)  Conv 50 < min 62
+  [  4x] (  1.9%)  RR 1.6 < min 2.5
+  [  4x] (  1.9%)  Conv 57 < min 62
+  [  3x] (  1.4%)  ADX 21.2 < min 22
+  [  3x] (  1.4%)  ADX 12.4 < min 18
+  [  3x] (  1.4%)  Conv 35 < min 65
+  [  2x] (  0.9%)  ADX 16.6 < min 22
+  [  2x] (  0.9%)  ADX 13.4 < min 18
+  [  2x] (  0.9%)  ADX 13.3 < min 18
+  [  2x] (  0.9%)  ADX 13.3 < min 22
+  [  2x] (  0.9%)  ADX 20.4 < min 22
+  [  2x] (  0.9%)  RR 2.05 < min 2.5
+  [  2x] (  0.9%)  RR 2.09 < min 2.5
+  [  2x] (  0.9%)  Conv 31 < min 65
+  [  2x] (  0.9%)  Conv 36 < min 65
+  [  2x] (  0.9%)  Conv 40 < min 62
+  [  2x] (  0.9%)  Conv 53 < min 65
+  [  2x] (  0.9%)  Conv 43 < min 65
+  [  1x] (  0.5%)  RR 1.67 < min 2.0
+  [  1x] (  0.5%)  RR 1.66 < min 2.0
+  [  1x] (  0.5%)  ADX 17.7 < min 22
+  [  1x] (  0.5%)  ADX 16.9 < min 22
+  [  1x] (  0.5%)  ADX 12.8 < min 18
+  [  1x] (  0.5%)  ADX 12.9 < min 18
+  [  1x] (  0.5%)  ADX 15.2 < min 22
+  [  1x] (  0.5%)  ADX 15.5 < min 22
+  [  1x] (  0.5%)  ADX 21.4 < min 22
+  [  1x] (  0.5%)  ADX 15.7 < min 22
+  [  1x] (  0.5%)  ADX 21.3 < min 22
+  [  1x] (  0.5%)  ADX 15.9 < min 22
+  [  1x] (  0.5%)  ADX 14.2 < min 22
+  [  1x] (  0.5%)  ADX 19.9 < min 22
+  [  1x] (  0.5%)  RR 1.56 < min 3.5
+  [  1x] (  0.5%)  Conv 40 < min 65
+  [  1x] (  0.5%)  Conv 48 < min 65
+  [  1x] (  0.5%)  Conv 27 < min 65
+  [  1x] (  0.5%)  RR 1.83 < min 2.0
+  [  1x] (  0.5%)  RR 1.51 < min 2.5
+  [  1x] (  0.5%)  Conv 35 < min 62
+  [  1x] (  0.5%)  Conv 60 < min 62
+
+MISSED WINNERS BY SETUP:
+----------------------------------------
+  BTC:APPROACH_RESIST: 55 missed wins
+    Top reason: Conv 37 < min 62
+    Avg ADX: 40.8 | RSI: 71.7 | Conv: 35
+  NQ:APPROACH_RESIST: 41 missed wins
+    Top reason: Conv 41 < min 65
+    Avg ADX: 27.2 | RSI: 72.5 | Conv: 32
+  GC:VWAP_BOUNCE_BULL: 39 missed wins
+    Top reason: ADX 12.7 < min 18
+    Avg ADX: 12.9 | RSI: 48.3 | Conv: 0
+  BTC:VWAP_BOUNCE_BULL: 31 missed wins
+    Top reason: RR 2.5 < min 3.5
+    Avg ADX: 29.0 | RSI: 48.7 | Conv: 2
+  NQ:VWAP_BOUNCE_BULL: 20 missed wins
+    Top reason: RR 2.5 < min 4.0
+    Avg ADX: 16.4 | RSI: 55.9 | Conv: 0
+  SOL:VWAP_BOUNCE_BULL: 19 missed wins
+    Top reason: ADX 21.2 < min 22
+    Avg ADX: 17.8 | RSI: 50.0 | Conv: 0
+  SOL:APPROACH_RESIST: 6 missed wins
+    Top reason: RR 2.5 < min 5.0
+    Avg ADX: 16.1 | RSI: 56.8 | Conv: 0
+  BTC:EMA50_BREAKDOWN: 1 missed wins
+    Top reason: RR 1.67 < min 2.0
+    Avg ADX: 21.4 | RSI: 48.4 | Conv: 0
+  BTC:VWAP_REJECT_BEAR: 1 missed wins
+    Top reason: RR 1.66 < min 2.0
+    Avg ADX: 38.4 | RSI: 41.5 | Conv: 0
+
+MISSED WINNERS BY TIMEFRAME:
+----------------------------------------
+  1h: 91 missed
+  15m: 83 missed
+  4h: 39 missed
+
+============================================================
+SECTION 2: ALMOST SETUPS (CLOSE CALLS)
+============================================================
+
+  Total ALMOST decisions: 30
+  Would have won:  5
+  Would have lost: 6
+  ALMOST win rate: 45.5%
+
+  What blocked these potential winners:
+    [4x] Conv 57 < min 62
+    [1x] Conv 60 < min 62
+
+============================================================
+SECTION 3: INDICATOR PATTERNS
+============================================================
+
+FIRED TRADES — WINNING vs LOSING INDICATOR PROFILE:
+----------------------------------------
+  Winners : ADX  29.5 | RSI  57.7 | Conv    88 | RR  3.0 | Vol  1.5 | Trend  +2.2
+  Losers  : ADX  27.0 | RSI  52.6 | Conv    74 | RR  3.8 | Vol  0.5 | Trend  -4.8
+
+  >> VOLUME INSIGHT: Winners have 1.5x vol vs losers 0.5x
+     Volume confirmation is working — keep the vol filter
+  >> CONVICTION INSIGHT: Winners avg 88 vs losers 74
+     Higher conviction = better trades. Consider raising MIN_CONVICTION
+
+============================================================
+SECTION 4: MARKET-SPECIFIC FINDINGS
+============================================================
+
+  BTC:
+    Scans: 245 | Fired: 15 | Rejected: 230
+    Real W/L: 6W/9L (40.0% WR)
+    Missed wins: 88 | Missed losses: 104
+    Top missed reason: RR 2.5 < min 3.5
+    [-] VWAP_REJECT_BEAR: 0.0% WR over 5 trades
+    [-] APPROACH_RESIST: 33.3% WR over 6 trades
+
+  GC:
+    Scans: 350 | Fired: 2 | Rejected: 348
+    Real W/L: 0W/1L (0.0% WR)
+    Missed wins: 39 | Missed losses: 2
+    Top missed reason: ADX 12.7 < min 18
+
+  NQ:
+    Scans: 564 | Fired: 5 | Rejected: 559
+    Real W/L: 4W/0L (100.0% WR)
+    Missed wins: 61 | Missed losses: 353
+    Top missed reason: RR 2.5 < min 4.0
+
+  SOL:
+    Scans: 94 | Fired: 14 | Rejected: 80
+    Real W/L: 2W/8L (20.0% WR)
+    Missed wins: 25 | Missed losses: 25
+    Top missed reason: RR 2.5 < min 5.0
+    [-] APPROACH_RESIST: 40.0% WR over 5 trades
+
+============================================================
+SECTION 5: ACTIONABLE SUGGESTIONS
+============================================================
+
+  1. LOWER ADX THRESHOLDS FOR SPECIFIC SETUPS
+     58 setups were rejected for low ADX but would have won.
+     Average ADX of missed winners: 14.5
+     -> GC:VWAP_BOUNCE_BULL: 39x missed, avg ADX 12.9
+        ACTION: Lower ADX_MIN_BY_SETUP['VWAP_BOUNCE_BULL'] to 10 in market_GC.py
+     -> SOL:VWAP_BOUNCE_BULL: 19x missed, avg ADX 17.8
+        ACTION: Lower ADX_MIN_BY_SETUP['VWAP_BOUNCE_BULL'] to 15 in market_SOL.py
+  
+  2. LOWER MINIMUM CONVICTION
+     84 setups rejected for low conviction but would have won.
+     Average conviction of missed winners: 39
+     ACTION: Consider lowering MIN_CONVICTION by 3-5 points for markets with high missed count
+  
+  3. ADJUST R:R THRESHOLDS
+     71 setups rejected for low R:R but would have won.
+     Average R:R of missed winners: 2.30
+     ACTION: Consider lowering MIN_RR by 0.5 or adjusting dynamic R:R tiers
+  
+  4. THESE SETUPS ARE BEING OVER-FILTERED:
+     GC:VWAP_BOUNCE_BULL: 39 would-win / 0 would-lose (100.0% WR)
+     ACTION: Loosen filters specifically for this market:setup combo
+     BTC:VWAP_BOUNCE_BULL: 31 would-win / 0 would-lose (100.0% WR)
+     ACTION: Loosen filters specifically for this market:setup combo
+     NQ:VWAP_BOUNCE_BULL: 20 would-win / 0 would-lose (100.0% WR)
+     ACTION: Loosen filters specifically for this market:setup combo
+     SOL:VWAP_BOUNCE_BULL: 19 would-win / 1 would-lose (95.0% WR)
+     ACTION: Loosen filters specifically for this market:setup combo
+     SOL:APPROACH_RESIST: 6 would-win / 5 would-lose (54.5% WR)
+     ACTION: Loosen filters specifically for this market:setup combo
+  
+  5. RESTRICT LOSING SETUP: BTC:VWAP_REJECT_BEAR
+     Only 0.0% WR over 5 trades
+     ACTION: Raise MIN_ADX or MIN_CONVICTION for this setup,
+             or add specific conditions before it can fire
+  
+  6. RESTRICT LOSING SETUP: BTC:APPROACH_RESIST
+     Only 33.3% WR over 6 trades
+     ACTION: Raise MIN_ADX or MIN_CONVICTION for this setup,
+             or add specific conditions before it can fire
+  
+
+============================================================
+QUICK SUMMARY
+============================================================
+
+  Scans analyzed:        1253
+  Fired:                 36
+  Rejected:              1217
+  Real win rate:         40.0%
+  Missed winners:        213
+  Good rejections:       484
+  Suggestions generated: 6
+
+============================================================
+  Paste this to Claude to review and update strategy files.
+============================================================

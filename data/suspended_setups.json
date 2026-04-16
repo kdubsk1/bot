@@ -1,0 +1,32 @@
+{
+  "BTC:VWAP_REJECT_BEAR": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238908+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0
+  },
+  "SOL:VWAP_REJECT_BEAR": {
+    "reason": "0W/6L (0.0% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238921+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 0.0
+  },
+  "SOL:APPROACH_RESIST": {
+    "reason": "2W/5L (28.6% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238931+00:00",
+    "total_at_suspension": 7,
+    "wr_at_suspension": 28.6
+  },
+  "BTC:APPROACH_RESIST": {
+    "reason": "2W/4L (33.3% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238938+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 33.3
+  },
+  "BTC:EMA21_PULLBACK_BULL": {
+    "reason": "1W/4L (20.0% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238945+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 20.0
+  }
+}
