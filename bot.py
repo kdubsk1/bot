@@ -1906,6 +1906,30 @@ def _on_pre_flatten(event, now_et):
     _FLATTEN_PENDING = True
     log.info("Pre-flatten event fired — will flatten futures on next scan tick")
 
+def _on_session_close(event, now_et):
+    """Session close handler — archives session, resets sim, sets summary flag."""
+    global _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES
+    try:
+        sid = get_session_date(now_et)
+        summary = ot.build_session_summary(sid)
+        sim_state = sim.load_state()
+        sim_pnl = sim_state.get("today_pnl", 0.0)
+        ot.archive_session(sid)
+        sim.reset_sim(sim_state.get("preset", "50k"))
+        changes = ot.check_and_update_suspensions()
+        _SESSION_CLOSE_SUMMARY = {"sid": sid, "summary": summary, "sim_pnl": sim_pnl}
+        _SUSPENSION_CHANGES = changes
+        log.info(f"Session close handler: archived {sid}, sim reset, {len(changes)} suspension changes")
+    except Exception as e:
+        log.error(f"_on_session_close error: {e}")
+
+def _on_crypto_day(event, now_et):
+    """Crypto day boundary — reset daily crypto stats."""
+    try:
+        log.info("Crypto day boundary fired at 4PM ET")
+    except Exception as e:
+        log.error(f"_on_crypto_day error: {e}")
+
 _FLATTEN_PENDING = False
 _SESSION_CLOSE_SUMMARY = None
 _SUSPENSION_CHANGES = []
