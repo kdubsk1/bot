@@ -550,3 +550,121 @@ def reset_sizer():
     global _SIZER, _EDGE_TRACKER
     _SIZER = None
     _EDGE_TRACKER = None
+
+
+# ── Eval mode ────────────────────────────────────────────────────
+_EVAL_MODE = True  # Default ON — we are in Topstep eval
+
+def set_eval_mode(enabled: bool):
+    global _EVAL_MODE
+    _EVAL_MODE = enabled
+
+def get_eval_mode() -> bool:
+    return _EVAL_MODE
+
+
+class EvalPositionSizer:
+    """
+    Topstep eval-safe wrapper around PositionSizer.
+    When EVAL_MODE is True, applies additional safety constraints:
+      - Eighth-Kelly instead of quarter-Kelly
+      - Max 1% of trailing drawdown cushion per trade
+      - Cushion-based MNQ caps (0/1/2/3)
+      - 3 trades per session max
+      - $150 daily profit lock
+    """
+
+    def __init__(self):
+        # Use eighth-Kelly config
+        self._sizer = PositionSizer({
+            'kelly_fraction_low': 0.125,   # eighth-Kelly
+            'kelly_fraction_high': 0.25,   # quarter-Kelly after 100 trades
+            'max_dd_fraction': 0.01,       # 1% of cushion max
+            'absolute_max': 3,             # hard cap 3 MNQ during eval
+        })
+        self._daily_trade_count = 0
+        self._daily_pnl = 0.0
+        self._session_date = ""
+
+    def _check_session_reset(self):
+        """Reset daily counters if session changed."""
+        try:
+            from session_clock import get_session_date
+            current = get_session_date()
+        except Exception:
+            from datetime import datetime
+            current = datetime.now().strftime("%Y-%m-%d")
+        if current != self._session_date:
+            self._session_date = current
+            self._daily_trade_count = 0
+            self._daily_pnl = 0.0
+
+    def record_trade(self, pnl_dollars: float):
+        """Call after each trade closes to track daily stats."""
+        self._check_session_reset()
+        self._daily_trade_count += 1
+        self._daily_pnl += pnl_dollars
+
+    def calculate(self, balance: float, dd_floor: float, **kwargs) -> dict:
+        """
+        Wraps PositionSizer.calculate() with eval-mode gates.
+        dd_floor for Topstep 50k eval = 48000 (balance - max_trailing_dd).
+        """
+        self._check_session_reset()
+
+        cushion = balance - dd_floor
+
+        # Gate 1: Too close to bust
+        if cushion < 800:
+            return self._reject("cushion_below_800", kwargs.get('market', '?'))
+
+        # Gate 2: Daily trade limit
+        if self._daily_trade_count >= 3:
+            return self._reject("max_3_trades_per_session", kwargs.get('market', '?'))
+
+        # Gate 3: Profit lock
+        if self._daily_pnl >= 150:
+            return self._reject("daily_profit_locked_150", kwargs.get('market', '?'))
+
+        # Run the normal sizer
+        result = self._sizer.calculate(balance=balance, dd_floor=dd_floor, **kwargs)
+
+        if result.get('rejected'):
+            return result
+
+        # Cushion-based MNQ cap
+        contracts = result['contracts']
+        if cushion < 1200:
+            contracts = min(contracts, 1)
+        elif cushion < 2000:
+            contracts = min(contracts, 2)
+        else:
+            contracts = min(contracts, 3)
+
+        result['contracts'] = contracts
+        result['dollar_risk'] = round(contracts * result.get('risk_per_contract', 0), 2)
+        result['reasoning'] = f"EVAL: {result['reasoning']} | cushion=${cushion:.0f} cap={contracts}mnq"
+        return result
+
+    def _reject(self, reason: str, market: str) -> dict:
+        return {
+            'contracts': 0,
+            'instrument': 'MNQ',
+            'rejected': True,
+            'reject_reason': f"EVAL: {reason}",
+            'dollar_risk': 0,
+            'cushion_pct': 0,
+            'cushion_remaining': 0,
+            'risk_per_contract': 0,
+            'reasoning': f"REJECTED: EVAL {reason}",
+        }
+
+
+# Module-level eval sizer singleton
+_EVAL_SIZER: Optional[EvalPositionSizer] = None
+
+def get_eval_sizer() -> EvalPositionSizer:
+    global _EVAL_SIZER
+    if _EVAL_SIZER is None:
+        _EVAL_SIZER = EvalPositionSizer()
+    return _EVAL_SIZER

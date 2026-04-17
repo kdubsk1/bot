@@ -17,6 +17,14 @@ from typing import Optional
 
 _log = logging.getLogger("nqcalls.sim")
 
+# Task 5: Enable eval mode by default
+try:
+    from position_sizer import set_eval_mode
+    set_eval_mode(True)
+    _log.info("Eval mode enabled by default")
+except Exception:
+    pass
+
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SIM_FILE  = os.path.join(_BASE_DIR, "data", "sim_account.json")
 LIFETIME_STATS_FILE = os.path.join(_BASE_DIR, "data", "lifetime_stats.json")

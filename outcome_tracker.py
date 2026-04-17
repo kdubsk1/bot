@@ -812,6 +812,87 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
             except Exception:
                 pass
 
+        # ── VWAP_RECLAIM (all markets, BULL only) ──
+        # Price was below VWAP for 3+ bars, then reclaims above with volume
+        try:
+            if len(df_entry) >= 10:
+                vwap_series = vwap(df_entry)
+                below_count = 0
+                for bi in range(4, 1, -1):
+                    if float(df_entry.iloc[-bi]["Close"]) < float(vwap_series.iloc[-bi]):
+                        below_count += 1
+                if below_count >= 3 and close > vwap_v:
+                    vol_check = vol_ratio if 'vol_ratio' in dir() else 0
+                    if vol_check >= 1.2 and 45 <= rsi_v <= 65:
+                        # Check 1h trend is not strongly bearish
+                        if htf_bias != "LH_LL":
+                            stop_vr = vwap_v - atr_v * 0.3
+                            setups.append({
+                                "type":      "VWAP_RECLAIM",
+                                "direction": "LONG",
+                                "entry":     close,
+                                "raw_stop":  stop_vr,
+                                "level":     vwap_v,
+                                "detail":    f"Reclaimed VWAP ({round(vwap_v,4)}) after {below_count} bars below. "
+                                             f"Volume {round(vol_check,1)}x avg. Institutional buying.",
+                            })
+        except Exception:
+            pass
+
+        # ── HTF_LEVEL_BOUNCE (all markets) ──
+        # Price bounces off a key level (1h swing or prior day H/L) with engulfing/pin bar
+        try:
+            if df_htf is not None and len(df_htf) >= 20 and len(df_entry) >= 5:
+                hi_idx, lo_idx = swing_points(df_htf, 5) if len(df_htf) >= 15 else ([], [])
+                key_levels = []
+                # 1h swing highs/lows
+                for i in hi_idx[-3:]:
+                    key_levels.append(("resist", float(df_htf["High"].iloc[i])))
+                for i in lo_idx[-3:]:
+                    key_levels.append(("support", float(df_htf["Low"].iloc[i])))
+
+                # Check for bullish engulfing or pin bar near key level
+                for level_type, level in key_levels:
+                    dist = abs(close - level)
+                    if dist < 0.25 * atr_v:
+                        # Check for bullish engulfing at support
+                        body_cur = close - float(last["Open"])
+                        body_prev = prev_close - float(prev["Open"])
+                        is_bull_engulf = (body_cur > 0 and body_prev < 0 and
+                                         abs(body_cur) > abs(body_prev) * 1.2)
+                        # Check for pin bar (long lower wick)
+                        lower_wick = min(float(last["Open"]), close) - float(last["Low"])
+                        upper_wick = float(last["High"]) - max(float(last["Open"]), close)
+                        body_size = abs(body_cur)
+                        is_pin_bull = (lower_wick > body_size * 2 and upper_wick < body_size)
+                        is_pin_bear = (upper_wick > body_size * 2 and lower_wick < body_size)
+
+                        vol_ok = vol_ratio >= 1.1 if 'vol_ratio' in dir() else False
+                        if level_type == "support" and (is_bull_engulf or is_pin_bull) and vol_ok:
+                            stop_htf = level - atr_v * 0.4
+                            setups.append({
+                                "type":      "HTF_LEVEL_BOUNCE",
+                                "direction": "LONG",
+                                "entry":     close,
+                                "raw_stop":  stop_htf,
+                                "level":     level,
+                                "detail":    f"Bouncing off 1H key support {round(level,4)}. "
+                                             f"{'Bullish engulfing' if is_bull_engulf else 'Pin bar'} confirmed.",
+                            })
+                        elif level_type == "resist" and is_pin_bear and vol_ok:
+                            stop_htf = level + atr_v * 0.4
+                            setups.append({
+                                "type":      "HTF_LEVEL_BOUNCE",
+                                "direction": "SHORT",
+                                "entry":     close,
+                                "raw_stop":  stop_htf,
+                                "level":     level,
+                                "detail":    f"Rejecting off 1H key resistance {round(level,4)}. "
+                                             f"Bearish pin bar confirmed.",
+                            })
+        except Exception:
+            pass
+
     except Exception as e:
         import logging
         logging.getLogger("nqcalls").warning(f"detect_setups error: {e}")
@@ -851,6 +932,26 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
 # ------------------------------------------------------------------ #
 # Conviction Scoring (0-100)
 # ------------------------------------------------------------------ #
+# ── Task 7: Setup-aware volume direction ─────────────────────────
+VOLUME_DIRECTION = {
+    "VWAP_BOUNCE_BULL": "confirm",
+    "VWAP_REJECT_BEAR": "confirm",
+    "VWAP_RECLAIM":     "confirm",
+    "BREAK_RETEST_BULL": "invert",   # high vol on retest = no rejection = bearish
+    "BREAK_RETEST_BEAR": "invert",
+    "EMA21_PULLBACK_BULL": "confirm",
+    "EMA21_PULLBACK_BEAR": "confirm",
+    "EMA50_RECLAIM":    "confirm",
+    "EMA50_BREAKDOWN":  "confirm",
+    "APPROACH_SUPPORT":  "neutral",
+    "APPROACH_RESIST":   "neutral",
+    "LIQ_SWEEP_BULL":   "confirm",
+    "LIQ_SWEEP_BEAR":   "confirm",
+    "OPENING_RANGE_BREAKOUT": "confirm",
+    "HTF_LEVEL_BOUNCE": "confirm",
+}
+
+
 def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
                      df_htf: Optional[pd.DataFrame], news_flag: bool,
                      adx_val: float, rsi_val: float,
@@ -858,10 +959,11 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
     """
     Scores a setup from 0-100.
     HIGH = 80+, MEDIUM = 65-79, LOW = 50-64, REJECT = below 50
-    Now includes learning bonus from historical performance.
+    Includes: learning bonus, time-of-day, setup-aware volume.
     """
     s  = 30  # base
     bd = {}
+    setup_type = setup.get("type", "")
 
     # Trend alignment (+20 max)
     direction = setup.get("direction", "")
@@ -870,7 +972,7 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
     elif "SHORT" in direction:
         tq = max(0, min(20, -trend * 2))
     else:
-        tq = 5  # watch setups get neutral score
+        tq = 5
     s += tq; bd["trend"] = tq
 
     # HTF structure bonus (+10)
@@ -882,20 +984,23 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
         else:
             bd["htf_struct"] = 0
 
-    # Volume surge (+15 max / -10 penalty)
-    # Data: winners avg 1.5-2.3x vol, losers avg 0.3-0.7x vol
-    # Volume is the single strongest edge — weight it heavily
-    if vol_ratio >= 2.0:
-        vq = 15
-    elif vol_ratio >= 1.5:
-        vq = 10
-    elif vol_ratio >= 1.2:
-        vq = 5
-    elif vol_ratio < 0.5:
-        vq = -10  # low volume = high risk of failure
-    elif vol_ratio < 0.8:
-        vq = -5   # below average volume = cautious
-    else:
+    # Task 7: Setup-aware volume scoring (+15 max / -10 penalty)
+    vol_dir = VOLUME_DIRECTION.get(setup_type, "confirm")
+    if vol_dir == "confirm":
+        if vol_ratio >= 2.0:   vq = 15
+        elif vol_ratio >= 1.5: vq = 10
+        elif vol_ratio >= 1.2: vq = 5
+        elif vol_ratio < 0.5:  vq = -10
+        elif vol_ratio < 0.8:  vq = -5
+        else:                  vq = 0
+    elif vol_dir == "invert":
+        # For break-retest: high volume on retest bar = bad (means selling/buying INTO the retest)
+        if vol_ratio >= 2.0:   vq = -10
+        elif vol_ratio >= 1.5: vq = -5
+        elif vol_ratio < 0.8:  vq = 10  # low vol retest = healthy
+        elif vol_ratio < 0.5:  vq = 15
+        else:                  vq = 0
+    else:  # neutral
         vq = 0
     s += vq; bd["volume"] = vq
 
@@ -917,31 +1022,42 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
         s -= 20; bd["news_penalty"] = -20
 
     # ADX regime — penalize reclaims in choppy market (-15)
-    if setup["type"] in ("EMA50_RECLAIM","EMA50_BREAKDOWN") and adx_val < ADX_MIN_FOR_RECLAIM:
+    if setup_type in ("EMA50_RECLAIM", "EMA50_BREAKDOWN") and adx_val < ADX_MIN_FOR_RECLAIM:
         s -= 15; bd["adx_weak"] = -15
 
     # LEARNING BONUS — historical win rate adjustment
-    market     = setup.get("market", "")
-    setup_type = setup.get("type", "")
+    market = setup.get("market", "")
     if market and setup_type:
         learn_bonus = _performance_bonus(market, setup_type)
         s += learn_bonus
         bd["learning_bonus"] = learn_bonus
 
-    # REGIME FACTOR — boost/penalize based on regime match
+    # Task 7: TIME_OF_DAY factor
     try:
-        from regime_classifier import classify_regime, SETUP_REGIME_PREFERENCES
-        # We need df_entry to classify regime — it's passed as parameter
-        if df_entry is not None and len(df_entry) >= 50:
-            regime_info = classify_regime(df_entry)
-            current_regime = regime_info.get("regime", "RANGING")
-            prefs = SETUP_REGIME_PREFERENCES.get(setup_type, {})
-            if current_regime in prefs.get("prefer", []):
-                s += 10; bd["regime_match"] = 10
-            elif current_regime in prefs.get("avoid", []):
-                s -= 15; bd["regime_mismatch"] = -15
+        now_et = _now_et()
+        hm = now_et.hour * 60 + now_et.minute
+        market_check = setup.get("market", "")
+        is_futures = market_check in ("NQ", "GC")
+        if 570 <= hm <= 630:       # 9:30-10:30 AM ET
+            s += 5; bd["time_of_day"] = 5
+        elif 630 < hm <= 720:      # 10:30 AM-12:00 PM ET
+            bd["time_of_day"] = 0
+        elif 720 < hm <= 840:      # 12:00-2:00 PM ET (lunch chop)
+            s -= 8; bd["time_of_day"] = -8
+        elif 840 < hm <= 930:      # 2:00-3:30 PM ET
+            s += 5; bd["time_of_day"] = 5
+        elif 930 < hm <= 960:      # 3:30-4:00 PM ET (close chop)
+            s -= 15; bd["time_of_day"] = -15
+        elif is_futures and (hm < 570 or hm > 960):  # Outside RTH for futures
+            s -= 10; bd["time_of_day"] = -10
+        else:
+            bd["time_of_day"] = 0
     except Exception:
-        pass
+        bd["time_of_day"] = 0
+
+    # Task 7: REMOVED regime scoring as a score factor
+    # Regime is now only used as a GATE in detect_setups(), not a scoring bonus/penalty
+    # This eliminates the duplicate signal with trend_score
 
     s = max(0, min(100, int(s)))
 

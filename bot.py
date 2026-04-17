@@ -35,9 +35,7 @@ def _now_et():
 
 import pandas as pd
 import numpy as np
-import yfinance as yf
-import ccxt
-from data_layer import get_frames as dl_get_frames, get_current_price
+from data_layer import get_frames as dl_get_frames, get_current_price, probe_nq_symbol
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -270,6 +268,13 @@ CONSECUTIVE_LOSSES: dict = {}
 MARKET_HALTED: dict = {}
 CORRELATION_LOCKOUT: dict = {}
 
+# ── Topstep eval daily gates (Task 8) ────────────────────────────
+DAILY_LOSS_GATE = False       # True after 2 consecutive session losses
+DAILY_PROFIT_LOCKED = False   # True after +$150 session P&L
+DAILY_TRADE_COUNT = 0         # Incremented on each fired alert
+MAX_DAILY_TRADES = 3
+PROFIT_LOCK_THRESHOLD = 150.0
+
 def _on_session_close(event, now_et):
     """
     FUTURES_SESSION_CLOSE (4 PM ET) handler.
@@ -328,11 +333,17 @@ def _on_crypto_day(event, now_et):
     log.info("Crypto day boundary: halts cleared for BTC/SOL")
 
 def _record_loss(market: str):
+    global DAILY_LOSS_GATE
     CONSECUTIVE_LOSSES[market] = CONSECUTIVE_LOSSES.get(market, 0) + 1
     if market == "BTC":
         CORRELATION_LOCKOUT["SOL"] = datetime.now(timezone.utc) + timedelta(minutes=30)
     elif market == "SOL":
         CORRELATION_LOCKOUT["BTC"] = datetime.now(timezone.utc) + timedelta(minutes=30)
+    # Task 8: Check for 2 consecutive session losses (across all markets)
+    total_consec = sum(CONSECUTIVE_LOSSES.get(m, 0) for m in ("NQ", "GC", "BTC", "SOL"))
+    if total_consec >= 2 and not DAILY_LOSS_GATE:
+        DAILY_LOSS_GATE = True
+        log.warning("DAILY_LOSS_GATE activated: 2 consecutive losses this session")
 
 def _record_win(market: str):
     CONSECUTIVE_LOSSES[market] = 0
@@ -345,67 +356,6 @@ def _is_correlation_locked(market: str) -> bool:
     if expiry and datetime.now(timezone.utc) < expiry:
         return True
     return False
-
-# ── yfinance cache ────────────────────────────────────────────────
-_YF_CACHE: dict = {}
-_YF_MIN_AGE = 60
-
-def fetch_yfinance(symbol, tf):
-    cache_key = (symbol, tf)
-    now = _time.time()
-    cached = _YF_CACHE.get(cache_key)
-    if cached and now - cached[0] < _YF_MIN_AGE:
-        return cached[1]
-    try:
-        imap = {"3m":"5m","15m":"15m","1h":"60m","4h":"60m","1d":"1d"}
-        pmap = {"3m":"5d","15m":"10d","1h":"60d","4h":"60d","1d":"2y"}
-        df = yf.download(symbol, interval=imap[tf], period=pmap[tf], progress=False, auto_adjust=False)
-        if df is None or df.empty:
-            return cached[1] if cached else None
-        if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
-        df = df.rename(columns=str.title)
-        for c in ["Open","High","Low","Close","Volume"]:
-            if c not in df.columns: return cached[1] if cached else None
-        df = df[["Open","High","Low","Close","Volume"]].dropna()
-        if tf == "4h":
-            df = df.resample("4h").agg({"Open":"first","High":"max","Low":"min","Close":"last","Volume":"sum"}).dropna()
-        result = df if len(df) >= 20 else None
-        if result is not None:
-            _YF_CACHE[cache_key] = (now, result)
-        return result
-    except Exception as e:
-        log.warning(f"yf {symbol} {tf}: {e}")
-        return cached[1] if cached else None
-
-_EX = None
-def _exchanges():
-    global _EX
-    if _EX is None:
-        _EX = []
-        for n in ("coinbase","kraken","kucoin","bybit","okx"):
-            try: _EX.append(getattr(ccxt, n)({"enableRateLimit": True}))
-            except: pass
-    return _EX
-
-def fetch_crypto(symbol, tf):
-    sym_map = {
-        "BTC/USDT": {"coinbase":"BTC/USD","kraken":"BTC/USD","kucoin":"BTC/USDT","bybit":"BTC/USDT","okx":"BTC/USDT"},
-        "SOL/USDT": {"coinbase":"SOL/USD","kraken":"SOL/USD","kucoin":"SOL/USDT","bybit":"SOL/USDT","okx":"SOL/USDT"},
-    }
-    tfm = {"3m":"3m","15m":"15m","1h":"1h","4h":"4h","1d":"1d"}
-    for ex in _exchanges():
-        sym = sym_map.get(symbol,{}).get(ex.id, symbol)
-        try:
-            o = ex.fetch_ohlcv(sym, tfm.get(tf,"15m"), limit=400)
-            if not o or len(o)<20: continue
-            df = pd.DataFrame(o, columns=["ts","Open","High","Low","Close","Volume"])
-            df["ts"] = pd.to_datetime(df["ts"], unit="ms", utc=True)
-            return df.set_index("ts")
-        except Exception as e:
-            log.debug(f"{ex.id} {sym}: {e}")
-    yfs = {"BTC/USDT":"BTC-USD","SOL/USDT":"SOL-USD"}.get(symbol)
-    if yfs: return fetch_yfinance(yfs, tf)
-    return None
 
 def get_frames(market):
     return dl_get_frames(market)
@@ -526,6 +476,7 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
 
 # ── Scan one market ───────────────────────────────────────────────
 async def scan_market(app, market, frames):
+    global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
     cfg        = get_market_config(market)
     primary_tf = cfg.ENTRY_TIMEFRAMES[0]
     df_primary = frames.get(primary_tf)
@@ -622,6 +573,12 @@ async def scan_market(app, market, frames):
 
         if result == "LOSS":
             _record_loss(market)
+            # Task 8: Send daily loss gate alert
+            if DAILY_LOSS_GATE:
+                await tg_send(app,
+                    "⛔ *2 consecutive losses today — trading halted for session.*\n"
+                    "Rest up."
+                )
             try:
                 atr_v_exit = float(ot.atr(frames.get("15m", pd.DataFrame())).iloc[-1]) if frames.get("15m") is not None else 0
                 if atr_v_exit > 0:
@@ -702,6 +659,30 @@ async def scan_market(app, market, frames):
             log.info(f"[{market}] 4PM-6PM settlement window — no new entries for {market}")
         return
 
+    # ── Task 8: Topstep eval daily gates ─────────────────────────
+    now_et_check = _now_et()
+    hm_check = now_et_check.hour * 60 + now_et_check.minute
+
+    # Gate 1: No-trade zone 3:30-4:00 PM ET for futures
+    if market in ("NQ", "GC") and 930 <= hm_check < 960:
+        log.info(f"[{market}] No-trade zone active (3:30-4PM ET), skipping signal")
+        return
+
+    # Gate 2: Consecutive loss halt
+    if DAILY_LOSS_GATE:
+        log.info(f"[{market}] Daily loss gate active — 2 consecutive losses, no more trades")
+        return
+
+    # Gate 3: Profit lock
+    if DAILY_PROFIT_LOCKED:
+        log.info(f"[{market}] Daily profit locked — no more trades this session")
+        return
+
+    # Gate 4: Max daily trades
+    if DAILY_TRADE_COUNT >= MAX_DAILY_TRADES:
+        log.info(f"[{market}] Max {MAX_DAILY_TRADES} trades reached for today — skipping")
+        return
+
     for entry_tf in cfg.ENTRY_TIMEFRAMES:
         htf_key = cfg.HTF_CONFIRM if entry_tf==cfg.ENTRY_TIMEFRAMES[0] else cfg.HTF_SWING
         if entry_tf=="15m" and news_flag: continue
@@ -711,6 +692,61 @@ async def scan_market(app, market, frames):
         if df_e.empty: continue
 
         setups = ot.detect_setups(df_e, df_h, htf_bias)
+
+        # ── Task 6: OPENING_RANGE_BREAKOUT (NQ and GC only, 9:30-10:30 AM ET) ──
+        if market in ("NQ", "GC") and entry_tf == "15m":
+            try:
+                orb_et = _now_et()
+                orb_hm = orb_et.hour * 60 + orb_et.minute
+                if 570 <= orb_hm <= 630:  # 9:30 AM to 10:30 AM ET
+                    # Get the first 2 bars of RTH (9:30 and 9:45 = first 30 min)
+                    if len(df_e) >= 10:
+                        # Find bars from today's 9:30-10:00 AM range
+                        orb_bars = []
+                        for idx in range(len(df_e)):
+                            bar_time = df_e.index[idx]
+                            if hasattr(bar_time, 'tz_convert'):
+                                bar_et = bar_time.tz_convert(ET_ZONE) if ET_ZONE else bar_time
+                            else:
+                                bar_et = bar_time
+                            bh = bar_et.hour * 60 + bar_et.minute
+                            if 570 <= bh < 600 and bar_et.date() == orb_et.date():
+                                orb_bars.append(df_e.iloc[idx])
+                        if len(orb_bars) >= 1:
+                            orb_high = max(float(b["High"]) for b in orb_bars)
+                            orb_low = min(float(b["Low"]) for b in orb_bars)
+                            orb_close = float(df_e["Close"].iloc[-1])
+                            orb_rsi = float(ot.rsi(df_e["Close"]).iloc[-1])
+                            orb_vol_mean = float(df_e["Volume"].rolling(20).mean().iloc[-1]) if len(df_e) >= 20 else 0
+                            orb_vol_last = float(df_e["Volume"].iloc[-1])
+                            orb_vol_ratio = orb_vol_last / max(1e-9, orb_vol_mean) if orb_vol_mean > 0 else 0
+                            orb_atr = float(ot.atr(df_e).iloc[-1])
+
+                            if orb_close > orb_high and orb_vol_ratio > 1.3 and 45 <= orb_rsi <= 70:
+                                stop_orb = orb_low - orb_atr * 0.2
+                                setups.append({
+                                    "type":      "OPENING_RANGE_BREAKOUT",
+                                    "direction": "LONG",
+                                    "entry":     orb_close,
+                                    "raw_stop":  stop_orb,
+                                    "level":     orb_high,
+                                    "detail":    f"Opening range breakout above {round(orb_high,2)}. "
+                                                 f"Vol {round(orb_vol_ratio,1)}x avg. First 30min range broken.",
+                                })
+                            elif orb_close < orb_low and orb_vol_ratio > 1.3 and 30 <= orb_rsi <= 55:
+                                stop_orb = orb_high + orb_atr * 0.2
+                                setups.append({
+                                    "type":      "OPENING_RANGE_BREAKOUT",
+                                    "direction": "SHORT",
+                                    "entry":     orb_close,
+                                    "raw_stop":  stop_orb,
+                                    "level":     orb_low,
+                                    "detail":    f"Opening range breakdown below {round(orb_low,2)}. "
+                                                 f"Vol {round(orb_vol_ratio,1)}x avg. First 30min range broken.",
+                                })
+            except Exception as e:
+                log.debug(f"ORB detection error: {e}")
+
         if not setups: log.info(f"[{market}] [{entry_tf}] No setups."); continue
 
         adx_v    = float(ot.adx(df_e).iloc[-1])
@@ -875,6 +911,19 @@ async def scan_market(app, market, frames):
                 "hour":datetime.now(timezone.utc).hour, "vol_ratio":round(vol_ratio,2), "news_flag":int(news_flag),
             })
 
+            # Task 8: Increment daily trade counter
+            DAILY_TRADE_COUNT += 1
+
+            # Task 8: Check profit lock after trade fires
+            try:
+                sr_check = sim.check_risk_limits()
+                if sr_check.get("daily_pnl", 0) >= PROFIT_LOCK_THRESHOLD and not DAILY_PROFIT_LOCKED:
+                    DAILY_PROFIT_LOCKED = True
+                    pnl_val = sr_check["daily_pnl"]
+                    log.info(f"DAILY_PROFIT_LOCKED at +${pnl_val:,.2f}")
+            except Exception:
+                pass
+
             sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                 cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                 trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag, sl.DECISION_FIRED, "")
@@ -922,10 +971,10 @@ async def force_flatten_futures(app):
         market = row["market"]
         cfg    = get_market_config(market)
         try:
-            sym = YF_MAP.get(market)
-            df  = fetch_yfinance(sym, "15m")
-            cur = float(df["Close"].iloc[-1]) if df is not None and not df.empty else float(row["entry"])
-        except:
+            cur = get_current_price(market)
+            if not np.isfinite(cur):
+                cur = float(row["entry"])
+        except Exception:
             cur = float(row["entry"])
 
         entry_p = row.get("entry", "?")
@@ -933,7 +982,7 @@ async def force_flatten_futures(app):
             pts  = cur - float(entry_p)
             if "SHORT" in row.get("direction", ""): pts = -pts
             pts_str = f"+{round(pts,2)}" if pts>=0 else str(round(pts,2))
-        except: pts_str = "?"
+        except Exception: pts_str = "?"
 
         result = "WIN" if (pts > 0 if isinstance(pts, float) else False) else "LOSS"
         ot.update_result(row["alert_id"], result, 0, cur)
@@ -955,9 +1004,9 @@ async def force_flatten_futures(app):
     if sim.load_state().get("enabled"):
         for row in futures_trades:
             try:
-                sym = YF_MAP.get(row["market"])
-                df  = fetch_yfinance(sym, "15m")
-                cur = float(df["Close"].iloc[-1]) if df is not None and not df.empty else float(row["entry"])
+                cur = get_current_price(row["market"])
+                if not np.isfinite(cur):
+                    cur = float(row["entry"])
                 r = "WIN" if cur > float(row["entry"]) else "LOSS"
                 closed = sim.close_sim_trade(row["alert_id"], cur, r)
                 if closed:
@@ -1907,19 +1956,39 @@ def _on_pre_flatten(event, now_et):
     log.info("Pre-flatten event fired — will flatten futures on next scan tick")
 
 def _on_session_close(event, now_et):
-    """Session close handler — archives session, resets sim, sets summary flag."""
+    """Session close handler — archives session, resets sim, resets daily gates."""
     global _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES
+    global DAILY_LOSS_GATE, DAILY_PROFIT_LOCKED, DAILY_TRADE_COUNT
     try:
         sid = get_session_date(now_et)
         summary = ot.build_session_summary(sid)
         sim_state = sim.load_state()
         sim_pnl = sim_state.get("today_pnl", 0.0)
+
+        # Task 4: Roll over open trades instead of archiving them
+        open_trades = ot.load_open_trades()
+        rolled = 0
+        if open_trades:
+            for t in open_trades:
+                t["rolled_over"] = "True"
+            rolled = len(open_trades)
+            log.info(f"Session close: {rolled} open trades rolled over to new session")
+
         ot.archive_session(sid)
         sim.reset_sim(sim_state.get("preset", "50k"))
         changes = ot.check_and_update_suspensions()
-        _SESSION_CLOSE_SUMMARY = {"sid": sid, "summary": summary, "sim_pnl": sim_pnl}
+        _SESSION_CLOSE_SUMMARY = {"sid": sid, "summary": summary, "sim_pnl": sim_pnl, "rolled": rolled}
         _SUSPENSION_CHANGES = changes
-        log.info(f"Session close handler: archived {sid}, sim reset, {len(changes)} suspension changes")
+
+        # Task 8: Reset ALL daily gates
+        DAILY_LOSS_GATE = False
+        DAILY_PROFIT_LOCKED = False
+        DAILY_TRADE_COUNT = 0
+        for m in ("NQ", "GC"):
+            MARKET_HALTED.pop(m, None)
+            CONSECUTIVE_LOSSES.pop(m, None)
+
+        log.info(f"Session close: archived {sid}, sim reset, gates cleared, {len(changes)} suspension changes")
     except Exception as e:
         log.error(f"_on_session_close error: {e}")
 
@@ -1941,6 +2010,14 @@ SESSION_CLOCK.on(SessionEvent.CRYPTO_DAY_BOUNDARY, _on_crypto_day)
 # ── Entry ─────────────────────────────────────────────────────────
 async def _post_init(app):
     log.info("Running startup...")
+
+    # Probe NQ symbol on Twelve Data
+    try:
+        nq_sym = probe_nq_symbol()
+        log.info(f"TwelveData NQ symbol: {nq_sym}")
+    except Exception as e:
+        log.error(f"NQ symbol probe: {e}")
+
     # Archive old sessions at startup
     try:
         created = ot.archive_old_sessions()
@@ -1958,12 +2035,19 @@ async def _post_init(app):
                 icon = "⛔" if c.startswith("SUSPENDED") else "✅"
                 lines.append(f"  {icon} {c}")
             await tg_send(app, "\n".join(lines))
-        # Always show current suspension state at startup
         report = ot.get_suspension_report()
         await tg_send(app, report)
         log.info(f"Suspension check at startup: {len(changes)} changes")
     except Exception as e:
         log.error(f"Startup suspension check: {e}")
+
+    # Task 3: Startup restart alert
+    now_et_start = _now_et()
+    await tg_send(app,
+        f"🤖 NQ CALLS Bot restarted\n"
+        f"📡 Scanner is OFF — tap Scanner to start\n"
+        f"⏱ {now_et_start.strftime('%I:%M %p')} ET"
+    )
 
     log.info("Running startup market scan...")
     try:

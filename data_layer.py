@@ -167,9 +167,45 @@ def _resample_to_4h(df_60m: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Twelve Data fetcher (primary source for NQ / GC)
 # ---------------------------------------------------------------------------
-_TD_SYMBOL_MAP = {"NQ": "NQ/USD", "GC": "XAU/USD"}
+# NQ symbol candidates — probe at startup to find what works
+_TD_NQ_CANDIDATES = ["NQ1!", "NQ/USD", "NQM26"]
+_TD_SYMBOL_MAP = {"NQ": "NQ/USD", "GC": "XAU/USD"}  # NQ updated by probe
 _TD_TF_MAP     = {"15m": "15min", "1h": "1h", "4h": "4h", "1d": "1day"}
 _TD_BAR_COUNT  = {"15m": 500, "1h": 500, "4h": 500, "1d": 730}
+
+# Fallback counter: track consecutive failures per market|tf
+_td_fallback_count: Dict[str, int] = {}
+# Track which data source was last used per market|tf
+_last_source: Dict[str, str] = {}
+
+
+def probe_nq_symbol():
+    """Try NQ symbol candidates on Twelve Data, set the one that works."""
+    for candidate in _TD_NQ_CANDIDATES:
+        try:
+            resp = _requests.get(
+                "https://api.twelvedata.com/time_series",
+                params={
+                    "symbol":     candidate,
+                    "interval":   "1h",
+                    "outputsize": 5,
+                    "apikey":     TWELVE_DATA_API_KEY,
+                    "format":     "JSON",
+                },
+                timeout=10,
+            )
+            data = resp.json()
+            if data.get("status") != "error" and "values" in data and len(data["values"]) >= 3:
+                _TD_SYMBOL_MAP["NQ"] = candidate
+                logger.info("TwelveData NQ symbol probe: '%s' works (%d bars)", candidate, len(data["values"]))
+                return candidate
+            else:
+                msg = data.get("message", "no values")
+                logger.info("TwelveData NQ probe: '%s' failed (%s)", candidate, msg)
+        except Exception as exc:
+            logger.info("TwelveData NQ probe: '%s' exception: %s", candidate, exc)
+    logger.warning("TwelveData NQ symbol probe: ALL candidates failed, keeping default '%s'", _TD_SYMBOL_MAP["NQ"])
+    return _TD_SYMBOL_MAP["NQ"]
 
 
 def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
@@ -207,7 +243,7 @@ def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
             logger.warning("TwelveData error for %s %s: %s", market, timeframe, msg)
             return pd.DataFrame(columns=_STANDARD_COLS)
 
-        values = data["values"]  # list of dicts: datetime, open, high, low, close, volume
+        values = data["values"]
         if not values:
             logger.warning("TwelveData returned empty values for %s %s", market, timeframe)
             return pd.DataFrame(columns=_STANDARD_COLS)
@@ -224,6 +260,12 @@ def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
         df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
         df = df.set_index("timestamp")
         df = _normalise_df(df)
+
+        if len(df) >= MIN_BARS:
+            # Success — reset fallback counter
+            fb_key = f"{market}|{timeframe}"
+            _td_fallback_count[fb_key] = 0
+            _last_source[fb_key] = "twelve_data"
 
         logger.info("TwelveData got %d bars for %s %s", len(df), market, timeframe)
         return df
@@ -427,8 +469,20 @@ def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
         if df is not None and len(df) >= MIN_BARS:
             logger.info("Using TwelveData for %s %s (%d bars)", market_upper, timeframe, len(df))
             return df
-        # Fallback: yfinance
-        logger.info("TwelveData insufficient for %s %s, falling back to yfinance", market_upper, timeframe)
+        # Fallback: yfinance — track consecutive fallbacks
+        fb_key = f"{market_upper}|{timeframe}"
+        _td_fallback_count[fb_key] = _td_fallback_count.get(fb_key, 0) + 1
+        n = _td_fallback_count[fb_key]
+        _last_source[fb_key] = "yfinance"
+        logger.warning(
+            "TwelveData fallback to yfinance for %s %s (attempt %d). "
+            "If this persists, check symbol config.", market_upper, timeframe, n
+        )
+        if n >= 3:
+            logger.error(
+                "DATA ALERT: %s %s using yfinance fallback %dx in a row — check Twelve Data symbol config",
+                market_upper, timeframe, n
+            )
         return _fetch_yfinance(market_upper, timeframe)
 
     logger.error("Unknown market: %s", market)
@@ -499,10 +553,15 @@ def get_frames(market: str) -> Dict[str, pd.DataFrame]:
         try:
             df = _fetch_with_cache(market_upper, tf)
             frames[tf] = df
-            logger.info("  %s %s: %d bars", market_upper, tf, len(df))
         except Exception as exc:
             logger.error("  %s %s: failed (%s)", market_upper, tf, exc)
             frames[tf] = pd.DataFrame(columns=_STANDARD_COLS)
+
+    # Task 9: Summary log line per market
+    bar_counts = "/".join(f"{tf}:{len(frames.get(tf, []))}bars" for tf in _ALL_TIMEFRAMES)
+    sources = set(_last_source.get(f"{market_upper}|{tf}", "cache") for tf in _ALL_TIMEFRAMES)
+    source_str = "+".join(sorted(sources))
+    logger.info("Data check %s: %s | source=%s", market_upper, bar_counts, source_str)
 
     return frames
 
