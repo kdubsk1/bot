@@ -34,9 +34,10 @@ COLS = [
 ]
 
 # ── Decision types ─────────────────────────────────────────────────
-DECISION_FIRED    = "FIRED"      # alert sent
-DECISION_REJECTED = "REJECTED"   # filtered out
-DECISION_ALMOST   = "ALMOST"     # passed most filters, just missed one
+DECISION_FIRED            = "FIRED"              # alert sent
+DECISION_REJECTED         = "REJECTED"           # filtered out
+DECISION_ALMOST           = "ALMOST"             # passed most filters, just missed one
+DECISION_SHADOW_SUSPENDED = "REJECTED_SUSPENDED" # detected but blocked by suspension
 
 def _ensure_csv():
     if not os.path.exists(STRATEGY_LOG):

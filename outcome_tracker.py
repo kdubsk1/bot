@@ -1415,6 +1415,57 @@ def update_result(alert_id: str, result: str, bars: int, exit_price: float):
             r["exit_price"]         = exit_price
     _write_all(rows)
 
+
+def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
+    """
+    Task 2: Auto-close OPEN trades older than max_hours.
+    Sets status=CLOSED, result=SKIP, exit_price=entry (zero P&L).
+    Keeps exact same CSV schema — no new columns added.
+    Returns list of (alert_id, market, setup, hours_old) tuples for logging.
+    """
+    import logging as _logging
+    _log = _logging.getLogger("nqcalls")
+    rows = _read_all()
+    now_utc = datetime.now(timezone.utc)
+    cutoff_seconds = max_hours * 3600
+    expired: list[tuple] = []
+    changed = False
+
+    for r in rows:
+        if r.get("status") != "OPEN":
+            continue
+        ts_str = r.get("timestamp", "")
+        if not ts_str:
+            continue
+        try:
+            alert_dt = datetime.fromisoformat(ts_str)
+            if alert_dt.tzinfo is None:
+                alert_dt = alert_dt.replace(tzinfo=timezone.utc)
+            age_seconds = (now_utc - alert_dt).total_seconds()
+        except Exception:
+            continue
+        if age_seconds < cutoff_seconds:
+            continue
+
+        alert_id = r.get("alert_id", "?")
+        market   = r.get("market", "?")
+        setup    = r.get("setup", "?")
+        entry    = r.get("entry", "")
+        hours    = round(age_seconds / 3600, 1)
+
+        r["status"]             = "CLOSED"
+        r["result"]             = "SKIP"
+        r["exit_price"]         = entry
+        r["bars_to_resolution"] = ""
+        expired.append((alert_id, market, setup, hours))
+        changed = True
+        _log.info(f"Auto-expired stale OPEN trade: {alert_id} {market} {setup} (opened {hours}h ago)")
+
+    if changed:
+        _write_all(rows)
+
+    return expired
+
 def update_rescore(alert_id: str, new_conviction: int):
     rows = _read_all()
     for r in rows:

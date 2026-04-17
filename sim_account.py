@@ -84,7 +84,8 @@ def _save_history(history: list):
 
 def _archive_day(state: dict):
     today = state.get("today_date", "")
-    if not today or state.get("today_pnl", 0) == 0:
+    # Task 3D: Archive even zero-PnL days so we don't lose history
+    if not today:
         return
     history = _load_history()
     if any(h.get("date") == today for h in history):
@@ -258,20 +259,18 @@ def _archive_sim_state(state: dict, session_id: str):
 
 
 def _update_lifetime_stats(state: dict):
-    """Update lifetime_stats.json with the finishing session's results."""
+    """
+    Update lifetime_stats.json with the finishing session's results.
+    Task 3A: Always writes the file, even on zero-PnL / zero-trade sessions.
+    """
     stats = _load_lifetime_stats()
 
     today_trades = state.get("trades", [])
-    # Filter to trades closed this session
-    sid = state.get("session_date", state.get("today_date", ""))
     session_trades = []
     for t in today_trades:
         closed_at = t.get("closed_at", "")
         if t.get("status") == "CLOSED" and closed_at:
             session_trades.append(t)
-
-    if not session_trades and state.get("today_pnl", 0) == 0:
-        return  # Nothing to record
 
     session_pnl = state.get("today_pnl", 0.0)
     wins = sum(1 for t in session_trades if t.get("result") == "WIN")
@@ -310,6 +309,10 @@ def _update_lifetime_stats(state: dict):
 
     stats["last_updated"] = datetime.now(timezone.utc).isoformat()
     _save_lifetime_stats(stats)
+    _log.info(
+        "Lifetime stats saved: sessions=%d, trades=%d, pnl=$%s",
+        stats["total_sessions"], stats["total_trades"], stats["total_pnl_dollars"]
+    )
 
 
 def _load_lifetime_stats() -> dict:

@@ -71,6 +71,45 @@ SETTINGS = {
 }
 ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
 
+# ── Scanner state persistence (Task 1) ───────────────────────────
+SCANNER_STATE_FILE = os.path.join(BASE_DIR, "data", "scanner_state.json")
+
+def _save_scanner_state():
+    """Persist scanner_on so it survives Railway restarts."""
+    try:
+        os.makedirs(os.path.dirname(SCANNER_STATE_FILE), exist_ok=True)
+        data = {
+            "scanner_on":   bool(SETTINGS["scanner_on"]),
+            "last_changed": datetime.now(timezone.utc).isoformat(),
+        }
+        with open(SCANNER_STATE_FILE, "w") as f:
+            json.dump(data, f)
+    except Exception as e:
+        log.warning(f"_save_scanner_state: {e}")
+
+def _load_scanner_state() -> dict:
+    """Returns {'scanner_on': bool, 'last_changed': iso_str, 'hours_ago': float}."""
+    try:
+        if os.path.exists(SCANNER_STATE_FILE):
+            with open(SCANNER_STATE_FILE) as f:
+                data = json.load(f)
+            last = data.get("last_changed", "")
+            hours_ago = 0.0
+            if last:
+                try:
+                    last_dt = datetime.fromisoformat(last)
+                    hours_ago = (datetime.now(timezone.utc) - last_dt).total_seconds() / 3600.0
+                except Exception:
+                    pass
+            return {
+                "scanner_on":   bool(data.get("scanner_on", False)),
+                "last_changed": last,
+                "hours_ago":    round(hours_ago, 1),
+            }
+    except Exception as e:
+        log.warning(f"_load_scanner_state: {e}")
+    return {"scanner_on": False, "last_changed": "", "hours_ago": 0.0}
+
 ALL_MARKETS  = get_all_markets()
 YF_MAP       = {"NQ": "NQ=F", "GC": "GC=F"}
 CRYPTO_MAP   = {"BTC": "BTC/USDT", "SOL": "SOL/USDT"}
@@ -776,12 +815,13 @@ async def scan_market(app, market, frames):
             stp["market"] = market
 
             # Setup suspension check — block negative EV setups
+            # Task 4: Shadow-log so we can retroactively analyze if suspensions were correct
             if ot.is_setup_suspended(market, stp["type"]):
-                log.info(f"[{market}] [{entry_tf}] Skipping {stp['type']} — suspended (negative EV)")
+                log.info(f"[{market}] [{entry_tf}] Shadow-log {stp['type']} — suspended (would-have-fired)")
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, f"SUSPENDED — negative EV")
+                    sl.DECISION_SHADOW_SUSPENDED, "SUSPENDED — would-have-fired")
                 continue
 
             adx_min_by_setup = getattr(cfg, "ADX_MIN_BY_SETUP", {})
@@ -1336,9 +1376,14 @@ def build_asia_brief():
             f"🤖 NQ CALLS Bot on overnight watch. Stay safe."]
     return "\n".join(lines)
 
+# ── Session boundary safety + daily report state (Task 3B/3C) ────
+_LAST_SESSION_CLOSE_FIRED = None   # session_date string that was already closed
+_LAST_DAILY_REPORT_DATE   = None   # date string for which report was sent
+
 # ── Scan loop ─────────────────────────────────────────────────────
 async def scan_loop(app):
     global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES
+    global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE
     last_brief=last_asia=last_report=None
     last_hb=datetime.now(timezone.utc)
     scan_interval = SETTINGS["scan_interval_min"]
@@ -1349,6 +1394,33 @@ async def scan_loop(app):
 
             # Tick the session clock — fires events synchronously
             SESSION_CLOCK.tick(now_utc)
+
+            # Task 3B: Safety net — if SessionClock missed the 4PM close window
+            # (e.g. bot was restarted during it), fire it here exactly once per day.
+            if now_et.hour >= 16 and now_et.weekday() < 5:
+                # Session_date is now tomorrow (>=16:00); the closing session was yesterday
+                closed_session_date = now_et.date().strftime("%Y-%m-%d")
+                if _LAST_SESSION_CLOSE_FIRED != closed_session_date:
+                    try:
+                        from session_clock import SessionEvent
+                        log.info(f"Session close safety net: firing for {closed_session_date}")
+                        _on_session_close(SessionEvent.FUTURES_SESSION_CLOSE, now_et)
+                        _LAST_SESSION_CLOSE_FIRED = closed_session_date
+                    except Exception as e:
+                        log.error(f"Session close safety net error: {e}")
+
+            # Task 3C: Daily report scheduler — 8 PM ET, once per day
+            if now_et.hour >= 20:
+                today_str = now_et.date().strftime("%Y-%m-%d")
+                report_path = os.path.join(BASE_DIR, "data", f"daily_report_{today_str}.txt")
+                if _LAST_DAILY_REPORT_DATE != today_str and not os.path.exists(report_path):
+                    try:
+                        _full, short = ot.build_daily_report()
+                        await tg_send(app, short)
+                        _LAST_DAILY_REPORT_DATE = today_str
+                        log.info(f"Daily report sent for {today_str}")
+                    except Exception as e:
+                        log.error(f"Daily report scheduler: {e}")
 
             # Handle async flatten (set by _on_pre_flatten callback)
             if _FLATTEN_PENDING:
@@ -1395,10 +1467,7 @@ async def scan_loop(app):
                 await tg_send(app, build_morning_brief()); last_brief=now_et.date()
             if SETTINGS["asia_brief"] and now_et.hour==18 and last_asia!=now_et.date():
                 await tg_send(app, build_asia_brief()); last_asia=now_et.date()
-            if now_et.hour==20 and last_report!=now_et.date():
-                try:
-                    _,short=ot.build_daily_report(); await tg_send(app,short); last_report=now_et.date()
-                except Exception as e: log.error(f"Daily report: {e}")
+            # Daily report moved above (Task 3C) — file-existence-guarded
 
             if SETTINGS["scanner_on"]:
                 active=[m for m in ALL_MARKETS if SETTINGS["markets"].get(m)]
@@ -1654,6 +1723,51 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_rejected(u, c):
+    """Task 5: Show last 10 rejected or almost-fired scan decisions."""
+    import csv as _csv
+    log_path = os.path.join(BASE_DIR, "data", "strategy_log.csv")
+    if not os.path.exists(log_path):
+        await u.message.reply_text("No strategy log yet.")
+        return
+    try:
+        with open(log_path, newline="", encoding="utf-8") as f:
+            rows = list(_csv.DictReader(f))
+    except Exception as e:
+        await u.message.reply_text(f"❌ Failed to read strategy log: {e}")
+        return
+
+    # Filter to REJECT* or ALMOST decisions, take the last 10
+    flagged = [r for r in rows if "REJECT" in r.get("decision", "") or r.get("decision") == "ALMOST"]
+    recent = flagged[-10:]
+
+    if not recent:
+        await u.message.reply_text("🔍 No recent rejections to show.")
+        return
+
+    lines = [
+        "🔍 *Recent Rejections (last 10)*",
+        "━━━━━━━━━━━━━━━━━━",
+    ]
+    for r in recent:
+        decision = r.get("decision", "")
+        if decision == "ALMOST":
+            emoji = "🟡"
+        else:
+            emoji = "❌"
+        mkt   = r.get("market", "?")
+        setup = r.get("setup_type", "?")
+        tf    = r.get("tf", "?")
+        reason = r.get("reject_reason", "") or "no reason logged"
+        # Trim long reasons for mobile
+        if len(reason) > 60:
+            reason = reason[:57] + "..."
+        lines.append(f"{emoji} `{mkt} {setup} {tf}` — {_md(reason)}")
+    lines.append("━━━━━━━━━━━━━━━━━━")
+    lines.append(f"_Showing {len(recent)} of {len(flagged)} total flagged decisions._")
+
+    await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+
 async def cmd_help(u,c):
     await u.message.reply_text(
         "🤖 *NQ CALLS Bot — Quick Guide*\n"
@@ -1740,7 +1854,7 @@ async def cmd_brief(u,c):
 async def on_button(u, c):
     q=u.callback_query; await q.answer(); d=q.data
 
-    if   d=="toggle_scan":    SETTINGS["scanner_on"]=not SETTINGS["scanner_on"]
+    if   d=="toggle_scan":    SETTINGS["scanner_on"]=not SETTINGS["scanner_on"]; _save_scanner_state()
     elif d=="toggle_rescore": SETTINGS["rescore_on"]=not SETTINGS["rescore_on"]
     elif d in ("toggle_NQ","toggle_GC","toggle_BTC","toggle_SOL"):
         SETTINGS["markets"][d.split("_")[1]]=not SETTINGS["markets"][d.split("_")[1]]
@@ -1965,6 +2079,14 @@ def _on_session_close(event, now_et):
         sim_state = sim.load_state()
         sim_pnl = sim_state.get("today_pnl", 0.0)
 
+        # Task 2: Auto-expire stale OPEN trades
+        try:
+            expired = ot.auto_expire_stale_trades(max_hours=24)
+            if expired:
+                log.info(f"Session close: auto-expired {len(expired)} stale trade(s)")
+        except Exception as e:
+            log.error(f"Session close auto-expire: {e}")
+
         # Task 4: Roll over open trades instead of archiving them
         open_trades = ot.load_open_trades()
         rolled = 0
@@ -2011,12 +2133,29 @@ SESSION_CLOCK.on(SessionEvent.CRYPTO_DAY_BOUNDARY, _on_crypto_day)
 async def _post_init(app):
     log.info("Running startup...")
 
+    # Task 1: Restore scanner state from disk BEFORE anything else
+    scanner_info = _load_scanner_state()
+    SETTINGS["scanner_on"] = scanner_info["scanner_on"]
+    hrs_ago = scanner_info["hours_ago"]
+    log.info(f"Scanner state restored: {'ON' if SETTINGS['scanner_on'] else 'OFF'} "
+             f"(last changed {hrs_ago} hours ago)")
+
     # Probe NQ symbol on Twelve Data
     try:
         nq_sym = probe_nq_symbol()
         log.info(f"TwelveData NQ symbol: {nq_sym}")
     except Exception as e:
         log.error(f"NQ symbol probe: {e}")
+
+    # Task 2: Auto-expire stale OPEN trades at startup
+    expired_count = 0
+    try:
+        expired = ot.auto_expire_stale_trades(max_hours=24)
+        expired_count = len(expired)
+        if expired_count:
+            log.info(f"Startup: auto-expired {expired_count} stale trade(s)")
+    except Exception as e:
+        log.error(f"Startup auto-expire: {e}")
 
     # Archive old sessions at startup
     try:
@@ -2027,6 +2166,7 @@ async def _post_init(app):
         log.error(f"Startup archive: {e}")
 
     # Check and update setup suspensions at startup
+    suspended_count = 0
     try:
         changes = ot.check_and_update_suspensions()
         if changes:
@@ -2037,17 +2177,10 @@ async def _post_init(app):
             await tg_send(app, "\n".join(lines))
         report = ot.get_suspension_report()
         await tg_send(app, report)
-        log.info(f"Suspension check at startup: {len(changes)} changes")
+        suspended_count = len(ot.get_suspended_setups())
+        log.info(f"Suspension check at startup: {len(changes)} changes, {suspended_count} currently suspended")
     except Exception as e:
         log.error(f"Startup suspension check: {e}")
-
-    # Task 3: Startup restart alert
-    now_et_start = _now_et()
-    await tg_send(app,
-        f"🤖 NQ CALLS Bot restarted\n"
-        f"📡 Scanner is OFF — tap Scanner to start\n"
-        f"⏱ {now_et_start.strftime('%I:%M %p')} ET"
-    )
 
     log.info("Running startup market scan...")
     try:
@@ -2056,6 +2189,77 @@ async def _post_init(app):
         log.info("Startup market state sent.")
     except Exception as e:
         log.error(f"Startup market state failed: {e}")
+
+    # Task 6: Full startup verification message
+    try:
+        # Commit SHA (may not exist on Railway runtime)
+        short_sha = "unknown"
+        try:
+            import subprocess as _sp
+            short_sha = _sp.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=BASE_DIR, stderr=_sp.DEVNULL
+            ).decode().strip() or "unknown"
+        except Exception:
+            short_sha = "unknown"
+
+        # Scanner state + formatting
+        scanner_line = "ON" if SETTINGS["scanner_on"] else "OFF"
+        now_et_start = _now_et()
+        time_str = now_et_start.strftime("%I:%M %p").lstrip("0")
+
+        # Open trades carried
+        open_carried = len(ot.load_open_trades())
+
+        # Counts for setups
+        try:
+            from outcome_tracker import _load_performance
+            all_setups = _load_performance()
+            active_count = sum(1 for k in all_setups if k not in ot.get_suspended_setups())
+        except Exception:
+            active_count = 0
+
+        # Data source status per market (quick bar-count probe, cached)
+        def _market_status(mkt: str) -> str:
+            try:
+                frames = dl_get_frames(mkt)
+                df15 = frames.get("15m")
+                if df15 is not None and len(df15) >= 20:
+                    return "✅"
+                if df15 is not None and len(df15) > 0:
+                    return "⚠️"
+                return "❌"
+            except Exception:
+                return "❌"
+
+        try:
+            nq_s  = _market_status("NQ")
+            gc_s  = _market_status("GC")
+            btc_s = _market_status("BTC")
+            sol_s = _market_status("SOL")
+        except Exception:
+            nq_s = gc_s = btc_s = sol_s = "❓"
+
+        lines = [
+            "🤖 *NQ CALLS Bot Restarted*",
+            "━━━━━━━━━━━━━━━━━━",
+            f"📦 Commit: `{short_sha}`",
+            f"📡 Scanner: `{scanner_line}` (last changed {hrs_ago}h ago)",
+            f"🕐 Time: `{time_str} ET`",
+            "━━━━━━━━━━━━━━━━━━",
+            "📊 *System Status*",
+            f"  Open trades carried: `{open_carried}`",
+            f"  Auto-expired stale: `{expired_count}`",
+            f"  Active setups: `{active_count}` / Suspended: `{suspended_count}`",
+            f"  Data: NQ {nq_s} | GC {gc_s} | BTC {btc_s} | SOL {sol_s}",
+            "━━━━━━━━━━━━━━━━━━",
+        ]
+        if not SETTINGS["scanner_on"]:
+            lines.append("⚠️ Tap the Scanner button to start scanning.")
+        await tg_send(app, "\n".join(lines))
+    except Exception as e:
+        log.error(f"Startup verification message: {e}")
+
     asyncio.create_task(scan_loop(app)); log.info("Scan loop launched.")
 
 def main():
@@ -2069,7 +2273,8 @@ def main():
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
-                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime)]:
+                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
+                   ("rejected",cmd_rejected)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
