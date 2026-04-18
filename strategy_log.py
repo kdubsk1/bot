@@ -16,6 +16,7 @@ Every day we review this with Claude to find patterns we're missing.
 from __future__ import annotations
 import os, json, csv
 from datetime import datetime, timezone
+from typing import Optional
 import pandas as pd
 
 _BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
@@ -26,11 +27,23 @@ CANDIDATE_FILE = os.path.join(_DATA_DIR, "strategy_candidates.txt")
 os.makedirs(_DATA_DIR, exist_ok=True)
 
 COLS = [
+    # ── EXISTING — KEEP THIS ORDER EXACTLY ──
     "timestamp", "market", "tf", "setup_type", "direction",
     "price", "entry", "stop", "target", "rr",
     "conviction", "tier", "trend", "adx", "rsi", "vol_ratio",
     "htf_bias", "news_flag", "decision", "reject_reason",
-    "result", "result_checked_at"
+    "result", "result_checked_at",
+    # ── NEW: scoring transparency ──
+    "score_breakdown",       # JSON dict of conviction factors and their points
+    "confidence_factors",    # JSON dict: BB position, Stoch signal, MACD signal, etc.
+    "detection_reason",      # Human-readable sentence explaining what the bot saw
+    # ── NEW: indicator snapshot at decision time ──
+    "atr", "vwap", "ema20", "ema50", "ema200", "ema21",
+    "bb_upper", "bb_middle", "bb_lower", "bb_width_pct",
+    "stoch_k", "stoch_d", "macd_line", "macd_signal", "macd_hist",
+    # ── NEW: market context ──
+    "close_price", "regime", "session_name",
+    "swing_high_30", "swing_low_30", "volume_raw", "volume_20ma",
 ]
 
 # ── Decision types ─────────────────────────────────────────────────
@@ -38,11 +51,53 @@ DECISION_FIRED            = "FIRED"              # alert sent
 DECISION_REJECTED         = "REJECTED"           # filtered out
 DECISION_ALMOST           = "ALMOST"             # passed most filters, just missed one
 DECISION_SHADOW_SUSPENDED = "REJECTED_SUSPENDED" # detected but blocked by suspension
+DECISION_DETECTED         = "DETECTED"           # raw detection before any filter
+DECISION_CLOSED_WIN       = "CLOSED_WIN"         # trade closed as a win
+DECISION_CLOSED_LOSS      = "CLOSED_LOSS"        # trade closed as a loss
 
 def _ensure_csv():
+    """
+    Ensure strategy_log.csv exists with the current COLS schema.
+    If an old-schema file exists (22 cols), migrate it in place by adding
+    empty values for the new columns. Never loses data.
+    """
     if not os.path.exists(STRATEGY_LOG):
-        with open(STRATEGY_LOG, "w", newline="") as f:
+        with open(STRATEGY_LOG, "w", newline="", encoding="utf-8") as f:
             csv.DictWriter(f, fieldnames=COLS).writeheader()
+        return
+
+    # File exists — check if header matches current COLS
+    try:
+        with open(STRATEGY_LOG, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing_header = next(reader, [])
+    except Exception:
+        existing_header = []
+
+    if existing_header == COLS:
+        return  # already migrated
+
+    # Migration needed. Back up, then rewrite with new schema.
+    backup_path = STRATEGY_LOG + ".pre_batch2a.bak"
+    try:
+        import shutil
+        shutil.copy2(STRATEGY_LOG, backup_path)
+    except Exception:
+        pass
+
+    try:
+        with open(STRATEGY_LOG, newline="", encoding="utf-8") as f:
+            old_rows = list(csv.DictReader(f))
+    except Exception:
+        old_rows = []
+
+    with open(STRATEGY_LOG, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=COLS)
+        writer.writeheader()
+        for row in old_rows:
+            # Fill missing columns with empty string
+            clean = {k: row.get(k, "") for k in COLS}
+            writer.writerow(clean)
 
 def log_scan_decision(
     market: str, tf: str, setup_type: str, direction: str,
@@ -50,39 +105,69 @@ def log_scan_decision(
     conviction: int, tier: str, trend: int,
     adx: float, rsi: float, vol_ratio: float,
     htf_bias: str, news_flag: bool,
-    decision: str, reject_reason: str = ""
+    decision: str, reject_reason: str = "",
+    # ── NEW optional keyword-only params (Batch 2A) ──
+    *,
+    context: Optional[dict] = None,
+    detection_reason: str = "",
+    score_breakdown: Optional[dict] = None,
+    confidence_factors: Optional[dict] = None,
+    result: str = "",
 ) -> str:
     """
-    Log every scan decision — fired, rejected, or almost.
-    Returns the row ID so we can update result later.
+    Log every scan decision — fired, rejected, almost, or detected.
+    Returns the row timestamp so we can update result later.
     """
     _ensure_csv()
     row = {
-        "timestamp":        datetime.now(timezone.utc).isoformat(),
-        "market":           market,
-        "tf":               tf,
-        "setup_type":       setup_type,
-        "direction":        direction,
-        "price":            round(price, 4),
-        "entry":            round(entry, 4),
-        "stop":             round(stop, 4),
-        "target":           round(target, 4),
-        "rr":               round(rr, 2),
-        "conviction":       conviction,
-        "tier":             tier,
-        "trend":            trend,
-        "adx":              round(adx, 1),
-        "rsi":              round(rsi, 1),
-        "vol_ratio":        round(vol_ratio, 2),
-        "htf_bias":         htf_bias,
-        "news_flag":        int(news_flag),
-        "decision":         decision,
-        "reject_reason":    reject_reason,
-        "result":           "",
-        "result_checked_at":"",
+        "timestamp":         datetime.now(timezone.utc).isoformat(),
+        "market":            market,
+        "tf":                tf,
+        "setup_type":        setup_type,
+        "direction":         direction,
+        "price":             round(float(price), 4)    if price     not in ("", None) else "",
+        "entry":             round(float(entry), 4)    if entry     not in ("", None) else "",
+        "stop":              round(float(stop), 4)     if stop      not in ("", None) else "",
+        "target":            round(float(target), 4)   if target    not in ("", None) else "",
+        "rr":                round(float(rr), 2)       if rr        not in ("", None) else "",
+        "conviction":        conviction,
+        "tier":              tier,
+        "trend":             trend,
+        "adx":               round(float(adx), 1)      if adx       not in ("", None) else "",
+        "rsi":               round(float(rsi), 1)      if rsi       not in ("", None) else "",
+        "vol_ratio":         round(float(vol_ratio),2) if vol_ratio not in ("", None) else "",
+        "htf_bias":          htf_bias,
+        "news_flag":         int(bool(news_flag)),
+        "decision":          decision,
+        "reject_reason":     reject_reason or "",
+        "result":            result or "",
+        "result_checked_at": "",
+        # NEW fields
+        "score_breakdown":     json.dumps(score_breakdown, default=str)    if score_breakdown    else "",
+        "confidence_factors":  json.dumps(confidence_factors, default=str) if confidence_factors else "",
+        "detection_reason":    detection_reason or "",
     }
-    with open(STRATEGY_LOG, "a", newline="") as f:
+
+    # Pull indicator snapshot from context (all optional)
+    ctx = context or {}
+    for key in ("atr", "vwap", "ema20", "ema50", "ema200", "ema21",
+                "bb_upper", "bb_middle", "bb_lower", "bb_width_pct",
+                "stoch_k", "stoch_d", "macd_line", "macd_signal", "macd_hist",
+                "close_price", "regime", "session_name",
+                "swing_high_30", "swing_low_30", "volume_raw", "volume_20ma"):
+        val = ctx.get(key, "")
+        if isinstance(val, float):
+            row[key] = round(val, 4)
+        else:
+            row[key] = val if val not in (None,) else ""
+
+    # Ensure every COLS key is present
+    for k in COLS:
+        row.setdefault(k, "")
+
+    with open(STRATEGY_LOG, "a", newline="", encoding="utf-8") as f:
         csv.DictWriter(f, fieldnames=COLS).writerow(row)
+
     return row["timestamp"]
 
 
@@ -282,3 +367,12 @@ def build_strategy_analysis() -> str:
         f.write(report)
 
     return report
+
+
+# ── Batch 2A: auto-migrate the CSV at import time ──
+try:
+    _ensure_csv()
+except Exception:
+    # If migration fails for any reason, don't crash the bot at import time —
+    # the next call to log_scan_decision will retry via _ensure_csv() anyway.
+    pass

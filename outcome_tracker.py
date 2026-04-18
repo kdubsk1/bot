@@ -294,6 +294,51 @@ def vwap(df: pd.DataFrame) -> pd.Series:
         vv = v.cumsum()
     return pv/vv
 
+# ────────────────────────────────────────────────────────
+# Additional indicators (Batch 2A — used for logging context,
+# NOT yet used in setup detection or scoring)
+# ────────────────────────────────────────────────────────
+
+def bollinger_bands(s: pd.Series, n: int = 20, std_dev: float = 2.0):
+    """
+    Returns (upper, middle, lower) Bollinger Bands as pd.Series.
+    Uses simple moving average for middle band.
+    Safe on short series — pandas rolling returns NaN for early rows.
+    """
+    middle = s.rolling(n).mean()
+    std    = s.rolling(n).std()
+    upper  = middle + (std * std_dev)
+    lower  = middle - (std * std_dev)
+    return upper, middle, lower
+
+
+def stochastic(df: pd.DataFrame, k_period: int = 14, d_period: int = 3):
+    """
+    Returns (%K, %D) Stochastic oscillator as pd.Series.
+    Uses df["High"], df["Low"], df["Close"] — case-sensitive column names.
+    Division-by-zero in range gives NaN, filled with 50 (neutral).
+    """
+    low_n  = df["Low"].rolling(k_period).min()
+    high_n = df["High"].rolling(k_period).max()
+    rng    = (high_n - low_n).replace(0, np.nan)
+    k = 100 * (df["Close"] - low_n) / rng
+    k = k.fillna(50)
+    d = k.rolling(d_period).mean().fillna(50)
+    return k, d
+
+
+def macd(s: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9):
+    """
+    Returns (macd_line, signal_line, histogram) as pd.Series.
+    Uses pandas EWM — matches the ema/rsi/adx style already in this file.
+    """
+    ema_fast = s.ewm(span=fast, adjust=False).mean()
+    ema_slow = s.ewm(span=slow, adjust=False).mean()
+    macd_line = ema_fast - ema_slow
+    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
+    hist = macd_line - signal_line
+    return macd_line, signal_line, hist
+
 # ------------------------------------------------------------------ #
 # Swing structure
 # ------------------------------------------------------------------ #
@@ -1146,6 +1191,67 @@ def in_news_window(now_utc: Optional[datetime] = None) -> bool:
 # Auto outcome checker
 # Runs after every scan — checks if open trades hit target or stop
 # ------------------------------------------------------------------ #
+def _log_trade_outcome(trade_row: dict, result: str, exit_price: float):
+    """
+    Write an outcome row to strategy_log.csv so we have a complete
+    detection -> fire -> outcome chain in one file.
+    Deferred import to avoid module circularity.
+    """
+    try:
+        import strategy_log as sl
+    except Exception:
+        return
+
+    try:
+        entry = float(trade_row.get("entry", 0))
+        exit_p = float(exit_price)
+        pts = exit_p - entry if "LONG" in trade_row.get("direction", "") else entry - exit_p
+        pts_str = f"+{round(pts,2)}" if pts >= 0 else f"{round(pts,2)}"
+
+        ts_open = trade_row.get("timestamp", "")
+        held_hours = ""
+        try:
+            open_dt = datetime.fromisoformat(ts_open)
+            if open_dt.tzinfo is None:
+                open_dt = open_dt.replace(tzinfo=timezone.utc)
+            held_s = (datetime.now(timezone.utc) - open_dt).total_seconds()
+            held_hours = round(held_s / 3600, 1)
+        except Exception:
+            pass
+
+        decision_const = sl.DECISION_CLOSED_WIN if result == "WIN" else sl.DECISION_CLOSED_LOSS
+        reason = (f"Trade closed {result} at {round(exit_p,4)}, "
+                  f"{pts_str} pts from entry {round(entry,4)}"
+                  f"{', held ' + str(held_hours) + 'h' if held_hours else ''}.")
+
+        sl.log_scan_decision(
+            trade_row.get("market", "?"),
+            trade_row.get("tf", "?"),
+            trade_row.get("setup", "?"),
+            trade_row.get("direction", "?"),
+            float(exit_p),
+            float(entry),
+            float(trade_row.get("stop", 0) or 0),
+            float(trade_row.get("target", 0) or 0),
+            float(trade_row.get("rr", 0) or 0),
+            int(float(trade_row.get("conviction", 0) or 0)),
+            trade_row.get("tier", "?"),
+            int(float(trade_row.get("trend_score", 0) or 0)),
+            float(trade_row.get("adx", 0) or 0),
+            float(trade_row.get("rsi", 0) or 0),
+            float(trade_row.get("vol_ratio", 0) or 0),
+            trade_row.get("htf_bias", "?"),
+            bool(int(trade_row.get("news_flag", 0) or 0)),
+            decision_const,
+            "",
+            detection_reason=reason,
+            result=result,
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger("nqcalls").debug(f"_log_trade_outcome error: {e}")
+
+
 def auto_check_outcomes(live_frames: dict):
     """
     Checks every open trade against candle HIGH/LOW range since alert timestamp.
@@ -1205,11 +1311,13 @@ def auto_check_outcomes(live_frames: dict):
                 record_trade_result(market, setup_type, "WIN")
                 closed_now.append({"alert_id": alert_id, "result": "WIN",
                                    "market": market, "price": target})
+                _log_trade_outcome(row, "WIN", target)
             elif hit_stop:
                 update_result(alert_id, "LOSS", 0, stop)
                 record_trade_result(market, setup_type, "LOSS")
                 closed_now.append({"alert_id": alert_id, "result": "LOSS",
                                    "market": market, "price": stop})
+                _log_trade_outcome(row, "LOSS", stop)
         except Exception as e:
             _log.warning(f"auto_check_outcomes {row.get('alert_id')}: {e}")
             continue

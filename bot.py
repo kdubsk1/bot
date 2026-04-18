@@ -513,6 +513,113 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
     msg += "⚠️ Not financial advice. Manage your risk."
     return msg
 
+# ── Batch 2A: Detection reason + confidence factor builders ──────
+def _build_detection_reason(stp: dict, snapshot: dict, adx_v: float,
+                             rsi_v: float, vol_ratio: float) -> str:
+    """
+    Build a rich human-readable sentence explaining why this setup was detected.
+    Uses the setup's 'detail' field plus indicator context.
+    """
+    setup_type = stp.get("type", "UNKNOWN")
+    base = stp.get("detail", "")
+
+    # Indicator context phrase
+    bb_pos = ""
+    bb_u = snapshot.get("bb_upper", 0)
+    bb_l = snapshot.get("bb_lower", 0)
+    close = snapshot.get("close_price", 0)
+    if bb_u and bb_l and bb_u > bb_l and close:
+        pct = (close - bb_l) / (bb_u - bb_l)
+        if pct <= 0.2:
+            bb_pos = "price in lower 20% of Bollinger range"
+        elif pct >= 0.8:
+            bb_pos = "price in upper 20% of Bollinger range"
+        elif 0.4 <= pct <= 0.6:
+            bb_pos = "price at Bollinger middle"
+
+    stoch_phrase = ""
+    sk = snapshot.get("stoch_k", 50)
+    sd = snapshot.get("stoch_d", 50)
+    if sk <= 20 and sk > sd:
+        stoch_phrase = f"Stoch oversold turning up ({sk:.0f}>{sd:.0f})"
+    elif sk >= 80 and sk < sd:
+        stoch_phrase = f"Stoch overbought turning down ({sk:.0f}<{sd:.0f})"
+    elif sk <= 20:
+        stoch_phrase = f"Stoch oversold ({sk:.0f})"
+    elif sk >= 80:
+        stoch_phrase = f"Stoch overbought ({sk:.0f})"
+
+    macd_phrase = ""
+    ml = snapshot.get("macd_line", 0)
+    ms = snapshot.get("macd_signal", 0)
+    mh = snapshot.get("macd_hist", 0)
+    if ml > ms and mh > 0:
+        macd_phrase = "MACD bullish (line>signal, hist positive)"
+    elif ml < ms and mh < 0:
+        macd_phrase = "MACD bearish (line<signal, hist negative)"
+
+    context_parts = []
+    if bb_pos:       context_parts.append(bb_pos)
+    if stoch_phrase: context_parts.append(stoch_phrase)
+    if macd_phrase:  context_parts.append(macd_phrase)
+    if vol_ratio:    context_parts.append(f"volume {vol_ratio:.1f}x avg")
+    if adx_v:        context_parts.append(f"ADX {adx_v:.1f}")
+    if rsi_v:        context_parts.append(f"RSI {rsi_v:.1f}")
+
+    ctx_str = " | ".join(context_parts) if context_parts else ""
+    if base and ctx_str:
+        return f"{base} [Context: {ctx_str}]"
+    elif base:
+        return base
+    elif ctx_str:
+        return f"{setup_type} detected. [Context: {ctx_str}]"
+    else:
+        return f"{setup_type} detected."
+
+
+def _build_confidence_factors(snapshot: dict, trend: int, adx_v: float,
+                                rsi_v: float) -> dict:
+    """
+    Returns a dict of qualitative flags useful for later analysis.
+    Separate from score_breakdown — this is qualitative, that's quantitative.
+    """
+    factors = {}
+    close = snapshot.get("close_price", 0)
+    bb_u = snapshot.get("bb_upper", 0)
+    bb_l = snapshot.get("bb_lower", 0)
+    if bb_u and bb_l and close and bb_u > bb_l:
+        pct = (close - bb_l) / (bb_u - bb_l)
+        if pct <= 0.2:   factors["bb_position"] = "near_lower"
+        elif pct >= 0.8: factors["bb_position"] = "near_upper"
+        elif pct >= 0.4 and pct <= 0.6: factors["bb_position"] = "middle"
+        else: factors["bb_position"] = "intermediate"
+
+    sk = snapshot.get("stoch_k", 50)
+    sd = snapshot.get("stoch_d", 50)
+    if sk <= 20:
+        factors["stoch_signal"] = "oversold_cross_up" if sk > sd else "oversold"
+    elif sk >= 80:
+        factors["stoch_signal"] = "overbought_cross_down" if sk < sd else "overbought"
+    else:
+        factors["stoch_signal"] = "neutral"
+
+    ml = snapshot.get("macd_line", 0)
+    ms = snapshot.get("macd_signal", 0)
+    mh = snapshot.get("macd_hist", 0)
+    if ml > ms and mh > 0:
+        factors["macd_signal"] = "bullish"
+    elif ml < ms and mh < 0:
+        factors["macd_signal"] = "bearish"
+    else:
+        factors["macd_signal"] = "transitioning"
+
+    factors["trend_strength"] = "strong_bull" if trend >= 5 else "bull" if trend >= 2 else "bear" if trend <= -2 else "strong_bear" if trend <= -5 else "neutral"
+    factors["adx_regime"] = "trending" if adx_v >= 25 else "weak_trend" if adx_v >= 18 else "choppy"
+    factors["rsi_zone"] = "overbought" if rsi_v >= 70 else "oversold" if rsi_v <= 30 else "neutral_upper" if rsi_v >= 55 else "neutral_lower" if rsi_v <= 45 else "neutral"
+
+    return factors
+
+
 # ── Scan one market ───────────────────────────────────────────────
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
@@ -796,13 +903,89 @@ async def scan_market(app, market, frames):
         vol_ratio= (vol_last / max(1e-9, vol_mean)) if (vol_mean and vol_mean > 0) else 0.0
         cur_price= float(df_e["Close"].iloc[-1])
 
+        # ── Batch 2A: Build full indicator snapshot for logging ──
+        def _safe_float(val, default=0.0):
+            try:
+                v = float(val)
+                if not np.isfinite(v):
+                    return default
+                return v
+            except (ValueError, TypeError):
+                return default
+
+        snapshot_context = {"close_price": cur_price}
+
+        # Bollinger Bands
+        try:
+            bb_upper, bb_middle, bb_lower = ot.bollinger_bands(df_e["Close"])
+            bb_u = _safe_float(bb_upper.iloc[-1])
+            bb_m = _safe_float(bb_middle.iloc[-1])
+            bb_l = _safe_float(bb_lower.iloc[-1])
+            bb_width_pct = ((bb_u - bb_l) / bb_m * 100) if bb_m > 0 else 0.0
+            snapshot_context.update({
+                "bb_upper": bb_u, "bb_middle": bb_m, "bb_lower": bb_l,
+                "bb_width_pct": bb_width_pct,
+            })
+        except Exception as e:
+            log.debug(f"[{market}] BB calc: {e}")
+            snapshot_context.update({"bb_upper": 0, "bb_middle": 0, "bb_lower": 0, "bb_width_pct": 0})
+
+        # Stochastic
+        try:
+            stoch_k_s, stoch_d_s = ot.stochastic(df_e)
+            snapshot_context["stoch_k"] = _safe_float(stoch_k_s.iloc[-1], 50)
+            snapshot_context["stoch_d"] = _safe_float(stoch_d_s.iloc[-1], 50)
+        except Exception as e:
+            log.debug(f"[{market}] Stoch calc: {e}")
+            snapshot_context.update({"stoch_k": 50, "stoch_d": 50})
+
+        # MACD
+        try:
+            macd_l, macd_s_sig, macd_h = ot.macd(df_e["Close"])
+            snapshot_context["macd_line"]   = _safe_float(macd_l.iloc[-1])
+            snapshot_context["macd_signal"] = _safe_float(macd_s_sig.iloc[-1])
+            snapshot_context["macd_hist"]   = _safe_float(macd_h.iloc[-1])
+        except Exception as e:
+            log.debug(f"[{market}] MACD calc: {e}")
+            snapshot_context.update({"macd_line": 0, "macd_signal": 0, "macd_hist": 0})
+
+        # EMAs + VWAP
+        try:
+            snapshot_context["vwap"]   = _safe_float(ot.vwap(df_e).iloc[-1])
+            snapshot_context["ema20"]  = _safe_float(ot.ema(df_e["Close"], 20).iloc[-1])  if len(df_e) >= 20 else 0
+            snapshot_context["ema50"]  = _safe_float(ot.ema(df_e["Close"], 50).iloc[-1])  if len(df_e) >= 50 else 0
+            snapshot_context["ema200"] = _safe_float(ot.ema(df_e["Close"], 200).iloc[-1]) if len(df_e) >= 200 else 0
+            snapshot_context["ema21"]  = _safe_float(ot.ema(df_e["Close"], 21).iloc[-1])  if len(df_e) >= 21 else 0
+        except Exception as e:
+            log.debug(f"[{market}] EMA calc: {e}")
+
+        # Context: ATR, swings, volumes, regime, session
+        snapshot_context["atr"] = atr_v
+        snapshot_context["swing_high_30"] = _safe_float(df_e.iloc[-30:]["High"].max()) if len(df_e) >= 30 else 0
+        snapshot_context["swing_low_30"]  = _safe_float(df_e.iloc[-30:]["Low"].min())  if len(df_e) >= 30 else 0
+        snapshot_context["volume_raw"]    = vol_last
+        snapshot_context["volume_20ma"]   = _safe_float(vol_mean) if vol_mean else 0
+        snapshot_context["session_name"]  = session.get("session", "Unknown")
+
+        try:
+            from regime_classifier import classify_regime
+            # NOTE: classify_regime uses lowercase column names. May fail silently.
+            regime_info = classify_regime(df_e)
+            snapshot_context["regime"] = regime_info.get("regime", "UNKNOWN")
+        except Exception as e:
+            log.debug(f"[{market}] Regime classify: {e}")
+            snapshot_context["regime"] = "UNKNOWN"
+
         if vol_mean is None or not np.isfinite(vol_mean) or vol_mean < 1.0:
             log.info(f"[{market}] [{entry_tf}] Volume data degraded — skip")
             for stp in setups:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, f"No volume data")
+                    sl.DECISION_REJECTED,
+                    f"Volume data degraded or zero (vol_mean={vol_mean}) — cannot assess setup quality",
+                    context=snapshot_context,
+                    detection_reason=f"{stp['type']} detected but skipped: volume data unreliable this scan")
             continue
         if vol_ratio < 0.1 and vol_last < 1.0:
             log.info(f"[{market}] [{entry_tf}] Zero-volume candle — skip")
@@ -811,6 +994,30 @@ async def scan_market(app, market, frames):
         session_name = session.get("session","")
         is_prime_session = any(s in session_name for s in ("US Regular","London","Pre-Market","London/NY"))
 
+        # ── Batch 2A: Log every raw detection BEFORE any filter ──
+        # One DETECTED row per setup. Subsequent rows (REJECTED/ALMOST/FIRED) are
+        # logged separately as the setup goes through the filter chain.
+        for stp in setups:
+            try:
+                stp["market"] = market  # needed for scoring context later
+                det_reason = _build_detection_reason(stp, snapshot_context,
+                                                      adx_v, rsi_v, vol_ratio)
+                conf_factors = _build_confidence_factors(snapshot_context, trend,
+                                                           adx_v, rsi_v)
+                sl.log_scan_decision(
+                    market, entry_tf, stp["type"], stp["direction"],
+                    cur_price, stp["entry"], stp["raw_stop"],
+                    0, 0, 0, "DETECT",
+                    trend, adx_v, rsi_v, vol_ratio,
+                    htf_bias, news_flag,
+                    sl.DECISION_DETECTED, "",
+                    context=snapshot_context,
+                    detection_reason=det_reason,
+                    confidence_factors=conf_factors,
+                )
+            except Exception as e:
+                log.debug(f"[{market}] DETECTED log error for {stp.get('type')}: {e}")
+
         for stp in setups:
             stp["market"] = market
 
@@ -818,10 +1025,15 @@ async def scan_market(app, market, frames):
             # Task 4: Shadow-log so we can retroactively analyze if suspensions were correct
             if ot.is_setup_suspended(market, stp["type"]):
                 log.info(f"[{market}] [{entry_tf}] Shadow-log {stp['type']} — suspended (would-have-fired)")
+                suspended_info = ot.get_suspended_setups().get(f"{market}:{stp['type']}", {})
+                reason_text = suspended_info.get("reason", "unknown")
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_SHADOW_SUSPENDED, "SUSPENDED — would-have-fired")
+                    sl.DECISION_SHADOW_SUSPENDED,
+                    f"Suspended due to {reason_text} — shadow-logged to track would-have-fired rate",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
             adx_min_by_setup = getattr(cfg, "ADX_MIN_BY_SETUP", {})
@@ -833,7 +1045,10 @@ async def scan_market(app, market, frames):
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, f"ADX {round(adx_v,1)} < {required_adx} for {stp['type']}")
+                    sl.DECISION_REJECTED,
+                    f"ADX {round(adx_v,1)} below {stp['type']} minimum {required_adx} — market too choppy for this setup type",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
             if not _cooldown_ok(market, stp["type"]):
@@ -856,14 +1071,20 @@ async def scan_market(app, market, frames):
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, f"APPROACH_RESIST blocked: trend {trend:+d} not bearish")
+                    sl.DECISION_REJECTED,
+                    f"APPROACH_RESIST requires trend <= -2 for bearish approach; current trend is {trend:+d}",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
             if stp["type"] == "APPROACH_SUPPORT" and trend < 2:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, f"APPROACH_SUPPORT blocked: trend {trend:+d} not bullish")
+                    sl.DECISION_REJECTED,
+                    f"APPROACH_SUPPORT requires trend >= +2 for bullish approach; current trend is {trend:+d}",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
             tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
@@ -873,7 +1094,10 @@ async def scan_market(app, market, frames):
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, "No real swing target available")
+                    sl.DECISION_REJECTED,
+                    "No real swing target available — nearest structural level too close for minimum R:R",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
             sim_risk = sim.check_risk_limits()
@@ -887,7 +1111,7 @@ async def scan_market(app, market, frames):
                 )
                 return
 
-            quick_conv, quick_tier, _ = ot.conviction_score(
+            quick_conv, quick_tier, quick_bd = ot.conviction_score(
                 stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio,
                 abs(tgt-stp["entry"])/max(1e-9, atr_v)
             )
@@ -899,13 +1123,22 @@ async def scan_market(app, market, frames):
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED, f"RR {round(rr,2)} < min {min_rr}")
+                    sl.DECISION_REJECTED,
+                    f"R:R {round(rr,2)} below minimum {min_rr} (tier quick-conv {quick_conv}, target {round(tgt,4)})",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
             clean_path = abs(tgt-stp["entry"])/max(1e-9, atr_v)
-            conv, tier, _ = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio, clean_path)
+            conv, tier, bd_core = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio, clean_path)
             extra         = cfg.extra_conviction_factors(df_e, df_h, stp, trend, adx_v, rsi_v)
             conv          = max(0, min(100, conv+sum(extra.values())))
+            # Merge core breakdown with market-specific extras for full transparency
+            bd_final = dict(bd_core)
+            for _k, _v in (extra or {}).items():
+                bd_final[f"extra_{_k}"] = _v
+            bd_final["base"] = 30  # the starting base score in conviction_score
+            bd_final["final_score"] = conv
             if   conv>=80: tier="HIGH"
             elif conv>=65: tier="MEDIUM"
             elif conv>=50: tier="LOW"
@@ -913,10 +1146,19 @@ async def scan_market(app, market, frames):
 
             if tier=="REJECT" or conv < cfg.MIN_CONVICTION:
                 decision = sl.DECISION_ALMOST if conv >= cfg.MIN_CONVICTION-10 else sl.DECISION_REJECTED
+                _conv_reason = (
+                    f"Conviction {conv} below {cfg.MIN_CONVICTION} minimum (tier={tier}); gap: {cfg.MIN_CONVICTION - conv} points"
+                    if decision == sl.DECISION_REJECTED else
+                    f"Conviction {conv} just short of {cfg.MIN_CONVICTION} minimum by {cfg.MIN_CONVICTION - conv} points — ALMOST"
+                )
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    decision, f"Conv {conv} < min {cfg.MIN_CONVICTION}")
+                    decision, _conv_reason,
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    score_breakdown=bd_final,
+                    confidence_factors=_build_confidence_factors(snapshot_context, trend, adx_v, rsi_v))
                 continue
 
             dd_pct = sim_risk.get("daily_used_pct", 0)
@@ -925,14 +1167,22 @@ async def scan_market(app, market, frames):
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                         cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                         trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                        sl.DECISION_REJECTED, f"DD>75% needs conv 90+, got {conv}")
+                        sl.DECISION_REJECTED,
+                        f"Daily drawdown {dd_pct:.0f}% requires conviction >=90, got {conv} — protecting account",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                        score_breakdown=bd_final)
                     continue
             elif dd_pct > 50:
                 if conv < 80:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                         cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                         trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                        sl.DECISION_REJECTED, f"DD>50% needs conv 80+, got {conv}")
+                        sl.DECISION_REJECTED,
+                        f"Daily drawdown {dd_pct:.0f}% requires conviction >=80, got {conv} — cautious mode",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                        score_breakdown=bd_final)
                     continue
 
             lev = risk_pct = hold = None
@@ -966,7 +1216,12 @@ async def scan_market(app, market, frames):
 
             sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                 cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
-                trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag, sl.DECISION_FIRED, "")
+                trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                sl.DECISION_FIRED, "",
+                context=snapshot_context,
+                detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                score_breakdown=bd_final,
+                confidence_factors=_build_confidence_factors(snapshot_context, trend, adx_v, rsi_v))
 
             _mark_cooldown(market, stp["type"])
 
@@ -1027,6 +1282,11 @@ async def force_flatten_futures(app):
         result = "WIN" if (pts > 0 if isinstance(pts, float) else False) else "LOSS"
         ot.update_result(row["alert_id"], result, 0, cur)
         ot.record_trade_result(market, row.get("setup",""), result)
+        # Batch 2A: Log outcome to strategy_log.csv
+        try:
+            ot._log_trade_outcome(row, result, cur)
+        except Exception:
+            pass
 
         icon = "✅" if result=="WIN" else "❌"
         await tg_send(app,
@@ -1574,6 +1834,12 @@ async def _mark(u, result, args):
     exit_p=match.get("target",0) if result=="WIN" else match.get("stop",0) if result=="LOSS" else 0
     ot.update_result(match["alert_id"],result,0,exit_p)
     if result in ("WIN","LOSS"): ot.record_trade_result(match["market"],match["setup"],result)
+    # Batch 2A: Log outcome to strategy_log.csv
+    if result in ("WIN","LOSS"):
+        try:
+            ot._log_trade_outcome(match, result, exit_p)
+        except Exception:
+            pass
     icons={"WIN":"✅","LOSS":"❌","SKIP":"⏭"}
     await u.message.reply_text(f"{icons.get(result,'❓')} *{result}* — {match.get('market')} | {_md(match.get('setup',''))}\nLearning updated.",parse_mode="Markdown")
 
@@ -1723,6 +1989,120 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_detections(u, c):
+    """
+    Show the last 20 DETECTED entries from strategy_log.csv with full context.
+    Optionally filter by market: /detections NQ
+    """
+    import csv as _csv
+    log_path = os.path.join(BASE_DIR, "data", "strategy_log.csv")
+    if not os.path.exists(log_path):
+        await u.message.reply_text("No strategy log yet — bot hasn't scanned.")
+        return
+
+    market_filter = (c.args[0].upper() if c.args else "").strip() or None
+
+    try:
+        with open(log_path, newline="", encoding="utf-8") as f:
+            rows = list(_csv.DictReader(f))
+    except Exception as e:
+        await u.message.reply_text(f"❌ Could not read log: {e}")
+        return
+
+    detected = [r for r in rows if r.get("decision") == "DETECTED"]
+    if market_filter:
+        detected = [r for r in detected if r.get("market") == market_filter]
+
+    if not detected:
+        await u.message.reply_text(
+            f"No recent detections{' for ' + market_filter if market_filter else ''}."
+        )
+        return
+
+    lines = [
+        f"🔭 *Last 20 Detections"
+        f"{' — ' + market_filter if market_filter else ''}*",
+        "━━━━━━━━━━━━━━━━━━",
+    ]
+
+    # Find the last 20 DETECTED rows AND remember their position so we can
+    # look forward in the rows list to find the matching outcome.
+    recent_with_idx = []
+    count = 0
+    for i in range(len(rows) - 1, -1, -1):
+        if rows[i].get("decision") == "DETECTED":
+            if market_filter and rows[i].get("market") != market_filter:
+                continue
+            recent_with_idx.append((i, rows[i]))
+            count += 1
+            if count >= 20:
+                break
+    recent_with_idx.reverse()  # oldest first
+
+    for idx, det_row in recent_with_idx:
+        mkt = det_row.get("market", "?")
+        setup = det_row.get("setup_type", "?")
+        tf = det_row.get("tf", "?")
+        direction = det_row.get("direction", "?")
+        ts = det_row.get("timestamp", "")[:16].replace("T", " ")
+
+        # Indicator snapshot line
+        adx_v = det_row.get("adx", "?")
+        rsi_v = det_row.get("rsi", "?")
+        sk = det_row.get("stoch_k", "")
+        mh = det_row.get("macd_hist", "")
+
+        indicators = f"ADX {adx_v} | RSI {rsi_v}"
+        if sk: indicators += f" | Stoch {sk}"
+        if mh: indicators += f" | MACD hist {mh}"
+
+        # Outcome lookup: scan forward in rows for same setup
+        outcome_icon = "❓"
+        outcome_note = "no follow-up"
+        for j in range(idx + 1, min(idx + 15, len(rows))):
+            follow = rows[j]
+            if (follow.get("market") == mkt
+                    and follow.get("setup_type") == setup
+                    and follow.get("tf") == tf):
+                dec = follow.get("decision", "")
+                if dec == "FIRED":
+                    outcome_icon = "🟢"
+                    outcome_note = f"FIRED conv {follow.get('conviction','?')}"
+                    break
+                elif dec == "REJECTED":
+                    outcome_icon = "❌"
+                    outcome_note = (follow.get("reject_reason", "rejected") or "rejected")[:50]
+                    break
+                elif dec == "ALMOST":
+                    outcome_icon = "🟡"
+                    outcome_note = f"ALMOST conv {follow.get('conviction','?')}"
+                    break
+                elif dec == "REJECTED_SUSPENDED":
+                    outcome_icon = "⛔"
+                    outcome_note = "suspended shadow-log"
+                    break
+
+        reason = det_row.get("detection_reason", "")
+        if len(reason) > 80:
+            reason = reason[:77] + "..."
+
+        lines.append(f"{outcome_icon} `{mkt} {setup}` [{tf}] {direction} | {ts}")
+        lines.append(f"   {indicators}")
+        if reason:
+            lines.append(f"   _{_md(reason)}_")
+        lines.append(f"   → {outcome_note}")
+        lines.append("")
+
+    lines.append("━━━━━━━━━━━━━━━━━━")
+    lines.append(f"_Total DETECTED rows: {len(detected)}_")
+    lines.append(f"_Usage: /detections or /detections NQ|GC|BTC|SOL_")
+
+    msg = "\n".join(lines)
+    if len(msg) > 4000:
+        msg = msg[:3900] + "\n\n_...truncated_"
+    await u.message.reply_text(msg, parse_mode="Markdown")
+
+
 async def cmd_rejected(u, c):
     """Task 5: Show last 10 rejected or almost-fired scan decisions."""
     import csv as _csv
@@ -1787,6 +2167,7 @@ async def cmd_help(u,c):
         "━━━━━━━━━━━━━━━━━━\n"
         "`/stats` `/open` `/win` `/loss` `/skip` `/report` `/brief`\n"
         "`/session` `/history [date]` `/lifetime`\n"
+        "`/rejected` `/detections [market]` — see what bot is thinking\n"
         "━━━━━━━━━━━━━━━━━━\n"
         "⚠️ Not financial advice. Manage your risk.",
         parse_mode="Markdown")
@@ -1889,6 +2270,12 @@ async def on_button(u, c):
         exit_p=match.get("target",0) if result=="WIN" else match.get("stop",0) if result=="LOSS" else 0
         ot.update_result(match["alert_id"],result,0,exit_p)
         if result in ("WIN","LOSS"): ot.record_trade_result(match["market"],match["setup"],result)
+        # Batch 2A: Log outcome to strategy_log.csv
+        if result in ("WIN","LOSS"):
+            try:
+                ot._log_trade_outcome(match, result, exit_p)
+            except Exception:
+                pass
         icons={"WIN":"✅","LOSS":"❌","SKIP":"⏭"}
         await q.message.reply_text(f"{icons[result]} *{result}* — {match.get('market')} | {_md(match.get('setup',''))}\nLearning updated.",parse_mode="Markdown"); return
     elif d=="status":
@@ -2254,6 +2641,33 @@ async def _post_init(app):
             f"  Data: NQ {nq_s} | GC {gc_s} | BTC {btc_s} | SOL {sol_s}",
             "━━━━━━━━━━━━━━━━━━",
         ]
+
+        # ── Batch 2A: Observability status ──
+        try:
+            import csv as _csv
+            sl_path = os.path.join(BASE_DIR, "data", "strategy_log.csv")
+            sl_rows = 0
+            sl_detected = 0
+            sl_fired = 0
+            if os.path.exists(sl_path):
+                with open(sl_path, newline="", encoding="utf-8") as f:
+                    for r in _csv.DictReader(f):
+                        sl_rows += 1
+                        dec = r.get("decision", "")
+                        if dec == "DETECTED": sl_detected += 1
+                        elif dec == "FIRED":  sl_fired += 1
+
+            lines.append("🧠 *Observability (Batch 2A)*")
+            lines.append(f"  Strategy log rows: `{sl_rows:,}`")
+            lines.append(f"  Detections logged: `{sl_detected:,}` | Fired: `{sl_fired:,}`")
+            lines.append(f"  Indicators per scan: ADX RSI ATR VWAP EMA(20/50/200/21)")
+            lines.append(f"                      BB(20,2) Stoch(14,3) MACD(12,26,9)")
+            lines.append(f"  Full detection logging: ✅ Active")
+            lines.append(f"  Every scan saved with score breakdown + reason")
+            lines.append("━━━━━━━━━━━━━━━━━━")
+        except Exception as e:
+            log.error(f"Batch 2A startup section: {e}")
+
         if not SETTINGS["scanner_on"]:
             lines.append("⚠️ Tap the Scanner button to start scanning.")
         await tg_send(app, "\n".join(lines))
@@ -2274,7 +2688,7 @@ def main():
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
-                   ("rejected",cmd_rejected)]:
+                   ("rejected",cmd_rejected),("detections",cmd_detections)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
