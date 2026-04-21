@@ -322,32 +322,85 @@ def _build_rejection_section(stratlog_today: pd.DataFrame) -> str:
 
 
 def _build_shadow_section(stratlog_today: pd.DataFrame, outcomes_today: pd.DataFrame) -> str:
-    """Specifically measures SHADOW_HALTED rows today."""
+    """
+    Full shadow-tracking report.
+    Shows every SHADOW_* and REJECTED_SUSPENDED row with:
+      - Count fired in shadow
+      - Of those resolved (WOULD_WIN / WOULD_LOSE): how many would have won vs lost
+      - Would-WR% of resolved shadow signals
+    Also breaks down setup-level shadows by market:setup for suspension review.
+    """
     if stratlog_today.empty:
-        return "## 👻 Shadow Halt Activity\n\n_No strategy log entries today._"
+        return "## 👻 Shadow Tracking\n\n_No strategy log entries today._"
 
-    shadow = stratlog_today[stratlog_today.get("decision", "") == "SHADOW_HALTED"]
-    shadow_count = len(shadow)
+    # All shadow-type decisions we track
+    shadow_decisions = [
+        "SHADOW_HALTED", "SHADOW_PROFIT_LOCK", "SHADOW_MAX_TRADES",
+        "SHADOW_CORRELATION", "SHADOW_ZONE_LOCK", "SHADOW_FAMILY_CD",
+        "SHADOW_MARKET_HALT", "SHADOW_COOLDOWN", "REJECTED_SUSPENDED",
+    ]
 
-    lines = ["## 👻 Shadow Halt Activity", ""]
-    if shadow_count == 0:
-        lines.append("_The 2-loss halt would not have fired today. 0 signals affected._")
-        return "\n".join(lines)
+    shadow = stratlog_today[stratlog_today.get("decision", "").isin(shadow_decisions)]
 
-    lines.append(f"**Signals the old halt would have blocked today: {shadow_count}**")
-    lines.append(f"(These signals fired anyway under Pre-Batch rules. Tracking outcomes.)")
-    lines.append("")
-    lines.append("| Time (ET) | Market | Setup | Direction | Conviction |")
-    lines.append("|---|---|---|---|---|")
-    for _, r in shadow.iterrows():
-        try:
-            ts_et = r["ts"].tz_convert("America/New_York").strftime("%H:%M") if "ts" in r else "?"
-        except Exception:
-            ts_et = "?"
+    if shadow.empty:
+        return "## 👻 Shadow Tracking\n\n_No shadow-logged events today. (All gates passed, no suspended setups detected.)_"
+
+    lines = [
+        "## 👻 Shadow Tracking",
+        "",
+        f"**Total shadow events today: {len(shadow)}**",
+        "_(Signals where old gates OR suspension would have blocked — we let them fire/log for counterfactual data.)_",
+        "",
+        "### By decision type",
+        "",
+        "| Decision | Count | Resolved | Would-Win | Would-Lose | Would-WR% |",
+        "|---|---|---|---|---|---|",
+    ]
+
+    for dec in shadow_decisions:
+        subset = shadow[shadow["decision"] == dec]
+        if subset.empty:
+            continue
+        # check_missed_setups() writes WOULD_WIN/WOULD_LOSE into the result column
+        resolved = subset[subset.get("result", "").isin(["WOULD_WIN", "WOULD_LOSE", "WIN", "LOSS"])]
+        wins = len(resolved[resolved.get("result", "").isin(["WOULD_WIN", "WIN"])])
+        losses = len(resolved[resolved.get("result", "").isin(["WOULD_LOSE", "LOSS"])])
+        total_resolved = wins + losses
+        wr = round(wins / max(1, total_resolved) * 100, 1) if total_resolved > 0 else 0
         lines.append(
-            f"| {ts_et} | {r.get('market','?')} | {r.get('setup_type','?')} | "
-            f"{r.get('direction','?')} | {r.get('conviction','?')} |"
+            f"| {dec} | {len(subset)} | {total_resolved} | {wins} | {losses} | "
+            f"{wr if total_resolved >= 3 else '—'}% |"
         )
+
+    # Setup-level shadows (exclude scan-level SHADOW_SCAN rows)
+    lines.append("")
+    lines.append("### Suspended & per-setup shadow outcomes (today)")
+    lines.append("")
+
+    setup_level = shadow[shadow.get("setup_type", "") != "SHADOW_SCAN"]
+    if setup_level.empty:
+        lines.append("_No setup-level shadow events today._")
+    else:
+        setup_level = setup_level.copy()
+        setup_level["key"] = setup_level["market"].astype(str) + ":" + setup_level["setup_type"].astype(str)
+
+        lines.append("| Setup | Fires | Would-Win | Would-Lose | Notes |")
+        lines.append("|---|---|---|---|---|")
+
+        for key, g in setup_level.groupby("key"):
+            wins = len(g[g.get("result", "").isin(["WOULD_WIN", "WIN"])])
+            losses = len(g[g.get("result", "").isin(["WOULD_LOSE", "LOSS"])])
+            flag = ""
+            if wins >= 2 and wins > losses * 2:
+                flag = "🔥 proving itself"
+            elif losses >= 3 and losses > wins * 2:
+                flag = "⚠️ still bad"
+            lines.append(f"| {key} | {len(g)} | {wins} | {losses} | {flag} |")
+
+    lines.append("")
+    lines.append("_Shadow outcomes (WOULD_WIN / WOULD_LOSE) are resolved by `check_missed_setups()` "
+                 "using live candle HIGH/LOW ranges — same method as real trade outcomes._")
+
     return "\n".join(lines)
 
 
@@ -440,9 +493,15 @@ def _build_telegram_summary(
     today_pnl = sim_state.get("today_pnl", 0) if sim_state else 0
     balance = sim_state.get("balance", 0) if sim_state else 0
 
+    # Pre-Batch Follow-up Part B 2026-04-21: count ALL shadow types + suspended
+    shadow_types = [
+        "SHADOW_HALTED", "SHADOW_PROFIT_LOCK", "SHADOW_MAX_TRADES",
+        "SHADOW_CORRELATION", "SHADOW_ZONE_LOCK", "SHADOW_FAMILY_CD",
+        "SHADOW_MARKET_HALT", "SHADOW_COOLDOWN", "REJECTED_SUSPENDED",
+    ]
     shadow_count = 0
     if not stratlog_today.empty and "decision" in stratlog_today.columns:
-        shadow_count = len(stratlog_today[stratlog_today["decision"] == "SHADOW_HALTED"])
+        shadow_count = len(stratlog_today[stratlog_today["decision"].isin(shadow_types)])
 
     anomaly_count = anomaly_md.count("⚠️")
 
@@ -453,7 +512,7 @@ def _build_telegram_summary(
         f"*Sim P&L:* ${today_pnl:+,.2f}  |  *Balance:* ${balance:,.2f}",
     ]
     if shadow_count > 0:
-        lines.append(f"*Halt would have blocked:* {shadow_count} signals (tracked)")
+        lines.append(f"*Shadow events:* {shadow_count} (old gates/suspension would have blocked)")
     if anomaly_count > 0:
         lines.append(f"⚠️ *{anomaly_count} anomalies* — see data/recap_{session_date}.md")
     lines.append("━━━━━━━━━━━━━━━━━━")

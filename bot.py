@@ -1832,11 +1832,13 @@ def build_asia_brief():
 # ── Session boundary safety + daily report state (Task 3B/3C) ────
 _LAST_SESSION_CLOSE_FIRED = None   # session_date string that was already closed
 _LAST_DAILY_REPORT_DATE   = None   # date string for which report was sent
+# Pre-Batch Follow-up Part B 2026-04-21: weekly recap deduplication
+_LAST_WEEKLY_RECAP_DATE   = None   # Monday isoformat for which weekly recap was sent
 
 # ── Scan loop ─────────────────────────────────────────────────────
 async def scan_loop(app):
     global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
-    global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE
+    global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE, _LAST_WEEKLY_RECAP_DATE
     last_brief=last_asia=last_report=None
     last_hb=datetime.now(timezone.utc)
     scan_interval = SETTINGS["scan_interval_min"]
@@ -1874,6 +1876,24 @@ async def scan_loop(app):
                         log.info(f"Daily report sent for {today_str}")
                     except Exception as e:
                         log.error(f"Daily report scheduler: {e}")
+
+            # Pre-Batch Follow-up Part B 2026-04-21: Weekly recap scheduler — Mondays at 8 AM ET
+            try:
+                if now_et.weekday() == 0 and now_et.hour >= 8:  # Monday, 8 AM+
+                    from datetime import timedelta as _td
+                    this_monday = now_et.date()
+                    last_week_monday = this_monday - _td(days=7)
+                    if _LAST_WEEKLY_RECAP_DATE != this_monday.isoformat():
+                        try:
+                            from weekly_recap import generate_weekly_recap
+                            md_path, tg_text = generate_weekly_recap(last_week_monday)
+                            await tg_send(app, tg_text)
+                            _LAST_WEEKLY_RECAP_DATE = this_monday.isoformat()
+                            log.info(f"Weekly recap sent for week of {last_week_monday}, file: {md_path}")
+                        except Exception as e:
+                            log.error(f"Weekly recap generation/send: {e}")
+            except Exception as e:
+                log.error(f"Weekly recap scheduler: {e}")
 
             # Pre-Batch Follow-up Part A 2026-04-20: Safety-net 4:10 PM force-flatten.
             # Primary path is SessionClock.FUTURES_PRE_FLATTEN. This covers us if that
