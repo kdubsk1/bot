@@ -1,0 +1,240 @@
+═══════════════════════════════════════════════════════════════════════
+PROJECT JOURNAL — Wayne's NQ CALLS Bot
+═══════════════════════════════════════════════════════════════════════
+Permanent history of every batch/deploy. Future Claude and Opus sessions
+should READ THIS FIRST to understand current state before making
+recommendations.
+
+Each entry is append-only. Never overwrite previous entries.
+
+
+═══════════════════════════════════════════════════════════════════════
+PRE-BATCH — 2026-04-20 to 2026-04-21
+Commits: 474ba6a (main) + 6d7d3c3 (Part A) + ff06c32 (Part B)
+═══════════════════════════════════════════════════════════════════════
+Deploy summary: Halt removal + full gate removal + Topstep 4:10 PM rule +
+                shadow logging with outcome tracking + daily recap +
+                weekly recap + observability upgrade.
+Previous state: c9955b97 (Batch 2A — save-everything observability).
+Total duration: ~24 hours across 3 sessions (interrupted by PC crash
+                and Claude Code Bun CLI bug).
+
+═══ WHY THIS BATCH EXISTED ═══
+
+The 2-consecutive-loss halt fired on two consecutive days and blocked
+12+ hours of data collection each time:
+  - Sunday Apr 19, 21:37 ET — after BTC SHORT + SOL SHORT losses
+  - Monday Apr 20, 17:14 ET — after BTC LONG loss
+
+Bayesian math: at ~30% win rate, P(2 consecutive losses) = 49%. The
+halt was firing on the modal outcome of any two-trade day. Live Railway
+logs at 20:17 ET Apr 20 confirmed the halt was actively rejecting
+bullish BTC signals while BTC had aligned trend + HTF bias.
+
+Wayne's stated philosophy: "log everything, block nothing (except
+Topstep-required), collect data on would-have-been-blocked signals
+to decide which gates deserve to come back based on evidence."
+
+═══ WHAT CHANGED ═══
+
+MAIN PRE-BATCH (commit 474ba6a) 2026-04-20 ~9 PM ET:
+  bot.py:
+    - DAILY_LOSS_GATE no longer blocks (counter retained for shadow)
+    - "trading halted for session" Telegram message deleted
+    - MARKET_HALTED + _is_halted() retained but inert (return False)
+    - Per-scan SCAN_SUMMARY log line added
+    - FIRED log line expanded (direction, tier, entry/stop/target,
+      trend, HTF, ADX, RSI, vol, shadow_halt flag)
+    - 10%-sampled REJECTED_SAMPLE log line
+    - Recap hook in _on_session_close → _RECAP_PENDING → scan_loop
+      (pattern mirrors existing _SESSION_CLOSE_SUMMARY)
+    - Startup banner shows Pre-Batch active
+    - import random as _rnd for sampled logging
+
+  strategy_log.py:
+    - Added DECISION_SHADOW_HALTED constant
+
+  NEW: session_recap.py (~400 lines)
+    - generate_recap(session_date) → data/recap_YYYY-MM-DD.md at 4PM ET
+    - 9 markdown sections + condensed Telegram summary ≤ 3500 chars
+    - ET-timezone aware filtering
+    - Defensive — never raises to caller
+
+FOLLOW-UP PART A (commit 6d7d3c3) 2026-04-20 ~11 PM ET:
+  bot.py — ALL remaining gates REMOVED, each shadow-logged:
+    - 3-loss per-market halt → SHADOW_MARKET_HALT
+    - BTC/SOL correlation lockout → SHADOW_CORRELATION
+    - +$150 profit lock → SHADOW_PROFIT_LOCK
+    - Max 3 daily trades cap → SHADOW_MAX_TRADES
+    - Per-setup cooldown → SHADOW_COOLDOWN
+    - Family cooldown → SHADOW_FAMILY_CD
+    - Loss zone lockout → SHADOW_ZONE_LOCK
+
+  bot.py — Topstep timing enforced:
+    - No new NQ/GC entries 3:30-4:10 PM ET (widened from 3:30-4:00)
+    - Force-flatten moved to 4:10 PM (was 3:55)
+    - Reopen unchanged at 6:00 PM ET
+    - Crypto (BTC, SOL) 24/7 completely unaffected
+    - Constants: FUTURES_NOTRADE_START_ET (15,30),
+                 FUTURES_FLAT_BY_ET (16,10),
+                 FUTURES_REOPEN_ET (18,0)
+    - Telegram strings: "4PM Rule" → "4:10 PM Rule"
+
+  strategy_log.py:
+    - 7 new SHADOW_* decision constants
+
+FOLLOW-UP PART B (commit ff06c32) 2026-04-21 ~9 AM ET:
+  session_recap.py — extended:
+    - _build_shadow_section reports all 9 SHADOW_* + suspended types
+      with would-win/would-lose outcomes (was SHADOW_HALTED only)
+    - Setup-level shadow breakdown (market:setup) for suspension review
+    - _build_telegram_summary counts all shadow types
+
+  bot.py:
+    - Weekly recap hook in scan_loop (Mondays 8 AM ET)
+    - _LAST_WEEKLY_RECAP_DATE global for deduplication
+
+  NEW: weekly_recap.py (~350 lines)
+    - generate_weekly_recap(week_start) → data/weekly_recap_*.md
+    - Real trade summary, shadow event summary (by gate)
+    - Suspended setups review with recommendations
+    - Gate value analysis (which gates were right vs wrong)
+    - Weekly conclusions + Telegram summary
+
+  NEW: _archive/journal.txt (this file)
+
+═══ WHAT WE DID NOT TOUCH (behavior unchanged from Batch 2A) ═══
+
+  - Signal detection logic (detect_setups + all setup detectors)
+  - conviction_score() function and weights
+  - Filter thresholds (min_conviction, min_rr, ADX gates)
+  - Suspension system thresholds (3-trade rule, bad-WR check)
+  - Batch 2A 47-col strategy_log.csv schema
+  - outcomes.csv schema
+  - Telegram ENTER NOW / HEADS UP / Trade WIN/LOSS alert formats
+  - .env / config.py / Procfile / railway.json / requirements.txt
+  - Already-in-position check (prevents double-opens)
+
+═══ ACTIVE GATES REMAINING (intentional) ═══
+
+After Pre-Batch, these gates STILL block trades:
+  1. "Already in position" check — prevents double-open same market
+  2. Topstep 3:30-4:10 PM ET no-trade window for NQ + GC
+  3. 4:10 PM ET force-flatten for NQ + GC
+  4. 6:00 PM ET futures reopen
+  5. Min conviction / min RR / ADX filters (Batch 2A quality filters)
+  6. Setup suspensions (suspended setups don't fire alerts, BUT we
+     now outcome-track them via REJECTED_SUSPENDED → WOULD_WIN/LOSE)
+
+Crypto (BTC, SOL) unaffected — 24/7 continuous.
+
+═══ HOW SHADOW OUTCOME TRACKING WORKS ═══
+
+`check_missed_setups()` in strategy_log.py runs every scan cycle.
+For every strategy_log.csv row NOT marked as FIRED (and WITH target
++ stop values), it checks live candle HIGH/LOW since the row's
+timestamp:
+  - If price hit target → result = "WOULD_WIN"
+  - If price hit stop → result = "WOULD_LOSE"
+  - Otherwise unchanged (still tracking)
+
+Uses candle ranges (not just close) so spikes between scans are caught.
+
+Setup-level SHADOW rows (SHADOW_COOLDOWN, SHADOW_FAMILY_CD,
+SHADOW_ZONE_LOCK, SHADOW_HALTED, REJECTED_SUSPENDED) have target + stop
+and get outcome-tracked automatically.
+
+Scan-level SHADOW rows (SHADOW_PROFIT_LOCK, SHADOW_MAX_TRADES,
+SHADOW_CORRELATION, SHADOW_MARKET_HALT) have target=0 and are correctly
+skipped by check_missed_setups — they represent "old gate would have
+blocked THIS SCAN" rather than specific trades.
+
+Daily recap shows today's shadow totals. Weekly recap aggregates 7 days
+and recommends which gates to re-add (if any).
+
+═══ KNOWN UNFIXED ISSUES (flagged for future batches) ═══
+
+  - regime_classifier.py uses df['close'] vs bot.py's df['Close']
+    (case mismatch → silently returns NEUTRAL via except clause)
+    Impact: HTF regime filter effectively not working.
+  - 15m crypto stops ~0.3% (1 ATR) — should be 1.8-2.0 ATR to survive
+    normal noise. Sunday's BTC/SOL losses were stop-outs from noise,
+    not direction failure.
+  - max_contracts_NQ = 10 in sim_account.json — too loose for $50k eval
+    (1 NQ × 20pt = $400 risk; 10 NQ × 20pt = $4000 = instant bust).
+  - Conviction score may not be predictive (93/95/100 conviction trades
+    have lost). Needs quintile IC analysis with ≥100 trade sample.
+  - SOL futures NOT on Topstep permitted list. Full BTC also not
+    permitted (only MBT Micro Bitcoin). Half the signal universe is
+    untradable at target venue.
+
+═══ WAKE-UP NOTES FOR FUTURE CLAUDE / OPUS SESSIONS ═══
+
+Read these before making recommendations:
+
+  1. PRE-BATCH IS THE CURRENT STATE. Do NOT re-add any removed gate
+     without first reviewing weekly_recap_*.md files. The "correct"
+     gates to re-add are ones that demonstrably blocked losers (low
+     would-WR in gate analysis).
+
+  2. Shadow data accumulates in data/strategy_log.csv.
+     Quick query: grep "SHADOW_\|REJECTED_SUSPENDED" data/strategy_log.csv
+     | awk -F, '{print $19, $21}' | sort | uniq -c
+     (shows decision type + result distribution)
+
+  3. Daily recaps: data/recap_YYYY-MM-DD.md (4:10 PM ET)
+     Weekly recaps: data/weekly_recap_YYYY-MM-DD.md (Mondays 8 AM ET)
+     Read the most recent of each first to catch up on recent behavior.
+
+  4. Topstep timing strictly enforced: NQ/GC flat 4:10 PM ET, reopen
+     6:00 PM. Crypto 24/7.
+
+  5. Batch 2B (Eval Loop Mode) and 2C (Auto-Calibrating Conviction)
+     are the planned next batches. Sequencing matters:
+       Batch 2B.0 — Edge validation (pandas scripts on outcomes.csv,
+                     conviction IC analysis, setup grid,
+                     rejection-reason WRs)
+       Batch 2B.1 — Edge fixes (based on Pre-Batch shadow evidence:
+                     which gates helped? re-add those. Which conviction
+                     components are IC-positive? keep. Which are noise?
+                     drop.)
+       Batch 2B.2 — Eval loop infrastructure (auto-restart, Topstep
+                     eval rule simulation)
+       Batch 2C — Auto-calibrating conviction with backtesting
+
+  6. Wayne is NOT a developer. Deliver working drop-in files. Test
+     before proposing. Explain tradeoffs in plain language. He values
+     honest pushback over agreeable slop.
+
+  7. Multi-Claude collaboration: Wayne sometimes uses a second Opus 4.7
+     tab for second opinions on design decisions. When drafting messages
+     to the other tab, show Wayne first (browser sometimes fragments
+     auto-typed messages).
+
+  8. Infrastructure:
+     - Railway project b41d4c7a-4109-459e-af1f-14b33257f826
+     - Service 4011eb7b-9a2e-49c7-917b-880c3adafa98
+     - Auto-deploys on git push origin main
+     - Rollback: Railway UI → Deployments → older commit → "Redeploy"
+
+  9. Claude Code CLI had a Bun crash issue (Apr 20) that was fixed by
+     `npm uninstall -g @anthropic-ai/claude-code && npm install -g
+     @anthropic-ai/claude-code`.
+
+═══ POST-DEPLOY VERIFICATION ═══
+
+(Updated by Wayne or future sessions after testing — placeholders until verified)
+
+  - Telegram /menu: <pending>
+  - Telegram /status shows scanner active: <pending>
+  - Railway logs contain SCAN_SUMMARY: <pending>
+  - Railway logs contain SHADOW_* lines: <pending>
+  - 2-loss halt confirmed REMOVED (no "trading halted" message): <pending>
+  - 4:10 PM force-flatten fires correctly: <pending>
+  - Daily recap Telegram arrives at 4:10 PM ET: <pending>
+  - Weekly recap generated Monday 8 AM ET: <pending>
+  - Weekly recap includes gate value analysis: <pending>
+
+═══════════════════════════════════════════════════════════════════════
+END OF PRE-BATCH ENTRY
+═══════════════════════════════════════════════════════════════════════
