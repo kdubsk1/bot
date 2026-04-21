@@ -168,8 +168,27 @@ def _resample_to_4h(df_60m: pd.DataFrame) -> pd.DataFrame:
 # Twelve Data fetcher (primary source for NQ / GC)
 # ---------------------------------------------------------------------------
 # NQ symbol candidates — probe at startup to find what works
-_TD_NQ_CANDIDATES = ["NQ1!", "NQ/USD", "NQM26"]
-_TD_SYMBOL_MAP = {"NQ": "NQ/USD", "GC": "XAU/USD"}  # NQ updated by probe
+# TwelveData free tier: futures may not be supported. We try indexes/ETFs as
+# proxies since NQ futures track NDX/QQQ closely.
+_TD_NQ_CANDIDATES = [
+    "NQ=F",     # yfinance-style continuous contract
+    "NQ1!",     # TradingView-style continuous
+    "NQM26",    # June 2026 contract
+    "NDX",      # Nasdaq 100 index (very close proxy)
+    "QQQ",      # Invesco QQQ ETF (close proxy)
+    "NQ/USD",   # original (kept as fallback)
+]
+
+# GC symbol candidates — same pattern as NQ
+_TD_GC_CANDIDATES = [
+    "GC=F",     # yfinance-style
+    "GC1!",     # TradingView continuous
+    "GCM26",    # June 2026 contract
+    "XAU/USD",  # spot gold forex (tracks futures closely)
+    "GLD",      # SPDR Gold ETF (close proxy)
+]
+
+_TD_SYMBOL_MAP = {"NQ": "NQ/USD", "GC": "XAU/USD"}  # updated by probes at startup
 _TD_TF_MAP     = {"15m": "15min", "1h": "1h", "4h": "4h", "1d": "1day"}
 _TD_BAR_COUNT  = {"15m": 500, "1h": 500, "4h": 500, "1d": 730}
 
@@ -206,6 +225,35 @@ def probe_nq_symbol():
             logger.info("TwelveData NQ probe: '%s' exception: %s", candidate, exc)
     logger.warning("TwelveData NQ symbol probe: ALL candidates failed, keeping default '%s'", _TD_SYMBOL_MAP["NQ"])
     return _TD_SYMBOL_MAP["NQ"]
+
+
+def probe_gc_symbol():
+    """Try GC symbol candidates on Twelve Data, set the one that works."""
+    for candidate in _TD_GC_CANDIDATES:
+        try:
+            resp = _requests.get(
+                "https://api.twelvedata.com/time_series",
+                params={
+                    "symbol":     candidate,
+                    "interval":   "1h",
+                    "outputsize": 5,
+                    "apikey":     TWELVE_DATA_API_KEY,
+                    "format":     "JSON",
+                },
+                timeout=10,
+            )
+            data = resp.json()
+            if data.get("status") != "error" and "values" in data and len(data["values"]) >= 3:
+                _TD_SYMBOL_MAP["GC"] = candidate
+                logger.info("TwelveData GC symbol probe: '%s' works (%d bars)", candidate, len(data["values"]))
+                return candidate
+            else:
+                msg = data.get("message", "no values")
+                logger.info("TwelveData GC probe: '%s' failed (%s)", candidate, msg)
+        except Exception as exc:
+            logger.info("TwelveData GC probe: '%s' exception: %s", candidate, exc)
+    logger.warning("TwelveData GC symbol probe: ALL candidates failed, keeping default '%s'", _TD_SYMBOL_MAP["GC"])
+    return _TD_SYMBOL_MAP["GC"]
 
 
 def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
@@ -278,8 +326,13 @@ def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # yfinance fetcher (backup for NQ / GC)
 # ---------------------------------------------------------------------------
+# Per-ticker last-fetch timestamp to throttle yfinance
+_YF_LAST_FETCH: Dict[str, float] = {}
+_YF_MIN_INTERVAL_S = 90.0  # Don't hit yfinance for same ticker/tf more than once per 90 seconds
+
+
 def _fetch_yfinance(market: str, timeframe: str) -> pd.DataFrame:
-    """Fetch OHLCV data via yfinance for NQ or GC."""
+    """Fetch OHLCV data via yfinance for NQ or GC with aggressive throttling."""
     import yfinance as yf
 
     ticker = _YF_TICKER_MAP.get(market)
@@ -287,19 +340,48 @@ def _fetch_yfinance(market: str, timeframe: str) -> pd.DataFrame:
         raise ValueError(f"No yfinance ticker for market {market}")
 
     yf_interval, yf_period = _YF_INTERVAL_MAP[timeframe]
+    throttle_key = f"{ticker}|{yf_interval}"
+
+    # Check per-ticker cooldown — if we fetched this ticker+interval in last
+    # _YF_MIN_INTERVAL_S seconds, return stale cache instead of hitting yfinance
+    now_ts = time.time()
+    last_ts = _YF_LAST_FETCH.get(throttle_key, 0)
+    if now_ts - last_ts < _YF_MIN_INTERVAL_S:
+        stale = _get_stale_cache(market, timeframe)
+        if stale is not None:
+            logger.info("yfinance throttled for %s %s (cooldown %.0fs) — using stale cache",
+                        ticker, yf_interval, _YF_MIN_INTERVAL_S - (now_ts - last_ts))
+            return stale
+        # No stale cache available — proceed with fetch but log it
+        logger.info("yfinance throttled for %s %s but no stale cache — fetching anyway",
+                    ticker, yf_interval)
 
     logger.info("yfinance fetch: %s  interval=%s  period=%s", ticker, yf_interval, yf_period)
 
     try:
-        time.sleep(1)  # space out requests to avoid Yahoo rate limiting
+        time.sleep(3)  # Increased from 1s — give Yahoo more breathing room
         tk = yf.Ticker(ticker)
         df = tk.history(interval=yf_interval, period=yf_period, auto_adjust=True)
+        _YF_LAST_FETCH[throttle_key] = time.time()
     except Exception as exc:
-        logger.error("yfinance error for %s %s: %s", market, timeframe, exc)
+        err_str = str(exc).lower()
+        if "too many requests" in err_str or "rate" in err_str:
+            logger.error("yfinance RATE LIMITED for %s %s: %s", market, timeframe, exc)
+            # On rate limit, return stale cache if available
+            stale = _get_stale_cache(market, timeframe)
+            if stale is not None:
+                logger.warning("Returning stale cache for %s %s due to rate limit", market, timeframe)
+                return stale
+        else:
+            logger.error("yfinance error for %s %s: %s", market, timeframe, exc)
         return pd.DataFrame(columns=_STANDARD_COLS)
 
     if df is None or df.empty:
         logger.warning("yfinance returned empty data for %s %s", market, timeframe)
+        # Try stale cache one more time
+        stale = _get_stale_cache(market, timeframe)
+        if stale is not None:
+            return stale
         return pd.DataFrame(columns=_STANDARD_COLS)
 
     df = _normalise_df(df)

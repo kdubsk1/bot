@@ -36,7 +36,7 @@ def _now_et():
 
 import pandas as pd
 import numpy as np
-from data_layer import get_frames as dl_get_frames, get_current_price, probe_nq_symbol
+from data_layer import get_frames as dl_get_frames, get_current_price, probe_nq_symbol, probe_gc_symbol
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -2788,12 +2788,33 @@ async def _post_init(app):
     log.info(f"Scanner state restored: {'ON' if SETTINGS['scanner_on'] else 'OFF'} "
              f"(last changed {hrs_ago} hours ago)")
 
-    # Probe NQ symbol on Twelve Data
+    # Probe NQ and GC symbols on Twelve Data
     try:
         nq_sym = probe_nq_symbol()
         log.info(f"TwelveData NQ symbol: {nq_sym}")
     except Exception as e:
         log.error(f"NQ symbol probe: {e}")
+    try:
+        gc_sym = probe_gc_symbol()
+        log.info(f"TwelveData GC symbol: {gc_sym}")
+    except Exception as e:
+        log.error(f"GC symbol probe: {e}")
+
+    # Data feed self-test: attempt a fresh fetch for NQ and GC and log what happened
+    try:
+        log.info("=== DATA FEED SELF-TEST START ===")
+        for _mkt in ("NQ", "GC"):
+            try:
+                _frames = dl_get_frames(_mkt)
+                for _tf in ("15m", "1h", "4h", "1d"):
+                    _df = _frames.get(_tf)
+                    _n = len(_df) if _df is not None else 0
+                    log.info(f"SELF-TEST {_mkt} {_tf}: {_n} bars")
+            except Exception as _e:
+                log.error(f"SELF-TEST {_mkt} exception: {_e}")
+        log.info("=== DATA FEED SELF-TEST END ===")
+    except Exception as e:
+        log.error(f"Data feed self-test: {e}")
 
     # Task 2: Auto-expire stale OPEN trades at startup
     expired_count = 0
