@@ -61,6 +61,18 @@ DECISION_CLOSED_LOSS      = "CLOSED_LOSS"        # trade closed as a loss
 # validating filter logic later.
 DECISION_SHADOW_HALTED    = "SHADOW_HALTED"      # signal fired anyway despite old halt
 
+# Pre-Batch Follow-up Part A 2026-04-20: Additional shadow-log decision types.
+# Each represents "this signal/scan fired anyway; old gate would have blocked
+# for this specific reason." Separate constants let us filter strategy_log.csv
+# by gate type later in weekly reviews and gate-value analysis.
+DECISION_SHADOW_PROFIT_LOCK    = "SHADOW_PROFIT_LOCK"     # +$150 profit lock
+DECISION_SHADOW_MAX_TRADES     = "SHADOW_MAX_TRADES"      # 4th+ trade of session
+DECISION_SHADOW_CORRELATION    = "SHADOW_CORRELATION"     # BTC/SOL 30-min correlation
+DECISION_SHADOW_ZONE_LOCK      = "SHADOW_ZONE_LOCK"       # loss zone lockout
+DECISION_SHADOW_FAMILY_CD      = "SHADOW_FAMILY_CD"       # setup family cooldown
+DECISION_SHADOW_MARKET_HALT    = "SHADOW_MARKET_HALT"     # 3-loss per-market halt
+DECISION_SHADOW_COOLDOWN       = "SHADOW_COOLDOWN"        # per-setup cooldown
+
 def _ensure_csv():
     """
     Ensure strategy_log.csv exists with the current COLS schema.

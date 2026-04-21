@@ -810,12 +810,44 @@ async def scan_market(app, market, frames):
         except Exception as e:
             log.warning(f"[{market}] sim check: {e}")
 
-    if _is_halted(market):
-        log.info(f"[{market}] HALTED after 3 consecutive losses — skipping")
-        return
-    if _is_correlation_locked(market):
-        log.info(f"[{market}] Correlation locked — skipping")
-        return
+    # Pre-Batch Follow-up Part A 2026-04-20: 3-loss per-market halt REMOVED.
+    # Shadow-log each scan cycle that would have been blocked. Scan-level gate
+    # (no setup detected yet) → single SHADOW_SCAN row with target=0 stop=0.
+    # check_missed_setups() will correctly skip outcome-tracking rows with 0 target.
+    _halt_per_market_would_fire = bool(MARKET_HALTED.get(market, False))
+    if _halt_per_market_would_fire:
+        log.info(f"[{market}] SHADOW: 3-loss per-market halt (firing anyway)")
+        try:
+            sl.log_scan_decision(
+                market=market, tf="*", setup_type="SHADOW_SCAN",
+                direction="-", price=0, entry=0, stop=0, target=0, rr=0,
+                conviction=0, tier="SHADOW",
+                trend=0, adx=0, rsi=0, vol_ratio=0,
+                htf_bias="-", news_flag=0,
+                decision=sl.DECISION_SHADOW_MARKET_HALT,
+                reject_reason=f"{market} would have been halted: CONSECUTIVE_LOSSES={CONSECUTIVE_LOSSES.get(market, 0)}",
+            )
+        except Exception as e:
+            log.warning(f"SHADOW_MARKET_HALT log failed: {e}")
+    # Fall through — do NOT return. Signal continues normal flow.
+
+    # Pre-Batch Follow-up Part A 2026-04-20: Correlation lockout REMOVED.
+    _corr_would_fire = _is_correlation_locked(market)
+    if _corr_would_fire:
+        log.info(f"[{market}] SHADOW: correlation lockout (firing anyway)")
+        try:
+            sl.log_scan_decision(
+                market=market, tf="*", setup_type="SHADOW_SCAN",
+                direction="-", price=0, entry=0, stop=0, target=0, rr=0,
+                conviction=0, tier="SHADOW",
+                trend=0, adx=0, rsi=0, vol_ratio=0,
+                htf_bias="-", news_flag=0,
+                decision=sl.DECISION_SHADOW_CORRELATION,
+                reject_reason=f"{market} would have been blocked: correlation lockout active (BTC/SOL 30-min)",
+            )
+        except Exception as e:
+            log.warning(f"SHADOW_CORRELATION log failed: {e}")
+    # Fall through.
     if already_in or not futures_ok:
         if already_in:
             log.info(f"[{market}] Already in position — skipping new entry scan")
@@ -827,9 +859,11 @@ async def scan_market(app, market, frames):
     now_et_check = _now_et()
     hm_check = now_et_check.hour * 60 + now_et_check.minute
 
-    # Gate 1: No-trade zone 3:30-4:00 PM ET for futures
-    if market in ("NQ", "GC") and 930 <= hm_check < 960:
-        log.info(f"[{market}] No-trade zone active (3:30-4PM ET), skipping signal")
+    # Pre-Batch Follow-up Part A 2026-04-20: Topstep rule — no new NQ/GC entries
+    # 3:30-4:10 PM ET (widened from 3:30-4:00). This gate STAYS (Topstep-required,
+    # not a halt). Crypto unaffected.
+    if market in ("NQ", "GC") and 930 <= hm_check < 970:  # 15:30 to 16:10
+        log.info(f"[{market}] Topstep no-trade window 3:30-4:10 PM ET — skipping new entry")
         return
 
     # Pre-Batch 2026-04-20: The DAILY_LOSS_GATE is REMOVED.
@@ -839,15 +873,41 @@ async def scan_market(app, market, frames):
     _halt_would_fire = DAILY_LOSS_GATE
     # Fall through — the signal flow continues as normal.
 
-    # Gate 3: Profit lock
-    if DAILY_PROFIT_LOCKED:
-        log.info(f"[{market}] Daily profit locked — no more trades this session")
-        return
+    # Pre-Batch Follow-up Part A 2026-04-20: Daily profit lock REMOVED.
+    _profit_lock_would_fire = DAILY_PROFIT_LOCKED
+    if _profit_lock_would_fire:
+        log.info(f"[{market}] SHADOW: profit lock at +$150 (firing anyway)")
+        try:
+            sl.log_scan_decision(
+                market=market, tf="*", setup_type="SHADOW_SCAN",
+                direction="-", price=0, entry=0, stop=0, target=0, rr=0,
+                conviction=0, tier="SHADOW",
+                trend=0, adx=0, rsi=0, vol_ratio=0,
+                htf_bias="-", news_flag=0,
+                decision=sl.DECISION_SHADOW_PROFIT_LOCK,
+                reject_reason="daily profit lock active (+$150 threshold hit earlier)",
+            )
+        except Exception as e:
+            log.warning(f"SHADOW_PROFIT_LOCK log failed: {e}")
+    # Fall through.
 
-    # Gate 4: Max daily trades
-    if DAILY_TRADE_COUNT >= MAX_DAILY_TRADES:
-        log.info(f"[{market}] Max {MAX_DAILY_TRADES} trades reached for today — skipping")
-        return
+    # Pre-Batch Follow-up Part A 2026-04-20: Max daily trades cap REMOVED.
+    _max_trades_would_fire = (DAILY_TRADE_COUNT >= MAX_DAILY_TRADES)
+    if _max_trades_would_fire:
+        log.info(f"[{market}] SHADOW: max {MAX_DAILY_TRADES} daily trades (firing anyway, count={DAILY_TRADE_COUNT})")
+        try:
+            sl.log_scan_decision(
+                market=market, tf="*", setup_type="SHADOW_SCAN",
+                direction="-", price=0, entry=0, stop=0, target=0, rr=0,
+                conviction=0, tier="SHADOW",
+                trend=0, adx=0, rsi=0, vol_ratio=0,
+                htf_bias="-", news_flag=0,
+                decision=sl.DECISION_SHADOW_MAX_TRADES,
+                reject_reason=f"would have been blocked: trade #{DAILY_TRADE_COUNT + 1} of {MAX_DAILY_TRADES}-trade daily cap",
+            )
+        except Exception as e:
+            log.warning(f"SHADOW_MAX_TRADES log failed: {e}")
+    # Fall through.
 
     for entry_tf in cfg.ENTRY_TIMEFRAMES:
         htf_key = cfg.HTF_CONFIRM if entry_tf==cfg.ENTRY_TIMEFRAMES[0] else cfg.HTF_SWING
@@ -1074,17 +1134,65 @@ async def scan_market(app, market, frames):
                 _sample_reject_log(market, entry_tf, stp["type"], f"ADX {round(adx_v,1)} < {required_adx}")
                 continue
 
-            if not _cooldown_ok(market, stp["type"]):
-                log.info(f"[{market}] [{entry_tf}] {stp['type']} on cooldown.")
-                continue
+            # Pre-Batch Follow-up Part A 2026-04-20: Per-setup cooldown REMOVED.
+            _cd_would_fire = not _cooldown_ok(market, stp["type"])
+            if _cd_would_fire:
+                log.info(f"[{market}] [{entry_tf}] SHADOW: {stp['type']} cooldown (firing anyway)")
+                try:
+                    sl.log_scan_decision(
+                        market=market, tf=entry_tf, setup_type=stp["type"], direction=stp["direction"],
+                        price=cur_price, entry=stp["entry"], stop=stp["raw_stop"],
+                        target=0, rr=0, conviction=0, tier="SHADOW",
+                        trend=trend, adx=adx_v, rsi=rsi_v, vol_ratio=vol_ratio,
+                        htf_bias=htf_bias, news_flag=news_flag,
+                        decision=sl.DECISION_SHADOW_COOLDOWN,
+                        reject_reason=f"per-setup cooldown active for {stp['type']}",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    )
+                except Exception as e:
+                    log.warning(f"SHADOW_COOLDOWN log failed: {e}")
+            # Fall through — do NOT continue.
 
-            if not _family_cooldown_ok(market, stp["type"]):
-                log.info(f"[{market}] [{entry_tf}] {stp['type']} family on cooldown.")
-                continue
+            # Pre-Batch Follow-up Part A 2026-04-20: Family cooldown REMOVED.
+            _fam_would_fire = not _family_cooldown_ok(market, stp["type"])
+            if _fam_would_fire:
+                log.info(f"[{market}] [{entry_tf}] SHADOW: {stp['type']} family cooldown (firing anyway)")
+                try:
+                    sl.log_scan_decision(
+                        market=market, tf=entry_tf, setup_type=stp["type"], direction=stp["direction"],
+                        price=cur_price, entry=stp["entry"], stop=stp["raw_stop"],
+                        target=0, rr=0, conviction=0, tier="SHADOW",
+                        trend=trend, adx=adx_v, rsi=rsi_v, vol_ratio=vol_ratio,
+                        htf_bias=htf_bias, news_flag=news_flag,
+                        decision=sl.DECISION_SHADOW_FAMILY_CD,
+                        reject_reason=f"family cooldown active ({_get_family(stp['type'])})",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    )
+                except Exception as e:
+                    log.warning(f"SHADOW_FAMILY_CD log failed: {e}")
+            # Fall through.
 
-            if _zone_locked(market, stp["direction"], stp["entry"]):
-                log.info(f"[{market}] [{entry_tf}] {stp['type']} in loss zone lockout.")
-                continue
+            # Pre-Batch Follow-up Part A 2026-04-20: Loss zone lockout REMOVED.
+            _zone_would_fire = _zone_locked(market, stp["direction"], stp["entry"])
+            if _zone_would_fire:
+                log.info(f"[{market}] [{entry_tf}] SHADOW: {stp['type']} zone lockout (firing anyway)")
+                try:
+                    sl.log_scan_decision(
+                        market=market, tf=entry_tf, setup_type=stp["type"], direction=stp["direction"],
+                        price=cur_price, entry=stp["entry"], stop=stp["raw_stop"],
+                        target=0, rr=0, conviction=0, tier="SHADOW",
+                        trend=trend, adx=adx_v, rsi=rsi_v, vol_ratio=vol_ratio,
+                        htf_bias=htf_bias, news_flag=news_flag,
+                        decision=sl.DECISION_SHADOW_ZONE_LOCK,
+                        reject_reason=f"loss zone lockout active near entry {round(stp['entry'], 4)}",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    )
+                except Exception as e:
+                    log.warning(f"SHADOW_ZONE_LOCK log failed: {e}")
+            # Fall through.
 
             if stp["type"] in ("APPROACH_SUPPORT","APPROACH_RESIST"):
                 if _is_approach_active(market, stp["type"], stp["entry"]):
@@ -1309,18 +1417,30 @@ async def scan_market(app, market, frames):
 
 # ── Market session rules ──────────────────────────────────────────
 FUTURES_MARKETS = {"NQ", "GC"}
-FUTURES_CLOSE_ET   = (15, 55)
-FUTURES_CLOSED_ET  = (16, 0)
-FUTURES_REOPEN_ET  = (18, 0)
+# Pre-Batch Follow-up Part A 2026-04-20: Topstep-accurate timing.
+# No new NQ/GC entries 3:30-4:10 PM ET, force-flatten at 4:10 PM, reopen 6:00 PM.
+# Crypto (BTC, SOL) UNAFFECTED — runs 24/7.
+FUTURES_NOTRADE_START_ET = (15, 30)   # 3:30 PM — stop accepting new futures entries
+FUTURES_FLAT_BY_ET       = (16, 10)   # 4:10 PM — force-close all open futures positions
+FUTURES_REOPEN_ET        = (18, 0)    # 6:00 PM — futures trading reopens
+
+# Backward-compat (some code may still reference these)
+FUTURES_CLOSE_ET   = (16, 5)    # 4:05 PM (was 3:55 PM)
+FUTURES_CLOSED_ET  = (16, 10)   # 4:10 PM (was 4:00 PM)
 
 def _futures_session_ok(market: str) -> bool:
+    """
+    True if NQ/GC is open for new entries.
+    Topstep: no new entries 3:30-4:10 PM ET, reopens 6:00 PM ET.
+    Crypto (BTC, SOL) always True — 24/7.
+    """
     if market not in FUTURES_MARKETS:
         return True
     now = _now_et()
     hm  = now.hour * 60 + now.minute
-    closed_start = FUTURES_CLOSED_ET[0] * 60 + FUTURES_CLOSED_ET[1]
-    reopen       = FUTURES_REOPEN_ET[0]  * 60 + FUTURES_REOPEN_ET[1]
-    return not (closed_start <= hm < reopen)
+    notrade_start = FUTURES_NOTRADE_START_ET[0] * 60 + FUTURES_NOTRADE_START_ET[1]
+    reopen        = FUTURES_REOPEN_ET[0]        * 60 + FUTURES_REOPEN_ET[1]
+    return not (notrade_start <= hm < reopen)
 
 async def force_flatten_futures(app):
     trades = ot.load_open_trades()
@@ -1332,7 +1452,7 @@ async def force_flatten_futures(app):
         "🔔 *Market Close in 5 minutes*\n"
         "━━━━━━━━━━━━━━━━━━\n"
         "All NQ and Gold positions will be closed.\n"
-        "Topstep rule: flat by 4PM ET."
+        "Topstep rule: flat by 4:10 PM ET."
     )
 
     for row in futures_trades:
@@ -1363,14 +1483,14 @@ async def force_flatten_futures(app):
 
         icon = "✅" if result=="WIN" else "❌"
         await tg_send(app,
-            f"{icon} *Force Closed — 4PM Rule*\n"
+            f"{icon} *Force Closed — 4:10 PM Rule*\n"
             f"{cfg.EMOJI} *{_md(cfg.FULL_NAME)}*\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"Setup: `{_md(row.get('setup',''))}` [{row.get('tf','')}]\n"
             f"Entry: `{entry_p}` -> Exit: `{round(cur,4)}`\n"
             f"Move: `{pts_str} pts`\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"Futures closed. Reopens 6PM ET."
+            f"Futures closed until 6:00 PM ET reopen."
         )
         log.info(f"[{market}] Force-closed at 4PM rule — exit {cur}")
 
@@ -1387,7 +1507,7 @@ async def force_flatten_futures(app):
                     risk = sim.check_risk_limits()
                     pnl_sign = f"+${pnl:,.2f}" if pnl>=0 else f"-${abs(pnl):,.2f}"
                     await tg_send(app,
-                        f"💰 *SIM Force Closed — 4PM Rule*\n"
+                        f"💰 *SIM Force Closed — 4:10 PM Rule*\n"
                         f"P&L: `{pnl_sign}` | Balance: `${risk['balance']:,.2f}`\n"
                         f"Today: `${risk['daily_pnl']:+,.2f}`"
                     )
@@ -1754,6 +1874,23 @@ async def scan_loop(app):
                         log.info(f"Daily report sent for {today_str}")
                     except Exception as e:
                         log.error(f"Daily report scheduler: {e}")
+
+            # Pre-Batch Follow-up Part A 2026-04-20: Safety-net 4:10 PM force-flatten.
+            # Primary path is SessionClock.FUTURES_PRE_FLATTEN. This covers us if that
+            # event is hardcoded to the old 3:55 PM time (it currently is, per
+            # session_clock.py:_EVENT_SCHEDULE). Fires exactly once in 16:10-16:20 window.
+            try:
+                _now_flat = _now_et()
+                _hm_flat = _now_flat.hour * 60 + _now_flat.minute
+                if 970 <= _hm_flat < 980:
+                    open_fut = [t for t in ot.load_open_trades() if t.get("market") in ("NQ", "GC")]
+                    today_key = _now_flat.date().isoformat()
+                    if open_fut and getattr(scan_loop, "_last_410_flatten", None) != today_key:
+                        log.info(f"Pre-Batch Part A: 4:10 PM safety-net flatten for {len(open_fut)} open futures")
+                        await force_flatten_futures(app)
+                        scan_loop._last_410_flatten = today_key
+            except Exception as e:
+                log.error(f"4:10 PM safety-net flatten error: {e}")
 
             # Handle async flatten (set by _on_pre_flatten callback)
             if _FLATTEN_PENDING:
