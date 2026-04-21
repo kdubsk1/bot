@@ -20,6 +20,7 @@ All critical bugs from Opus review applied:
 """
 import asyncio, logging, os, traceback, json
 import time as _time
+import random as _rnd  # Pre-Batch 2026-04-20: for sampled REJECTED logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
@@ -308,7 +309,9 @@ MARKET_HALTED: dict = {}
 CORRELATION_LOCKOUT: dict = {}
 
 # ── Topstep eval daily gates (Task 8) ────────────────────────────
-DAILY_LOSS_GATE = False       # True after 2 consecutive session losses
+# Pre-Batch 2026-04-20: This gate no longer blocks trades. It is retained
+# to support shadow logging (DECISION_SHADOW_HALTED) and the daily recap.
+DAILY_LOSS_GATE = False       # True after 2 consecutive session losses (counter only — no blocking)
 DAILY_PROFIT_LOCKED = False   # True after +$150 session P&L
 DAILY_TRADE_COUNT = 0         # Incremented on each fired alert
 MAX_DAILY_TRADES = 3
@@ -388,7 +391,10 @@ def _record_win(market: str):
     CONSECUTIVE_LOSSES[market] = 0
 
 def _is_halted(market: str) -> bool:
-    return MARKET_HALTED.get(market, False)
+    # Pre-Batch 2026-04-20: always False. Halts are disabled.
+    # MARKET_HALTED dict is still populated by _record_loss for shadow logging
+    # and the daily recap; this function returns False so no gate blocks.
+    return False
 
 def _is_correlation_locked(market: str) -> bool:
     expiry = CORRELATION_LOCKOUT.get(market)
@@ -512,6 +518,21 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
         msg += f"{sb}\n━━━━━━━━━━━━━━━━━━\n"
     msg += "⚠️ Not financial advice. Manage your risk."
     return msg
+
+# ── Pre-Batch 2026-04-20: Sampled REJECTED log helper ────────────
+def _sample_reject_log(market: str, entry_tf: str, setup_type: str, reason: str, rate: float = 0.1):
+    """
+    Emit a Railway-visible REJECTED log line at `rate` probability (default 10%).
+    Full rejection detail is still in strategy_log.csv via sl.log_scan_decision —
+    this is just for log scrollback visibility without spamming.
+    """
+    try:
+        if _rnd.random() < rate:
+            r = str(reason)[:80] if reason else "?"
+            log.info(f"[{market}] [{entry_tf}] REJECTED_SAMPLE: {setup_type} reason={r}")
+    except Exception:
+        pass
+
 
 # ── Batch 2A: Detection reason + confidence factor builders ──────
 def _build_detection_reason(stp: dict, snapshot: dict, adx_v: float,
@@ -719,12 +740,9 @@ async def scan_market(app, market, frames):
 
         if result == "LOSS":
             _record_loss(market)
-            # Task 8: Send daily loss gate alert
-            if DAILY_LOSS_GATE:
-                await tg_send(app,
-                    "⛔ *2 consecutive losses today — trading halted for session.*\n"
-                    "Rest up."
-                )
+            # Pre-Batch 2026-04-20: The "2 consecutive losses today — trading
+            # halted for session / Rest up" Telegram message was REMOVED here.
+            # The DAILY_LOSS_GATE no longer blocks trades; counter-only.
             try:
                 atr_v_exit = float(ot.atr(frames.get("15m", pd.DataFrame())).iloc[-1]) if frames.get("15m") is not None else 0
                 if atr_v_exit > 0:
@@ -814,10 +832,12 @@ async def scan_market(app, market, frames):
         log.info(f"[{market}] No-trade zone active (3:30-4PM ET), skipping signal")
         return
 
-    # Gate 2: Consecutive loss halt
-    if DAILY_LOSS_GATE:
-        log.info(f"[{market}] Daily loss gate active — 2 consecutive losses, no more trades")
-        return
+    # Pre-Batch 2026-04-20: The DAILY_LOSS_GATE is REMOVED.
+    # We preserve the counter logic so we can measure the counterfactual —
+    # but the gate no longer blocks signals. Instead, if the gate WOULD have
+    # fired, we add SHADOW_HALTED context to every signal this scan evaluates.
+    _halt_would_fire = DAILY_LOSS_GATE
+    # Fall through — the signal flow continues as normal.
 
     # Gate 3: Profit lock
     if DAILY_PROFIT_LOCKED:
@@ -979,13 +999,15 @@ async def scan_market(app, market, frames):
         if vol_mean is None or not np.isfinite(vol_mean) or vol_mean < 1.0:
             log.info(f"[{market}] [{entry_tf}] Volume data degraded — skip")
             for stp in setups:
+                _vol_reason = f"Volume data degraded or zero (vol_mean={vol_mean})"
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                     sl.DECISION_REJECTED,
-                    f"Volume data degraded or zero (vol_mean={vol_mean}) — cannot assess setup quality",
+                    f"{_vol_reason} — cannot assess setup quality",
                     context=snapshot_context,
                     detection_reason=f"{stp['type']} detected but skipped: volume data unreliable this scan")
+                _sample_reject_log(market, entry_tf, stp["type"], _vol_reason)
             continue
         if vol_ratio < 0.1 and vol_last < 1.0:
             log.info(f"[{market}] [{entry_tf}] Zero-volume candle — skip")
@@ -1049,6 +1071,7 @@ async def scan_market(app, market, frames):
                     f"ADX {round(adx_v,1)} below {stp['type']} minimum {required_adx} — market too choppy for this setup type",
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                _sample_reject_log(market, entry_tf, stp["type"], f"ADX {round(adx_v,1)} < {required_adx}")
                 continue
 
             if not _cooldown_ok(market, stp["type"]):
@@ -1075,6 +1098,7 @@ async def scan_market(app, market, frames):
                     f"APPROACH_RESIST requires trend <= -2 for bearish approach; current trend is {trend:+d}",
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                _sample_reject_log(market, entry_tf, stp["type"], f"APPROACH_RESIST blocked: trend {trend:+d} not bearish")
                 continue
 
             if stp["type"] == "APPROACH_SUPPORT" and trend < 2:
@@ -1085,6 +1109,7 @@ async def scan_market(app, market, frames):
                     f"APPROACH_SUPPORT requires trend >= +2 for bullish approach; current trend is {trend:+d}",
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                _sample_reject_log(market, entry_tf, stp["type"], f"APPROACH_SUPPORT blocked: trend {trend:+d} not bullish")
                 continue
 
             tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
@@ -1098,6 +1123,7 @@ async def scan_market(app, market, frames):
                     "No real swing target available — nearest structural level too close for minimum R:R",
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                _sample_reject_log(market, entry_tf, stp["type"], "No swing target available")
                 continue
 
             sim_risk = sim.check_risk_limits()
@@ -1127,6 +1153,7 @@ async def scan_market(app, market, frames):
                     f"R:R {round(rr,2)} below minimum {min_rr} (tier quick-conv {quick_conv}, target {round(tgt,4)})",
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                _sample_reject_log(market, entry_tf, stp["type"], f"RR {round(rr,2)} < {min_rr}")
                 continue
 
             clean_path = abs(tgt-stp["entry"])/max(1e-9, atr_v)
@@ -1159,6 +1186,7 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final,
                     confidence_factors=_build_confidence_factors(snapshot_context, trend, adx_v, rsi_v))
+                _sample_reject_log(market, entry_tf, stp["type"], _conv_reason)
                 continue
 
             dd_pct = sim_risk.get("daily_used_pct", 0)
@@ -1172,6 +1200,7 @@ async def scan_market(app, market, frames):
                         context=snapshot_context,
                         detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                         score_breakdown=bd_final)
+                    _sample_reject_log(market, entry_tf, stp["type"], f"DD>75% needs conv90, got {conv}")
                     continue
             elif dd_pct > 50:
                 if conv < 80:
@@ -1183,6 +1212,7 @@ async def scan_market(app, market, frames):
                         context=snapshot_context,
                         detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                         score_breakdown=bd_final)
+                    _sample_reject_log(market, entry_tf, stp["type"], f"DD>50% needs conv80, got {conv}")
                     continue
 
             lev = risk_pct = hold = None
@@ -1223,6 +1253,24 @@ async def scan_market(app, market, frames):
                 score_breakdown=bd_final,
                 confidence_factors=_build_confidence_factors(snapshot_context, trend, adx_v, rsi_v))
 
+            # Pre-Batch 2026-04-20: If the (removed) daily loss gate would have
+            # blocked this signal, write a shadow row so we can measure whether
+            # blocking it would have been the right call. The signal fires normally.
+            if _halt_would_fire:
+                try:
+                    sl.log_scan_decision(
+                        market, entry_tf, stp["type"], stp["direction"],
+                        cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                        trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                        sl.DECISION_SHADOW_HALTED,
+                        "would_have_been_halted_by_2loss_gate (ignored): fired anyway under Pre-Batch rules",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                        score_breakdown=bd_final,
+                        confidence_factors=_build_confidence_factors(snapshot_context, trend, adx_v, rsi_v))
+                except Exception as e:
+                    log.warning(f"Shadow-log SHADOW_HALTED failed (non-fatal): {e}")
+
             _mark_cooldown(market, stp["type"])
 
             if stp["type"] in ("APPROACH_SUPPORT","APPROACH_RESIST"):
@@ -1232,7 +1280,32 @@ async def scan_market(app, market, frames):
             await tg_send(app, format_alert(market, entry_tf, stp, conv, tier, trend,
                                              tgt, rr, method, adx_v, rsi_v, lev, risk_pct, hold,
                                              extra_footer=footer, alert_id=alert_id))
-            log.info(f"[{market}] [{entry_tf}] FIRED: {stp['type']} Conv:{conv} RR:{round(rr,2)}")
+            log.info(
+                f"[{market}] [{entry_tf}] FIRED: {stp['type']} {stp['direction']} "
+                f"Conv:{conv}/{tier} RR:{round(rr,2)} Entry:{round(stp['entry'],4)} "
+                f"Stop:{round(stp['raw_stop'],4)} Target:{round(tgt,4)} "
+                f"Trend:{trend:+d} HTF:{htf_bias} ADX:{adx_v:.1f} RSI:{rsi_v:.1f} "
+                f"vol:{vol_ratio:.2f} shadow_halt:{_halt_would_fire}"
+            )
+
+    # Pre-Batch 2026-04-20: Per-market scan summary for readability (Task 3.1)
+    # Uses locals().get() because some variables may not exist if we early-returned.
+    try:
+        _l = locals()
+        _setups = _l.get('setups', [])
+        _entry_tf = _l.get('entry_tf', '?')
+        _trend = _l.get('trend', 0)
+        _htf_bias = _l.get('htf_bias', '?')
+        _adx_v = _l.get('adx_v', 0.0)
+        _rsi_v = _l.get('rsi_v', 0.0)
+        _vol_ratio = _l.get('vol_ratio', 0.0)
+        log.info(
+            f"[{market}] SCAN_SUMMARY tf={_entry_tf} trend={_trend:+d} htf={_htf_bias} "
+            f"adx={float(_adx_v):.1f} rsi={float(_rsi_v):.1f} vol_ratio={float(_vol_ratio):.2f} "
+            f"detected={len(_setups) if _setups else 0} halt_pending={DAILY_LOSS_GATE}"
+        )
+    except Exception:
+        pass
 
 # ── Market session rules ──────────────────────────────────────────
 FUTURES_MARKETS = {"NQ", "GC"}
@@ -1642,7 +1715,7 @@ _LAST_DAILY_REPORT_DATE   = None   # date string for which report was sent
 
 # ── Scan loop ─────────────────────────────────────────────────────
 async def scan_loop(app):
-    global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES
+    global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE
     last_brief=last_asia=last_report=None
     last_hb=datetime.now(timezone.utc)
@@ -1707,6 +1780,16 @@ async def scan_loop(app):
                     )
                 except Exception as e:
                     log.error(f"Session close Telegram msg: {e}")
+
+            # Pre-Batch 2026-04-20: Send recap Telegram message if pending
+            if _RECAP_PENDING is not None:
+                r = _RECAP_PENDING
+                _RECAP_PENDING = None
+                try:
+                    await tg_send(app, r["tg_text"])
+                    log.info(f"Pre-Batch: Recap Telegram summary sent. Local file: {r['path']}")
+                except Exception as e:
+                    log.error(f"Pre-Batch: Recap Telegram send failed: {e}")
 
             # Handle suspension changes (set by _on_session_close callback)
             if _SUSPENSION_CHANGES:
@@ -2458,7 +2541,7 @@ def _on_pre_flatten(event, now_et):
 
 def _on_session_close(event, now_et):
     """Session close handler — archives session, resets sim, resets daily gates."""
-    global _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES
+    global _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global DAILY_LOSS_GATE, DAILY_PROFIT_LOCKED, DAILY_TRADE_COUNT
     try:
         sid = get_session_date(now_et)
@@ -2482,6 +2565,25 @@ def _on_session_close(event, now_et):
                 t["rolled_over"] = "True"
             rolled = len(open_trades)
             log.info(f"Session close: {rolled} open trades rolled over to new session")
+
+        # Pre-Batch 2026-04-20: Generate daily recap markdown + Telegram summary
+        # IMPORTANT: do this BEFORE sim.reset_sim() so recap captures the actual
+        # session balance/PnL (after reset, sim_state would show $50k fresh).
+        try:
+            from session_recap import generate_recap
+            from datetime import datetime as _dt
+            try:
+                from zoneinfo import ZoneInfo as _ZI
+                _et = _dt.now(_ZI("America/New_York"))
+            except Exception:
+                import pytz as _pytz
+                _et = _dt.now(_pytz.timezone("America/New_York"))
+            recap_path, recap_tg = generate_recap(_et.date())
+            log.info(f"Pre-Batch: Session recap written to {recap_path}")
+            _RECAP_PENDING = {"path": str(recap_path), "tg_text": recap_tg}
+        except Exception as e:
+            log.error(f"Pre-Batch: Recap generation failed (non-fatal): {e}")
+            _RECAP_PENDING = None
 
         ot.archive_session(sid)
         sim.reset_sim(sim_state.get("preset", "50k"))
@@ -2511,6 +2613,8 @@ def _on_crypto_day(event, now_et):
 _FLATTEN_PENDING = False
 _SESSION_CLOSE_SUMMARY = None
 _SUSPENSION_CHANGES = []
+# Pre-Batch 2026-04-20: Recap is built sync in _on_session_close, sent async by scan_loop
+_RECAP_PENDING = None
 
 SESSION_CLOCK.on(SessionEvent.FUTURES_SESSION_CLOSE, _on_session_close)
 SESSION_CLOCK.on(SessionEvent.FUTURES_PRE_FLATTEN, _on_pre_flatten)
@@ -2667,6 +2771,16 @@ async def _post_init(app):
             lines.append("━━━━━━━━━━━━━━━━━━")
         except Exception as e:
             log.error(f"Batch 2A startup section: {e}")
+
+        # Pre-Batch 2026-04-20: Startup banner additions
+        try:
+            lines.append("⚙️ *Pre-Batch (2026-04-20)*")
+            lines.append(f"  Halt: REMOVED (shadow-logged via SHADOW_HALTED)")
+            lines.append(f"  Recap: ON (generated at 4PM ET futures close)")
+            lines.append(f"  Per-scan summary: ON (grep 'SCAN_SUMMARY' in Railway logs)")
+            lines.append("━━━━━━━━━━━━━━━━━━")
+        except Exception as e:
+            log.error(f"Pre-Batch startup banner: {e}")
 
         if not SETTINGS["scanner_on"]:
             lines.append("⚠️ Tap the Scanner button to start scanning.")

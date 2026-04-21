@@ -55,6 +55,12 @@ DECISION_DETECTED         = "DETECTED"           # raw detection before any filt
 DECISION_CLOSED_WIN       = "CLOSED_WIN"         # trade closed as a win
 DECISION_CLOSED_LOSS      = "CLOSED_LOSS"        # trade closed as a loss
 
+# Pre-Batch 2026-04-20: Shadow log for signals that WOULD have fired but were
+# blocked by a gate we've since removed (e.g., the 2-loss halt). These rows
+# let us measure whether the gate saved money or cost money — CRITICAL for
+# validating filter logic later.
+DECISION_SHADOW_HALTED    = "SHADOW_HALTED"      # signal fired anyway despite old halt
+
 def _ensure_csv():
     """
     Ensure strategy_log.csv exists with the current COLS schema.
