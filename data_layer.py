@@ -20,6 +20,46 @@ logger = logging.getLogger("nqcalls.data")
 DATABENTO_API_KEY: Optional[str] = None   # Set to enable Databento for NQ/GC
 TWELVE_DATA_API_KEY = "fef556d1f9244c0f9db09cb9828c26a2"
 
+# ---------------------------------------------------------------------------
+# TopstepX (ProjectX Gateway API) — PRIMARY source for NQ/GC futures
+# ---------------------------------------------------------------------------
+# Wayne subscribed to TopstepX API Access ($14.50/mo with promo).
+# Topstep support officially approved data-only use from Railway (2026-04-21).
+# This integration is READ-ONLY — NEVER calls order/position/trade endpoints.
+import os as _os
+
+TOPSTEPX_API_BASE = "https://api.topstepx.com"
+
+# Endpoint allowlist — ANY TopstepX POST must use one of these paths.
+# Using _topstepx_post() ensures we can never accidentally hit a trade endpoint.
+_TOPSTEPX_ALLOWED_ENDPOINTS = {
+    "/api/Auth/loginKey",
+    "/api/Contract/search",
+    "/api/History/retrieveBars",
+}
+
+# Timeframe mapping: bot tf string -> (API unit, unitNumber)
+_TOPSTEPX_TF_MAP = {
+    "15m": (2, 15),
+    "1h":  (3, 1),
+    "4h":  (3, 4),
+    "1d":  (4, 1),
+}
+
+# Bars to request per timeframe — mirrors _TD_BAR_COUNT
+_TOPSTEPX_BAR_COUNT = {"15m": 500, "1h": 500, "4h": 500, "1d": 730}
+
+# Symbol filter: match on symbolId (stable across contract rollovers)
+_TOPSTEPX_SYMBOL_FILTER = {
+    "NQ": "F.US.ENQ",   # E-mini NASDAQ-100 (NOT MNQ, NQG natgas, NQM crude)
+    "GC": "F.US.GC",    # E-mini Gold      (NOT MGC micro)
+}
+
+# In-memory caches (reset on process restart — that's fine)
+_TOPSTEPX_TOKEN = None
+_TOPSTEPX_TOKEN_EXPIRY = None          # datetime in UTC
+_TOPSTEPX_CONTRACT_CACHE = {}          # {"NQ": (contract_id, expiry_dt), ...}
+
 CACHE_TTL = 60  # seconds
 
 # yfinance interval -> (yf_interval, yf_period)
@@ -165,7 +205,337 @@ def _resample_to_4h(df_60m: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Twelve Data fetcher (primary source for NQ / GC)
+# TopstepX fetcher (PRIMARY source for NQ / GC — real CME futures data)
+# ---------------------------------------------------------------------------
+
+def _topstepx_post(path: str, headers: dict, body: dict, timeout: int = 15):
+    """
+    Safe POST wrapper — enforces the TopstepX endpoint allowlist.
+    Raises RuntimeError if `path` is not whitelisted. This prevents
+    accidental calls to trade/order/position endpoints that would
+    violate Wayne's Topstep TOS.
+    """
+    if path not in _TOPSTEPX_ALLOWED_ENDPOINTS:
+        raise RuntimeError(
+            f"TopstepX endpoint '{path}' not in allowlist — BUG, refusing to send. "
+            f"Allowed: {sorted(_TOPSTEPX_ALLOWED_ENDPOINTS)}"
+        )
+    return _requests.post(
+        TOPSTEPX_API_BASE + path,
+        headers=headers,
+        json=body,
+        timeout=timeout,
+    )
+
+
+def _get_topstepx_token() -> Optional[str]:
+    """
+    Return a valid JWT session token, refreshing if needed.
+    Tokens last 24h; we refresh when less than 5min remaining.
+    Returns None if credentials are missing or auth fails — caller falls back.
+    """
+    global _TOPSTEPX_TOKEN, _TOPSTEPX_TOKEN_EXPIRY
+    now = datetime.now(timezone.utc)
+
+    if _TOPSTEPX_TOKEN and _TOPSTEPX_TOKEN_EXPIRY:
+        if now < _TOPSTEPX_TOKEN_EXPIRY - pd.Timedelta(minutes=5):
+            return _TOPSTEPX_TOKEN
+
+    username = _os.environ.get("TOPSTEPX_USERNAME", "").strip()
+    api_key  = _os.environ.get("TOPSTEPX_API_KEY", "").strip()
+    if not username or not api_key:
+        logger.warning("TopstepX creds not set (TOPSTEPX_USERNAME / TOPSTEPX_API_KEY) — skipping TopstepX fetch")
+        return None
+
+    try:
+        resp = _topstepx_post(
+            "/api/Auth/loginKey",
+            headers={"Content-Type": "application/json", "accept": "text/plain"},
+            body={"userName": username, "apiKey": api_key},
+            timeout=10,
+        )
+    except Exception as exc:
+        logger.error("TopstepX auth network error: %s", exc)
+        return None
+
+    if resp.status_code != 200:
+        logger.error("TopstepX auth HTTP %d: %s", resp.status_code, resp.text[:200])
+        return None
+
+    try:
+        data = resp.json()
+    except Exception as exc:
+        logger.error("TopstepX auth JSON parse: %s", exc)
+        return None
+
+    if not data.get("success") or not data.get("token"):
+        logger.error("TopstepX auth failed: %s", data.get("errorMessage", "unknown"))
+        return None
+
+    _TOPSTEPX_TOKEN = data["token"]
+    _TOPSTEPX_TOKEN_EXPIRY = now + pd.Timedelta(hours=24)
+    logger.info("TopstepX authenticated successfully (token expires %s)", _TOPSTEPX_TOKEN_EXPIRY.isoformat())
+    return _TOPSTEPX_TOKEN
+
+
+def _invalidate_topstepx_token():
+    """Force a re-auth on next call — used after a 401 response."""
+    global _TOPSTEPX_TOKEN, _TOPSTEPX_TOKEN_EXPIRY
+    _TOPSTEPX_TOKEN = None
+    _TOPSTEPX_TOKEN_EXPIRY = None
+
+
+def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = False) -> Optional[str]:
+    """
+    Return the active contractId (e.g. "CON.F.US.ENQ.M26") for NQ or GC.
+    Caches 4h to minimize API calls. Filters by symbolId — stable across rollovers.
+    """
+    now = datetime.now(timezone.utc)
+    cached = _TOPSTEPX_CONTRACT_CACHE.get(market)
+    if cached and cached[1] > now and not force_refresh:
+        return cached[0]
+
+    sym_filter = _TOPSTEPX_SYMBOL_FILTER.get(market)
+    if not sym_filter:
+        logger.warning("TopstepX: no symbolId filter for market %s", market)
+        return None
+
+    try:
+        resp = _topstepx_post(
+            "/api/Contract/search",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type":  "application/json",
+                "accept":        "text/plain",
+            },
+            body={"searchText": market, "live": True},
+            timeout=10,
+        )
+    except Exception as exc:
+        logger.warning("TopstepX contract search network error for %s: %s", market, exc)
+        return None
+
+    if resp.status_code != 200:
+        logger.warning("TopstepX contract search HTTP %d for %s: %s", resp.status_code, market, resp.text[:200])
+        return None
+
+    try:
+        data = resp.json()
+    except Exception:
+        return None
+
+    if not data.get("success"):
+        logger.warning("TopstepX contract search failed for %s: %s", market, data.get("errorMessage"))
+        return None
+
+    contracts = data.get("contracts", [])
+    match = None
+    for c in contracts:
+        if c.get("activeContract") and c.get("symbolId") == sym_filter:
+            match = c
+            break
+
+    if not match:
+        logger.warning("TopstepX: no active %s contract (symbolId=%s) in %d results",
+                       market, sym_filter, len(contracts))
+        return None
+
+    contract_id = match["id"]
+    _TOPSTEPX_CONTRACT_CACHE[market] = (contract_id, now + pd.Timedelta(hours=4))
+    logger.info("TopstepX %s active contract: %s (%s)", market, contract_id, match.get("description", ""))
+    return contract_id
+
+
+def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
+    """
+    Primary fetch for NQ/GC — real CME futures data from TopstepX.
+    Returns empty DataFrame on any failure (caller falls back to TwelveData → yfinance).
+
+    Signature matches the existing _fetch_twelvedata / _fetch_yfinance convention
+    (market, timeframe). Bar count is looked up from _TOPSTEPX_BAR_COUNT.
+    """
+    if market not in _TOPSTEPX_SYMBOL_FILTER:
+        return pd.DataFrame(columns=_STANDARD_COLS)
+    if timeframe not in _TOPSTEPX_TF_MAP:
+        logger.warning("TopstepX: no tf mapping for %s", timeframe)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    token = _get_topstepx_token()
+    if not token:
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    contract_id = _get_topstepx_contract_id(market, token)
+    if not contract_id:
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    unit, unit_number = _TOPSTEPX_TF_MAP[timeframe]
+    bars = _TOPSTEPX_BAR_COUNT.get(timeframe, 500)
+
+    # Lookback: 2x the expected span to make sure we get enough bars
+    # (accounts for weekends, market closures, partial bars)
+    tf_minutes = {"15m": 15, "1h": 60, "4h": 240, "1d": 1440}[timeframe]
+    lookback_minutes = tf_minutes * bars * 2
+    now_utc = datetime.now(timezone.utc)
+    start_time = (now_utc - pd.Timedelta(minutes=lookback_minutes)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_time   = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    body = {
+        "contractId":        contract_id,
+        "live":              True,
+        "startTime":         start_time,
+        "endTime":           end_time,
+        "unit":              unit,
+        "unitNumber":        unit_number,
+        "limit":             bars,
+        "includePartialBar": True,
+    }
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type":  "application/json",
+        "accept":        "text/plain",
+    }
+
+    def _do_post():
+        return _topstepx_post("/api/History/retrieveBars", headers=headers, body=body, timeout=15)
+
+    # Attempt with one retry on 401 (token expired) and one retry on 5xx (transient)
+    try:
+        resp = _do_post()
+    except Exception as exc:
+        logger.warning("TopstepX retrieveBars network error for %s %s: %s", market, timeframe, exc)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    if resp.status_code == 401:
+        logger.info("TopstepX token expired — refreshing and retrying %s %s", market, timeframe)
+        _invalidate_topstepx_token()
+        new_token = _get_topstepx_token()
+        if not new_token:
+            return pd.DataFrame(columns=_STANDARD_COLS)
+        headers["Authorization"] = f"Bearer {new_token}"
+        try:
+            resp = _do_post()
+        except Exception as exc:
+            logger.warning("TopstepX retry after 401 failed: %s", exc)
+            return pd.DataFrame(columns=_STANDARD_COLS)
+
+    if resp.status_code == 429:
+        logger.warning("TopstepX RATE LIMITED for %s %s — backing off, using fallback", market, timeframe)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    if resp.status_code >= 500:
+        # Single retry on server error with small sleep
+        logger.warning("TopstepX HTTP %d for %s %s — retrying once", resp.status_code, market, timeframe)
+        time.sleep(1.0)
+        try:
+            resp = _do_post()
+        except Exception as exc:
+            logger.warning("TopstepX 5xx retry failed: %s", exc)
+            return pd.DataFrame(columns=_STANDARD_COLS)
+
+    if resp.status_code != 200:
+        logger.warning("TopstepX HTTP %d for %s %s: %s", resp.status_code, market, timeframe, resp.text[:200])
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    try:
+        data = resp.json()
+    except Exception as exc:
+        logger.warning("TopstepX JSON parse error for %s %s: %s", market, timeframe, exc)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    if not data.get("success"):
+        logger.warning("TopstepX error for %s %s: %s", market, timeframe, data.get("errorMessage", "unknown"))
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
+    bars_list = data.get("bars", [])
+    if not bars_list:
+        # Empty result — could mean contract expired / rolled over. Invalidate cache and retry once.
+        logger.warning("TopstepX returned 0 bars for %s %s — invalidating contract cache and retrying", market, timeframe)
+        _TOPSTEPX_CONTRACT_CACHE.pop(market, None)
+        new_contract = _get_topstepx_contract_id(market, token, force_refresh=True)
+        if new_contract and new_contract != contract_id:
+            body["contractId"] = new_contract
+            try:
+                resp2 = _do_post()
+                if resp2.status_code == 200:
+                    data2 = resp2.json()
+                    if data2.get("success"):
+                        bars_list = data2.get("bars", [])
+            except Exception:
+                pass
+        if not bars_list:
+            return pd.DataFrame(columns=_STANDARD_COLS)
+
+    # Normalize into bot's standard OHLCV shape
+    df = pd.DataFrame(bars_list)
+    df = df.rename(columns={"t": "timestamp", "o": "Open", "h": "High", "l": "Low", "c": "Close", "v": "Volume"})
+    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    df = df.set_index("timestamp")
+    df = _normalise_df(df)  # reuse the existing normaliser for safety
+
+    # Mark source tracking
+    fb_key = f"{market}|{timeframe}"
+    _last_source[fb_key] = "topstepx"
+
+    logger.info("TopstepX %s %s: fetched %d bars ✅", market, timeframe, len(df))
+    return df
+
+
+def probe_topstepx() -> dict:
+    """
+    Startup self-test for TopstepX connectivity.
+    Returns dict describing what worked:
+      {
+        "auth":         bool,
+        "nq_contract":  "CON.F.US.ENQ.M26" | None,
+        "gc_contract":  "CON.F.US.GC.M26"  | None,
+        "nq_bars_15m":  int,
+        "gc_bars_15m":  int,
+      }
+    bot.py calls this during _post_init() and includes the result in the
+    startup Telegram message so Wayne can confirm the feed is live.
+    """
+    result = {
+        "auth":        False,
+        "nq_contract": None,
+        "gc_contract": None,
+        "nq_bars_15m": 0,
+        "gc_bars_15m": 0,
+    }
+
+    token = _get_topstepx_token()
+    if not token:
+        return result
+    result["auth"] = True
+
+    try:
+        result["nq_contract"] = _get_topstepx_contract_id("NQ", token)
+    except Exception as exc:
+        logger.warning("probe_topstepx: NQ contract lookup error: %s", exc)
+
+    try:
+        result["gc_contract"] = _get_topstepx_contract_id("GC", token)
+    except Exception as exc:
+        logger.warning("probe_topstepx: GC contract lookup error: %s", exc)
+
+    if result["nq_contract"]:
+        try:
+            df = _fetch_topstepx("NQ", "15m")
+            result["nq_bars_15m"] = 0 if df is None else len(df)
+        except Exception as exc:
+            logger.warning("probe_topstepx: NQ 15m fetch error: %s", exc)
+
+    if result["gc_contract"]:
+        try:
+            df = _fetch_topstepx("GC", "15m")
+            result["gc_bars_15m"] = 0 if df is None else len(df)
+        except Exception as exc:
+            logger.warning("probe_topstepx: GC 15m fetch error: %s", exc)
+
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Twelve Data fetcher (FALLBACK 1 for NQ / GC)
 # ---------------------------------------------------------------------------
 # NQ symbol candidates — probe at startup to find what works
 # TwelveData free tier: futures may not be supported. We try indexes/ETFs as
@@ -539,30 +909,42 @@ def _fetch_crypto(market: str, timeframe: str) -> pd.DataFrame:
 # Unified fetch dispatcher
 # ---------------------------------------------------------------------------
 def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
-    """Dispatch to the correct data source based on market."""
+    """
+    Dispatch to data source by market. Source priority:
+      NQ/GC:   TopstepX (primary) -> TwelveData -> yfinance
+      BTC/SOL: ccxt (unchanged)
+    """
     market_upper = market.upper()
 
     if market_upper in _CRYPTO_MARKETS:
         return _fetch_crypto(market_upper, timeframe)
 
     if market_upper in _FUTURES_MARKETS:
-        # Primary: Twelve Data (no rate limiting issues)
-        df = _fetch_twelvedata(market_upper, timeframe)
-        if df is not None and len(df) >= MIN_BARS:
-            logger.info("Using TwelveData for %s %s (%d bars)", market_upper, timeframe, len(df))
-            return df
-        # Fallback: yfinance — track consecutive fallbacks
+        # PRIMARY: TopstepX (real CME futures data)
+        df_tsx = _fetch_topstepx(market_upper, timeframe)
+        if df_tsx is not None and len(df_tsx) >= MIN_BARS:
+            logger.info("Using TopstepX for %s %s (%d bars)", market_upper, timeframe, len(df_tsx))
+            return df_tsx
+        logger.info("TopstepX insufficient/unavailable for %s %s — trying TwelveData", market_upper, timeframe)
+
+        # FALLBACK 1: TwelveData (unchanged logic)
+        df_td = _fetch_twelvedata(market_upper, timeframe)
+        if df_td is not None and len(df_td) >= MIN_BARS:
+            logger.info("Using TwelveData for %s %s (%d bars)", market_upper, timeframe, len(df_td))
+            return df_td
+
+        # FALLBACK 2: yfinance (last resort)
         fb_key = f"{market_upper}|{timeframe}"
         _td_fallback_count[fb_key] = _td_fallback_count.get(fb_key, 0) + 1
         n = _td_fallback_count[fb_key]
         _last_source[fb_key] = "yfinance"
         logger.warning(
-            "TwelveData fallback to yfinance for %s %s (attempt %d). "
-            "If this persists, check symbol config.", market_upper, timeframe, n
+            "Fallback chain to yfinance for %s %s (attempt %d).",
+            market_upper, timeframe, n
         )
         if n >= 3:
             logger.error(
-                "DATA ALERT: %s %s using yfinance fallback %dx in a row — check Twelve Data symbol config",
+                "DATA ALERT: %s %s using yfinance fallback %dx in a row — check TopstepX auth & symbols",
                 market_upper, timeframe, n
             )
         return _fetch_yfinance(market_upper, timeframe)

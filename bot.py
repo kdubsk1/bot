@@ -36,7 +36,7 @@ def _now_et():
 
 import pandas as pd
 import numpy as np
-from data_layer import get_frames as dl_get_frames, get_current_price, probe_nq_symbol, probe_gc_symbol
+from data_layer import get_frames as dl_get_frames, get_current_price, probe_nq_symbol, probe_gc_symbol, probe_topstepx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
@@ -2788,6 +2788,16 @@ async def _post_init(app):
     log.info(f"Scanner state restored: {'ON' if SETTINGS['scanner_on'] else 'OFF'} "
              f"(last changed {hrs_ago} hours ago)")
 
+    # TopstepX probe (primary data source for NQ/GC)
+    tsx_result = {"auth": False, "nq_contract": None, "gc_contract": None, "nq_bars_15m": 0, "gc_bars_15m": 0}
+    try:
+        log.info("=== TOPSTEPX SELF-TEST START ===")
+        tsx_result = probe_topstepx()
+        log.info(f"TOPSTEPX auth={tsx_result['auth']} nq_contract={tsx_result['nq_contract']} gc_contract={tsx_result['gc_contract']} nq_bars={tsx_result['nq_bars_15m']} gc_bars={tsx_result['gc_bars_15m']}")
+        log.info("=== TOPSTEPX SELF-TEST END ===")
+    except Exception as e:
+        log.error(f"TopstepX probe failed (non-fatal, bot will use fallbacks): {e}")
+
     # Probe NQ and GC symbols on Twelve Data
     try:
         nq_sym = probe_nq_symbol()
@@ -2923,6 +2933,23 @@ async def _post_init(app):
             f"  Data: NQ {nq_s} | GC {gc_s} | BTC {btc_s} | SOL {sol_s}",
             "━━━━━━━━━━━━━━━━━━",
         ]
+
+        # TopstepX API status block
+        try:
+            tsx_auth_icon = "✅" if tsx_result.get("auth") else "❌"
+            nq_c = tsx_result.get("nq_contract") or "—"
+            gc_c = tsx_result.get("gc_contract") or "—"
+            nq_b = tsx_result.get("nq_bars_15m", 0)
+            gc_b = tsx_result.get("gc_bars_15m", 0)
+            lines.append("📡 *TopstepX API (Primary)*")
+            lines.append(f"  Auth: {tsx_auth_icon}")
+            lines.append(f"  NQ: `{_md(nq_c)}` ({nq_b} bars)")
+            lines.append(f"  GC: `{_md(gc_c)}` ({gc_b} bars)")
+            if not tsx_result.get("auth"):
+                lines.append("  ⚠️ Falling back to TwelveData/yfinance")
+            lines.append("━━━━━━━━━━━━━━━━━━")
+        except Exception as e:
+            log.error(f"TopstepX startup banner: {e}")
 
         # ── Batch 2A: Observability status ──
         try:
