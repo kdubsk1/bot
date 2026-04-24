@@ -48,6 +48,7 @@ import dashboard as dash
 import strategy_review as sr
 from config import TELEGRAM_TOKEN, CHAT_ID
 from session_clock import SessionClock, SessionEvent, get_session_date
+import auto_sync  # Persistence: commits data/ + outcomes.csv to GitHub every 6h so Railway runtime data survives restarts
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 logging.basicConfig(
@@ -2788,6 +2789,17 @@ async def _post_init(app):
     log.info(f"Scanner state restored: {'ON' if SETTINGS['scanner_on'] else 'OFF'} "
              f"(last changed {hrs_ago} hours ago)")
 
+    # Persistence / validation: force scanner OFF on boot if env var is set.
+    # Used during validation of code changes — prevents the bot from firing
+    # trades while we're watching for errors in a fresh deploy.
+    if os.environ.get("SCANNER_FORCE_OFF_ON_BOOT", "").strip().lower() in ("true", "1", "yes"):
+        if SETTINGS["scanner_on"]:
+            SETTINGS["scanner_on"] = False
+            _save_scanner_state()
+            log.info("Scanner FORCE-OFF on boot (SCANNER_FORCE_OFF_ON_BOOT=true) — was ON, now OFF")
+        else:
+            log.info("Scanner FORCE-OFF on boot (SCANNER_FORCE_OFF_ON_BOOT=true) — already OFF")
+
     # TopstepX probe (primary data source for NQ/GC)
     tsx_result = {"auth": False, "nq_contract": None, "gc_contract": None, "nq_bars_15m": 0, "gc_bars_15m": 0}
     try:
@@ -2995,6 +3007,26 @@ async def _post_init(app):
 
     asyncio.create_task(scan_loop(app)); log.info("Scan loop launched.")
 
+    # Launch auto-sync periodic loop (commits data/ + outcomes.csv to GitHub every 6h)
+    # Without this, Railway restarts wipe all runtime trade data, scan decisions,
+    # suspended setups, cooldowns, etc. With it, data persists across restarts.
+    async def _auto_sync_notify(text):
+        try:
+            await tg_send(app, text)
+        except Exception as e:
+            log.warning(f"auto_sync telegram notify failed: {e}")
+    asyncio.create_task(auto_sync.periodic_sync_loop(telegram_send=_auto_sync_notify))
+    log.info(f"Auto-sync loop launched. {auto_sync.status()}")
+
+async def cmd_sync(u, c):
+    """Manual /sync trigger — pushes data/ + outcomes.csv to GitHub immediately."""
+    await u.message.reply_text("⏳ Syncing data to GitHub...")
+    try:
+        result = await auto_sync.manual_sync()
+        await u.message.reply_text(result, parse_mode="Markdown")
+    except Exception as e:
+        await u.message.reply_text(f"❌ Sync error: {e}")
+
 def main():
     log.info("NQ CALLS Bot starting...")
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
@@ -3007,7 +3039,8 @@ def main():
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
-                   ("rejected",cmd_rejected),("detections",cmd_detections)]:
+                   ("rejected",cmd_rejected),("detections",cmd_detections),
+                   ("sync",cmd_sync)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
