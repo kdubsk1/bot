@@ -1,67 +1,76 @@
 """
-auto_sync.py - NQ CALLS 2026
-=============================
-Periodically commits and pushes data/ + outcomes.csv to GitHub so that
-Railway runtime data survives restarts.
+auto_sync.py - NQ CALLS 2026 — GitHub API VERSION
+==================================================
+Periodically commits and pushes data/ + outcomes.csv to GitHub via the
+GitHub REST API (no git CLI required) so Railway runtime data survives restarts.
 
-THE PROBLEM
------------
-Railway's filesystem is ephemeral. Every restart (redeploy, crash, Railway
-platform event, memory pressure) wipes /app/data/ and /app/outcomes.csv.
-Before this module existed, the bot would lose all runtime state on every
-restart: cooldowns, scan decisions, outcome results, self-learning data,
-suspended setups — all reset to git-clone baseline.
+WHY API INSTEAD OF GIT CLI?
+---------------------------
+Railway's Python buildpack does NOT include git. subprocess.run(["git", ...])
+returns FileNotFoundError. So we use api.github.com directly with our PAT.
+
+THE PROBLEM WE SOLVE
+--------------------
+Railway's filesystem is ephemeral. Every restart wipes /app/data/ and
+/app/outcomes.csv. Without persistence, the bot loses all runtime state on
+restart: cooldowns, scan decisions, outcome results, self-learning state.
 
 HOW IT WORKS
 ------------
-  - On first sync, configure git identity and set authenticated remote URL.
-  - Every 6 hours, run:
-        git add -A -- data/ outcomes.csv
-        git commit -m "Auto-sync (periodic): YYYY-MM-DD HH:MM UTC [N files]"
-        git pull --rebase -X ours origin main   (handle upstream changes)
-        git push origin main
+  - Every 6 hours (after a 5-min initial delay), walk SYNC_PATHS, compute
+    SHA-1 hash for each file, compare against current GitHub SHAs from a
+    single tree fetch, build a list of changed files.
+  - If anything changed: create blobs for each via /git/blobs, build a new
+    tree via /git/trees, create a commit via /git/commits, update the
+    main ref via /git/refs/heads/main.
+  - All in a single atomic commit.
+
   - /sync Telegram command triggers an immediate manual sync.
-  - On sync failure, a loud Telegram warning is sent so the user notices.
+  - On sync failure, a loud Telegram warning fires.
 
 SECURITY
 --------
-  - GITHUB_TOKEN is read once from env var and never logged.
-  - Any subprocess stdout/stderr is passed through _redact() before logging.
+  - GITHUB_TOKEN read once from env var, never logged.
+  - Errors from API calls are sanitized through _redact() before logging.
   - Uses fine-grained PAT with Contents: Read/Write scoped to kdubsk1/bot only.
 
 NO-OP BEHAVIOR
 --------------
-  - If GITHUB_TOKEN is missing, periodic sync logs a warning and exits its
-    loop cleanly. Bot continues running; only sync is disabled.
-  - If git is not installed (shouldn't happen on Railway's buildpack), same.
-  - If there are no changes to sync, commit/push is skipped (no empty commits).
+  - If GITHUB_TOKEN missing, periodic loop exits cleanly. Bot keeps running.
+  - If a file is unreadable, it's skipped (logged warning).
+  - If no changes, no API calls beyond the tree-fetch. No empty commits.
 """
 import asyncio
+import base64
+import hashlib
+import json
 import logging
 import os
-import subprocess
+import re
+import urllib.request
+import urllib.error
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Tuple, Callable
+from typing import Optional, Tuple, Callable, List, Dict
 
 log = logging.getLogger("auto_sync")
 
 # ── Configuration ────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
 SYNC_INTERVAL_SECONDS = 6 * 60 * 60   # 6 hours
-INITIAL_DELAY_SECONDS = 5 * 60         # wait 5 min after startup before first sync
+INITIAL_DELAY_SECONDS = 5 * 60         # 5 min after startup before first sync
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "").strip()
 REPO_OWNER = "kdubsk1"
 REPO_NAME = "bot"
 BRANCH = "main"
-GIT_USER_EMAIL = "bot@nqcalls.local"
-GIT_USER_NAME = "NQ CALLS Bot"
+COMMITTER_NAME = "NQ CALLS Bot"
+COMMITTER_EMAIL = "bot@nqcalls.local"
 
-# Paths (relative to BASE_DIR) that we sync. Everything else is left alone.
-SYNC_PATHS = ["data/", "outcomes.csv"]
+SYNC_PATHS = ["data", "outcomes.csv"]
 
-# ── Runtime state (for /status and startup banner) ───────────────
-_configured: bool = False
+API_BASE = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}"
+
+# ── Runtime state ─────────────────────────────────────────────────
 _last_sync_time: Optional[datetime] = None
 _last_sync_status: str = "never"
 _last_sync_commit: str = ""
@@ -69,150 +78,183 @@ _last_sync_error: str = ""
 _last_sync_files: int = 0
 
 
-# ── Internal helpers ─────────────────────────────────────────────
 def _redact(text: str) -> str:
-    """Remove the token from any text so it never appears in logs."""
     if not text:
         return ""
     if GITHUB_TOKEN and GITHUB_TOKEN in text:
         text = text.replace(GITHUB_TOKEN, "***TOKEN_REDACTED***")
-    # Also redact anything that looks like a PAT
-    import re
     text = re.sub(r"github_pat_[A-Za-z0-9_]{20,}", "***PAT_REDACTED***", text)
     return text
 
 
-def _run_git(args: list, timeout: int = 60) -> Tuple[int, str, str]:
-    """Run a git command in BASE_DIR. Returns (returncode, stdout, stderr). Redacts token."""
-    try:
-        result = subprocess.run(
-            ["git"] + args,
-            cwd=str(BASE_DIR),
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-        return (result.returncode, _redact(result.stdout), _redact(result.stderr))
-    except subprocess.TimeoutExpired:
-        return (124, "", f"git {' '.join(args)} timed out after {timeout}s")
-    except FileNotFoundError:
-        return (127, "", "git command not found (not in PATH)")
-    except Exception as e:
-        return (1, "", f"git error: {_redact(str(e))}")
-
-
-def _configure_git_once() -> bool:
-    """First-run configuration: identity + authenticated remote URL. Idempotent."""
-    global _configured
-    if _configured:
-        return True
-
+def _api_request(method: str, path: str, body: Optional[dict] = None,
+                 timeout: int = 30) -> Tuple[int, dict]:
     if not GITHUB_TOKEN:
-        log.warning("auto_sync: GITHUB_TOKEN env var not set — sync will be DISABLED")
-        return False
+        return (0, {"error": "GITHUB_TOKEN not set"})
 
-    # Check git is available
-    rc, _, err = _run_git(["--version"], timeout=10)
-    if rc != 0:
-        log.error(f"auto_sync: git not available: {err}")
-        return False
+    url = path if path.startswith("http") else f"{API_BASE}{path}"
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "nqcalls-bot/1.0",
+    }
+    data = None
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
 
-    # Identity (per-repo, doesn't affect anything outside this repo)
-    _run_git(["config", "user.email", GIT_USER_EMAIL])
-    _run_git(["config", "user.name", GIT_USER_NAME])
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8")
+            try:
+                return (resp.status, json.loads(raw) if raw else {})
+            except json.JSONDecodeError:
+                return (resp.status, {"_raw": raw})
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode("utf-8")
+            try:
+                return (e.code, json.loads(err_body))
+            except json.JSONDecodeError:
+                return (e.code, {"error": err_body})
+        except Exception:
+            return (e.code, {"error": str(e)})
+    except urllib.error.URLError as e:
+        return (0, {"error": f"URL error: {_redact(str(e))}"})
+    except Exception as e:
+        return (0, {"error": f"request exception: {_redact(str(e))}"})
 
-    # Authenticated remote URL. 'x-access-token' is the recommended username
-    # for fine-grained PATs over HTTPS per GitHub docs.
-    remote_url = f"https://x-access-token:{GITHUB_TOKEN}@github.com/{REPO_OWNER}/{REPO_NAME}.git"
-    rc, _, err = _run_git(["remote", "set-url", "origin", remote_url])
-    if rc != 0:
-        log.error(f"auto_sync: failed to set remote URL: {err}")
-        return False
 
-    # Verify by fetching remote ref list (should succeed with valid token)
-    rc, _, err = _run_git(["ls-remote", "--heads", "origin"], timeout=30)
-    if rc != 0:
-        log.error(f"auto_sync: remote auth test failed: {err[:200]}")
-        return False
+def _git_blob_sha(content_bytes: bytes) -> str:
+    header = f"blob {len(content_bytes)}\0".encode("utf-8")
+    return hashlib.sha1(header + content_bytes).hexdigest()
 
-    _configured = True
-    log.info("auto_sync: git configured (identity + authenticated remote verified)")
-    return True
+
+def _walk_sync_paths() -> List[Path]:
+    files: List[Path] = []
+    for raw in SYNC_PATHS:
+        p = BASE_DIR / raw
+        if not p.exists():
+            continue
+        if p.is_file():
+            files.append(p)
+        elif p.is_dir():
+            for child in p.rglob("*"):
+                if not child.is_file():
+                    continue
+                if any(part.startswith(".") for part in child.relative_to(BASE_DIR).parts):
+                    continue
+                if "__pycache__" in child.parts:
+                    continue
+                try:
+                    if child.stat().st_size > 5 * 1024 * 1024:
+                        log.warning(f"auto_sync: skipping large file {child} (>5MB)")
+                        continue
+                except OSError:
+                    continue
+                files.append(child)
+    return files
 
 
 def _do_sync_sync(label: str) -> dict:
-    """
-    Synchronous sync logic. Called from a thread via asyncio.to_thread.
-    Returns {ok, message, commit_sha, files_changed}.
-    """
-    if not _configure_git_once():
-        return {"ok": False, "message": "git not configured (token missing or invalid)",
+    if not GITHUB_TOKEN:
+        return {"ok": False, "message": "GITHUB_TOKEN not set",
                 "commit_sha": "", "files_changed": 0}
 
-    # Check for changes in our watched paths
-    status_args = ["status", "--porcelain", "--"] + SYNC_PATHS
-    rc, porcelain, err = _run_git(status_args)
-    if rc != 0:
-        return {"ok": False, "message": f"git status failed: {err[:200]}",
+    s, r = _api_request("GET", f"/git/refs/heads/{BRANCH}")
+    if s != 200 or "object" not in r:
+        return {"ok": False, "message": f"failed to get branch ref: {s} {str(r)[:200]}",
                 "commit_sha": "", "files_changed": 0}
+    base_commit_sha = r["object"]["sha"]
 
-    changed_lines = [l for l in porcelain.splitlines() if l.strip()]
-    files_changed = len(changed_lines)
+    s, r = _api_request("GET", f"/git/commits/{base_commit_sha}")
+    if s != 200 or "tree" not in r:
+        return {"ok": False, "message": f"failed to get base commit: {s} {str(r)[:200]}",
+                "commit_sha": "", "files_changed": 0}
+    base_tree_sha = r["tree"]["sha"]
 
-    if files_changed == 0:
+    local_files = _walk_sync_paths()
+    local_map: Dict[str, Tuple[Path, str, bytes]] = {}
+    for fp in local_files:
+        try:
+            content = fp.read_bytes()
+        except Exception as e:
+            log.warning(f"auto_sync: cannot read {fp}: {_redact(str(e))}")
+            continue
+        repo_path = str(fp.relative_to(BASE_DIR)).replace("\\", "/")
+        local_map[repo_path] = (fp, _git_blob_sha(content), content)
+
+    s, r = _api_request("GET", f"/git/trees/{base_tree_sha}?recursive=1")
+    if s != 200:
+        return {"ok": False, "message": f"failed to get tree: {s} {str(r)[:200]}",
+                "commit_sha": "", "files_changed": 0}
+    remote_tree = {entry["path"]: entry for entry in r.get("tree", []) if entry.get("type") == "blob"}
+
+    changed: List[dict] = []
+    for repo_path, (fp, local_sha, content) in local_map.items():
+        remote_entry = remote_tree.get(repo_path)
+        if remote_entry and remote_entry.get("sha") == local_sha:
+            continue
+        b64 = base64.b64encode(content).decode("ascii")
+        s2, r2 = _api_request("POST", "/git/blobs",
+                              {"content": b64, "encoding": "base64"})
+        if s2 != 201 or "sha" not in r2:
+            return {"ok": False, "message": f"failed to create blob for {repo_path}: {s2} {str(r2)[:200]}",
+                    "commit_sha": "", "files_changed": 0}
+        changed.append({
+            "path": repo_path,
+            "mode": "100644",
+            "type": "blob",
+            "sha": r2["sha"],
+        })
+
+    if not changed:
         return {"ok": True, "message": "no changes to sync",
                 "commit_sha": "", "files_changed": 0}
 
-    # Stage
-    add_args = ["add", "-A", "--"] + SYNC_PATHS
-    rc, _, err = _run_git(add_args)
-    if rc != 0:
-        return {"ok": False, "message": f"git add failed: {err[:200]}",
-                "commit_sha": "", "files_changed": files_changed}
+    files_changed = len(changed)
 
-    # Commit
+    s, r = _api_request("POST", "/git/trees",
+                        {"base_tree": base_tree_sha, "tree": changed})
+    if s != 201 or "sha" not in r:
+        return {"ok": False, "message": f"failed to create tree: {s} {str(r)[:200]}",
+                "commit_sha": "", "files_changed": files_changed}
+    new_tree_sha = r["sha"]
+
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     commit_msg = f"Auto-sync ({label}): {ts} [{files_changed} files]"
-    rc, _, err = _run_git(["commit", "-m", commit_msg])
-    if rc != 0:
-        # If .gitignore filtered everything out, there's nothing to commit
-        if "nothing to commit" in err.lower() or "nothing to commit" in _redact(err).lower():
-            return {"ok": True, "message": "nothing to commit after staging",
-                    "commit_sha": "", "files_changed": 0}
-        return {"ok": False, "message": f"git commit failed: {err[:200]}",
+    s, r = _api_request("POST", "/git/commits", {
+        "message": commit_msg,
+        "tree": new_tree_sha,
+        "parents": [base_commit_sha],
+        "author": {"name": COMMITTER_NAME, "email": COMMITTER_EMAIL,
+                   "date": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+    })
+    if s != 201 or "sha" not in r:
+        return {"ok": False, "message": f"failed to create commit: {s} {str(r)[:200]}",
                 "commit_sha": "", "files_changed": files_changed}
+    new_commit_sha = r["sha"]
 
-    # Capture the commit SHA we just made
-    rc, sha_out, _ = _run_git(["rev-parse", "HEAD"])
-    commit_sha = sha_out.strip()[:7] if rc == 0 else ""
-
-    # Pull with rebase in case remote moved ahead (user pushed from desktop
-    # while bot was running). Use 'ours' merge strategy for any conflicts —
-    # Railway runtime data is newer than anything pushed from desktop.
-    rc, _, err = _run_git(["pull", "--rebase", "-X", "ours", "origin", BRANCH],
-                          timeout=120)
-    if rc != 0:
-        log.warning(f"auto_sync: pull --rebase failed: {err[:200]} — aborting rebase and trying plain push")
-        _run_git(["rebase", "--abort"])  # best-effort; OK if no rebase in progress
-
-    # Push
-    rc, _, err = _run_git(["push", "origin", BRANCH], timeout=120)
-    if rc != 0:
-        # Common causes: rejected for non-fast-forward, auth issue, rate limit
-        return {"ok": False, "message": f"git push failed: {err[:200]}",
-                "commit_sha": commit_sha, "files_changed": files_changed}
+    s, r = _api_request("PATCH", f"/git/refs/heads/{BRANCH}",
+                        {"sha": new_commit_sha, "force": False})
+    if s != 200:
+        return {"ok": False,
+                "message": f"failed to update ref (remote moved? retry next cycle): {s} {str(r)[:200]}",
+                "commit_sha": new_commit_sha, "files_changed": files_changed}
 
     return {
         "ok": True,
-        "message": f"pushed {files_changed} files",
-        "commit_sha": commit_sha,
+        "message": f"committed {files_changed} files via API",
+        "commit_sha": new_commit_sha[:7],
         "files_changed": files_changed,
     }
 
 
 async def _do_sync(label: str = "periodic") -> dict:
-    """Async wrapper. Runs sync in a thread pool so it doesn't block the event loop."""
-    global _last_sync_time, _last_sync_status, _last_sync_commit, _last_sync_error, _last_sync_files
+    global _last_sync_time, _last_sync_status, _last_sync_commit
+    global _last_sync_error, _last_sync_files
 
     loop = asyncio.get_event_loop()
     try:
@@ -226,15 +268,10 @@ async def _do_sync(label: str = "periodic") -> dict:
     _last_sync_commit = result.get("commit_sha", "")
     _last_sync_error = "" if result["ok"] else result.get("message", "")
     _last_sync_files = result.get("files_changed", 0)
-
     return result
 
 
-# ── Public API ───────────────────────────────────────────────────
 async def manual_sync() -> str:
-    """
-    Triggered by /sync Telegram command. Returns a user-friendly message.
-    """
     log.info("auto_sync: manual sync requested")
     r = await _do_sync(label="manual")
     ts = datetime.now(timezone.utc).strftime("%H:%M UTC")
@@ -255,18 +292,10 @@ async def manual_sync() -> str:
 
 
 async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
-    """
-    Background task: sync every SYNC_INTERVAL_SECONDS.
-    First sync happens after INITIAL_DELAY_SECONDS so the bot can stabilize first.
-
-    Args:
-        telegram_send: optional async callable(text) to notify Telegram on events.
-                       If None, events are only logged.
-    """
     log.info(
         f"auto_sync: periodic_sync_loop started "
         f"(interval: {SYNC_INTERVAL_SECONDS/3600:.1f}h, "
-        f"initial delay: {INITIAL_DELAY_SECONDS}s)"
+        f"initial delay: {INITIAL_DELAY_SECONDS}s) [API mode]"
     )
 
     if not GITHUB_TOKEN:
@@ -276,15 +305,13 @@ async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
                 await telegram_send(
                     "⚠️ *Auto-Sync DISABLED*\n"
                     "━━━━━━━━━━━━━━━━━━\n"
-                    "GITHUB_TOKEN env var not set on Railway.\n"
-                    "Runtime data will NOT persist across restarts.\n"
-                    "Add the token and redeploy."
+                    "GITHUB_TOKEN env var not set.\n"
+                    "Runtime data will NOT persist across restarts."
                 )
             except Exception:
                 pass
         return
 
-    # Initial delay to let bot finish starting up before first sync
     await asyncio.sleep(INITIAL_DELAY_SECONDS)
 
     while True:
@@ -327,11 +354,10 @@ async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
 
 
 def status() -> str:
-    """Return a human-readable auto-sync status string for startup banner / /status."""
     if not GITHUB_TOKEN:
         return "⚠️ Auto-sync DISABLED (GITHUB_TOKEN not set)"
     if _last_sync_time is None:
-        return "Auto-sync: waiting for first cycle"
+        return "Auto-sync: waiting for first cycle [API mode]"
     age_s = (datetime.now(timezone.utc) - _last_sync_time).total_seconds()
     if age_s < 60:
         age_str = f"{int(age_s)}s ago"
