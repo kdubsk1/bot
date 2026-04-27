@@ -18,6 +18,7 @@ from __future__ import annotations
 import csv, os, json, uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional
+import safe_io  # data-loss fix: atomic writes + cross-process locks
 try:
     from zoneinfo import ZoneInfo
     ET_ZONE = ZoneInfo("America/New_York")
@@ -104,8 +105,7 @@ def get_suspended_setups() -> dict:
 
 
 def _save_suspended_setups(data: dict):
-    with open(SUSPENDED_SETUPS_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    safe_io.atomic_write_json(SUSPENDED_SETUPS_FILE, data)
 
 
 def is_setup_suspended(market: str, setup: str) -> bool:
@@ -192,8 +192,7 @@ def _load_performance() -> dict:
     return {}
 
 def _save_performance(data: dict):
-    with open(LEARNING_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    safe_io.atomic_write_json(LEARNING_FILE, data)
 
 def _performance_bonus(market: str, setup_type: str) -> int:
     """
@@ -1484,14 +1483,14 @@ def log_alert(row: dict) -> str:
     except Exception:
         row["session_id"] = datetime.now().strftime("%Y-%m-%d")
     clean = {k: row.get(k,"") for k in CSV_COLS}
-    with open(OUTCOMES_CSV, "a", newline="") as f:
-        csv.DictWriter(f, fieldnames=CSV_COLS).writerow(clean)
+    # Locked atomic append — prevents _write_all from clobbering this row
+    safe_io.safe_append_csv(OUTCOMES_CSV, CSV_COLS, clean)
     return clean["alert_id"]
 
 def _read_all() -> list[dict]:
     _ensure_csv()
-    with open(OUTCOMES_CSV, newline="") as f:
-        rows = list(csv.DictReader(f))
+    # Use safe_read_csv so we don't catch a partial state mid-rewrite
+    rows = safe_io.safe_read_csv(OUTCOMES_CSV)
     # Backward compatibility: fill missing session_id from timestamp
     try:
         from session_clock import session_date_from_timestamp
@@ -1507,21 +1506,31 @@ def _read_all() -> list[dict]:
     return rows
 
 def _write_all(rows: list[dict]):
-    with open(OUTCOMES_CSV, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=CSV_COLS)
-        w.writeheader()
-        for r in rows:
-            w.writerow({k: r.get(k,"") for k in CSV_COLS})
+    """Atomic full rewrite. Used by update_result/update_rescore/etc.
+    Note: callers that read-then-write should use _safe_mutate_csv instead
+    so the read happens INSIDE the lock and concurrent appenders aren't
+    clobbered. _write_all is left here for backwards compatibility but
+    its read-then-write callers (update_result etc.) have been switched
+    to the safer pattern."""
+    safe_io.safe_rewrite_csv(OUTCOMES_CSV, CSV_COLS, lambda _: list(rows))
+
+def _safe_mutate_csv(mutator):
+    """Locked read-modify-rewrite of outcomes.csv. The mutator gets the
+    fresh row list (read inside the lock) and returns the new list.
+    This is the ONLY safe way to do conditional updates without losing
+    rows that were appended between read and write."""
+    return safe_io.safe_rewrite_csv(OUTCOMES_CSV, CSV_COLS, mutator)
 
 def update_result(alert_id: str, result: str, bars: int, exit_price: float):
-    rows = _read_all()
-    for r in rows:
-        if r["alert_id"] == alert_id:
-            r["status"]             = "CLOSED"
-            r["result"]             = result
-            r["bars_to_resolution"] = bars
-            r["exit_price"]         = exit_price
-    _write_all(rows)
+    def _mut(rows):
+        for r in rows:
+            if r.get("alert_id") == alert_id:
+                r["status"]             = "CLOSED"
+                r["result"]             = result
+                r["bars_to_resolution"] = bars
+                r["exit_price"]         = exit_price
+        return rows
+    _safe_mutate_csv(_mut)
 
 
 def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
@@ -1530,63 +1539,65 @@ def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
     Sets status=CLOSED, result=SKIP, exit_price=entry (zero P&L).
     Keeps exact same CSV schema — no new columns added.
     Returns list of (alert_id, market, setup, hours_old) tuples for logging.
+
+    DATA-LOSS FIX: now uses _safe_mutate_csv so we don't lose log_alert()
+    appends that happen during the function call.
     """
     import logging as _logging
     _log = _logging.getLogger("nqcalls")
-    rows = _read_all()
     now_utc = datetime.now(timezone.utc)
     cutoff_seconds = max_hours * 3600
     expired: list[tuple] = []
-    changed = False
 
-    for r in rows:
-        if r.get("status") != "OPEN":
-            continue
-        ts_str = r.get("timestamp", "")
-        if not ts_str:
-            continue
-        try:
-            alert_dt = datetime.fromisoformat(ts_str)
-            if alert_dt.tzinfo is None:
-                alert_dt = alert_dt.replace(tzinfo=timezone.utc)
-            age_seconds = (now_utc - alert_dt).total_seconds()
-        except Exception:
-            continue
-        if age_seconds < cutoff_seconds:
-            continue
+    def _mut(rows):
+        for r in rows:
+            if r.get("status") != "OPEN":
+                continue
+            ts_str = r.get("timestamp", "")
+            if not ts_str:
+                continue
+            try:
+                alert_dt = datetime.fromisoformat(ts_str)
+                if alert_dt.tzinfo is None:
+                    alert_dt = alert_dt.replace(tzinfo=timezone.utc)
+                age_seconds = (now_utc - alert_dt).total_seconds()
+            except Exception:
+                continue
+            if age_seconds < cutoff_seconds:
+                continue
 
-        alert_id = r.get("alert_id", "?")
-        market   = r.get("market", "?")
-        setup    = r.get("setup", "?")
-        entry    = r.get("entry", "")
-        hours    = round(age_seconds / 3600, 1)
+            alert_id = r.get("alert_id", "?")
+            market   = r.get("market", "?")
+            setup    = r.get("setup", "?")
+            entry    = r.get("entry", "")
+            hours    = round(age_seconds / 3600, 1)
 
-        r["status"]             = "CLOSED"
-        r["result"]             = "SKIP"
-        r["exit_price"]         = entry
-        r["bars_to_resolution"] = ""
-        expired.append((alert_id, market, setup, hours))
-        changed = True
-        _log.info(f"Auto-expired stale OPEN trade: {alert_id} {market} {setup} (opened {hours}h ago)")
+            r["status"]             = "CLOSED"
+            r["result"]             = "SKIP"
+            r["exit_price"]         = entry
+            r["bars_to_resolution"] = ""
+            expired.append((alert_id, market, setup, hours))
+            _log.info(f"Auto-expired stale OPEN trade: {alert_id} {market} {setup} (opened {hours}h ago)")
+        return rows
 
-    if changed:
-        _write_all(rows)
-
+    _safe_mutate_csv(_mut)
     return expired
 
 def update_rescore(alert_id: str, new_conviction: int):
-    rows = _read_all()
-    for r in rows:
-        if r["alert_id"] == alert_id:
-            r["last_rescore_conviction"] = new_conviction
-    _write_all(rows)
+    def _mut(rows):
+        for r in rows:
+            if r.get("alert_id") == alert_id:
+                r["last_rescore_conviction"] = new_conviction
+        return rows
+    _safe_mutate_csv(_mut)
 
 def update_partial_exit(alert_id: str):
-    rows = _read_all()
-    for r in rows:
-        if r["alert_id"] == alert_id:
-            r["partial_exit_done"] = "True"
-    _write_all(rows)
+    def _mut(rows):
+        for r in rows:
+            if r.get("alert_id") == alert_id:
+                r["partial_exit_done"] = "True"
+        return rows
+    _safe_mutate_csv(_mut)
 
 def load_open_trades() -> list[dict]:
     return [r for r in _read_all() if r.get("status") == "OPEN"]

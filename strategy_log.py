@@ -18,6 +18,7 @@ import os, json, csv
 from datetime import datetime, timezone
 from typing import Optional
 import pandas as pd
+import safe_io  # data-loss fix: atomic writes + cross-process locks
 
 _BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 _DATA_DIR    = os.path.join(_BASE_DIR, "data")
@@ -183,8 +184,9 @@ def log_scan_decision(
     for k in COLS:
         row.setdefault(k, "")
 
-    with open(STRATEGY_LOG, "a", newline="", encoding="utf-8") as f:
-        csv.DictWriter(f, fieldnames=COLS).writerow(row)
+    # Locked atomic append. Prevents check_missed_setups from clobbering
+    # this row by rewriting the file with a stale snapshot.
+    safe_io.safe_append_csv(STRATEGY_LOG, COLS, row)
 
     return row["timestamp"]
 
@@ -197,81 +199,101 @@ def check_missed_setups(live_frames: dict):
     Uses candle HIGH/LOW range (not just close price) so we catch
     moves that spiked through a level between scans — same method
     as outcome_tracker uses for real trades.
+
+    DATA-LOSS FIX (2026-04-27): the old version read the file, mutated
+    rows in-memory, then truncate-rewrote with `open("w")`. If
+    log_scan_decision() appended a row between our read and our rewrite,
+    that row was silently lost. This caused row counts to bounce
+    (3.5k -> 7k -> 3k). Now we use safe_io.safe_rewrite_csv which
+    re-reads inside the lock, so concurrent appenders wait their turn
+    and never get clobbered.
     """
     if not os.path.exists(STRATEGY_LOG):
         return []
 
-    rows = []
-    with open(STRATEGY_LOG, newline="") as f:
-        rows = list(csv.DictReader(f))
+    updated_log: list = []
 
-    updated = []
-    for row in rows:
-        if row.get("result"):             # already resolved
-            continue
-        if row.get("decision") == DECISION_FIRED:  # handled by outcome_tracker
-            continue
-        market = row.get("market")
-        # Use frames dict {market: df} or {market: price_float} — handle both
-        market_data = live_frames.get(market)
-        if market_data is None:
-            continue
-
-        try:
-            target    = float(row.get("target", 0))
-            stop      = float(row.get("stop", 0))
-            direction = row.get("direction", "LONG")
-            if target == 0 or stop == 0:
+    def _mutator(rows: list[dict]) -> list[dict]:
+        """Runs INSIDE safe_rewrite_csv's lock with a fresh read. Mutates
+        rows in place and returns them. Cannot do other I/O on the file."""
+        for row in rows:
+            if row.get("result"):             # already resolved
+                continue
+            if row.get("decision") == DECISION_FIRED:  # handled by outcome_tracker
+                continue
+            market = row.get("market")
+            market_data = live_frames.get(market)
+            if market_data is None:
                 continue
 
-            # Get candle high/low since alert — catches spikes between scans
-            if isinstance(market_data, pd.DataFrame):
-                # Full DataFrame passed — use recent candle range
-                alert_ts = row.get("timestamp", "")
-                try:
-                    alert_dt = pd.Timestamp(alert_ts, tz="UTC")
-                    recent = market_data[market_data.index >= alert_dt]
-                    if recent.empty:
-                        recent = market_data.iloc[-5:]  # fallback to last 5 candles
-                except:
-                    recent = market_data.iloc[-5:]
-                period_high = float(recent["High"].max())
-                period_low  = float(recent["Low"].min())
-            elif isinstance(market_data, (int, float)):
-                # Just a price float — use it as both high and low
-                period_high = float(market_data)
-                period_low  = float(market_data)
-            else:
+            try:
+                target    = float(row.get("target", 0))
+                stop      = float(row.get("stop", 0))
+                direction = row.get("direction", "LONG")
+                if target == 0 or stop == 0:
+                    continue
+
+                # Get candle high/low since alert — catches spikes between scans
+                if isinstance(market_data, pd.DataFrame):
+                    alert_ts = row.get("timestamp", "")
+                    try:
+                        alert_dt = pd.Timestamp(alert_ts, tz="UTC")
+                        recent = market_data[market_data.index >= alert_dt]
+                        if recent.empty:
+                            recent = market_data.iloc[-5:]
+                    except Exception:
+                        recent = market_data.iloc[-5:]
+                    period_high = float(recent["High"].max())
+                    period_low  = float(recent["Low"].min())
+                elif isinstance(market_data, (int, float)):
+                    period_high = float(market_data)
+                    period_low  = float(market_data)
+                else:
+                    continue
+
+                hit_target = hit_stop = False
+                if direction == "LONG":
+                    if period_high >= target: hit_target = True
+                    if period_low  <= stop:   hit_stop   = True
+                else:
+                    if period_low  <= target: hit_target = True
+                    if period_high >= stop:   hit_stop   = True
+
+                if hit_target:
+                    row["result"]           = "WOULD_WIN"
+                    row["result_checked_at"] = datetime.now(timezone.utc).isoformat()
+                    updated_log.append(dict(row))
+                elif hit_stop:
+                    row["result"]           = "WOULD_LOSE"
+                    row["result_checked_at"] = datetime.now(timezone.utc).isoformat()
+                    updated_log.append(dict(row))
+            except Exception:
                 continue
 
-            hit_target = hit_stop = False
-            if direction == "LONG":
-                if period_high >= target: hit_target = True
-                if period_low  <= stop:   hit_stop   = True
-            else:
-                if period_low  <= target: hit_target = True
-                if period_high >= stop:   hit_stop   = True
+        # Always return rows — safe_rewrite_csv writes whatever we return.
+        # If we didn't update anything, this is a no-op rewrite of the
+        # existing data (slightly wasteful but still correct).
+        return rows
 
-            if hit_target:
-                row["result"]           = "WOULD_WIN"
-                row["result_checked_at"]= datetime.now(timezone.utc).isoformat()
-                updated.append(dict(row))
-            elif hit_stop:
-                row["result"]           = "WOULD_LOSE"
-                row["result_checked_at"]= datetime.now(timezone.utc).isoformat()
-                updated.append(dict(row))
-        except:
-            continue
+    # Only call the rewrite if there's something worth doing. Reading first
+    # under a fresh lock-less peek is fine because if we DO mutate, the
+    # safe_rewrite_csv call re-reads inside its own lock.
+    try:
+        # Quick peek to decide whether to bother taking the lock
+        with open(STRATEGY_LOG, "r", newline="", encoding="utf-8") as f:
+            sample = list(csv.DictReader(f))
+        has_pending = any(
+            (not r.get("result")) and r.get("decision") != DECISION_FIRED
+            for r in sample
+        )
+        if not has_pending:
+            return []
+    except Exception:
+        # If the peek fails for any reason, fall through and try the rewrite
+        pass
 
-    if updated:
-        # Rewrite file with updates
-        with open(STRATEGY_LOG, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=COLS)
-            w.writeheader()
-            for r in rows:
-                w.writerow({k: r.get(k,"") for k in COLS})
-
-    return updated
+    safe_io.safe_rewrite_csv(STRATEGY_LOG, COLS, _mutator)
+    return updated_log
 
 
 def build_strategy_analysis() -> str:
