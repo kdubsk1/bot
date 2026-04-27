@@ -92,10 +92,10 @@
   },
   "BTC:APPROACH_SUPPORT": {
     "wins": 0,
-    "losses": 2,
-    "total": 2,
+    "losses": 3,
+    "total": 3,
     "win_rate": 0.0,
-    "last_updated": "2026-04-15T03:24:59.554197"
+    "last_updated": "2026-04-27T17:19:45.981183"
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 0,
@@ -117,5 +117,12 @@
     "total": 1,
     "win_rate": 0.0,
     "last_updated": "2026-04-15T03:59:06.823035"
+  },
+  "SOL:BREAK_RETEST_BEAR": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-27T18:18:04.233918"
   }
 }

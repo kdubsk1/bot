@@ -8,11 +8,15 @@
     "reason": "LOSS"
   },
   "BTC:mean_rev_long": {
-    "expiry": "2026-04-15T08:55:00.062994+00:00",
+    "expiry": "2026-04-27T18:49:46.505244+00:00",
     "reason": "LOSS"
   },
   "BTC:cont_short": {
     "expiry": "2026-04-15T09:29:07.239332+00:00",
+    "reason": "LOSS"
+  },
+  "SOL:cont_short": {
+    "expiry": "2026-04-27T19:48:04.675730+00:00",
     "reason": "LOSS"
   }
 }
