@@ -12,11 +12,11 @@
     "reason": "LOSS"
   },
   "BTC:cont_short": {
-    "expiry": "2026-04-28T00:01:53.560840+00:00",
-    "reason": "LOSS"
+    "expiry": "2026-04-28T14:42:55.854805+00:00",
+    "reason": "WIN"
   },
   "SOL:cont_short": {
-    "expiry": "2026-04-28T01:15:10.496732+00:00",
-    "reason": "LOSS"
+    "expiry": "2026-04-28T14:42:56.138684+00:00",
+    "reason": "WIN"
   }
 }
