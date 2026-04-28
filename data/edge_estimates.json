@@ -67,15 +67,15 @@
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 2,
-    "losses": 3,
+    "losses": 5,
     "total_win_r": 7.416916265290574,
-    "total_loss_r": 3.0
+    "total_loss_r": 5.0
   },
   "EMA21_PULLBACK_BEAR|||ALL": {
     "wins": 2,
-    "losses": 3,
+    "losses": 5,
     "total_win_r": 7.416916265290574,
-    "total_loss_r": 3.0
+    "total_loss_r": 5.0
   },
   "BREAK_RETEST_BEAR|||LH_LL": {
     "wins": 2,
