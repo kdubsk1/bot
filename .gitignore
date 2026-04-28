@@ -17,6 +17,21 @@ data/dashboard.html
 # Archive data — too large, stays local
 data/archive/
 
+# Local-only archive — backtest CLI tools and historical reference files.
+# These aren't imported by bot.py, so they don't need to ship to Railway.
+_archive/
+
+# One-time deploy scripts (no longer needed after success)
+deploy_safe_io_fix.py
+DEPLOY_SAFE_IO_FIX.bat
+
+# Stale logs / leftovers
+alert_history.txt
+
+# Local OS junk
+Thumbs.db
+.DS_Store
+
 # Keep these data files (they are the bot's brain)
 # data/setup_performance.json
 # data/edge_estimates.json
