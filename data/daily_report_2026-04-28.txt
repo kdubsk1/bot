@@ -1,17 +1,21 @@
 NQ CALLS DAILY REPORT
 Date: Tuesday, April 28, 2026
-Generated: 00:00 EST
+Generated: 03:01 EST
 ==================================================
 
 TODAY'S PERFORMANCE
 ------------------------------
-Alerts fired today:  0
+Alerts fired today:  1
 Closed today:        0
 Wins:                0
 Losses:              0
 Skipped:             0
-Still open:          0
+Still open:          1
 Today win rate:      0.0%
+
+TODAY'S ALERTS:
+------------------------------
+  🔄 BTC | BREAK_RETEST_BEAR | SHORT | Conv:71 | RR:2.95 | Tier:MEDIUM | Entry:77332.69 Stop:77632.3365 Target:76447.51 | Exit:open | 2026-04-28 00:02
 
 ALL-TIME STATS
 ------------------------------
@@ -44,6 +48,7 @@ ALL-TIME LEARNING FILE:
 STILL OPEN AT END OF DAY:
 ------------------------------
   🔄 SOL | BREAK_RETEST_BEAR | Entry:84.67 Target:83.85 | ID:4a270a58da | 2026-04-27 23:47
+  🔄 BTC | BREAK_RETEST_BEAR | Entry:77332.69 Target:76447.51 | ID:cc42bde93d | 2026-04-28 00:02
 
 ==================================================
 END OF REPORT
