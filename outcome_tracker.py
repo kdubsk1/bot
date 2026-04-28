@@ -1151,8 +1151,22 @@ def structure_target(df: pd.DataFrame, direction: str,
                 candidates.append((lvl, rr))
         candidates.sort(key=lambda x: -x[0])  # nearest first (highest low first)
 
-    # Walk the chain — find nearest swing with acceptable RR
+    # Walk the chain — find nearest swing with acceptable RR.
+    # MAX_RR cap of 4.0 (added 2026-04-28, data-driven from 64 closed trades):
+    #   RR 2-3 had 41.9% WR over 31 trades — keep firing
+    #   RR 3-4 had 33.3% WR over 9 trades  — keep firing (borderline)
+    #   RR 4-6 had 10.0% WR over 10 trades — REJECT
+    #   RR 6-10 had 9.1% WR over 11 trades — REJECT
+    #   RR > 10 had 0.0% WR over 2 trades  — REJECT
+    # When the nearest viable swing gives RR > 4.0, the target is too far for
+    # price to realistically reach within the trade's lifetime. Reject rather
+    # than fabricate a closer target — every one of these in our dataset hit
+    # stop-loss long before approaching target.
+    MAX_RR = 4.0
     for lvl, rr in candidates:
+        if rr > MAX_RR:
+            # candidates sorted by RR ascending — all further ones are also too far
+            return 0.0, 0.0, "rr_too_high"
         if rr >= min_rr:
             return float(lvl), float(rr), "swing_level"
 
