@@ -98,11 +98,11 @@
     "last_updated": "2026-04-27T17:19:45.981183"
   },
   "NQ:BREAK_RETEST_BULL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 0,
-    "total": 0,
-    "win_rate": 0.0,
-    "last_updated": "2026-04-16T00:00:00.000000"
+    "total": 1,
+    "win_rate": 100.0,
+    "last_updated": "2026-04-27T19:55:30.701233"
   },
   "NQ:APPROACH_SUPPORT": {
     "wins": 0,
@@ -124,5 +124,19 @@
     "total": 2,
     "win_rate": 0.0,
     "last_updated": "2026-04-27T18:18:04.233918"
+  },
+  "BTC:EMA21_PULLBACK_BEAR": {
+    "wins": 2,
+    "losses": 2,
+    "total": 4,
+    "win_rate": 50.0,
+    "last_updated": "2026-04-27T22:31:53.124308"
+  },
+  "SOL:EMA21_PULLBACK_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-27T23:45:10.044753"
   }
 }
