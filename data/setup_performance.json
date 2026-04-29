@@ -134,9 +134,9 @@
   },
   "SOL:EMA21_PULLBACK_BEAR": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 2,
+    "total": 2,
     "win_rate": 0.0,
-    "last_updated": "2026-04-27T23:45:10.044753"
+    "last_updated": "2026-04-28T23:56:05.350003"
   }
 }
