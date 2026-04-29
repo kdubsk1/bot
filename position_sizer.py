@@ -22,8 +22,52 @@ The final answer = min(survival, kelly) × conviction × regime × correlation �
 import math
 import json
 import os
+import time
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Tuple
+
+
+# ── Audit Finding #11 / BACKLOG #2 (2026-04-28): validation lock ──
+# Force contracts = 1 until rolling 20-trade WR reaches 50%. Don't reward
+# a losing system with Kelly scaling. With < 20 closed trades, default
+# locked. Cache for 60s to avoid hammering outcomes.csv on every sizing.
+_VALIDATION_LOCK_CACHE = {"checked_at": 0.0, "locked": True, "wr": 0.0, "n": 0}
+_VALIDATION_LOCK_TTL = 60.0           # seconds
+_VALIDATION_LOCK_WINDOW = 20          # rolling N trades
+_VALIDATION_LOCK_WR_FLOOR = 0.50      # unlock at this WR
+
+def _check_validation_lock() -> Tuple[bool, float, int]:
+    """
+    Returns (locked, rolling_wr, closed_n). Reads outcomes.csv from the
+    trading bot dir; on any error, returns locked=True (fail safe).
+    """
+    now = time.time()
+    if now - _VALIDATION_LOCK_CACHE["checked_at"] < _VALIDATION_LOCK_TTL:
+        return (_VALIDATION_LOCK_CACHE["locked"],
+                _VALIDATION_LOCK_CACHE["wr"],
+                _VALIDATION_LOCK_CACHE["n"])
+    try:
+        import pandas as _pd
+        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcomes.csv")
+        if not os.path.exists(csv_path):
+            locked, wr, n = True, 0.0, 0
+        else:
+            df = _pd.read_csv(csv_path)
+            closed = df[df.get("result", "").astype(str).str.upper().isin(["WIN", "LOSS"])]
+            n = len(closed)
+            if n < _VALIDATION_LOCK_WINDOW:
+                locked, wr = True, 0.0
+            else:
+                last = closed.tail(_VALIDATION_LOCK_WINDOW)
+                wins = (last["result"].astype(str).str.upper() == "WIN").sum()
+                wr = float(wins) / float(_VALIDATION_LOCK_WINDOW)
+                locked = wr < _VALIDATION_LOCK_WR_FLOOR
+    except Exception:
+        locked, wr, n = True, 0.0, 0
+    _VALIDATION_LOCK_CACHE.update({
+        "checked_at": now, "locked": locked, "wr": wr, "n": n
+    })
+    return locked, wr, n
 
 # ── Instrument specs ──────────────────────────────────────────────
 @dataclass
@@ -427,6 +471,12 @@ class PositionSizer:
         # Floor at 1 (if we're trading, trade at least 1), ceiling at absolute_max
         final_contracts = max(1, min(math.floor(adjusted), self.absolute_max))
 
+        # ── Audit Finding #11 / BACKLOG #2: validation lock ──────
+        # Force size = 1 until rolling 20-trade WR proves out the system.
+        _vlock, _vlock_wr, _vlock_n = _check_validation_lock()
+        if _vlock and final_contracts > 1:
+            final_contracts = 1
+
         # ── Final risk metrics ────────────────────────────────────
         actual_risk = final_contracts * risk_per_contract
         cushion_pct = (actual_risk / cushion) * 100 if cushion > 0 else 0
@@ -439,6 +489,11 @@ class PositionSizer:
             f"regime={regime_mult:.2f}, "
             f"pos={position_mult:.2f}"
         )
+        if _vlock:
+            _vlock_msg = (f"validation lock active (n={_vlock_n}, WR={_vlock_wr:.0%})"
+                          if _vlock_n >= _VALIDATION_LOCK_WINDOW
+                          else f"validation lock active (n={_vlock_n} < {_VALIDATION_LOCK_WINDOW})")
+            reasoning = f"LOCKED → 1 contract — {_vlock_msg} | {reasoning}"
 
         return {
             'contracts':           final_contracts,

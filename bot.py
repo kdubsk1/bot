@@ -652,6 +652,7 @@ async def scan_market(app, market, frames):
         log.warning(f"[{market}] Missing primary frame."); return
 
     futures_ok = _futures_session_ok(market)
+    crypto_ok  = _crypto_session_ok(market)
     already_in = any(r.get("market") == market for r in ot.load_open_trades())
 
     news_flag = ot.in_news_window()
@@ -849,11 +850,13 @@ async def scan_market(app, market, frames):
         except Exception as e:
             log.warning(f"SHADOW_CORRELATION log failed: {e}")
     # Fall through.
-    if already_in or not futures_ok:
+    if already_in or not futures_ok or not crypto_ok:
         if already_in:
             log.info(f"[{market}] Already in position — skipping new entry scan")
-        else:
+        elif not futures_ok:
             log.info(f"[{market}] 4PM-6PM settlement window — no new entries for {market}")
+        else:
+            log.info(f"[{market}] Crypto 2-5 AM ET dead zone — no new entries (audit #7)")
         return
 
     # ── Task 8: Topstep eval daily gates ─────────────────────────
@@ -979,7 +982,16 @@ async def scan_market(app, market, frames):
         adx_v    = float(ot.adx(df_e).iloc[-1])
         rsi_v    = float(ot.rsi(df_e["Close"]).iloc[-1])
         atr_v    = float(ot.atr(df_e).iloc[-1])
-        vol_mean = float(df_e["Volume"].rolling(20).mean().iloc[-1]) if len(df_e)>=20 else None
+        # Audit Finding #9 (2026-04-28): session-aware volume baseline.
+        # 20-bar window on 15m = 5h; for 24/7 crypto the window gets pulled
+        # down by overnight bars and inflates vol_ratio for anemic candles.
+        # Use ~24h window for crypto; futures keep 20-bar (closed overnight).
+        if market in ("BTC", "SOL"):
+            _vol_window = {"1m": 1440, "5m": 288, "15m": 96,
+                           "30m": 48, "1h": 24, "4h": 6}.get(entry_tf, 96)
+        else:
+            _vol_window = 20
+        vol_mean = float(df_e["Volume"].rolling(_vol_window).mean().iloc[-1]) if len(df_e) >= _vol_window else None
         vol_last = float(df_e["Volume"].iloc[-1])
         vol_ratio= (vol_last / max(1e-9, vol_mean)) if (vol_mean and vol_mean > 0) else 0.0
         cur_price= float(df_e["Close"].iloc[-1])
@@ -1070,9 +1082,40 @@ async def scan_market(app, market, frames):
                     detection_reason=f"{stp['type']} detected but skipped: volume data unreliable this scan")
                 _sample_reject_log(market, entry_tf, stp["type"], _vol_reason)
             continue
-        if vol_ratio < 0.1 and vol_last < 1.0:
-            log.info(f"[{market}] [{entry_tf}] Zero-volume candle — skip")
+        # Audit Finding #6 / BACKLOG #4 (2026-04-28): per-setup volume gate.
+        # April 14 alerts fired at vol_ratio 0.02-0.29 with HIGH conviction.
+        # Universal 0.8 floor is too coarse — BREAK_RETEST (invert volume)
+        # genuinely wants quiet retests. Per-setup gate:
+        #   < 0.3      → dead market, reject everything
+        #   confirm    → require >= 0.8
+        #   invert     → pass through (conviction scores low vol as healthy)
+        #   neutral    → pass through
+        _filtered_setups = []
+        for stp in setups:
+            _vol_dir = ot.VOLUME_DIRECTION.get(stp["type"], "confirm")
+            _reject_reason = None
+            if vol_ratio < 0.3:
+                _reject_reason = f"dead market (vol_ratio={vol_ratio:.2f}x < 0.3x floor)"
+            elif _vol_dir == "confirm" and vol_ratio < 0.8:
+                _reject_reason = f"confirm setup needs vol_ratio >= 0.8x (got {vol_ratio:.2f}x)"
+            if _reject_reason:
+                try:
+                    sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                        cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+                        trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                        sl.DECISION_REJECTED,
+                        f"{_reject_reason} — insufficient participation",
+                        context=snapshot_context,
+                        detection_reason=f"{stp['type']} rejected: {_reject_reason}")
+                    _sample_reject_log(market, entry_tf, stp["type"], _reject_reason)
+                except Exception as e:
+                    log.warning(f"low-volume log failed: {e}")
+                continue
+            _filtered_setups.append(stp)
+        if not _filtered_setups:
+            log.info(f"[{market}] [{entry_tf}] All setups rejected on volume gate (vol_ratio={vol_ratio:.2f})")
             continue
+        setups = _filtered_setups
 
         session_name = session.get("session","")
         is_prime_session = any(s in session_name for s in ("US Regular","London","Pre-Market","London/NY"))
@@ -1253,7 +1296,15 @@ async def scan_market(app, market, frames):
             if   quick_conv >= 80: tier_min_rr = 1.5
             elif quick_conv >= 65: tier_min_rr = 2.0
             else:                  tier_min_rr = 2.5
-            min_rr = max(tier_min_rr, cfg.NEWS_MIN_RR if news_flag else SETTINGS["min_rr"])
+            _global_min_rr = cfg.NEWS_MIN_RR if news_flag else SETTINGS["min_rr"]
+            # BACKLOG #7 (2026-04-28): VWAP_BOUNCE_BULL is at 83% WR (best in
+            # bot) but min_rr requirements were blocking ~60% of detections.
+            # Lower effective floor by 0.5 — better to take 1.5R wins than
+            # miss 3R wins entirely.
+            if stp["type"] == "VWAP_BOUNCE_BULL":
+                tier_min_rr   = max(1.0, tier_min_rr - 0.5)
+                _global_min_rr = max(1.0, _global_min_rr - 0.5)
+            min_rr = max(tier_min_rr, _global_min_rr)
             if rr < min_rr:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, 0, "REJECT",
@@ -1273,7 +1324,7 @@ async def scan_market(app, market, frames):
             bd_final = dict(bd_core)
             for _k, _v in (extra or {}).items():
                 bd_final[f"extra_{_k}"] = _v
-            bd_final["base"] = 30  # the starting base score in conviction_score
+            bd_final["base"] = 15  # the starting base score in conviction_score (lowered 30→15 per BACKLOG #3)
             bd_final["final_score"] = conv
             if   conv>=80: tier="HIGH"
             elif conv>=65: tier="MEDIUM"
@@ -1442,6 +1493,18 @@ def _futures_session_ok(market: str) -> bool:
     notrade_start = FUTURES_NOTRADE_START_ET[0] * 60 + FUTURES_NOTRADE_START_ET[1]
     reopen        = FUTURES_REOPEN_ET[0]        * 60 + FUTURES_REOPEN_ET[1]
     return not (notrade_start <= hm < reopen)
+
+def _crypto_session_ok(market: str) -> bool:
+    """
+    Audit Finding #7 / BACKLOG #3 (2026-04-28): block crypto entries
+    2:00-5:00 AM ET. April 14 sample: 8 trades fired in this window,
+    7 lost (87.5% loss rate). Thinnest-liquidity crossover between
+    Asia close and London open.
+    """
+    if market not in ("BTC", "SOL"):
+        return True
+    hm = _now_et().hour * 60 + _now_et().minute
+    return not (120 <= hm < 300)  # 2:00 to 5:00 AM ET
 
 async def force_flatten_futures(app):
     trades = ot.load_open_trades()

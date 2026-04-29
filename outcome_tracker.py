@@ -1005,7 +1005,10 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
     HIGH = 80+, MEDIUM = 65-79, LOW = 50-64, REJECT = below 50
     Includes: learning bonus, time-of-day, setup-aware volume.
     """
-    s  = 30  # base
+    # Audit Finding #2 / BACKLOG #3 (2026-04-28): base 30 → 15.
+    # Old base meant setups with no real edge still cleared TIER_LOW (50)
+    # with one or two soft bonuses. Lower floor forces score to be earned.
+    s  = 15  # base
     bd = {}
     setup_type = setup.get("type", "")
 
@@ -1281,8 +1284,8 @@ def auto_check_outcomes(live_frames: dict):
     for row in open_trades:
         market = row.get("market")
         frames = live_frames.get(market, {})
-        df     = frames.get("15m") if isinstance(frames, dict) else None
-        if df is None or df.empty:
+        if not isinstance(frames, dict) or not frames:
+            _log.warning(f"auto_check_outcomes: no frames for {market} {row.get('alert_id', '?')}")
             continue
         try:
             entry     = float(row.get("entry",  0))
@@ -1295,17 +1298,37 @@ def auto_check_outcomes(live_frames: dict):
             if target == 0 or stop == 0:
                 continue
 
-            # Use candle range since alert — catches spikes between scans
+            # Audit Finding #4 / BACKLOG #6 (2026-04-28): multi-TF outcome.
+            # Old code only checked 15m frame, which misses intrabar wicks
+            # on 1m/5m entries and undermeasures time-to-win for 1h/4h setups.
+            # Take the high/low across every available frame since alert.
             try:
                 alert_dt = pd.Timestamp(ts_str, tz="UTC")
-                recent   = df[df.index >= alert_dt]
-                if recent.empty:
-                    recent = df.iloc[-5:]
             except Exception:
-                recent = df.iloc[-5:]
+                alert_dt = None
 
-            period_high = float(recent["High"].max())
-            period_low  = float(recent["Low"].min())
+            period_high = float("-inf")
+            period_low  = float("inf")
+            frames_used = []
+            for tf_name, tf_df in frames.items():
+                if tf_df is None or getattr(tf_df, "empty", True):
+                    continue
+                try:
+                    if alert_dt is not None:
+                        recent_tf = tf_df[tf_df.index >= alert_dt]
+                        if recent_tf.empty:
+                            recent_tf = tf_df.iloc[-5:]
+                    else:
+                        recent_tf = tf_df.iloc[-5:]
+                    period_high = max(period_high, float(recent_tf["High"].max()))
+                    period_low  = min(period_low,  float(recent_tf["Low"].min()))
+                    frames_used.append(tf_name)
+                except Exception as _frame_err:
+                    _log.debug(f"auto_check_outcomes frame {tf_name} error: {_frame_err}")
+                    continue
+            if not frames_used:
+                _log.warning(f"auto_check_outcomes: no usable frames for {alert_id} {market}")
+                continue
 
             hit_target = hit_stop = False
             if direction == "LONG":
@@ -1570,20 +1593,32 @@ def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
             ts_str = r.get("timestamp", "")
             if not ts_str:
                 continue
+            alert_id = r.get("alert_id", "?")
+            market   = r.get("market", "?")
+            setup    = r.get("setup", "?")
+            entry    = r.get("entry", "")
             try:
                 alert_dt = datetime.fromisoformat(ts_str)
                 if alert_dt.tzinfo is None:
                     alert_dt = alert_dt.replace(tzinfo=timezone.utc)
                 age_seconds = (now_utc - alert_dt).total_seconds()
-            except Exception:
+            except Exception as _ts_err:
+                # Audit Finding #5 (2026-04-28): silent skip on bad timestamps
+                # left 11 trades OPEN 10+ days. Loud-fail and force-close
+                # so the row exits the OPEN set instead of haunting the CSV.
+                _log.warning(
+                    f"Stale-trade expiry: bad timestamp '{ts_str}' on "
+                    f"{alert_id} {market} {setup} ({_ts_err}) — force-closing."
+                )
+                r["status"]             = "CLOSED"
+                r["result"]             = "SKIP"
+                r["exit_price"]         = entry
+                r["bars_to_resolution"] = ""
+                expired.append((alert_id, market, setup, -1.0))
                 continue
             if age_seconds < cutoff_seconds:
                 continue
 
-            alert_id = r.get("alert_id", "?")
-            market   = r.get("market", "?")
-            setup    = r.get("setup", "?")
-            entry    = r.get("entry", "")
             hours    = round(age_seconds / 3600, 1)
 
             r["status"]             = "CLOSED"
