@@ -43,6 +43,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 import outcome_tracker as ot
 from markets import get_market_config, get_all_markets
 import sim_account as sim
+import crypto_sim
 import strategy_log as sl
 import dashboard as dash
 import strategy_review as sr
@@ -517,6 +518,26 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
                                        conviction=conv, regime=setup.get("regime","UNKNOWN"), setup_name=setup.get("type","UNKNOWN"))
     if sb:
         msg += f"{sb}\n━━━━━━━━━━━━━━━━━━\n"
+    if market in ("BTC", "SOL"):
+        try:
+            crypto_context = {
+                "trend_score": trend,
+                "rsi": round(rsi_v, 2),
+                "adx": round(adx_v, 2),
+                "htf_bias": setup.get("htf_bias", "UNKNOWN"),
+                "regime": setup.get("regime", "UNKNOWN"),
+                "session": get_market_config(market).get_session_context().get("session", ""),
+                "news_flag": ot.in_news_window(),
+                "chart_read": setup.get("detail", ""),
+            }
+            cb = crypto_sim.format_crypto_sim_block(
+                market, tier, setup["entry"], setup["raw_stop"], target,
+                alert_id, conv, crypto_context,
+            )
+            if cb:
+                msg += f"{cb}\n━━━━━━━━━━━━━━━━━━\n"
+        except Exception as _ce:
+            log.warning(f"[{market}] crypto_sim block: {_ce}")
     msg += "⚠️ Not financial advice. Manage your risk."
     return msg
 
@@ -663,6 +684,35 @@ async def scan_market(app, market, frames):
     htf_bias = ot.structure_bias(_htf)
     session  = cfg.get_session_context()
     log.info(f"[{market}] Trend:{trend:+d} HTF:{htf_bias} Session:{session['session']} News:{news_flag}")
+
+    # Dual-track sim: check crypto sim trades for BTC/SOL only
+    # Closes positions on target/stop/bias-flip/7-day max-hold and posts to Telegram.
+    if market in ("BTC", "SOL"):
+        try:
+            df15 = frames.get("15m")
+            if df15 is not None and not df15.empty:
+                cur_price = float(df15["Close"].iloc[-1])
+                closed_crypto = crypto_sim.auto_check_crypto_trades(
+                    {market: cur_price},
+                    {market: frames},
+                )
+                for cc in closed_crypto:
+                    cicon = "✅" if cc.get("result") == "WIN" else "❌"
+                    cpnl = cc.get("pnl_dollars", 0)
+                    cpnl_sign = f"+${cpnl:.2f}" if cpnl >= 0 else f"-${abs(cpnl):.2f}"
+                    cstate = crypto_sim.load_crypto_state()
+                    cmsg = (
+                        f"{cicon} *CRYPTO SIM CLOSED — {cc.get('market')} {cc.get('direction')}*\n"
+                        f"━━━━━━━━━━━━━━━━━━\n"
+                        f"Reason: `{str(cc.get('exit_reason', '?')).upper()}`\n"
+                        f"Entry: `{cc.get('entry')}` → Exit: `{cc.get('exit_price')}`\n"
+                        f"P&L: `{cpnl_sign}` ({cc.get('result')})\n"
+                        f"Held: `{cc.get('held_hours', 0):.1f}`h\n"
+                        f"Balance: `${cstate.get('balance', 0):.2f}`"
+                    )
+                    await tg_send(app, cmsg)
+        except Exception as _ce:
+            log.warning(f"[{market}] crypto_sim auto_check: {_ce}")
 
     # Auto-check outcomes
     for c in ot.auto_check_outcomes({market: frames}):
@@ -811,6 +861,31 @@ async def scan_market(app, market, frames):
                     await tg_send(app, msg)
         except Exception as e:
             log.warning(f"[{market}] sim check: {e}")
+
+    # Dual-track: also check crypto sim trades
+    try:
+        df15 = frames.get("15m")
+        live_price_map = {market: float(df15["Close"].iloc[-1])} if df15 is not None and not df15.empty else {}
+        closed_crypto = crypto_sim.auto_check_crypto_trades(
+            live_price_map,
+            {market: frames},
+        )
+        for cc in closed_crypto:
+            icon = "✅" if cc.get("result") == "WIN" else "❌"
+            pnl = cc.get("pnl_dollars", 0)
+            pnl_sign = f"+${pnl:.2f}" if pnl >= 0 else f"-${abs(pnl):.2f}"
+            msg = (
+                f"{icon} *CRYPTO SIM CLOSED — {cc.get('market')} {cc.get('direction')}*\n"
+                f"━━━━━━━━━━━━━━━━━━\n"
+                f"Reason: `{cc.get('exit_reason', '?').upper()}`\n"
+                f"Entry: `{cc.get('entry')}` → Exit: `{cc.get('exit_price')}`\n"
+                f"P&L: `{pnl_sign}` ({cc.get('result')})\n"
+                f"Held: `{cc.get('held_hours', 0):.1f}` hours\n"
+                f"Balance: `${crypto_sim.load_crypto_state()['balance']:.2f}`"
+            )
+            await tg_send(app, msg)
+    except Exception as e:
+        log.warning(f"[{market}] crypto_sim check: {e}")
 
     # Pre-Batch Follow-up Part A 2026-04-20: 3-loss per-market halt REMOVED.
     # Shadow-log each scan cycle that would have been blocked. Scan-level gate
@@ -2539,7 +2614,7 @@ async def cmd_brief(u,c):
 async def on_button(u, c):
     q=u.callback_query; await q.answer(); d=q.data
 
-    if   d=="toggle_scan":    SETTINGS["scanner_on"]=not SETTINGS["scanner_on"]; _save_scanner_state()
+    if   d=="toggle_scan":    SETTINGS["scanner_on"]=not SETTINGS["scanner_on"]; _save_scanner_state(); sim.toggle_sim(SETTINGS["scanner_on"]); crypto_sim.set_enabled(SETTINGS["scanner_on"])
     elif d=="toggle_rescore": SETTINGS["rescore_on"]=not SETTINGS["rescore_on"]
     elif d in ("toggle_NQ","toggle_GC","toggle_BTC","toggle_SOL"):
         SETTINGS["markets"][d.split("_")[1]]=not SETTINGS["markets"][d.split("_")[1]]

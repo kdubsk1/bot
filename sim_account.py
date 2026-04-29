@@ -47,7 +47,7 @@ EVAL_PRESETS = {
 SIM_HISTORY_FILE = os.path.join(_BASE_DIR, "data", "sim_history.json")
 
 DEFAULT_STATE = {
-    "enabled":          False,
+    "enabled":          True,
     "mode":             "eval",
     "preset":           "50k",
     "balance":          50_000.0,
@@ -652,6 +652,11 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     if not state.get("enabled"):
         return ""
 
+    # Dual-track sim: BTC/SOL go through crypto_sim.format_crypto_sim_block instead.
+    # This Topstep eval sim only handles NQ and GC futures.
+    if market in ("BTC", "SOL"):
+        return ""
+
     state = _reset_daily_if_needed(state)
     risk  = check_risk_limits(state)
 
@@ -684,18 +689,6 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
         conviction=conviction, regime=regime,
         setup_name=setup_name, open_trades=open_trades_info,
     )
-
-    if c_info.get("type") == "crypto":
-        risk_amt   = round(state["balance"] * state["account_risk_pct"] / 100, 2)
-        reward_amt = round(risk_amt * abs(target - entry) / max(0.01, abs(entry - stop)), 2)
-        open_sim_trade(alert_id, market, direction, entry, stop, target, 1, tier)
-        plus_dp = '+' if risk['daily_pnl'] >= 0 else ''
-        return (
-            f"\n\U0001f4b0 *SIM MODE*\n"
-            f"  Risk: `${risk_amt}` | Reward: `${reward_amt}`\n"
-            f"  Today P&L: `${plus_dp}{risk['daily_pnl']:,.2f}`\n"
-            f"  Daily left: `${risk['daily_left']:,.0f}`"
-        )
 
     contracts  = c_info.get("contracts", 1)
     label      = c_info["label"]
