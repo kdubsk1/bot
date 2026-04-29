@@ -78,10 +78,10 @@
   },
   "BTC:BREAK_RETEST_BULL": {
     "wins": 0,
-    "losses": 2,
-    "total": 2,
+    "losses": 4,
+    "total": 4,
     "win_rate": 0.0,
-    "last_updated": "2026-04-14T12:06:02.689023"
+    "last_updated": "2026-04-29T06:44:57.352318"
   },
   "BTC:EMA50_RECLAIM": {
     "wins": 0,
@@ -138,5 +138,12 @@
     "total": 3,
     "win_rate": 0.0,
     "last_updated": "2026-04-29T03:19:37.739647"
+  },
+  "SOL:RSI_DIV_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-04-29T09:50:24.734022"
   }
 }
