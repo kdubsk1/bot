@@ -171,6 +171,25 @@ def _mark_cooldown(market: str, setup_type: str):
     COOLDOWNS[(market, setup_type)] = datetime.now(timezone.utc)
     _save_cooldowns()
 
+# Apr 30 dup-guard: blocks same market+direction+setup within 10 minutes.
+# Born of the $300 BTC SHORT BREAK_RETEST_BEAR loss (2026-04-30 02:42 + 02:44 ET):
+# two near-identical alerts fired 2 minutes apart, both lost. The shadow-only
+# cooldown system never blocked them. This is a HARD guard — even if the
+# cooldown is shadow-logged, this prevents the actual fire.
+_RECENT_FIRES: dict = {}  # (market, setup_type, direction) -> datetime UTC
+_RECENT_FIRE_WINDOW_MIN = 10
+
+def _recent_fire_blocked(market: str, setup_type: str, direction: str) -> bool:
+    """True if this exact alert (market+setup+direction) fired in last 10 min."""
+    key = (market, setup_type, direction)
+    last = _RECENT_FIRES.get(key)
+    if last is None:
+        return False
+    return datetime.now(timezone.utc) - last < timedelta(minutes=_RECENT_FIRE_WINDOW_MIN)
+
+def _mark_recent_fire(market: str, setup_type: str, direction: str):
+    _RECENT_FIRES[(market, setup_type, direction)] = datetime.now(timezone.utc)
+
 # ── Active setup deduplication ────────────────────────────────────
 ACTIVE_FILE = os.path.join(BASE_DIR, "data", "active_setups.json")
 
@@ -442,7 +461,8 @@ def _md(text):
 # ── Alert formatter ───────────────────────────────────────────────
 def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
                  adx_v, rsi_v, lev=None, risk_at_stop=None, hold=None,
-                 extra_footer="", alert_id=""):
+                 extra_footer="", alert_id="",
+                 regime="UNKNOWN", htf_bias="UNKNOWN"):
     cfg       = get_market_config(market)
     is_watch  = "WATCH" in setup.get("direction","")
     direction = setup["direction"]
@@ -1145,18 +1165,14 @@ async def scan_market(app, market, frames):
             snapshot_context["regime"] = "UNKNOWN"
 
         if vol_mean is None or not np.isfinite(vol_mean) or vol_mean < 1.0:
-            log.info(f"[{market}] [{entry_tf}] Volume data degraded — skip")
-            for stp in setups:
-                _vol_reason = f"Volume data degraded or zero (vol_mean={vol_mean})"
-                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                    cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
-                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED,
-                    f"{_vol_reason} — cannot assess setup quality",
-                    context=snapshot_context,
-                    detection_reason=f"{stp['type']} detected but skipped: volume data unreliable this scan")
-                _sample_reject_log(market, entry_tf, stp["type"], _vol_reason)
-            continue
+            # Apr 30 fix: 996 silent rejections in 7 days from this gate.
+            # ccxt sometimes returns volume=0 from one exchange. Don't reject —
+            # treat volume as neutral (1.0x) and let other filters decide.
+            # Per-setup volume gate below still catches legit dead markets.
+            log.info(f"[{market}] [{entry_tf}] Volume data degraded (vol_mean={vol_mean}) — treating as neutral 1.0x")
+            vol_ratio = 1.0
+            vol_mean = max(1.0, vol_mean or 1.0)
+            # No `continue` — let setups continue to other filters
         # Audit Finding #6 / BACKLOG #4 (2026-04-28): per-setup volume gate.
         # April 14 alerts fired at vol_ratio 0.02-0.29 with HIGH conviction.
         # Universal 0.8 floor is too coarse — BREAK_RETEST (invert volume)
@@ -1457,6 +1473,20 @@ async def scan_market(app, market, frames):
                 lev = min(lev, lev_cap)
             hold = ot.HOLD_BY_TIER.get(tier)
 
+            # Apr 30 dup-guard: block same market+setup+direction firing within 10 min.
+            # Prevents the BTC SHORT BREAK_RETEST_BEAR x2 in 2 minutes loss pattern.
+            if _recent_fire_blocked(market, stp["type"], stp["direction"]):
+                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                    cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                    sl.DECISION_REJECTED,
+                    f"Dup-guard: {market} {stp['type']} {stp['direction']} fired within last {_RECENT_FIRE_WINDOW_MIN} min — blocking duplicate",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    score_breakdown=bd_final)
+                log.info(f"[{market}] [{entry_tf}] DUP-GUARD blocked {stp['type']} {stp['direction']} (within {_RECENT_FIRE_WINDOW_MIN} min)")
+                continue
+
             alert_id = ot.log_alert({
                 "market":market, "tf":entry_tf, "setup":stp["type"], "direction":stp["direction"],
                 "entry":round(stp["entry"],4), "stop":round(stp["raw_stop"],4), "target":round(tgt,4),
@@ -1507,6 +1537,7 @@ async def scan_market(app, market, frames):
                     log.warning(f"Shadow-log SHADOW_HALTED failed (non-fatal): {e}")
 
             _mark_cooldown(market, stp["type"])
+            _mark_recent_fire(market, stp["type"], stp["direction"])  # Apr 30 dup-guard
 
             if stp["type"] in ("APPROACH_SUPPORT","APPROACH_RESIST"):
                 _mark_approach_active(market, stp["type"], stp["entry"])

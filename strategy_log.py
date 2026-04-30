@@ -118,6 +118,51 @@ def _ensure_csv():
             clean = {k: row.get(k, "") for k in COLS}
             writer.writerow(clean)
 
+
+def update_fired_row_result(market: str, setup_type: str, direction: str,
+                            entry: float, result: str) -> bool:
+    """
+    Apr 30 fix: update the most recent FIRED row in strategy_log.csv to record
+    the trade's WIN/LOSS outcome. This makes the 9k+ scan decisions queryable
+    by win rate later — previously the 'result' column for FIRED rows stayed
+    empty because outcomes were only written to outcomes.csv.
+
+    Matches by market+setup_type+direction+entry (rounded). Updates the
+    most recent unresolved FIRED row only. Safe and idempotent.
+    """
+    if not os.path.exists(STRATEGY_LOG):
+        return False
+
+    def _mut(rows):
+        # Find the most recent FIRED row that matches and has empty result.
+        # Walk in reverse; update the first match.
+        for r in reversed(rows):
+            if r.get("decision") != DECISION_FIRED:
+                continue
+            if r.get("result"):
+                continue
+            if r.get("market") != market:
+                continue
+            if r.get("setup_type") != setup_type:
+                continue
+            if r.get("direction") != direction:
+                continue
+            try:
+                if abs(float(r.get("entry", 0)) - float(entry)) > 0.01 * abs(float(entry)):
+                    continue
+            except Exception:
+                continue
+            r["result"] = result
+            r["result_checked_at"] = datetime.now(timezone.utc).isoformat()
+            break
+        return rows
+
+    try:
+        safe_io.safe_rewrite_csv(STRATEGY_LOG, COLS, _mut)
+        return True
+    except Exception:
+        return False
+
 def log_scan_decision(
     market: str, tf: str, setup_type: str, direction: str,
     price: float, entry: float, stop: float, target: float, rr: float,

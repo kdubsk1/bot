@@ -83,10 +83,13 @@ def get_account_risk_pct() -> float:
 # ------------------------------------------------------------------ #
 SUSPENDED_SETUPS_FILE = os.path.join(_BASE_DIR, "data", "suspended_setups.json")
 
-# Thresholds
-_SUSPEND_MIN_TRADES = 5       # need at least this many trades to judge
-_SUSPEND_WR_BELOW   = 35.0    # suspend if win_rate < this
-_RESTORE_WR_ABOVE   = 45.0    # restore if recent win_rate climbs above this
+# Thresholds (Apr 30 tightened — bad setups were staying active too long.
+# 0W/5L setups bled $300 overnight before suspension fired. Lower bar:
+# 4 trades minimum to judge (was 5), 40% WR floor (was 35%).
+# Restore threshold raised to 50% to require real recovery, not lucky bounce.)
+_SUSPEND_MIN_TRADES = 4       # need at least this many trades to judge
+_SUSPEND_WR_BELOW   = 40.0    # suspend if win_rate < this
+_RESTORE_WR_ABOVE   = 50.0    # restore if recent win_rate climbs above this
 
 
 def get_suspended_setups() -> dict:
@@ -1116,16 +1119,27 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
     return s, tier, bd
 
 # ------------------------------------------------------------------ #
-# Structure-aware target
+# Structure-aware target (DYNAMIC RR — Apr 30 update)
 # ------------------------------------------------------------------ #
 def structure_target(df: pd.DataFrame, direction: str,
                      entry: float, stop: float, atr_val: float,
                      min_rr: float = 1.5, market: str = "",
                      trend_score_val: int = 0) -> tuple[float, float, str]:
     """
-    Finds the nearest real swing level that gives at least min_rr.
-    If first swing is too close, keeps looking further out the chain.
-    Returns (target, rr, method) or (0, 0, 'no_target') if nothing found.
+    Finds the BEST real swing level for this trade.
+    Apr 30 redesign per Wayne's request: don't hard-restrict to a fixed RR.
+    Bot picks the smartest target in the 1.5R – 5.0R band, preferring
+    targets in the 2R–3R sweet spot which historically have the best WR.
+
+    Selection logic:
+      1. Walk swings near→far. Reject anything > 5.0R (too far to reach).
+      2. Prefer the FIRST swing that gives 2.0R–3.0R (sweet spot, 41.9% WR).
+      3. If no 2–3R swing exists, take the next-best in the 1.5–5R band.
+      4. NQ super-trend exception: if |trend_score| ≥ 7, allow as low as 1.2R.
+
+    Returns (target, rr, method) or (0, 0, '<reason>') if nothing found.
+    Reason codes: 'no_target' (no swings), 'rr_too_high' (all >5R),
+    'rr_too_low' (all <min_rr).
     """
     risk = abs(entry - stop)
     if risk <= 0:
@@ -1134,6 +1148,11 @@ def structure_target(df: pd.DataFrame, direction: str,
     # NQ strong trend override — lower RR minimum when trend is very strong
     if market == "NQ" and abs(trend_score_val) >= 7:
         min_rr = min(min_rr, 1.2)
+
+    # Apr 30: dynamic upper bound. Old MAX_RR=4.0 was too tight; sweet spot is 2-3R
+    # but we should accept up to 5R when no closer level exists.
+    MAX_RR = 5.0
+    SWEET_LO, SWEET_HI = 2.0, 3.0
 
     a = atr(df).iloc[-1]
     hi, lo = swing_points(df, 5)
@@ -1154,27 +1173,26 @@ def structure_target(df: pd.DataFrame, direction: str,
                 candidates.append((lvl, rr))
         candidates.sort(key=lambda x: -x[0])  # nearest first (highest low first)
 
-    # Walk the chain — find nearest swing with acceptable RR.
-    # MAX_RR cap of 4.0 (added 2026-04-28, data-driven from 64 closed trades):
-    #   RR 2-3 had 41.9% WR over 31 trades — keep firing
-    #   RR 3-4 had 33.3% WR over 9 trades  — keep firing (borderline)
-    #   RR 4-6 had 10.0% WR over 10 trades — REJECT
-    #   RR 6-10 had 9.1% WR over 11 trades — REJECT
-    #   RR > 10 had 0.0% WR over 2 trades  — REJECT
-    # When the nearest viable swing gives RR > 4.0, the target is too far for
-    # price to realistically reach within the trade's lifetime. Reject rather
-    # than fabricate a closer target — every one of these in our dataset hit
-    # stop-loss long before approaching target.
-    MAX_RR = 4.0
-    for lvl, rr in candidates:
-        if rr > MAX_RR:
-            # candidates sorted by RR ascending — all further ones are also too far
-            return 0.0, 0.0, "rr_too_high"
-        if rr >= min_rr:
-            return float(lvl), float(rr), "swing_level"
+    if not candidates:
+        return 0.0, 0.0, "no_target"
 
-    # No real structural target found — reject (don't fabricate)
-    return 0.0, 0.0, "no_target"
+    # Filter to viable RR band
+    viable = [(lvl, rr) for lvl, rr in candidates if min_rr <= rr <= MAX_RR]
+    if not viable:
+        # Why did we fail? Be specific so strategy_log can analyze it.
+        if all(rr > MAX_RR for _, rr in candidates):
+            return 0.0, 0.0, "rr_too_high"
+        return 0.0, 0.0, "rr_too_low"
+
+    # Prefer the first target in the 2-3R sweet spot (sorted near→far)
+    sweet = [(lvl, rr) for lvl, rr in viable if SWEET_LO <= rr <= SWEET_HI]
+    if sweet:
+        lvl, rr = sweet[0]
+        return float(lvl), float(rr), "swing_level_sweet"
+
+    # No sweet-spot swing — take the nearest viable target
+    lvl, rr = viable[0]
+    return float(lvl), float(rr), "swing_level"
 
 # ------------------------------------------------------------------ #
 # Leverage (BTC/SOL only)
@@ -1263,6 +1281,22 @@ def _log_trade_outcome(trade_row: dict, result: str, exit_price: float):
             detection_reason=reason,
             result=result,
         )
+
+        # Apr 30 fix: also update the original FIRED row's result column so the
+        # 9k+ scan decisions become queryable by win rate. Previously these rows
+        # stayed result="" forever, making per-setup WR analysis impossible from
+        # strategy_log alone.
+        try:
+            sl.update_fired_row_result(
+                market=trade_row.get("market", "?"),
+                setup_type=trade_row.get("setup", "?"),
+                direction=trade_row.get("direction", "?"),
+                entry=float(entry),
+                result=result,
+            )
+        except Exception as _ufr_e:
+            import logging
+            logging.getLogger("nqcalls").debug(f"update_fired_row_result: {_ufr_e}")
     except Exception as e:
         import logging
         logging.getLogger("nqcalls").debug(f"_log_trade_outcome error: {e}")
