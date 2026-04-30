@@ -34,5 +34,17 @@
     "suspended_at": "2026-04-28T20:00:59.960412+00:00",
     "total_at_suspension": 6,
     "wr_at_suspension": 33.3
+  },
+  "BTC:BREAK_RETEST_BULL": {
+    "reason": "0W/4L (0.0% WR)",
+    "suspended_at": "2026-04-30T12:35:52.135514+00:00",
+    "total_at_suspension": 4,
+    "wr_at_suspension": 0.0
+  },
+  "BTC:BREAK_RETEST_BEAR": {
+    "reason": "1W/4L (20.0% WR)",
+    "suspended_at": "2026-04-30T12:35:52.135526+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 20.0
   }
 }
