@@ -3201,6 +3201,131 @@ async def cmd_recap(u, c):
         log.error(f"/recap failed: {e}")
         await u.message.reply_text(f"❌ Recap failed: {e}")
 
+async def cmd_edge(u, c):
+    """
+    Apr 30 LATE: /edge — show real win-rate per setup based on actual closed trades.
+    Reads strategy_log.csv FIRED rows that have a WIN/LOSS result, groups by
+    market+setup, sorts by sample size. This is the truth: which setups have
+    real edge? Use it to decide which to keep tuning vs which to suspend.
+    """
+    try:
+        import strategy_log as sl
+        import csv as _csv
+        if not os.path.exists(sl.STRATEGY_LOG):
+            await u.message.reply_text("📊 No strategy log yet — keep running the bot.")
+            return
+        with open(sl.STRATEGY_LOG, newline="", encoding="utf-8") as f:
+            rows = list(_csv.DictReader(f))
+        fired = [r for r in rows
+                 if r.get("decision") == sl.DECISION_FIRED
+                 and r.get("result") in ("WIN", "LOSS")]
+        if len(fired) < 5:
+            await u.message.reply_text(
+                f"📊 *Edge Analysis*\n\n"
+                f"Need at least 5 closed trades to show meaningful edge.\n"
+                f"Currently: `{len(fired)}` closed FIRED rows in strategy_log.\n"
+                f"Keep the bot running and check back later.",
+                parse_mode="Markdown",
+            )
+            return
+        # Group by market:setup
+        by_setup: dict = {}
+        for r in fired:
+            key = f"{r.get('market','?')}:{r.get('setup_type','?')}"
+            d = by_setup.setdefault(key, {"W": 0, "L": 0, "avg_conv": 0.0})
+            if r["result"] == "WIN":
+                d["W"] += 1
+            else:
+                d["L"] += 1
+            try:
+                d["avg_conv"] += float(r.get("conviction", 0) or 0)
+            except Exception:
+                pass
+        # Compute WR
+        for d in by_setup.values():
+            tot = d["W"] + d["L"]
+            d["total"] = tot
+            d["wr"]    = d["W"] / max(1, tot) * 100.0
+            d["avg_conv"] = d["avg_conv"] / max(1, tot)
+        # Sort by sample size desc, then by WR desc
+        ordered = sorted(by_setup.items(),
+                         key=lambda x: (-x[1]["total"], -x[1]["wr"]))
+        lines = [
+            "📊 *Edge by Setup* (live data)",
+            "━━━━━━━━━━━━━━━━━━",
+        ]
+        for key, d in ordered:
+            wr = d["wr"]
+            icon = "🟢" if wr >= 60 else ("🔴" if wr < 45 else "🟡")
+            star = " ⭐" if d["total"] >= 10 and wr >= 60 else ""
+            warn = " ⚠\ufe0f" if d["total"] >= 5 and wr < 35 else ""
+            lines.append(
+                f"{icon} `{key}`{star}{warn}\n"
+                f"   {d['W']}W/{d['L']}L — *{wr:.0f}% WR*  (avg conv {d['avg_conv']:.0f})"
+            )
+        lines.append("━━━━━━━━━━━━━━━━━━")
+        lines.append(f"_Based on {len(fired)} closed FIRED rows._")
+        lines.append("_⭐ = 10+ trades & 60%+ WR. ⚠\ufe0f = 5+ trades & sub-35% WR._")
+        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/edge failed: {e}")
+        await u.message.reply_text(f"❌ Edge command failed: {e}")
+
+async def cmd_setups(u, c):
+    """
+    Apr 30 LATE: /setups — list all active setup types and their RR floor.
+    Shows which setups are suspended too. Quick reference so you know what
+    the bot is hunting for at any moment.
+    """
+    try:
+        suspended = ot.get_suspended_setups()
+        floors = ot.SETUP_RR_FLOORS
+        lines = [
+            "🎯 *Active Setups & RR Floors*",
+            "━━━━━━━━━━━━━━━━━━",
+        ]
+        # Show by category
+        groups = {
+            "🔥 Top performers":       ["VWAP_BOUNCE_BULL", "LIQ_SWEEP_BULL", "LIQ_SWEEP_BEAR"],
+            "🔄 Mean reversion":       ["BB_REVERSION_BULL", "BB_REVERSION_BEAR",
+                                          "STOCH_REVERSAL_BULL", "STOCH_REVERSAL_BEAR",
+                                          "RSI_DIV_BULL", "RSI_DIV_BEAR"],
+            "📈 Trend continuation":    ["EMA21_PULLBACK_BULL", "EMA21_PULLBACK_BEAR",
+                                          "EMA50_RECLAIM", "EMA50_BREAKDOWN",
+                                          "BREAK_RETEST_BULL", "BREAK_RETEST_BEAR",
+                                          "MACD_CROSS_BULL", "MACD_CROSS_BEAR"],
+            "🔍 Anticipatory":         ["APPROACH_SUPPORT", "APPROACH_RESIST"],
+            "⚡ Volatility / breakout":  ["VOLATILITY_CONTRACTION_BREAKOUT",
+                                          "FAILED_BREAKDOWN_BULL", "FAILED_BREAKOUT_BEAR",
+                                          "OPENING_RANGE_BREAKOUT"],
+            "🌐 HTF / VWAP":           ["HTF_LEVEL_BOUNCE", "VWAP_RECLAIM", "VWAP_REJECT_BEAR"],
+        }
+        for group_name, setups_in_group in groups.items():
+            shown = []
+            for s in setups_in_group:
+                rr = floors.get(s, floors["_DEFAULT"])
+                # Check suspension across markets
+                suspended_markets = [k.split(":")[0] for k in suspended.keys() if k.endswith(f":{s}")]
+                marker = "⛔ " if suspended_markets else ""
+                shown.append(f"  {marker}`{s}` (RR {rr})")
+            if shown:
+                lines.append(f"\n*{group_name}*")
+                lines.extend(shown)
+        if suspended:
+            lines.append("\n⛔ *Currently suspended (auto):*")
+            for k in sorted(suspended.keys()):
+                info = suspended[k]
+                lines.append(f"  `{k}` — {info.get('reason','?')}")
+        else:
+            lines.append("\n✅ _No setups currently suspended._")
+        lines.append("")
+        lines.append("━━━━━━━━━━━━━━━━━━")
+        lines.append("_RR = minimum reward:risk for that setup to fire._")
+        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/setups failed: {e}")
+        await u.message.reply_text(f"❌ Setups command failed: {e}")
+
 def main():
     log.info("NQ CALLS Bot starting...")
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
@@ -3214,7 +3339,8 @@ def main():
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
-                   ("sync",cmd_sync),("recap",cmd_recap)]:
+                   ("sync",cmd_sync),("recap",cmd_recap),
+                   ("edge",cmd_edge),("setups",cmd_setups)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")

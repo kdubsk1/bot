@@ -1176,7 +1176,7 @@ VOLUME_DIRECTION = {
 }
 
 # ===================================================================
-# Apr 30: Per-setup RR floors. Wayne's idea — instead of one global
+# Apr 30 PM: Per-setup RR floors. Wayne's idea — instead of one global
 # minimum, let each setup type have its own "good enough" RR threshold.
 # Setups with high WR can fire at lower RR; bad ones need extra safety.
 # Used by bot.py when deciding whether RR is high enough to fire.
@@ -1212,6 +1212,64 @@ SETUP_RR_FLOORS = {
 def get_rr_floor(setup_type: str) -> float:
     """Return the minimum acceptable R:R for this setup type."""
     return SETUP_RR_FLOORS.get(setup_type, SETUP_RR_FLOORS["_DEFAULT"])
+
+
+# ===================================================================
+# Apr 30 LATE PM: Directional bias penalty. Fixes BTC/SOL over-shorting
+# in uptrending markets (lost $300 overnight Apr 29→30).
+#
+# Reasoning: when 1h trend score is bullish AND HTF structure is HH_HL,
+# firing SHORTs is a fool's errand — even "clean" setups bleed because
+# they're fighting the dominant flow. Same in reverse for LONGs in bear.
+#
+# Applied as a SCORE adjustment in conviction_score (not a hard gate),
+# so a truly exceptional setup can still fire — it just needs more edge
+# to clear the conviction threshold. Penalty range: -15 to +8.
+#
+# Why score-based instead of hard gate:
+#  - Hard gates kill ALL counter-trend setups, including good ones.
+#  - Score adjustment lets the strongest counter-trend setups still fire.
+#  - Auditable in strategy_log ("directional_bias" appears in score_breakdown).
+#  - Reversible if data shows it's too aggressive — just edit the table below.
+# ===================================================================
+def _directional_bias_penalty(setup: dict, trend: int,
+                              df_htf: Optional[pd.DataFrame]) -> tuple[int, str]:
+    """
+    Returns (delta, reason).
+    delta is added to the conviction score. Reason is a label for the breakdown.
+
+    Composite bias = (trend_score × 5) + structure_bias bonus, clamped ±100.
+    Penalty curve below. SHORT-against-strong-bull is the exact bug we're fixing.
+    """
+    direction = setup.get("direction", "")
+    is_long  = "LONG"  in direction
+    is_short = "SHORT" in direction
+    if not (is_long or is_short):
+        return 0, "neutral_setup"
+
+    # Composite bias score from trend (-10..+10) and HTF structure
+    bias = int(trend) * 5  # -50..+50
+    if df_htf is not None and len(df_htf) >= 20:
+        try:
+            b = structure_bias(df_htf)
+            if b == "HH_HL":
+                bias += 25
+            elif b == "LH_LL":
+                bias -= 25
+        except Exception:
+            pass
+    bias = max(-100, min(100, bias))
+
+    if is_long:
+        if bias >= 30:   return  8, "long_aligned_bull"
+        if bias >= 0:    return  0, "long_neutral"
+        if bias >= -30:  return -5, "long_against_weak_bear"
+        return -15, "long_against_strong_bear"
+    # SHORT
+    if bias <= -30:  return  8, "short_aligned_bear"
+    if bias <= 0:    return  0, "short_neutral"
+    if bias <= 30:   return -5, "short_against_weak_bull"
+    return -15, "short_against_strong_bull"  # the BTC over-shorting case
 
 
 def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
@@ -1323,6 +1381,20 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
     # Task 7: REMOVED regime scoring as a score factor
     # Regime is now only used as a GATE in detect_setups(), not a scoring bonus/penalty
     # This eliminates the duplicate signal with trend_score
+
+    # Apr 30 LATE PM: Directional bias penalty/bonus.
+    # Fixes the BTC/SOL over-shorting bug — bot kept firing SHORTs in
+    # uptrending markets and bled $300 overnight Apr 29→30.
+    # Range: -15 (against strong trend) to +8 (aligned with strong trend).
+    # See _directional_bias_penalty() for the curve.
+    try:
+        bias_delta, bias_reason = _directional_bias_penalty(setup, trend, df_htf)
+        s += bias_delta
+        bd["directional_bias"]      = bias_delta
+        bd["directional_bias_reason"] = bias_reason
+    except Exception:
+        bd["directional_bias"]      = 0
+        bd["directional_bias_reason"] = "error"
 
     s = max(0, min(100, int(s)))
 

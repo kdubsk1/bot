@@ -66,7 +66,11 @@ BRANCH = "main"
 COMMITTER_NAME = "NQ CALLS Bot"
 COMMITTER_EMAIL = "bot@nqcalls.local"
 
-SYNC_PATHS = ["data", "outcomes.csv"]
+# Paths (relative to BASE_DIR) we sync. Files OR directories. Directories
+# are walked recursively. Anything not under these paths is left alone.
+# Apr 30 LATE: also push docs/dashboard.html so GitHub Pages stays live.
+# Regenerated at the top of _do_sync_sync (see _regenerate_dashboard).
+SYNC_PATHS = ["data", "outcomes.csv", "docs/dashboard.html"]
 
 API_BASE = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}"
 
@@ -78,7 +82,9 @@ _last_sync_error: str = ""
 _last_sync_files: int = 0
 
 
+# ── Internal helpers ─────────────────────────────────────────────
 def _redact(text: str) -> str:
+    """Strip the token from any text so it never appears in logs."""
     if not text:
         return ""
     if GITHUB_TOKEN and GITHUB_TOKEN in text:
@@ -89,6 +95,10 @@ def _redact(text: str) -> str:
 
 def _api_request(method: str, path: str, body: Optional[dict] = None,
                  timeout: int = 30) -> Tuple[int, dict]:
+    """
+    Call api.github.com. Returns (status_code, parsed_json_or_error_dict).
+    Uses urllib (no requests dep). Raises nothing — wraps errors in dict.
+    """
     if not GITHUB_TOKEN:
         return (0, {"error": "GITHUB_TOKEN not set"})
 
@@ -128,11 +138,20 @@ def _api_request(method: str, path: str, body: Optional[dict] = None,
 
 
 def _git_blob_sha(content_bytes: bytes) -> str:
+    """
+    Compute git blob SHA-1: sha1('blob ' + len + '\\0' + content).
+    This matches what GitHub stores so we can compare without re-uploading.
+    """
     header = f"blob {len(content_bytes)}\0".encode("utf-8")
     return hashlib.sha1(header + content_bytes).hexdigest()
 
 
 def _walk_sync_paths() -> List[Path]:
+    """
+    Walk SYNC_PATHS and return a list of all regular file Paths to sync.
+    Skips dot-files, __pycache__, and anything > 5MB (GitHub blob limit is
+    100MB but our state files should be tiny — anything bigger is a bug).
+    """
     files: List[Path] = []
     for raw in SYNC_PATHS:
         p = BASE_DIR / raw
@@ -158,25 +177,68 @@ def _walk_sync_paths() -> List[Path]:
     return files
 
 
+def _regenerate_dashboard():
+    """
+    Apr 30 LATE: regenerate dashboard.html (and docs/dashboard.html for
+    GitHub Pages) before each sync. This is what makes the live URL stay
+    fresh — every 6 hours when auto_sync runs, the dashboard gets
+    regenerated from the latest data files and pushed to GitHub.
+
+    Runs in a try/except: dashboard regen is a NICE-TO-HAVE, not critical.
+    If it fails (e.g., import error), we log and keep going — the data
+    sync itself still works.
+    """
+    try:
+        import generate_dashboard
+        generate_dashboard.main()
+        log.info("auto_sync: dashboard regenerated for live URL")
+    except Exception as e:
+        log.warning(f"auto_sync: dashboard regen failed (non-fatal): {_redact(str(e))}")
+
+
 def _do_sync_sync(label: str) -> dict:
+    """
+    Synchronous sync logic. Called from a thread via run_in_executor.
+    Returns {ok, message, commit_sha, files_changed}.
+
+    Algorithm:
+      0. (NEW Apr 30 LATE) Regenerate dashboard.html so docs/dashboard.html
+         contains the freshest data when we sync.
+      1. GET /git/refs/heads/main → base commit SHA
+      2. GET /git/commits/{sha} → base tree SHA
+      3. Walk SYNC_PATHS, compute local blob SHA for each file
+      4. GET /git/trees/{base_tree}?recursive=1 → remote tree
+      5. Diff: for each local file, if SHA differs from remote, upload blob via
+         POST /git/blobs (or use inline base64 in tree call)
+      6. POST /git/trees with the changed tree entries (base_tree=base_tree)
+      7. POST /git/commits with parent=base_commit, tree=new_tree
+      8. PATCH /git/refs/heads/main with new commit SHA
+    """
     if not GITHUB_TOKEN:
         return {"ok": False, "message": "GITHUB_TOKEN not set",
                 "commit_sha": "", "files_changed": 0}
 
+    # Step 0: refresh the dashboard before we walk paths so the latest
+    # version of docs/dashboard.html is included in this sync.
+    _regenerate_dashboard()
+
+    # Step 1: get current ref (base commit SHA)
     s, r = _api_request("GET", f"/git/refs/heads/{BRANCH}")
     if s != 200 or "object" not in r:
         return {"ok": False, "message": f"failed to get branch ref: {s} {str(r)[:200]}",
                 "commit_sha": "", "files_changed": 0}
     base_commit_sha = r["object"]["sha"]
 
+    # Step 2: get base commit (its tree SHA)
     s, r = _api_request("GET", f"/git/commits/{base_commit_sha}")
     if s != 200 or "tree" not in r:
         return {"ok": False, "message": f"failed to get base commit: {s} {str(r)[:200]}",
                 "commit_sha": "", "files_changed": 0}
     base_tree_sha = r["tree"]["sha"]
 
+    # Step 3: walk local files, compute their blob SHAs
     local_files = _walk_sync_paths()
-    local_map: Dict[str, Tuple[Path, str, bytes]] = {}
+    local_map: Dict[str, Tuple[Path, str, bytes]] = {}  # path-in-repo → (Path, blob_sha, content)
     for fp in local_files:
         try:
             content = fp.read_bytes()
@@ -186,17 +248,23 @@ def _do_sync_sync(label: str) -> dict:
         repo_path = str(fp.relative_to(BASE_DIR)).replace("\\", "/")
         local_map[repo_path] = (fp, _git_blob_sha(content), content)
 
+    # Step 4: get the recursive tree from GitHub
     s, r = _api_request("GET", f"/git/trees/{base_tree_sha}?recursive=1")
     if s != 200:
         return {"ok": False, "message": f"failed to get tree: {s} {str(r)[:200]}",
                 "commit_sha": "", "files_changed": 0}
     remote_tree = {entry["path"]: entry for entry in r.get("tree", []) if entry.get("type") == "blob"}
 
-    changed: List[dict] = []
+    # Step 5: diff. For each local file:
+    #   - new (not on remote) OR
+    #   - changed (sha differs)
+    # we need to upload as a blob and include in the new tree.
+    changed: List[dict] = []  # list of {path, mode, type, sha} entries for tree creation
     for repo_path, (fp, local_sha, content) in local_map.items():
         remote_entry = remote_tree.get(repo_path)
         if remote_entry and remote_entry.get("sha") == local_sha:
-            continue
+            continue  # unchanged
+        # Upload blob
         b64 = base64.b64encode(content).decode("ascii")
         s2, r2 = _api_request("POST", "/git/blobs",
                               {"content": b64, "encoding": "base64"})
@@ -216,6 +284,7 @@ def _do_sync_sync(label: str) -> dict:
 
     files_changed = len(changed)
 
+    # Step 6: create new tree (base_tree means "start from existing tree, apply these changes")
     s, r = _api_request("POST", "/git/trees",
                         {"base_tree": base_tree_sha, "tree": changed})
     if s != 201 or "sha" not in r:
@@ -223,6 +292,7 @@ def _do_sync_sync(label: str) -> dict:
                 "commit_sha": "", "files_changed": files_changed}
     new_tree_sha = r["sha"]
 
+    # Step 7: create commit
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     commit_msg = f"Auto-sync ({label}): {ts} [{files_changed} files]"
     s, r = _api_request("POST", "/git/commits", {
@@ -237,9 +307,13 @@ def _do_sync_sync(label: str) -> dict:
                 "commit_sha": "", "files_changed": files_changed}
     new_commit_sha = r["sha"]
 
+    # Step 8: update ref (PATCH /git/refs/heads/main)
     s, r = _api_request("PATCH", f"/git/refs/heads/{BRANCH}",
                         {"sha": new_commit_sha, "force": False})
     if s != 200:
+        # If force=False fails, the remote moved (someone else pushed). Try force update — still
+        # safe because we built our tree on top of base_tree which IS the remote.
+        # Actually safer: just retry the entire sync next cycle. Don't force-update.
         return {"ok": False,
                 "message": f"failed to update ref (remote moved? retry next cycle): {s} {str(r)[:200]}",
                 "commit_sha": new_commit_sha, "files_changed": files_changed}
@@ -253,6 +327,7 @@ def _do_sync_sync(label: str) -> dict:
 
 
 async def _do_sync(label: str = "periodic") -> dict:
+    """Async wrapper. Runs API calls in a thread pool to keep event loop free."""
     global _last_sync_time, _last_sync_status, _last_sync_commit
     global _last_sync_error, _last_sync_files
 
@@ -271,7 +346,9 @@ async def _do_sync(label: str = "periodic") -> dict:
     return result
 
 
+# ── Public API ───────────────────────────────────────────────────
 async def manual_sync() -> str:
+    """Triggered by /sync Telegram command."""
     log.info("auto_sync: manual sync requested")
     r = await _do_sync(label="manual")
     ts = datetime.now(timezone.utc).strftime("%H:%M UTC")
@@ -292,6 +369,7 @@ async def manual_sync() -> str:
 
 
 async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
+    """Background task: sync every SYNC_INTERVAL_SECONDS, after INITIAL_DELAY_SECONDS."""
     log.info(
         f"auto_sync: periodic_sync_loop started "
         f"(interval: {SYNC_INTERVAL_SECONDS/3600:.1f}h, "
@@ -354,6 +432,7 @@ async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
 
 
 def status() -> str:
+    """Human-readable auto-sync status string for startup banner / /status."""
     if not GITHUB_TOKEN:
         return "⚠️ Auto-sync DISABLED (GITHUB_TOKEN not set)"
     if _last_sync_time is None:

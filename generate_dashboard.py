@@ -28,6 +28,11 @@ BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 OUTCOMES = BASE_DIR / "outcomes.csv"
 OUTPUT   = BASE_DIR / "dashboard.html"
+# Apr 30: also write a copy into /docs so GitHub Pages can serve it.
+# When you push, it becomes available at:
+#   https://kdubsk1.github.io/bot/dashboard.html
+# See GITHUB_PAGES_SETUP.md for one-time setup steps.
+DOCS_OUTPUT = BASE_DIR / "docs" / "dashboard.html"
 
 
 def _safe_load_json(path: Path, default):
@@ -235,6 +240,10 @@ def main():
 <meta charset="UTF-8">
 <title>NQ CALLS Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Auto-refresh every 60 seconds. Combined with auto_refresh_dashboard.py
+     running locally (regenerates the file every 5 min), this keeps the
+     dashboard live without needing a server. -->
+<meta http-equiv="refresh" content="60">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -647,7 +656,18 @@ setView.bind(null, 'topstep')();
     print(f"\nDashboard built: {OUTPUT}")
     print(f"  Size: {OUTPUT.stat().st_size / 1024:.1f} KB")
     print(f"  Open in browser: file://{OUTPUT.resolve()}")
+
+    # Also write a copy to docs/ for GitHub Pages
+    try:
+        DOCS_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+        DOCS_OUTPUT.write_text(html, encoding="utf-8")
+        print(f"  Also written to: {DOCS_OUTPUT}")
+        print(f"  (push to GitHub for live URL — see GITHUB_PAGES_SETUP.md)")
+    except Exception as e:
+        print(f"  WARN: couldn't write docs copy ({e})")
+
     print(f"\nTip: Re-run this script anytime to refresh the data.")
+    print(f"     Or run auto_refresh_dashboard.py for a 5-min refresh loop.")
 
 
 if __name__ == "__main__":
