@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NQ CALLS Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Auto-refresh every 60 seconds. Combined with auto_refresh_dashboard.py
+     running locally (regenerates the file every 5 min), this keeps the
+     dashboard live without needing a server. -->
+<meta http-equiv="refresh" content="60">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 16px;
+    line-height: 1.5;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+  }
+  h1 { font-size: 24px; color: #58a6ff; }
+  .gen-time { font-size: 12px; color: #8b949e; }
+  .toggle {
+    display: flex;
+    gap: 4px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 4px;
+  }
+  .toggle button {
+    background: transparent;
+    border: none;
+    color: #c9d1d9;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .toggle button.active {
+    background: #1f6feb;
+    color: #fff;
+  }
+  .toggle button:hover:not(.active) { background: #21262d; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card h2 { font-size: 14px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600; }
+  .stat-value { font-size: 28px; font-weight: 700; color: #58a6ff; }
+  .stat-sub { font-size: 13px; color: #8b949e; margin-top: 4px; }
+  .pos { color: #56d364; }
+  .neg { color: #f85149; }
+  .neutral { color: #c9d1d9; }
+  .chart-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+    height: 380px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: #c9d1d9;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid #21262d;
+  }
+  th {
+    background: #0d1117;
+    color: #8b949e;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  tr:hover { background: #1c2128; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-win { background: #1f6feb33; color: #58a6ff; }
+  .badge-loss { background: #f8514933; color: #f85149; }
+  .badge-open { background: #d2992233; color: #d29922; }
+  .badge-skip { background: #6e768133; color: #8b949e; }
+  .susp-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .susp-tag {
+    background: #f8514933;
+    color: #f85149;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .footer {
+    text-align: center;
+    padding: 24px;
+    color: #8b949e;
+    font-size: 12px;
+  }
+  .refresh-btn {
+    background: #1f6feb;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .refresh-btn:hover { background: #388bfd; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div>
+    <h1>📊 NQ CALLS Dashboard</h1>
+    <div class="gen-time" id="gen-time"></div>
+  </div>
+  <div class="toggle">
+    <button class="active" onclick="setView('topstep')">Topstep Sim</button>
+    <button onclick="setView('crypto')">Crypto Sim</button>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="card">
+    <h2>Sim Balance</h2>
+    <div class="stat-value" id="sim-balance">$0</div>
+    <div class="stat-sub" id="sim-balance-sub">Starting: $0</div>
+  </div>
+  <div class="card">
+    <h2>Total P&L</h2>
+    <div class="stat-value" id="sim-pnl">$0</div>
+    <div class="stat-sub" id="sim-pnl-sub">All time</div>
+  </div>
+  <div class="card">
+    <h2>Today</h2>
+    <div class="stat-value" id="today-stat">0W / 0L</div>
+    <div class="stat-sub" id="today-sub">0% WR</div>
+  </div>
+  <div class="card">
+    <h2>All-Time WR</h2>
+    <div class="stat-value" id="alltime-stat">0%</div>
+    <div class="stat-sub" id="alltime-sub">0W / 0L</div>
+  </div>
+  <div class="card">
+    <h2>Open Trades</h2>
+    <div class="stat-value" id="open-count">0</div>
+    <div class="stat-sub">Currently in market</div>
+  </div>
+  <div class="card">
+    <h2>Total Closed</h2>
+    <div class="stat-value" id="closed-count">0</div>
+    <div class="stat-sub">All-time</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <h2 style="margin-bottom: 12px;">Equity Curve</h2>
+  <canvas id="equity-chart" style="max-height: 320px;"></canvas>
+</div>
+
+<div class="section-title">Suspended Setups</div>
+<div class="card">
+  <div class="susp-list" id="suspended-list"></div>
+</div>
+
+<div class="section-title">By-Setup Performance</div>
+<div class="card" style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Setup</th>
+        <th>Fires</th>
+        <th>Wins</th>
+        <th>Losses</th>
+        <th>Win Rate</th>
+      </tr>
+    </thead>
+    <tbody id="setup-table"></tbody>
+  </table>
+</div>
+
+<div class="section-title">Recent Alerts (last 25)</div>
+<div class="card" style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Market</th>
+        <th>Setup</th>
+        <th>TF</th>
+        <th>Dir</th>
+        <th>Conv</th>
+        <th>Tier</th>
+        <th>Entry</th>
+        <th>Target</th>
+        <th>RR</th>
+        <th>Status</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody id="alerts-table"></tbody>
+  </table>
+</div>
+
+<div class="footer">
+  <p>To see fresh data, re-run <code>python generate_dashboard.py</code></p>
+  <p style="margin-top: 8px;">NQ CALLS · self-improving trading bot · 2026</p>
+</div>
+
+</div>
+
+<script>
+const DATA = {
+  "generated_at": "2026-04-30T14:32:21.249489+00:00",
+  "topstep": {
+    "balance": 50000,
+    "starting_balance": 50000,
+    "today_pnl": 0.0,
+    "total_pnl": 0.0,
+    "max_drawdown": 2000,
+    "daily_loss_limit": 1000,
+    "profit_target": 3000,
+    "open_count": 0,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 50000
+      },
+      {
+        "time": "2026-04-27 19:08",
+        "balance": 52032.5
+      }
+    ]
+  },
+  "crypto": {
+    "balance": 700.0,
+    "starting_balance": 1000.0,
+    "total_pnl": -300.0,
+    "open_count": 0,
+    "closed_count": 2,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 1000.0
+      },
+      {
+        "time": "2026-04-30 03:38",
+        "balance": 850.0
+      },
+      {
+        "time": "2026-04-30 03:38",
+        "balance": 700.0
+      }
+    ]
+  },
+  "all_time": {
+    "wins": 5,
+    "losses": 17,
+    "wr": 22.7,
+    "total_trades": 22
+  },
+  "today": {
+    "wins": 0,
+    "losses": 2,
+    "wr": 0.0,
+    "total_trades": 2
+  },
+  "setup_stats": [
+    {
+      "setup": "BTC:EMA21_PULLBACK_BEAR",
+      "fires": 6,
+      "wins": 2,
+      "losses": 4,
+      "wr": 33.3
+    },
+    {
+      "setup": "BTC:BREAK_RETEST_BEAR",
+      "fires": 4,
+      "wins": 1,
+      "losses": 3,
+      "wr": 25.0
+    },
+    {
+      "setup": "SOL:BREAK_RETEST_BEAR",
+      "fires": 3,
+      "wins": 1,
+      "losses": 2,
+      "wr": 33.3
+    },
+    {
+      "setup": "SOL:EMA21_PULLBACK_BEAR",
+      "fires": 3,
+      "wins": 0,
+      "losses": 3,
+      "wr": 0.0
+    },
+    {
+      "setup": "BTC:BREAK_RETEST_BULL",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
+      "wr": 0.0
+    },
+    {
+      "setup": "SOL:RSI_DIV_BEAR",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
+      "wr": 0.0
+    },
+    {
+      "setup": "BTC:APPROACH_SUPPORT",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
+    },
+    {
+      "setup": "NQ:BREAK_RETEST_BULL",
+      "fires": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
+    }
+  ],
+  "recent_alerts": [
+    {
+      "time": "2026-04-30 02:44",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "75604.03",
+      "stop": "75841.2079",
+      "target": "74922.47",
+      "rr": "2.87",
+      "conv": "67",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "75841.2079"
+    },
+    {
+      "time": "2026-04-30 02:42",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "75586.41",
+      "stop": "75841.2079",
+      "target": "74922.47",
+      "rr": "2.61",
+      "conv": "67",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "75841.2079"
+    },
+    {
+      "time": "2026-04-29 09:57",
+      "market": "SOL",
+      "setup": "RSI_DIV_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "85.16",
+      "stop": "85.5884",
+      "target": "84.35",
+      "rr": "1.89",
+      "conv": "100",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "85.5884"
+    },
+    {
+      "time": "2026-04-29 06:43",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "77079.35",
+      "stop": "77056.4602",
+      "target": "77155.99",
+      "rr": "3.35",
+      "conv": "64",
+      "tier": "LOW",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77056.4602"
+    },
+    {
+      "time": "2026-04-29 06:34",
+      "market": "SOL",
+      "setup": "RSI_DIV_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "84.75",
+      "stop": "85.0457",
+      "target": "83.89",
+      "rr": "2.91",
+      "conv": "81",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "85.0457"
+    },
+    {
+      "time": "2026-04-29 06:25",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "77136.91",
+      "stop": "77056.155",
+      "target": "77447.18",
+      "rr": "3.84",
+      "conv": "92",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77056.155"
+    },
+    {
+      "time": "2026-04-29 00:28",
+      "market": "SOL",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "83.89",
+      "stop": "84.3086",
+      "target": "82.96",
+      "rr": "2.22",
+      "conv": "92",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "84.3086"
+    },
+    {
+      "time": "2026-04-28 19:51",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "76325.0",
+      "stop": "76568.3694",
+      "target": "75646.84",
+      "rr": "2.79",
+      "conv": "73",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "76568.3694"
+    },
+    {
+      "time": "2026-04-28 19:13",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76117.56",
+      "stop": "76297.0246",
+      "target": "75646.84",
+      "rr": "2.62",
+      "conv": "75",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "76297.0246"
+    },
+    {
+      "time": "2026-04-28 18:27",
+      "market": "SOL",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "83.76",
+      "stop": "84.0956",
+      "target": "82.96",
+      "rr": "2.38",
+      "conv": "77",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "84.0956"
+    },
+    {
+      "time": "2026-04-28 16:53",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76052.0",
+      "stop": "76165.8006",
+      "target": "75646.84",
+      "rr": "3.56",
+      "conv": "83",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "76165.8006"
+    },
+    {
+      "time": "2026-04-28 00:02",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "77332.69",
+      "stop": "77632.3365",
+      "target": "76447.51",
+      "rr": "2.95",
+      "conv": "71",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "76447.51"
+    },
+    {
+      "time": "2026-04-27 23:47",
+      "market": "SOL",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "84.67",
+      "stop": "84.931",
+      "target": "83.85",
+      "rr": "3.14",
+      "conv": "79",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "83.85"
+    },
+    {
+      "time": "2026-04-27 21:29",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76924.66",
+      "stop": "77010.7405",
+      "target": "76555.0",
+      "rr": "4.29",
+      "conv": "69",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77010.7405"
+    },
+    {
+      "time": "2026-04-27 21:18",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76934.36",
+      "stop": "77010.0323",
+      "target": "76555.0",
+      "rr": "5.01",
+      "conv": "64",
+      "tier": "LOW",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77010.0323"
+    },
+    {
+      "time": "2026-04-27 20:13",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76892.57",
+      "stop": "76998.3709",
+      "target": "76555.0",
+      "rr": "3.19",
+      "conv": "71",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "76555.0"
+    },
+    {
+      "time": "2026-04-27 20:11",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76915.2",
+      "stop": "77000.4282",
+      "target": "76555.0",
+      "rr": "4.23",
+      "conv": "71",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "76555.0"
+    },
+    {
+      "time": "2026-04-27 19:08",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "663.0",
+      "stop": "662.4427",
+      "target": "664.51",
+      "rr": "2.71",
+      "conv": "76",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "664.1"
+    },
+    {
+      "time": "2026-04-27 18:19",
+      "market": "SOL",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "84.6",
+      "stop": "84.7351",
+      "target": "83.65",
+      "rr": "7.03",
+      "conv": "76",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "84.7351"
+    },
+    {
+      "time": "2026-04-27 17:42",
+      "market": "SOL",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "84.5",
+      "stop": "84.6527",
+      "target": "83.65",
+      "rr": "5.57",
+      "conv": "78",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "84.6527"
+    },
+    {
+      "time": "2026-04-27 17:32",
+      "market": "SOL",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "84.55",
+      "stop": "84.6487",
+      "target": "83.65",
+      "rr": "9.12",
+      "conv": "83",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "84.6487"
+    },
+    {
+      "time": "2026-04-27 17:14",
+      "market": "BTC",
+      "setup": "APPROACH_SUPPORT",
+      "tf": "15m",
+      "dir": "WATCH_LONG",
+      "entry": "76529.01",
+      "stop": "76403.5611",
+      "target": "77620.55",
+      "rr": "8.7",
+      "conv": "73",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "76403.5611"
+    }
+  ],
+  "suspended_setups": [
+    "BTC:VWAP_REJECT_BEAR",
+    "SOL:VWAP_REJECT_BEAR",
+    "SOL:APPROACH_RESIST",
+    "BTC:APPROACH_RESIST",
+    "BTC:EMA21_PULLBACK_BULL",
+    "BTC:EMA21_PULLBACK_BEAR",
+    "BTC:BREAK_RETEST_BULL",
+    "BTC:BREAK_RETEST_BEAR"
+  ]
+};
+
+function fmtMoney(n) {
+  if (n >= 0) return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return '-$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function colorClass(n) {
+  if (n > 0) return 'pos';
+  if (n < 0) return 'neg';
+  return 'neutral';
+}
+
+let chart = null;
+
+function setView(which) {
+  // Toggle button highlighting
+  document.querySelectorAll('.toggle button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const data = DATA[which];
+
+  // Top stats
+  document.getElementById('sim-balance').textContent = fmtMoney(data.balance);
+  document.getElementById('sim-balance').className = 'stat-value';
+  document.getElementById('sim-balance-sub').textContent = 'Starting: ' + fmtMoney(data.starting_balance);
+
+  const pnl = data.total_pnl || 0;
+  const pnlEl = document.getElementById('sim-pnl');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + fmtMoney(pnl);
+  pnlEl.className = 'stat-value ' + colorClass(pnl);
+  document.getElementById('sim-pnl-sub').textContent = 'All time';
+
+  document.getElementById('open-count').textContent = data.open_count;
+  document.getElementById('closed-count').textContent = data.closed_count !== undefined ? data.closed_count : DATA.all_time.total_trades;
+
+  // Today/All-time always shown across both
+  document.getElementById('today-stat').textContent = `${DATA.today.wins}W / ${DATA.today.losses}L`;
+  document.getElementById('today-sub').textContent = `${DATA.today.wr}% WR`;
+  document.getElementById('alltime-stat').textContent = `${DATA.all_time.wr}%`;
+  document.getElementById('alltime-sub').textContent = `${DATA.all_time.wins}W / ${DATA.all_time.losses}L`;
+
+  // Render equity chart
+  renderChart(data.equity_curve, which);
+}
+
+function renderChart(points, label) {
+  const ctx = document.getElementById('equity-chart').getContext('2d');
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: points.map(p => p.time),
+      datasets: [{
+        label: label === 'topstep' ? 'Topstep $50K Sim' : 'Crypto $1K Build-Up',
+        data: points.map(p => p.balance),
+        borderColor: '#58a6ff',
+        backgroundColor: 'rgba(88, 166, 255, 0.1)',
+        fill: true,
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#c9d1d9' } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => fmtMoney(ctx.parsed.y),
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#8b949e', maxRotation: 0, autoSkip: true }, grid: { color: '#21262d' } },
+        y: {
+          ticks: { color: '#8b949e', callback: (v) => fmtMoney(v) },
+          grid: { color: '#21262d' }
+        }
+      }
+    }
+  });
+}
+
+function renderSuspended() {
+  const list = document.getElementById('suspended-list');
+  if (!DATA.suspended_setups.length) {
+    list.innerHTML = '<div style="color: #56d364;">✅ No setups currently suspended</div>';
+    return;
+  }
+  list.innerHTML = DATA.suspended_setups.map(s => `<span class="susp-tag">⛔ ${s}</span>`).join('');
+}
+
+function renderSetups() {
+  const tbody = document.getElementById('setup-table');
+  tbody.innerHTML = DATA.setup_stats.map(s => {
+    const wrClass = s.wr >= 60 ? 'pos' : (s.wr < 40 ? 'neg' : 'neutral');
+    return `<tr>
+      <td>${s.setup}</td>
+      <td>${s.fires}</td>
+      <td class="pos">${s.wins}</td>
+      <td class="neg">${s.losses}</td>
+      <td class="${wrClass}"><strong>${s.wr}%</strong></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="text-align:center; color:#8b949e;">No closed trades yet.</td></tr>';
+}
+
+function renderAlerts() {
+  const tbody = document.getElementById('alerts-table');
+  tbody.innerHTML = DATA.recent_alerts.map(a => {
+    let badge = '';
+    if (a.result === 'WIN') badge = '<span class="badge badge-win">WIN</span>';
+    else if (a.result === 'LOSS') badge = '<span class="badge badge-loss">LOSS</span>';
+    else if (a.result === 'SKIP') badge = '<span class="badge badge-skip">SKIP</span>';
+    else if (a.status === 'OPEN') badge = '<span class="badge badge-open">OPEN</span>';
+    else badge = a.result || a.status;
+
+    return `<tr>
+      <td>${a.time}</td>
+      <td><strong>${a.market}</strong></td>
+      <td>${a.setup}</td>
+      <td>${a.tf}</td>
+      <td>${a.dir}</td>
+      <td>${a.conv}</td>
+      <td>${a.tier}</td>
+      <td>${a.entry}</td>
+      <td>${a.target}</td>
+      <td>${a.rr}</td>
+      <td>${a.status}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="12" style="text-align:center; color:#8b949e;">No alerts yet.</td></tr>';
+}
+
+// Init
+document.getElementById('gen-time').textContent = 'Generated ' + new Date(DATA.generated_at).toLocaleString();
+renderSuspended();
+renderSetups();
+renderAlerts();
+setView.bind(null, 'topstep')();
+// Default to Topstep view
+(function() {
+  // Simulate the click for initial render
+  const data = DATA.topstep;
+  document.getElementById('sim-balance').textContent = fmtMoney(data.balance);
+  document.getElementById('sim-balance-sub').textContent = 'Starting: ' + fmtMoney(data.starting_balance);
+  const pnl = data.total_pnl || 0;
+  const pnlEl = document.getElementById('sim-pnl');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + fmtMoney(pnl);
+  pnlEl.className = 'stat-value ' + colorClass(pnl);
+  document.getElementById('open-count').textContent = data.open_count;
+  document.getElementById('closed-count').textContent = data.closed_count !== undefined ? data.closed_count : DATA.all_time.total_trades;
+  document.getElementById('today-stat').textContent = `${DATA.today.wins}W / ${DATA.today.losses}L`;
+  document.getElementById('today-sub').textContent = `${DATA.today.wr}% WR`;
+  document.getElementById('alltime-stat').textContent = `${DATA.all_time.wr}%`;
+  document.getElementById('alltime-sub').textContent = `${DATA.all_time.wins}W / ${DATA.all_time.losses}L`;
+  renderChart(data.equity_curve, 'topstep');
+})();
+</script>
+
+</body>
+</html>
