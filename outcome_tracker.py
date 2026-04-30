@@ -940,6 +940,174 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
         except Exception:
             pass
 
+        # ============================================================
+        # APR 30 NEW SETUPS — Bollinger / Stoch / MACD / Engulfing
+        # Designed for ranging markets (where bot has been losing).
+        # All use indicators we already calculate but didn't fire on.
+        # ============================================================
+
+        # ── BB_REVERSION_BULL: price tagged lower BB and turned up ──
+        # Mean-reversion long for ranging/oversold conditions.
+        try:
+            if len(df_entry) >= 22:
+                bb_u_s, bb_m_s, bb_l_s = bollinger_bands(df_entry["Close"])
+                bb_lower = float(bb_l_s.iloc[-1])
+                bb_lower_prev = float(bb_l_s.iloc[-2])
+                bb_middle_v = float(bb_m_s.iloc[-1])
+                if (np.isfinite(bb_lower) and np.isfinite(bb_lower_prev) and
+                    float(prev["Low"]) <= bb_lower_prev and  # prev candle pierced lower band
+                    close > bb_lower and                       # current closed back above
+                    close > prev_close and                     # bullish momentum
+                    rsi_v < 45 and                             # genuinely oversold
+                    current_regime in ("RANGING", "VOLATILE_EXPANSION")):
+                    stop_bb = float(prev["Low"]) - atr_v * 0.3
+                    setups.append({
+                        "type":      "BB_REVERSION_BULL",
+                        "direction": "LONG",
+                        "entry":     close,
+                        "raw_stop":  stop_bb,
+                        "level":     bb_middle_v,
+                        "detail":    f"Tagged lower Bollinger ({round(bb_lower,4)}) and reversed. "
+                                     f"RSI {round(rsi_v,1)} oversold. Mean reversion to middle band.",
+                    })
+        except Exception:
+            pass
+
+        # ── BB_REVERSION_BEAR: price tagged upper BB and turned down ──
+        try:
+            if len(df_entry) >= 22:
+                bb_u_s, bb_m_s, bb_l_s = bollinger_bands(df_entry["Close"])
+                bb_upper = float(bb_u_s.iloc[-1])
+                bb_upper_prev = float(bb_u_s.iloc[-2])
+                bb_middle_v = float(bb_m_s.iloc[-1])
+                if (np.isfinite(bb_upper) and np.isfinite(bb_upper_prev) and
+                    float(prev["High"]) >= bb_upper_prev and  # prev candle pierced upper band
+                    close < bb_upper and                        # closed back below
+                    close < prev_close and                      # bearish momentum
+                    rsi_v > 55 and                              # genuinely overbought
+                    current_regime in ("RANGING", "VOLATILE_EXPANSION")):
+                    stop_bb = float(prev["High"]) + atr_v * 0.3
+                    setups.append({
+                        "type":      "BB_REVERSION_BEAR",
+                        "direction": "SHORT",
+                        "entry":     close,
+                        "raw_stop":  stop_bb,
+                        "level":     bb_middle_v,
+                        "detail":    f"Tagged upper Bollinger ({round(bb_upper,4)}) and reversed. "
+                                     f"RSI {round(rsi_v,1)} overbought. Mean reversion to middle band.",
+                    })
+        except Exception:
+            pass
+
+        # ── STOCH_REVERSAL_BULL: %K oversold (<20) crossing UP through %D ──
+        # Strong bullish reversal trigger, especially in ranging markets.
+        try:
+            if len(df_entry) >= 17:
+                k_s, d_s = stochastic(df_entry)
+                k_now = float(k_s.iloc[-1]); k_prev = float(k_s.iloc[-2])
+                d_now = float(d_s.iloc[-1]); d_prev = float(d_s.iloc[-2])
+                # Oversold area crossover
+                if (np.isfinite(k_now) and np.isfinite(d_now) and
+                    k_prev <= 25 and k_prev <= d_prev and  # was oversold and below D
+                    k_now > d_now and                        # now crossed above D
+                    k_now < 40 and                           # still in lower zone (early entry)
+                    close > prev_close and                   # price confirming
+                    rsi_v < 50):
+                    stop_st = float(prev["Low"]) - atr_v * 0.4
+                    setups.append({
+                        "type":      "STOCH_REVERSAL_BULL",
+                        "direction": "LONG",
+                        "entry":     close,
+                        "raw_stop":  stop_st,
+                        "level":     close,
+                        "detail":    f"Stochastic %K crossed up through %D from oversold "
+                                     f"({round(k_prev,1)}→{round(k_now,1)} vs D {round(d_now,1)}). "
+                                     f"Early reversal trigger.",
+                    })
+        except Exception:
+            pass
+
+        # ── STOCH_REVERSAL_BEAR: %K overbought (>80) crossing DOWN through %D ──
+        try:
+            if len(df_entry) >= 17:
+                k_s, d_s = stochastic(df_entry)
+                k_now = float(k_s.iloc[-1]); k_prev = float(k_s.iloc[-2])
+                d_now = float(d_s.iloc[-1]); d_prev = float(d_s.iloc[-2])
+                if (np.isfinite(k_now) and np.isfinite(d_now) and
+                    k_prev >= 75 and k_prev >= d_prev and  # was overbought and above D
+                    k_now < d_now and                        # now crossed below D
+                    k_now > 60 and                           # still in upper zone
+                    close < prev_close and                   # price confirming
+                    rsi_v > 50):
+                    stop_st = float(prev["High"]) + atr_v * 0.4
+                    setups.append({
+                        "type":      "STOCH_REVERSAL_BEAR",
+                        "direction": "SHORT",
+                        "entry":     close,
+                        "raw_stop":  stop_st,
+                        "level":     close,
+                        "detail":    f"Stochastic %K crossed down through %D from overbought "
+                                     f"({round(k_prev,1)}→{round(k_now,1)} vs D {round(d_now,1)}). "
+                                     f"Early reversal trigger.",
+                    })
+        except Exception:
+            pass
+
+        # ── MACD_CROSS_BULL: MACD line crosses above signal line ──
+        # Classic momentum trigger; works best when histogram was negative and turning.
+        try:
+            if len(df_entry) >= 35:
+                m_l, m_s_, m_h = macd(df_entry["Close"])
+                ml_now = float(m_l.iloc[-1]); ml_prev = float(m_l.iloc[-2])
+                ms_now = float(m_s_.iloc[-1]); ms_prev = float(m_s_.iloc[-2])
+                mh_now = float(m_h.iloc[-1]); mh_prev = float(m_h.iloc[-2])
+                if (np.isfinite(ml_now) and np.isfinite(ms_now) and
+                    ml_prev <= ms_prev and ml_now > ms_now and  # crossover
+                    mh_now > mh_prev and                          # histogram improving
+                    mh_prev < 0 and                               # was negative (real reversal)
+                    close > prev_close and
+                    not bear_htf):
+                    stop_mc = min(float(prev["Low"]), float(last["Low"])) - atr_v * 0.3
+                    setups.append({
+                        "type":      "MACD_CROSS_BULL",
+                        "direction": "LONG",
+                        "entry":     close,
+                        "raw_stop":  stop_mc,
+                        "level":     close,
+                        "detail":    f"MACD bullish crossover (line {round(ml_now,3)} > signal "
+                                     f"{round(ms_now,3)}, hist turning {round(mh_now,3)}). "
+                                     f"Momentum shift up.",
+                    })
+        except Exception:
+            pass
+
+        # ── MACD_CROSS_BEAR: MACD line crosses below signal line ──
+        try:
+            if len(df_entry) >= 35:
+                m_l, m_s_, m_h = macd(df_entry["Close"])
+                ml_now = float(m_l.iloc[-1]); ml_prev = float(m_l.iloc[-2])
+                ms_now = float(m_s_.iloc[-1]); ms_prev = float(m_s_.iloc[-2])
+                mh_now = float(m_h.iloc[-1]); mh_prev = float(m_h.iloc[-2])
+                if (np.isfinite(ml_now) and np.isfinite(ms_now) and
+                    ml_prev >= ms_prev and ml_now < ms_now and  # crossover
+                    mh_now < mh_prev and                          # histogram weakening
+                    mh_prev > 0 and                               # was positive (real reversal)
+                    close < prev_close and
+                    not bull_htf):
+                    stop_mc = max(float(prev["High"]), float(last["High"])) + atr_v * 0.3
+                    setups.append({
+                        "type":      "MACD_CROSS_BEAR",
+                        "direction": "SHORT",
+                        "entry":     close,
+                        "raw_stop":  stop_mc,
+                        "level":     close,
+                        "detail":    f"MACD bearish crossover (line {round(ml_now,3)} < signal "
+                                     f"{round(ms_now,3)}, hist turning {round(mh_now,3)}). "
+                                     f"Momentum shift down.",
+                    })
+        except Exception:
+            pass
+
     except Exception as e:
         import logging
         logging.getLogger("nqcalls").warning(f"detect_setups error: {e}")
@@ -961,9 +1129,11 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
     import logging as _logging
     _rlog = _logging.getLogger("nqcalls")
     BEAR_SETUPS = {"VWAP_REJECT_BEAR", "APPROACH_RESIST", "LIQ_SWEEP_BEAR", "RSI_DIV_BEAR",
-                   "EMA50_BREAKDOWN", "EMA21_PULLBACK_BEAR", "BREAK_RETEST_BEAR", "FAILED_BREAKOUT_BEAR"}
+                   "EMA50_BREAKDOWN", "EMA21_PULLBACK_BEAR", "BREAK_RETEST_BEAR", "FAILED_BREAKOUT_BEAR",
+                   "BB_REVERSION_BEAR", "STOCH_REVERSAL_BEAR", "MACD_CROSS_BEAR"}
     BULL_SETUPS = {"VWAP_BOUNCE_BULL", "APPROACH_SUPPORT", "LIQ_SWEEP_BULL", "RSI_DIV_BULL",
-                   "EMA50_RECLAIM", "EMA21_PULLBACK_BULL", "BREAK_RETEST_BULL", "FAILED_BREAKDOWN_BULL"}
+                   "EMA50_RECLAIM", "EMA21_PULLBACK_BULL", "BREAK_RETEST_BULL", "FAILED_BREAKDOWN_BULL",
+                   "BB_REVERSION_BULL", "STOCH_REVERSAL_BULL", "MACD_CROSS_BULL"}
     for s in filtered:
         st = s["type"]
         if st in BEAR_SETUPS and current_regime == "TRENDING_BULL":
@@ -996,7 +1166,52 @@ VOLUME_DIRECTION = {
     "LIQ_SWEEP_BEAR":   "confirm",
     "OPENING_RANGE_BREAKOUT": "confirm",
     "HTF_LEVEL_BOUNCE": "confirm",
+    # Apr 30 new setups
+    "BB_REVERSION_BULL":   "neutral",   # mean-reversion; volume not the trigger
+    "BB_REVERSION_BEAR":   "neutral",
+    "STOCH_REVERSAL_BULL": "confirm",   # confirmation candle should have volume
+    "STOCH_REVERSAL_BEAR": "confirm",
+    "MACD_CROSS_BULL":     "confirm",   # momentum shift wants volume
+    "MACD_CROSS_BEAR":     "confirm",
 }
+
+# ===================================================================
+# Apr 30: Per-setup RR floors. Wayne's idea — instead of one global
+# minimum, let each setup type have its own "good enough" RR threshold.
+# Setups with high WR can fire at lower RR; bad ones need extra safety.
+# Used by bot.py when deciding whether RR is high enough to fire.
+# ===================================================================
+SETUP_RR_FLOORS = {
+    # Top performers — allow lower RR
+    "VWAP_BOUNCE_BULL":      1.0,   # 67% WR — the best setup we have
+    "LIQ_SWEEP_BULL":        1.5,
+    "LIQ_SWEEP_BEAR":        1.5,
+    # Mean-reversion — typically smaller targets, lower RR is fine
+    "BB_REVERSION_BULL":     1.5,
+    "BB_REVERSION_BEAR":     1.5,
+    "STOCH_REVERSAL_BULL":   1.5,
+    "STOCH_REVERSAL_BEAR":   1.5,
+    "RSI_DIV_BULL":          1.5,
+    "RSI_DIV_BEAR":          1.5,
+    # Trend-continuation — should aim further
+    "EMA21_PULLBACK_BULL":   2.0,
+    "EMA21_PULLBACK_BEAR":   2.0,
+    "EMA50_RECLAIM":         2.0,
+    "EMA50_BREAKDOWN":       2.0,
+    "BREAK_RETEST_BULL":     2.0,
+    "BREAK_RETEST_BEAR":     2.0,
+    "MACD_CROSS_BULL":       2.0,
+    "MACD_CROSS_BEAR":       2.0,
+    # Anticipatory / scout setups — stricter
+    "APPROACH_SUPPORT":      2.0,
+    "APPROACH_RESIST":       2.0,
+    # Default for any new setup not in this map
+    "_DEFAULT":              1.5,
+}
+
+def get_rr_floor(setup_type: str) -> float:
+    """Return the minimum acceptable R:R for this setup type."""
+    return SETUP_RR_FLOORS.get(setup_type, SETUP_RR_FLOORS["_DEFAULT"])
 
 
 def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,

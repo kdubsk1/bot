@@ -1384,18 +1384,13 @@ async def scan_market(app, market, frames):
                 stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio,
                 abs(tgt-stp["entry"])/max(1e-9, atr_v)
             )
-            if   quick_conv >= 80: tier_min_rr = 1.5
-            elif quick_conv >= 65: tier_min_rr = 2.0
-            else:                  tier_min_rr = 2.5
+            # Apr 30: per-setup RR floor replaces tier-based logic.
+            # Each setup has its own "good enough" RR based on historical edge
+            # (high-WR setups like VWAP_BOUNCE_BULL = 1.0R, weaker setups = 2.0R).
+            # See ot.SETUP_RR_FLOORS for the full map.
+            setup_floor = ot.get_rr_floor(stp["type"])
             _global_min_rr = cfg.NEWS_MIN_RR if news_flag else SETTINGS["min_rr"]
-            # BACKLOG #7 (2026-04-28): VWAP_BOUNCE_BULL is at 83% WR (best in
-            # bot) but min_rr requirements were blocking ~60% of detections.
-            # Lower effective floor by 0.5 — better to take 1.5R wins than
-            # miss 3R wins entirely.
-            if stp["type"] == "VWAP_BOUNCE_BULL":
-                tier_min_rr   = max(1.0, tier_min_rr - 0.5)
-                _global_min_rr = max(1.0, _global_min_rr - 0.5)
-            min_rr = max(tier_min_rr, _global_min_rr)
+            min_rr = max(setup_floor, _global_min_rr)
             if rr < min_rr:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, 0, "REJECT",
@@ -3196,6 +3191,16 @@ async def cmd_sync(u, c):
     except Exception as e:
         await u.message.reply_text(f"❌ Sync error: {e}")
 
+async def cmd_recap(u, c):
+    """Apr 30: /recap — builds and sends today's daily report on demand.
+    Same engine that auto-runs at session close, but you can call it any time."""
+    try:
+        full_text, short_summary = ot.build_daily_report()
+        await u.message.reply_text(short_summary, parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/recap failed: {e}")
+        await u.message.reply_text(f"❌ Recap failed: {e}")
+
 def main():
     log.info("NQ CALLS Bot starting...")
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
@@ -3209,7 +3214,7 @@ def main():
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
-                   ("sync",cmd_sync)]:
+                   ("sync",cmd_sync),("recap",cmd_recap)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")

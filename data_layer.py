@@ -330,14 +330,43 @@ def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = Fal
 
     contracts = data.get("contracts", [])
     match = None
+
+    # Apr 30 fix: loosened filter. The exact symbolId match was failing because
+    # TopstepX's symbolId format may have shifted (e.g. F.US.ENQ.M26 vs F.US.ENQ).
+    # Strategy: try exact match first, then partial (contains), then ANY active
+    # contract whose symbolId starts with our prefix. Log what we actually got
+    # so we can diagnose if all three fail.
+
+    # Pass 1: exact match (original behaviour)
     for c in contracts:
         if c.get("activeContract") and c.get("symbolId") == sym_filter:
             match = c
             break
 
+    # Pass 2: prefix match (handles symbolId like "F.US.ENQ.M26")
     if not match:
-        logger.warning("TopstepX: no active %s contract (symbolId=%s) in %d results",
-                       market, sym_filter, len(contracts))
+        for c in contracts:
+            if c.get("activeContract") and str(c.get("symbolId", "")).startswith(sym_filter):
+                match = c
+                logger.info("TopstepX %s: matched via prefix — symbolId=%s", market, c.get("symbolId"))
+                break
+
+    # Pass 3: contains match (last resort — e.g. symbolId="CME:ENQ.M26" or similar)
+    if not match:
+        # market_clean: strip the F.US. prefix to get the bare symbol ("ENQ", "GC")
+        bare = sym_filter.replace("F.US.", "")
+        for c in contracts:
+            sid = str(c.get("symbolId", ""))
+            if c.get("activeContract") and bare in sid:
+                match = c
+                logger.info("TopstepX %s: matched via contains(%s) — symbolId=%s", market, bare, sid)
+                break
+
+    if not match:
+        # Diagnostic: dump what we actually got back so Wayne can see why
+        sample_ids = [str(c.get("symbolId", "")) for c in contracts[:10]]
+        logger.warning("TopstepX: no active %s contract (tried symbolId=%s, %d results, sample IDs: %s)",
+                       market, sym_filter, len(contracts), sample_ids)
         return None
 
     contract_id = match["id"]
