@@ -46,5 +46,11 @@
     "suspended_at": "2026-04-30T12:35:52.135526+00:00",
     "total_at_suspension": 5,
     "wr_at_suspension": 20.0
+  },
+  "NQ:VWAP_BOUNCE_BULL": {
+    "reason": "0W/6L (0.0% WR)",
+    "suspended_at": "2026-04-30T20:00:10.982610+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 0.0
   }
 }
