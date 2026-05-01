@@ -524,8 +524,34 @@ def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
         return pd.DataFrame(columns=_STANDARD_COLS)
 
     if not data.get("success"):
-        logger.warning("TopstepX error for %s %s: %s", market, timeframe, data.get("errorMessage", "unknown"))
-        return pd.DataFrame(columns=_STANDARD_COLS)
+        # May 1 fix: When TopstepX subscription doesn't include live data, retrieveBars returns
+        # success=false with errorMessage=None. Retry once with live=False (delayed/historical).
+        # That's the SAME data the chart UI shows, just with 15-min delay (irrelevant for 1h+
+        # technical analysis). For 15m bars near the current bar this introduces a tiny lag,
+        # but the bot is making decisions on closed bars so it doesn't matter.
+        if body.get("live") is True:
+            logger.info("TopstepX %s %s: success=false on live=True — retrying with live=False (delayed data)", market, timeframe)
+            body["live"] = False
+            try:
+                resp_dl = _do_post()
+                if resp_dl.status_code == 200:
+                    data = resp_dl.json()
+                    if data.get("success"):
+                        logger.info("TopstepX %s %s: live=False worked ✅ (account on delayed-data plan)", market, timeframe)
+                    else:
+                        logger.warning("TopstepX %s %s: live=False also failed: %s",
+                                       market, timeframe, data.get("errorMessage", "unknown"))
+                        return pd.DataFrame(columns=_STANDARD_COLS)
+                else:
+                    logger.warning("TopstepX %s %s: live=False retry HTTP %d",
+                                   market, timeframe, resp_dl.status_code)
+                    return pd.DataFrame(columns=_STANDARD_COLS)
+            except Exception as exc:
+                logger.warning("TopstepX %s %s: live=False retry exception: %s", market, timeframe, exc)
+                return pd.DataFrame(columns=_STANDARD_COLS)
+        else:
+            logger.warning("TopstepX error for %s %s: %s", market, timeframe, data.get("errorMessage", "unknown"))
+            return pd.DataFrame(columns=_STANDARD_COLS)
 
     bars_list = data.get("bars", [])
     if not bars_list:
