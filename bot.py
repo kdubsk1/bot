@@ -3271,6 +3271,71 @@ async def cmd_edge(u, c):
         log.error(f"/edge failed: {e}")
         await u.message.reply_text(f"❌ Edge command failed: {e}")
 
+async def cmd_diag(u, c):
+    """
+    Apr 30 LATE LATE: /diag — instant health check.
+    Probes TopstepX live + checks last data source per market+timeframe.
+    Use this from your phone whenever the bot feels off.
+    """
+    try:
+        import data_layer as dl
+        lines = [
+            "🩺 *Bot Health Check*",
+            "━━━━━━━━━━━━━━━━━━",
+        ]
+        # Scanner state
+        on = SETTINGS.get("scanner_on", False)
+        lines.append(f"*Scanner:* {'🟢 ON' if on else '🔴 OFF'}")
+        # Open trades
+        try:
+            open_t = ot.load_open_trades()
+            lines.append(f"*Open trades:* `{len(open_t)}`")
+        except Exception:
+            lines.append("*Open trades:* (error reading)")
+        # Markets enabled
+        mkts = SETTINGS.get("markets", {})
+        on_list = [m for m, v in mkts.items() if v]
+        lines.append(f"*Markets enabled:* {', '.join(on_list) or 'none'}")
+        lines.append("")
+
+        # TopstepX live probe
+        lines.append("*TopstepX live probe:*")
+        try:
+            probe = dl.probe_topstepx()
+            lines.append(f"  Auth: {'✅' if probe.get('auth') else '❌'}")
+            lines.append(f"  NQ contract: `{probe.get('nq_contract') or '—'}` ({probe.get('nq_bars_15m', 0)} bars 15m)")
+            lines.append(f"  GC contract: `{probe.get('gc_contract') or '—'}` ({probe.get('gc_bars_15m', 0)} bars 15m)")
+        except Exception as e:
+            lines.append(f"  ❌ probe error: {e}")
+        lines.append("")
+
+        # Last data source per market|tf
+        lines.append("*Last data source per fetch:*")
+        try:
+            ls = getattr(dl, "_last_source", {}) or {}
+            if ls:
+                for key in sorted(ls.keys()):
+                    lines.append(f"  `{key}` → {ls[key]}")
+            else:
+                lines.append("  _(no fetches yet — wait one scan cycle)_")
+        except Exception:
+            lines.append("  _(unable to read source map)_")
+        lines.append("")
+
+        # Auto-sync status
+        try:
+            lines.append(f"*Auto-sync:* {auto_sync.status()}")
+        except Exception:
+            pass
+
+        lines.append("━━━━━━━━━━━━━━━━━━")
+        lines.append("_Run this anytime the bot feels stuck._")
+        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/diag failed: {e}")
+        await u.message.reply_text(f"❌ /diag failed: {e}")
+
+
 async def cmd_setups(u, c):
     """
     Apr 30 LATE: /setups — list all active setup types and their RR floor.
@@ -3340,7 +3405,7 @@ def main():
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
-                   ("edge",cmd_edge),("setups",cmd_setups)]:
+                   ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")

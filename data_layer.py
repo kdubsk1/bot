@@ -289,6 +289,11 @@ def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = Fal
     """
     Return the active contractId (e.g. "CON.F.US.ENQ.M26") for NQ or GC.
     Caches 4h to minimize API calls. Filters by symbolId — stable across rollovers.
+
+    Apr 30 LATE LATE fix: TopstepX was returning 0 contracts with the default
+    search ({"searchText": market, "live": True}). When that happens we now
+    try multiple search-body variations until something returns a non-empty
+    list, then run the existing 3-pass match against those results.
     """
     now = datetime.now(timezone.utc)
     cached = _TOPSTEPX_CONTRACT_CACHE.get(market)
@@ -300,35 +305,71 @@ def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = Fal
         logger.warning("TopstepX: no symbolId filter for market %s", market)
         return None
 
-    try:
-        resp = _topstepx_post(
-            "/api/Contract/search",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type":  "application/json",
-                "accept":        "text/plain",
-            },
-            body={"searchText": market, "live": True},
-            timeout=10,
-        )
-    except Exception as exc:
-        logger.warning("TopstepX contract search network error for %s: %s", market, exc)
+    bare = sym_filter.replace("F.US.", "")  # "ENQ" for NQ, "GC" for GC
+
+    # Apr 30 LATE LATE: try several search variations. Stop at the first one
+    # that returns a non-empty contract list. Each variation is logged so the
+    # diagnostic startup banner can show which combo actually worked.
+    SEARCH_VARIATIONS = [
+        {"searchText": market,     "live": True},   # original behavior
+        {"searchText": market,     "live": False},  # maybe live filter was the problem
+        {"searchText": bare,       "live": True},   # "ENQ" / "GC" instead of "NQ"
+        {"searchText": bare,       "live": False},
+        {"searchText": sym_filter, "live": True},   # full "F.US.ENQ" prefix
+        {"searchText": sym_filter, "live": False},
+    ]
+
+    contracts: list = []
+    used_body: dict = {}
+
+    for body in SEARCH_VARIATIONS:
+        try:
+            resp = _topstepx_post(
+                "/api/Contract/search",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type":  "application/json",
+                    "accept":        "text/plain",
+                },
+                body=body,
+                timeout=10,
+            )
+        except Exception as exc:
+            logger.warning("TopstepX contract search network error for %s body=%s: %s", market, body, exc)
+            continue
+
+        if resp.status_code != 200:
+            logger.warning("TopstepX contract search HTTP %d for %s body=%s: %s",
+                           resp.status_code, market, body, resp.text[:120])
+            continue
+
+        try:
+            data = resp.json()
+        except Exception:
+            continue
+
+        if not data.get("success"):
+            logger.warning("TopstepX contract search failed for %s body=%s: %s",
+                           market, body, data.get("errorMessage"))
+            continue
+
+        cs = data.get("contracts", [])
+        if cs:
+            contracts = cs
+            used_body = body
+            logger.info("TopstepX %s: search OK with body=%s, got %d contracts",
+                        market, body, len(cs))
+            break  # use the first successful variation
+        else:
+            logger.info("TopstepX %s: body=%s returned 0 contracts, trying next", market, body)
+
+    if not contracts:
+        logger.error("TopstepX %s: ALL %d search variations returned empty. "
+                     "API may have changed shape or your account may lack data "
+                     "permissions. Falling back to TwelveData/yfinance.",
+                     market, len(SEARCH_VARIATIONS))
         return None
 
-    if resp.status_code != 200:
-        logger.warning("TopstepX contract search HTTP %d for %s: %s", resp.status_code, market, resp.text[:200])
-        return None
-
-    try:
-        data = resp.json()
-    except Exception:
-        return None
-
-    if not data.get("success"):
-        logger.warning("TopstepX contract search failed for %s: %s", market, data.get("errorMessage"))
-        return None
-
-    contracts = data.get("contracts", [])
     match = None
 
     # Apr 30 fix: loosened filter. The exact symbolId match was failing because
@@ -353,8 +394,6 @@ def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = Fal
 
     # Pass 3: contains match (last resort — e.g. symbolId="CME:ENQ.M26" or similar)
     if not match:
-        # market_clean: strip the F.US. prefix to get the bare symbol ("ENQ", "GC")
-        bare = sym_filter.replace("F.US.", "")
         for c in contracts:
             sid = str(c.get("symbolId", ""))
             if c.get("activeContract") and bare in sid:
@@ -362,11 +401,24 @@ def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = Fal
                 logger.info("TopstepX %s: matched via contains(%s) — symbolId=%s", market, bare, sid)
                 break
 
+    # Apr 30 LATE LATE: Pass 4 — if we got contracts but NONE have activeContract=true
+    # (e.g. live: false fallback returned only inactive ones), pick the first
+    # contract whose symbolId contains our bare symbol and is not explicitly
+    # marked inactive. Logged loudly so we know we're using a possibly stale match.
+    if not match:
+        for c in contracts:
+            sid = str(c.get("symbolId", ""))
+            if bare in sid:
+                match = c
+                logger.warning("TopstepX %s: NO activeContract found, using best-effort symbolId=%s (used_body=%s) — verify with Wayne",
+                               market, sid, used_body)
+                break
+
     if not match:
         # Diagnostic: dump what we actually got back so Wayne can see why
         sample_ids = [str(c.get("symbolId", "")) for c in contracts[:10]]
-        logger.warning("TopstepX: no active %s contract (tried symbolId=%s, %d results, sample IDs: %s)",
-                       market, sym_filter, len(contracts), sample_ids)
+        logger.warning("TopstepX: no matching %s contract (tried symbolId=%s, %d results, used_body=%s, sample IDs: %s)",
+                       market, sym_filter, len(contracts), used_body, sample_ids)
         return None
 
     contract_id = match["id"]
@@ -929,6 +981,33 @@ def _fetch_crypto(market: str, timeframe: str) -> pd.DataFrame:
             last_error = exc
             logger.warning("ccxt error on %s for %s %s: %s", exch_name, market, timeframe, exc)
             continue
+
+    # Apr 30 LATE LATE fix: 4h crypto often fails because
+    #  - coinbase doesn't support 4h candles (skipped above)
+    #  - kraken returns very few bars on 4h
+    #  - bybit is geo-blocked from US (CloudFront 403)
+    # When that happens, fetch 1h instead and resample to 4h. This is mathematically
+    # equivalent (4h = 4 × 1h aggregated) and gives us full historical depth.
+    if timeframe == "4h":
+        logger.info("All crypto exchanges failed for %s 4h — falling back to 1h → 4h resample",
+                    market)
+        try:
+            # Direct call (bypass cache) to avoid feedback loop
+            df_1h = _fetch_crypto(market, "1h")
+            if df_1h is not None and len(df_1h) >= 80:  # 80 1h bars = 20 4h bars
+                df_4h_resampled = _resample_to_4h(df_1h)
+                if len(df_4h_resampled) >= MIN_BARS:
+                    logger.info("Resampled 1h→4h for %s: %d bars (saved by fallback)",
+                                market, len(df_4h_resampled))
+                    return df_4h_resampled
+                else:
+                    logger.warning("1h→4h resample for %s only produced %d bars (need %d)",
+                                   market, len(df_4h_resampled), MIN_BARS)
+            else:
+                logger.warning("1h fetch for %s 4h-fallback returned only %d bars (need 80)",
+                               market, 0 if df_1h is None else len(df_1h))
+        except Exception as exc:
+            logger.warning("4h←1h resample fallback failed for %s: %s", market, exc)
 
     logger.error("All crypto exchanges failed for %s %s. Last error: %s", market, timeframe, last_error)
     return pd.DataFrame(columns=_STANDARD_COLS)
