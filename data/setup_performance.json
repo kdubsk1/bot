@@ -99,10 +99,10 @@
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 1,
-    "losses": 1,
-    "total": 2,
-    "win_rate": 50.0,
-    "last_updated": "2026-04-30T18:43:50.507093"
+    "losses": 2,
+    "total": 3,
+    "win_rate": 33.3,
+    "last_updated": "2026-05-01T16:27:17.769647"
   },
   "NQ:APPROACH_SUPPORT": {
     "wins": 0,
@@ -166,5 +166,26 @@
     "total": 1,
     "win_rate": 0.0,
     "last_updated": "2026-04-30T14:55:51.372706"
+  },
+  "GC:APPROACH_RESIST": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-01T14:14:32.150754"
+  },
+  "GC:BB_REVERSION_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-01T15:11:33.664896"
+  },
+  "GC:STOCH_REVERSAL_BEAR": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-01T17:46:39.878014"
   }
 }

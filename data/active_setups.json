@@ -14,5 +14,9 @@
   "NQ:APPROACH_SUPPORT": {
     "entry": 27163.25,
     "fired_at": "2026-04-30T14:47:53.826183+00:00"
+  },
+  "GC:APPROACH_RESIST": {
+    "entry": 4673.0,
+    "fired_at": "2026-05-01T14:14:00.846925+00:00"
   }
 }
