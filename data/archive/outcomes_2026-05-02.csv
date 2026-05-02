@@ -1,0 +1,4 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id
+3c10f3d2ef,2026-05-01T21:11:08.435683+00:00,BTC,15m,BB_REVERSION_BULL,LONG,77976.92,77656.7996,78631.23,2.04,swing_level_sweet,4,79,MEDIUM,4,intraday (hours),41.4,216.7013,25.25,HH_HL,21,0.39,0,CLOSED,LOSS,0,77656.7996,79,,2026-05-02
+fa48e02309,2026-05-01T21:24:11.725302+00:00,BTC,15m,BB_REVERSION_BULL,LONG,77971.01,77787.4982,78631.23,3.6,swing_level,4,79,MEDIUM,6,intraday (hours),41.2,208.3727,25.61,HH_HL,21,0.32,0,CLOSED,LOSS,0,77787.4982,79,,2026-05-02
+0d117dd35a,2026-05-01T21:43:41.954859+00:00,BTC,15m,VWAP_BOUNCE_BULL,LONG,78092.63,77866.7599,78631.23,2.38,swing_level_sweet,4,79,MEDIUM,5,intraday (hours),46.28,209.5005,24.33,HH_HL,21,0.96,0,CLOSED,LOSS,0,77866.7599,79,,2026-05-02
