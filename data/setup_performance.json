@@ -43,10 +43,10 @@
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,
-    "losses": 2,
-    "total": 6,
-    "win_rate": 66.7,
-    "last_updated": "2026-04-14T11:50:53.833753"
+    "losses": 3,
+    "total": 7,
+    "win_rate": 57.1,
+    "last_updated": "2026-05-01T21:46:56.831246"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,
@@ -187,5 +187,12 @@
     "total": 2,
     "win_rate": 0.0,
     "last_updated": "2026-05-01T17:46:39.878014"
+  },
+  "BTC:BB_REVERSION_BULL": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-01T21:27:26.671947"
   }
 }

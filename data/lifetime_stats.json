@@ -1,23 +1,28 @@
 {
-  "total_sessions": 3,
-  "total_trades": 4,
-  "total_wins": 4,
-  "total_losses": 0,
-  "total_pnl_dollars": 1194.0,
+  "total_sessions": 4,
+  "total_trades": 7,
+  "total_wins": 5,
+  "total_losses": 2,
+  "total_pnl_dollars": 1375.49,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": 0.0,
   "best_setup_overall": "NQ:MEDIUM",
   "per_setup_stats": {
     "NQ:MEDIUM": {
       "wins": 3,
-      "losses": 0,
-      "pnl": 786.0
+      "losses": 1,
+      "pnl": 749.83
     },
     "NQ:HIGH": {
       "wins": 1,
       "losses": 0,
       "pnl": 408.0
+    },
+    "GC:HIGH": {
+      "wins": 1,
+      "losses": 1,
+      "pnl": 217.66
     }
   },
-  "last_updated": "2026-04-30T20:00:10.834803+00:00"
+  "last_updated": "2026-05-01T20:00:02.959726+00:00"
 }
