@@ -262,6 +262,10 @@ def _update_lifetime_stats(state: dict):
     """
     Update lifetime_stats.json with the finishing session's results.
     Task 3A: Always writes the file, even on zero-PnL / zero-trade sessions.
+
+    May 1: Tracks lifetime_balance (running total since combine started)
+    independently of the daily-reset session balance. Wayne wants to see
+    the combine progress in alerts/status, not just today's session P&L.
     """
     stats = _load_lifetime_stats()
 
@@ -281,6 +285,21 @@ def _update_lifetime_stats(state: dict):
     stats["total_wins"]        = stats.get("total_wins", 0) + wins
     stats["total_losses"]      = stats.get("total_losses", 0) + losses
     stats["total_pnl_dollars"] = round(stats.get("total_pnl_dollars", 0) + session_pnl, 2)
+
+    # May 1: lifetime balance tracking. The combine starting balance is set
+    # the first time we update lifetime stats; thereafter it stays fixed and
+    # the lifetime_balance rolls (start + cumulative pnl).
+    if "lifetime_starting_balance" not in stats:
+        stats["lifetime_starting_balance"] = float(state.get("starting_balance", 50_000.0))
+        stats["combine_started_at"] = datetime.now(timezone.utc).isoformat()
+    stats["lifetime_balance"] = round(
+        stats["lifetime_starting_balance"] + stats["total_pnl_dollars"], 2
+    )
+    # Track lifetime peak so we can show how far from peak the combine is.
+    stats["lifetime_peak_balance"] = max(
+        stats.get("lifetime_peak_balance", stats["lifetime_starting_balance"]),
+        stats["lifetime_balance"],
+    )
 
     if session_pnl > stats.get("best_session_pnl", float("-inf")):
         stats["best_session_pnl"] = round(session_pnl, 2)
@@ -310,8 +329,9 @@ def _update_lifetime_stats(state: dict):
     stats["last_updated"] = datetime.now(timezone.utc).isoformat()
     _save_lifetime_stats(stats)
     _log.info(
-        "Lifetime stats saved: sessions=%d, trades=%d, pnl=$%s",
-        stats["total_sessions"], stats["total_trades"], stats["total_pnl_dollars"]
+        "Lifetime stats saved: sessions=%d, trades=%d, pnl=$%s, balance=$%s",
+        stats["total_sessions"], stats["total_trades"],
+        stats["total_pnl_dollars"], stats.get("lifetime_balance", 0),
     )
 
 
@@ -332,7 +352,51 @@ def _load_lifetime_stats() -> dict:
         "worst_session_pnl": 0.0,
         "best_setup_overall": "N/A",
         "per_setup_stats": {},
+        # May 1: lifetime balance tracking (combine-level, not session-level).
+        "lifetime_starting_balance": 50_000.0,
+        "lifetime_balance":          50_000.0,
+        "lifetime_peak_balance":     50_000.0,
+        "combine_started_at":        "",
     }
+
+
+def get_lifetime_balance() -> float:
+    """
+    Return the running combine balance (start + cumulative P&L across all sessions).
+    Used by format_sim_block and bot.py for inline display in alerts.
+
+    Backward-compat (May 2 audit fix): older lifetime_stats.json files written
+    before the lifetime_balance fields existed only have total_pnl_dollars.
+    Reconstruct balance as starting_balance + total_pnl_dollars + today_pnl in
+    that case so the display works immediately, not just after the next 4 PM
+    close. The proper fields populate next time _update_lifetime_stats runs.
+    """
+    stats = _load_lifetime_stats()
+    # Get live session pnl ONCE (avoids two load_state calls)
+    try:
+        live_pnl = float(load_state().get("today_pnl", 0.0))
+    except Exception:
+        live_pnl = 0.0
+
+    # Path A: new-format file with lifetime_balance set
+    if stats.get("lifetime_balance"):
+        return round(float(stats["lifetime_balance"]) + live_pnl, 2)
+
+    # Path B: legacy file — reconstruct from total_pnl_dollars
+    starting = float(stats.get("lifetime_starting_balance", 50_000.0))
+    cum_pnl  = float(stats.get("total_pnl_dollars", 0.0))
+    return round(starting + cum_pnl + live_pnl, 2)
+
+
+def get_lifetime_pnl() -> float:
+    """Cumulative P&L since combine started (includes today's open session)."""
+    stats = _load_lifetime_stats()
+    cum = float(stats.get("total_pnl_dollars", 0.0))
+    try:
+        cum += float(load_state().get("today_pnl", 0.0))
+    except Exception:
+        pass
+    return round(cum, 2)
 
 
 def _save_lifetime_stats(stats: dict):
@@ -642,11 +706,17 @@ def auto_check_sim_trades(live_prices: dict) -> list:
 def format_sim_block(market: str, tier: str, entry: float, stop: float,
                      target: float, alert_id: str,
                      conviction: int = 70, regime: str = "UNKNOWN",
-                     setup_name: str = "UNKNOWN") -> str:
+                     setup_name: str = "UNKNOWN",
+                     context: Optional[dict] = None) -> str:
     """
     Returns the SIM MODE block for Telegram alerts.
     Shows intelligent sizing with full reasoning.
     Also opens a sim trade automatically.
+
+    Optional `context` dict matches the crypto_sim format and includes:
+      trend_score, rsi, adx, htf_bias, regime, session, news_flag, chart_read.
+    When provided, a "Context" line is appended so NQ/GC alerts mirror the
+    BTC/SOL crypto sim format.
     """
     state = load_state()
     if not state.get("enabled"):
@@ -717,8 +787,18 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     bar      = "\U0001f7e5" * bar_n + "\u2b1c" * (10 - bar_n)
     plus_dp2 = '+' if risk['daily_pnl'] >= 0 else ''
 
+    # May 1: lifetime balance line (combine-cumulative). Wayne wants to see
+    # whether the combine is up or down overall, not just today's session.
+    _life_bal = get_lifetime_balance()
+    _life_pnl = get_lifetime_pnl()
+    _life_pnl_sign = '+' if _life_pnl >= 0 else ''
+    _life_starting = float(_load_lifetime_stats().get("lifetime_starting_balance", 50_000.0))
+    _life_pct = ((_life_bal - _life_starting) / _life_starting * 100.0) if _life_starting > 0 else 0.0
+
     block = (
         f"\n\U0001f4b0 *SIM MODE \u2014 {label}*\n"
+        f"  \U0001f4b3 Session bal: `${risk['balance']:,.2f}` (resets each session)\n"
+        f"  \U0001f3c6 Combine bal: `${_life_bal:,.2f}` ({_life_pnl_sign}${_life_pnl:,.2f} | {_life_pct:+.1f}%)\n"
         f"  \U0001f4e6 Size: `{contracts}` {label}  |  Risk: `${total_risk:,.0f}` ({cushion_pct:.1f}% of cushion)\n"
         f"  \U0001f4b8 Reward est: `${total_reward:,.0f}`\n"
         f"  _{reasoning}_\n"
@@ -728,6 +808,20 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     )
     if used_pct >= 60:
         block += "\n  \u26a0\ufe0f Getting close to daily limit \u2014 be selective"
+
+    # Append context line (matches crypto_sim format) when caller supplies it.
+    # Wayne's ask (2026-04-29): show same trend/RSI/ADX/regime context on NQ/GC
+    # alerts that the crypto sim block already shows for BTC/SOL.
+    if context:
+        try:
+            _ctrend = context.get("trend_score", 0)
+            _crsi   = context.get("rsi", 0)
+            _cadx   = context.get("adx", 0)
+            _cregime = context.get("regime", "UNKNOWN")
+            block += f"\n  \U0001f4ca Context: Trend `{_ctrend:+d}` | RSI {_crsi} | ADX {_cadx} | {_cregime}"
+        except Exception:
+            pass
+
     return block
 
 # ── Settings helpers ──────────────────────────────────────────────
@@ -791,18 +885,53 @@ def sim_status_text() -> str:
     plus_tp  = '+' if risk['total_profit'] >= 0 else ''
     plus_dp  = '+' if risk['daily_pnl'] >= 0 else ''
     status_txt = 'Ready' if risk['can_trade'] else '\u26a0\ufe0f NEAR LIMITS \u2014 be careful'
+
+    # May 1: lifetime stats — combine-level, persist across daily resets.
+    # May 2 audit: backward-compat for legacy stats files missing lifetime_*
+    # fields. Use total_pnl_dollars to reconstruct what we can.
+    life_stats = _load_lifetime_stats()
+    life_bal  = get_lifetime_balance()
+    life_pnl  = get_lifetime_pnl()
+    # Starting balance: prefer lifetime field, fall back to current sim start.
+    life_start = float(
+        life_stats.get("lifetime_starting_balance")
+        or state.get("starting_balance", 50_000.0)
+    )
+    # Peak: prefer recorded lifetime peak; legacy files don't have one, so use
+    # max(starting, current bal) as a safe lower bound. Real peak fills in next
+    # session close. Note: we deliberately don't use "best_session_pnl" because
+    # that's per-session, not cumulative.
+    life_peak = float(life_stats.get("lifetime_peak_balance") or max(life_start, life_bal))
+    life_pct   = ((life_bal - life_start) / life_start * 100.0) if life_start > 0 else 0.0
+    life_sessions = int(life_stats.get("total_sessions", 0))
+    life_trades   = int(life_stats.get("total_trades", 0))
+    life_wins     = int(life_stats.get("total_wins", 0))
+    life_losses   = int(life_stats.get("total_losses", 0))
+    life_wr       = round(life_wins / max(1, life_wins + life_losses) * 100, 1)
+    life_pnl_str  = f"+${life_pnl:,.2f}" if life_pnl >= 0 else f"-${abs(life_pnl):,.2f}"
+    life_drawdown = max(0.0, life_peak - life_bal)
+    # Profit target progress: how close we are to combine pass.
+    target_amt = float(state.get("profit_target", 3_000.0))
+    target_pct = round(min(100.0, max(0.0, (life_pnl / max(1, target_amt)) * 100.0)), 1)
+
     return (
         f"\U0001f4b0 *Sim Account \u2014 {preset} Eval*\n"
         f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
-        f"*Balance:* `${risk['balance']:,.2f}`\n"
-        f"*Total P&L:* `${plus_tp}{risk['total_profit']:,.2f}`\n"
+        f"\U0001f3c6 *COMBINE LIFETIME*\n"
+        f"  Balance:   `${life_bal:,.2f}` ({life_pct:+.1f}%)\n"
+        f"  Total P&L: `{life_pnl_str}`\n"
+        f"  Target:    `{target_pct:.1f}%` of `${target_amt:,.0f}` profit goal\n"
+        f"  Peak:      `${life_peak:,.2f}` (drawdown: `${life_drawdown:,.2f}`)\n"
+        f"  Sessions:  `{life_sessions}` | Trades: `{life_trades}` ({life_wins}W/{life_losses}L \u2014 {life_wr}% WR)\n"
         f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
-        f"*Today P&L:* `${plus_dp}{risk['daily_pnl']:,.2f}`\n"
-        f"*Daily left:* `${risk['daily_left']:,.2f}` ({100-risk['daily_used_pct']:.0f}% remaining)\n"
-        f"*Cushion left:* `${risk['dd_left']:,.2f}` ({100-risk['dd_used_pct']:.0f}% remaining)\n"
+        f"\U0001f4c5 *TODAY'S SESSION*\n"
+        f"  Balance:    `${risk['balance']:,.2f}` (resets at 4PM ET close)\n"
+        f"  Today P&L:  `${plus_dp}{risk['daily_pnl']:,.2f}`\n"
+        f"  Daily left: `${risk['daily_left']:,.2f}` ({100-risk['daily_used_pct']:.0f}% remaining)\n"
+        f"  Cushion:    `${risk['dd_left']:,.2f}` ({100-risk['dd_used_pct']:.0f}% remaining)\n"
         f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
         f"*Contract:* `{label}` | *Open trades:* `{open_t}`\n"
-        f"*Closed:* `{len(closed)}` ({wins}W/{losses}L \u2014 {wr}% WR)\n"
+        f"*Closed today:* `{len(closed)}` ({wins}W/{losses}L \u2014 {wr}% WR)\n"
         f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
         f"{status_icon} *Status:* {status_txt}"
     )
