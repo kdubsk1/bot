@@ -511,11 +511,8 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
         f"🎯 *Target:* `{round(target,4)}` ({safe_method}, {round(rr,2)}R)\n"
     )
 
-    if lev is not None:
-        msg += f"📊 *Leverage:* `{lev}x`  (risk: {risk_at_stop}%)\n"
-    if hold:
-        msg += f"⏱ *Hold:* {_md(hold)}\n"
-
+    # Wave 5: leverage and hold moved BELOW size so the trading triangle
+    # (entry / stop / target / size) is visually grouped at top.
     # ── Contract size — capped at 5 MNQ or 1 NQ ──────────────────
     size_line = ""
     if market in ("BTC", "SOL"):
@@ -548,6 +545,12 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
 
     if size_line:
         msg += f"{size_line}\n"
+
+    # Wave 5: leverage + hold moved here (below size, above chart read)
+    if lev is not None:
+        msg += f"📊 *Leverage:* `{lev}x`  (risk: {risk_at_stop}%)\n"
+    if hold:
+        msg += f"⏱ *Hold:* {_md(hold)}\n"
 
     msg += f"━━━━━━━━━━━━━━━━━━\n📋 *Chart Read:*\n{_md(setup['detail'])}\n━━━━━━━━━━━━━━━━━━\n"
     if extra_footer:
@@ -730,6 +733,12 @@ async def scan_market(app, market, frames):
             df15 = frames.get("15m")
             if df15 is not None and not df15.empty:
                 cur_price = float(df15["Close"].iloc[-1])
+                # Wave 5: reconcile against outcomes.csv first so we don't
+                # double-close trades that auto-resolve already closed.
+                try:
+                    crypto_sim.reconcile_with_outcomes()
+                except Exception as _re:
+                    log.warning(f"[{market}] crypto reconcile in scan: {_re}")
                 closed_crypto = crypto_sim.auto_check_crypto_trades(
                     {market: cur_price},
                     {market: frames},
@@ -2325,6 +2334,32 @@ async def cmd_analyze(u,c):
 
 async def cmd_simstatus(u,c): await u.message.reply_text(sim.sim_status_text(),parse_mode="Markdown")
 
+async def cmd_cryptostatus(u, c):
+    """
+    May 2 Wave 5: /cryptostatus shows the crypto sim build-up account separately.
+    Mirrors /simstatus but reads from crypto_sim.json (BTC/SOL).
+
+    The crypto sim has different rules:
+      - $1,000 starting balance, no daily reset
+      - 1.5% risk per trade, 10x leverage
+      - Max hold 7 days
+      - Profit target $1,500 (50% gain)
+    """
+    try:
+        # Reconcile any stale open trades from outcomes.csv before showing.
+        # If a trade closed via auto-resolve but didn't propagate to crypto_sim,
+        # this catches it so the displayed open count is accurate.
+        try:
+            n_rec = crypto_sim.reconcile_with_outcomes()
+            if n_rec:
+                log.info(f"/cryptostatus: reconciled {n_rec} stale crypto trade(s)")
+        except Exception as _re:
+            log.warning(f"/cryptostatus reconcile: {_re}")
+        await u.message.reply_text(crypto_sim.get_crypto_status_text(), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/cryptostatus failed: {e}")
+        await u.message.reply_text(f"Crypto status command failed: {e}")
+
 async def cmd_simreset(u,c):
     preset=c.args[0] if c.args else None
     valid=list(sim.EVAL_PRESETS.keys())
@@ -3017,6 +3052,17 @@ async def _post_init(app):
         else:
             log.info("Scanner FORCE-OFF on boot (SCANNER_FORCE_OFF_ON_BOOT=true) — already OFF")
 
+    # May 2 Wave 5: reconcile any stale crypto open_trades against outcomes.csv.
+    # If outcome_tracker.py auto-resolved a stop/target hit but didn't propagate
+    # the close to crypto_sim, this catches it on startup so the open_trades
+    # array reflects reality.
+    try:
+        n_reconciled = crypto_sim.reconcile_with_outcomes()
+        if n_reconciled > 0:
+            log.info(f"Startup reconcile: closed {n_reconciled} stale crypto trade(s) from outcomes.csv")
+    except Exception as e:
+        log.warning(f"Startup crypto reconcile failed (non-fatal): {e}")
+
     # TopstepX probe (primary data source for NQ/GC)
     tsx_result = {"auth": False, "nq_contract": None, "gc_contract": None, "nq_bars_15m": 0, "gc_bars_15m": 0}
     try:
@@ -3488,7 +3534,7 @@ def main():
     app=Application.builder().token(TELEGRAM_TOKEN).post_init(_post_init).build()
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),

@@ -30,6 +30,7 @@ DEFAULT_STATE = {
     "balance":           1000.0,
     "starting_balance":  1000.0,
     "peak_balance":      1000.0,
+    "profit_target":     1500.0,   # May 2: $1.5k = 50% gain target on the $1k starting bal
     "leverage":          10,
     "account_risk_pct":  1.5,
     "max_hold_days":     7,
@@ -334,16 +335,117 @@ def format_crypto_sim_block(market: str, tier: str,
     risk_pct_disp = float(state["account_risk_pct"])
     max_hold_days = int(state["max_hold_days"])
 
+    # May 2 Wave 5: surface lifetime stats inline so the alert tells the
+    # whole story without needing /cryptostatus. Wayne flagged that the
+    # alert balance "doesn't update" feeling — it does, but the lifetime
+    # context wasn't visible per-alert.
+    starting     = float(state.get("starting_balance", 1000.0))
+    pct_lifetime = ((bal - starting) / starting * 100.0) if starting > 0 else 0.0
+    total_pnl    = float(state.get("total_pnl", 0.0))
+    total_pnl_s  = f"+${total_pnl:,.2f}" if total_pnl >= 0 else f"-${abs(total_pnl):,.2f}"
+    wins_l       = int(state.get("wins", 0))
+    losses_l     = int(state.get("losses", 0))
+    n_l          = wins_l + losses_l
+    wr_l         = (wins_l / n_l * 100.0) if n_l > 0 else 0.0
+    peak_bal     = float(state.get("peak_balance", bal))
+    drawdown     = max(0.0, peak_bal - bal)
+    profit_tgt   = float(state.get("profit_target", 1500.0))
+    tgt_progress = max(0.0, min(100.0, ((bal - starting) / max(1.0, profit_tgt - starting)) * 100.0))
+    bal_icon     = "🟢" if total_pnl >= 0 else "🔴"
+
     lines = [
         "🪙 *CRYPTO SIM — Position Opened*",
-        f"  Size: `${position_size_usd:,.2f}` → `${notional_usd:,.2f}` notional ({lev}x leverage)",
-        f"  Risk: `${risk_dollars:,.2f}` ({risk_pct_disp:.1f}%) | Max hold: {max_hold_days} days",
-        f"  Reward est: `${reward_est:,.2f}` ({rr:.2f}R if target hits)",
-        f"  Balance: `${bal:,.2f}` → New trade tracked",
-        "",
+        f"  📦 Size: `${position_size_usd:,.2f}` → `${notional_usd:,.2f}` notional ({lev}x lev)",
+        f"  🎯 Risk: `${risk_dollars:,.2f}` ({risk_pct_disp:.1f}%) | Max hold: {max_hold_days}d",
+        f"  💰 Reward: `${reward_est:,.2f}` ({rr:.2f}R if target hits)",
+        "  ━━━━━━━━━━━━",
+        f"  {bal_icon} *Lifetime:* `${bal:,.2f}` ({pct_lifetime:+.1f}% all-time)",
+        f"  *Total P&L:* `{total_pnl_s}`  |  *WR:* `{wr_l:.1f}%` ({wins_l}W/{losses_l}L)",
+        f"  *Peak:* `${peak_bal:,.2f}`  |  *Drawdown:* `${drawdown:,.2f}`",
+        f"  *Target:* `{tgt_progress:.1f}%` of `${profit_tgt:,.0f}` goal",
+        "  ━━━━━━━━━━━━",
         f"  📊 Context: Trend `{trend}` | RSI {rsi} | ADX {adx} | {regime}",
     ]
     return "\n".join(lines)
+
+
+# ── Reconcile with outcomes.csv (Wave 5 stale-trade fix) ────────────
+def reconcile_with_outcomes() -> int:
+    """
+    Wave 5 fix for the stale crypto open_trades issue.
+
+    The bot has two systems that close trades independently:
+      - outcome_tracker.py writes results to outcomes.csv (the source of truth)
+      - crypto_sim.py tracks paper sim positions in crypto_sim.json
+
+    When outcome_tracker closes a trade via auto-resolve (stop hit / target hit
+    on a future bar), it doesn't always reach back into crypto_sim to close
+    the matching open_trade. Result: open_trades grows stale even though the
+    balance and total_pnl are correct (the close path runs SOME of the time).
+
+    This function walks any open_trade and asks outcomes.csv: "is this alert
+    actually closed? if so, close it here too with the correct exit/result."
+
+    Returns the number of trades reconciled. Safe to call repeatedly — no-ops
+    when everything is already in sync.
+    """
+    state = load_crypto_state()
+    if not state.get("open_trades"):
+        return 0
+
+    outcomes_path = os.path.join(_BASE_DIR, "outcomes.csv")
+    if not os.path.exists(outcomes_path):
+        return 0
+
+    # Read outcomes.csv into a dict of {alert_id: (status, result, exit_price)}
+    # Only the LAST occurrence of each alert_id matters (most recent state).
+    closed_lookup = {}
+    try:
+        with open(outcomes_path, "r", encoding="utf-8") as f:
+            header_line = f.readline()
+            cols = [c.strip() for c in header_line.strip().split(",")]
+            try:
+                idx_id     = cols.index("alert_id")
+                idx_status = cols.index("status")
+                idx_result = cols.index("result")
+                idx_exit   = cols.index("exit_price")
+            except ValueError:
+                _log.warning("reconcile_with_outcomes: missing required columns in outcomes.csv")
+                return 0
+            for line in f:
+                row = line.strip().split(",")
+                if len(row) <= max(idx_id, idx_status, idx_result, idx_exit):
+                    continue
+                aid    = row[idx_id]
+                status = row[idx_status]
+                result = row[idx_result]
+                ep_raw = row[idx_exit]
+                if status != "CLOSED":
+                    continue
+                try:
+                    exit_price = float(ep_raw) if ep_raw else 0.0
+                except Exception:
+                    exit_price = 0.0
+                if exit_price > 0:
+                    closed_lookup[aid] = (status, result, exit_price)
+    except Exception as e:
+        _log.warning("reconcile_with_outcomes: failed to read outcomes.csv: %s", e)
+        return 0
+
+    # Walk open_trades and close any that are CLOSED in outcomes.csv
+    reconciled = 0
+    for t in list(state["open_trades"]):
+        aid = t.get("alert_id")
+        if aid in closed_lookup:
+            _, result, exit_price = closed_lookup[aid]
+            r = close_crypto_trade(aid, exit_price, result, "outcomes_reconcile")
+            if r is not None:
+                reconciled += 1
+                _log.info("reconcile_with_outcomes: closed stale crypto trade %s "
+                          "(%s %s, result=%s, exit=%.4f)",
+                          aid, t.get("market"), t.get("direction"),
+                          result, exit_price)
+    return reconciled
 
 
 # ── Status text ────────────────────────────────────────────────────
@@ -392,23 +494,39 @@ def get_crypto_status_text() -> str:
         setup = ctx.get("chart_read", "")
         return f"{m} {setup[:40]}" if setup else m
 
+    # May 2 Wave 5: mirror /simstatus two-section format
+    peak_bal   = float(state.get("peak_balance", bal))
+    drawdown   = max(0.0, peak_bal - bal)
+    profit_tgt = float(state.get("profit_target", 1500.0))
+    tgt_progress = max(0.0, min(100.0, ((bal - start) / max(1.0, profit_tgt - start)) * 100.0))
+    bal_icon = "🟢" if total_pnl >= 0 else "🔴"
+
     lines = [
-        "🪙 *CRYPTO SIM — Build-Up Account*",
+        "🪙 *Crypto Sim — Build-Up Account*",
         "━━━━━━━━━━━━━━━━━━",
-        f"Balance: `${bal:,.2f}` ({pct:+.1f}% all-time)",
-        f"Total P&L: `{pnl_str}`",
+        "🏆 *LIFETIME STATS*",
+        f"  {bal_icon} Balance:   `${bal:,.2f}` ({pct:+.1f}%)",
+        f"  Total P&L:    `{pnl_str}`",
+        f"  Target:       `{tgt_progress:.1f}%` of `${profit_tgt:,.0f}` goal",
+        f"  Peak:         `${peak_bal:,.2f}`  (drawdown: `${drawdown:,.2f}`)",
+        f"  Trades:       `{n}` ({wins}W/{losses}L — {wr:.1f}% WR)",
         "━━━━━━━━━━━━━━━━━━",
-        f"Open: `{len(open_trades)}` trades",
+        "📂 *OPEN POSITIONS*",
+        f"  Currently open: `{len(open_trades)}` trade(s)",
     ]
-    lines.extend(open_lines)
-    lines.append("━━━━━━━━━━━━━━━━━━")
-    lines.append(f"Closed: {wins}W / {losses}L ({wr:.1f}% WR over {n} trades)")
-    if best is not None:
-        bp, bt = best
-        b_sign = f"+${bp:,.2f}" if bp >= 0 else f"-${abs(bp):,.2f}"
-        lines.append(f"Best trade: {b_sign} ({_trade_label(bt)})")
-    if worst is not None:
-        wp, wt = worst
-        w_sign = f"+${wp:,.2f}" if wp >= 0 else f"-${abs(wp):,.2f}"
-        lines.append(f"Worst: {w_sign} ({_trade_label(wt)})")
+    if open_lines:
+        lines.extend(open_lines)
+    else:
+        lines.append("  (none)")
+    if best is not None or worst is not None:
+        lines.append("━━━━━━━━━━━━━━━━━━")
+        lines.append("🏅 *RECORD HOLDERS*")
+        if best is not None:
+            bp, bt = best
+            b_sign = f"+${bp:,.2f}" if bp >= 0 else f"-${abs(bp):,.2f}"
+            lines.append(f"  Best:  {b_sign} ({_trade_label(bt)})")
+        if worst is not None:
+            wp, wt = worst
+            w_sign = f"+${wp:,.2f}" if wp >= 0 else f"-${abs(wp):,.2f}"
+            lines.append(f"  Worst: {w_sign} ({_trade_label(wt)})")
     return "\n".join(lines)
