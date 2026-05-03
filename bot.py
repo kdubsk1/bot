@@ -176,8 +176,17 @@ def _mark_cooldown(market: str, setup_type: str):
 # two near-identical alerts fired 2 minutes apart, both lost. The shadow-only
 # cooldown system never blocked them. This is a HARD guard — even if the
 # cooldown is shadow-logged, this prevents the actual fire.
-_RECENT_FIRES: dict = {}  # (market, setup_type, direction) -> datetime UTC
+#
+# May 1 broadening (after the BTC SHORT $210 loss today):
+# the original guard was keyed on (market, setup_type, direction). When BTC
+# fired BREAK_RETEST_BEAR + APPROACH_RESIST 2 minutes apart, both shorts hit
+# stop. The setup_type was different so the dup-guard didn't fire. We now
+# layer a SECOND, broader guard: (market, direction) for 30 min, independent
+# of setup_type. Same direction, same market, within 30 min = blocked, period.
+_RECENT_FIRES: dict = {}              # (market, setup_type, direction) -> datetime UTC (10 min)
+_RECENT_DIRECTION_FIRES: dict = {}    # (market, direction) -> datetime UTC (30 min)
 _RECENT_FIRE_WINDOW_MIN = 10
+_RECENT_DIRECTION_WINDOW_MIN = 30
 
 def _recent_fire_blocked(market: str, setup_type: str, direction: str) -> bool:
     """True if this exact alert (market+setup+direction) fired in last 10 min."""
@@ -187,8 +196,17 @@ def _recent_fire_blocked(market: str, setup_type: str, direction: str) -> bool:
         return False
     return datetime.now(timezone.utc) - last < timedelta(minutes=_RECENT_FIRE_WINDOW_MIN)
 
+def _recent_direction_blocked(market: str, direction: str) -> bool:
+    """True if same market+direction (any setup) fired in last 30 min. May 1 broadening."""
+    key = (market, direction)
+    last = _RECENT_DIRECTION_FIRES.get(key)
+    if last is None:
+        return False
+    return datetime.now(timezone.utc) - last < timedelta(minutes=_RECENT_DIRECTION_WINDOW_MIN)
+
 def _mark_recent_fire(market: str, setup_type: str, direction: str):
     _RECENT_FIRES[(market, setup_type, direction)] = datetime.now(timezone.utc)
+    _RECENT_DIRECTION_FIRES[(market, direction)] = datetime.now(timezone.utc)
 
 # ── Active setup deduplication ────────────────────────────────────
 ACTIVE_FILE = os.path.join(BASE_DIR, "data", "active_setups.json")
@@ -1435,6 +1453,26 @@ async def scan_market(app, market, frames):
                 _sample_reject_log(market, entry_tf, stp["type"], _conv_reason)
                 continue
 
+            # May 1 news-window tightening: when news_flag is True, raise the
+            # conviction floor by 10. The 15m timeframe is already blocked above
+            # (entry_tf=="15m" and news_flag continues), so this primarily affects
+            # 1h/4h setups during news. Born of the BTC SHORT loss pattern from
+            # Apr 30 — the bot fired multiple shorts during news windows when
+            # volatility spikes can fake out structural setups.
+            if news_flag:
+                _news_floor = cfg.MIN_CONVICTION + 10
+                if conv < _news_floor:
+                    sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                        cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                        trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                        sl.DECISION_REJECTED,
+                        f"News-window: conviction {conv} below tightened floor {_news_floor} (base {cfg.MIN_CONVICTION} + 10) — high-impact news active, requiring stronger signal",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                        score_breakdown=bd_final)
+                    _sample_reject_log(market, entry_tf, stp["type"], f"news floor {conv}<{_news_floor}")
+                    continue
+
             dd_pct = sim_risk.get("daily_used_pct", 0)
             if dd_pct > 75:
                 if conv < 90:
@@ -1480,6 +1518,21 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
                 log.info(f"[{market}] [{entry_tf}] DUP-GUARD blocked {stp['type']} {stp['direction']} (within {_RECENT_FIRE_WINDOW_MIN} min)")
+                continue
+
+            # May 1 broader dup-guard: block same market+direction (any setup) within 30 min.
+            # Prevents the BTC SHORT $210 loss pattern (BREAK_RETEST_BEAR + APPROACH_RESIST
+            # firing 2 min apart, different setup types but same direction).
+            if _recent_direction_blocked(market, stp["direction"]):
+                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                    cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                    sl.DECISION_REJECTED,
+                    f"Dup-guard (direction): {market} {stp['direction']} — another short/long fired within last {_RECENT_DIRECTION_WINDOW_MIN} min — blocking same-direction stack",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    score_breakdown=bd_final)
+                log.info(f"[{market}] [{entry_tf}] DUP-GUARD-DIR blocked {stp['type']} {stp['direction']} (within {_RECENT_DIRECTION_WINDOW_MIN} min)")
                 continue
 
             alert_id = ot.log_alert({
@@ -3391,6 +3444,43 @@ async def cmd_setups(u, c):
         log.error(f"/setups failed: {e}")
         await u.message.reply_text(f"❌ Setups command failed: {e}")
 
+
+async def cmd_journal(u, c):
+    """
+    May 2: /journal -- show the last 10 lessons learned from closed trades.
+    Optional argument /journal 25 shows last 25.
+    Each closed trade auto-writes one entry. Read it to remember WHY trades
+    failed and which setups consistently win.
+    """
+    try:
+        limit = 10
+        if c and c.args:
+            try:
+                limit = max(1, min(50, int(c.args[0])))
+            except Exception:
+                limit = 10
+        text = ot.format_journal_text(limit=limit)
+        # Telegram has 4096 char limit -- chunk if needed
+        if len(text) <= 4000:
+            await u.message.reply_text(text, parse_mode="Markdown")
+        else:
+            # Split on blank lines so we don't break mid-entry
+            chunks = []
+            current = ""
+            for line in text.split("\n"):
+                if len(current) + len(line) + 1 > 3800:
+                    chunks.append(current)
+                    current = line
+                else:
+                    current = (current + "\n" + line) if current else line
+            if current:
+                chunks.append(current)
+            for chunk in chunks:
+                await u.message.reply_text(chunk, parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/journal failed: {e}")
+        await u.message.reply_text(f"❌ Journal command failed: {e}")
+
 def main():
     log.info("NQ CALLS Bot starting...")
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
@@ -3405,7 +3495,8 @@ def main():
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
-                   ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag)]:
+                   ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
+                   ("journal",cmd_journal)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
