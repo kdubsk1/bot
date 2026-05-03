@@ -83,13 +83,21 @@ def get_account_risk_pct() -> float:
 # ------------------------------------------------------------------ #
 SUSPENDED_SETUPS_FILE = os.path.join(_BASE_DIR, "data", "suspended_setups.json")
 
-# Thresholds (Apr 30 tightened — bad setups were staying active too long.
-# 0W/5L setups bled $300 overnight before suspension fired. Lower bar:
-# 4 trades minimum to judge (was 5), 40% WR floor (was 35%).
-# Restore threshold raised to 50% to require real recovery, not lucky bounce.)
-_SUSPEND_MIN_TRADES = 4       # need at least this many trades to judge
-_SUSPEND_WR_BELOW   = 40.0    # suspend if win_rate < this
+# Thresholds (May 2 tightened further after the BTC $210 loss exposed that
+# 4-trade-minimum was still too lenient. Setups bleeding from a tiny sample
+# size will keep firing through the threshold until they hit it. New rules:
+#   - 3 trades minimum to judge (was 4)
+#   - 35% WR floor (was 40%) - tighter on small samples
+#   - 50% restore (unchanged) - keeps the recovery bar honest
+#   - NEW: dollar-bleeding gate. Any setup that has lost $200+ in last 7
+#     days gets suspended REGARDLESS of WR. WR can hide a $300 loss as a
+#     33% WR (1W/2L) with one big win and two big losses. Dollar tracking
+#     catches that. See _check_dollar_bleed below.
+_SUSPEND_MIN_TRADES = 3       # need at least this many trades to judge (May 2: was 4)
+_SUSPEND_WR_BELOW   = 35.0    # suspend if win_rate < this (May 2: was 40)
 _RESTORE_WR_ABOVE   = 50.0    # restore if recent win_rate climbs above this
+_SUSPEND_DOLLAR_BLEED = 200.0 # May 2: suspend if setup lost this much in 7 days
+_DOLLAR_BLEED_WINDOW_DAYS = 7
 
 
 def get_suspended_setups() -> dict:
@@ -120,40 +128,107 @@ def is_setup_suspended(market: str, setup: str) -> bool:
 
 def check_and_update_suspensions() -> list[str]:
     """
-    Core suspension engine.  Reads setup_performance.json.
-    - If total >= 5 AND win_rate < 35%: suspend it.
-    - If already suspended AND win_rate climbs back above 45%: restore it.
+    Core suspension engine.  Reads setup_performance.json AND outcomes.csv.
+    May 2 update: now checks BOTH win rate AND dollar bleed in last 7 days.
+
+    Suspends if EITHER:
+      - total >= 3 AND win_rate < 35% (the WR gate)
+      - lost > $200 in last 7 days (the dollar gate, NEW)
+    Restores if win_rate climbs back above 50%.
     Returns list of change strings for logging/Telegram.
-    Saves updated suspended_setups.json.
     """
     perf = _load_performance()
     suspended = get_suspended_setups()
     changes: list[str] = []
 
-    for key, data in perf.items():
+    # May 2: build dollar-bleed map from last N days of outcomes.csv
+    bleed_by_setup = _compute_dollar_bleed(_DOLLAR_BLEED_WINDOW_DAYS)
+
+    # Combine perf keys and bleed keys so both gates are evaluated
+    all_keys = set(perf.keys()) | set(bleed_by_setup.keys())
+
+    for key in all_keys:
+        data   = perf.get(key, {})
         wins   = data.get("wins", 0)
         losses = data.get("losses", 0)
         total  = data.get("total", wins + losses)
-        wr     = round(wins / max(1, total) * 100, 1)
+        wr     = round(wins / max(1, total) * 100, 1) if total else 0.0
+        bleed  = bleed_by_setup.get(key, 0.0)  # negative number = lost money
 
         if key in suspended:
-            # Already suspended — check for restoration
-            if total >= _SUSPEND_MIN_TRADES and wr >= _RESTORE_WR_ABOVE:
+            # Already suspended -- check for restoration. Require BOTH:
+            # WR back above threshold AND no recent dollar bleed.
+            if total >= _SUSPEND_MIN_TRADES and wr >= _RESTORE_WR_ABOVE and bleed > -_SUSPEND_DOLLAR_BLEED:
                 del suspended[key]
-                changes.append(f"RESTORED {key} ({wr}% WR, {total} trades)")
+                changes.append(f"RESTORED {key} ({wr}% WR, {total} trades, ${bleed:+.0f} 7d)")
         else:
-            # Not suspended — check if it should be
-            if total >= _SUSPEND_MIN_TRADES and wr < _SUSPEND_WR_BELOW:
+            # Not suspended -- check both gates
+            wr_gate    = total >= _SUSPEND_MIN_TRADES and wr < _SUSPEND_WR_BELOW
+            bleed_gate = bleed <= -_SUSPEND_DOLLAR_BLEED  # bleed is negative
+            if wr_gate or bleed_gate:
+                reason_parts = []
+                if wr_gate:    reason_parts.append(f"{wins}W/{losses}L ({wr}% WR)")
+                if bleed_gate: reason_parts.append(f"bled ${abs(bleed):.0f} in {_DOLLAR_BLEED_WINDOW_DAYS}d")
+                reason_str = " + ".join(reason_parts)
                 suspended[key] = {
-                    "reason":       f"{wins}W/{losses}L ({wr}% WR)",
-                    "suspended_at": datetime.now(timezone.utc).isoformat(),
+                    "reason":              reason_str,
+                    "suspended_at":        datetime.now(timezone.utc).isoformat(),
                     "total_at_suspension": total,
                     "wr_at_suspension":    wr,
+                    "bleed_at_suspension": round(bleed, 2),
                 }
-                changes.append(f"SUSPENDED {key} ({wins}W/{losses}L, {wr}% WR)")
+                changes.append(f"SUSPENDED {key} ({reason_str})")
 
     _save_suspended_setups(suspended)
     return changes
+
+
+def _compute_dollar_bleed(days: int = 7) -> dict:
+    """
+    May 2: compute approximate $ bleed per setup from last N days of outcomes.
+    Uses RR multiples * standard $100 risk-per-trade as the proxy when no
+    explicit pnl column exists. Returns dict like {"BTC:VWAP_REJECT_BEAR": -300.0}.
+
+    Why $100 risk proxy:
+      - outcomes.csv doesn't store $ pnl directly (it stores RR)
+      - $100 is the typical risk used in the sim (1.5% of $50k cushion-adjusted)
+      - Direction of the number is what matters most (bleed vs profit)
+    """
+    bleed: dict = {}
+    try:
+        rows = _read_all()
+    except Exception:
+        return bleed
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    for r in rows:
+        if r.get("status") != "CLOSED":
+            continue
+        result = r.get("result", "")
+        if result not in ("WIN", "LOSS"):
+            continue
+        ts_str = r.get("timestamp", "")
+        try:
+            ts = datetime.fromisoformat(ts_str)
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        if ts < cutoff:
+            continue
+
+        market = r.get("market", "?")
+        setup  = r.get("setup", "?")
+        key    = f"{market}:{setup}"
+        try:
+            rr = float(r.get("rr", 0))
+        except Exception:
+            rr = 0.0
+        # Standard 1R risk = $100 in our sim. Win = +rr*$100, Loss = -$100.
+        dollar_est = (rr * 100.0) if result == "WIN" else -100.0
+        bleed[key] = round(bleed.get(key, 0.0) + dollar_est, 2)
+
+    return bleed
 
 
 def get_suspension_report() -> str:
@@ -1584,9 +1659,150 @@ def _log_trade_outcome(trade_row: dict, result: str, exit_price: float):
         except Exception as _ufr_e:
             import logging
             logging.getLogger("nqcalls").debug(f"update_fired_row_result: {_ufr_e}")
+
+        # May 2: per-trade learning journal. Every closed trade writes a
+        # learnings.jsonl entry so we build a compounding diary of what
+        # worked and what didn't. Read with /journal in Telegram.
+        try:
+            _write_learning_entry(trade_row, result, exit_p, pts, held_hours)
+        except Exception as _jl_e:
+            import logging
+            logging.getLogger("nqcalls").debug(f"_write_learning_entry: {_jl_e}")
     except Exception as e:
         import logging
         logging.getLogger("nqcalls").debug(f"_log_trade_outcome error: {e}")
+
+
+# ------------------------------------------------------------------ #
+# May 2: Learning Journal (Fix #5)
+# Every closed trade auto-writes a learnings entry. Append-only JSONL
+# so we build a compounding diary. /journal Telegram command reads this.
+# ------------------------------------------------------------------ #
+LEARNINGS_FILE = os.path.join(_BASE_DIR, "data", "learnings.jsonl")
+
+
+def _write_learning_entry(trade_row: dict, result: str, exit_p: float,
+                          pts: float, held_hours):
+    """
+    Write one learnings entry per closed trade. JSONL format so we can
+    append safely without rewriting and parse line-by-line.
+
+    Each entry captures: trade context, what fired it, what happened,
+    and a one-line lesson based on the result.
+    """
+    try:
+        market = trade_row.get("market", "?")
+        setup  = trade_row.get("setup", "?")
+        direction = trade_row.get("direction", "?")
+        entry  = float(trade_row.get("entry", 0) or 0)
+        conv   = int(float(trade_row.get("conviction", 0) or 0))
+        tier   = trade_row.get("tier", "?")
+        rr     = float(trade_row.get("rr", 0) or 0)
+        adx_v  = float(trade_row.get("adx", 0) or 0)
+        rsi_v  = float(trade_row.get("rsi", 0) or 0)
+        vol    = float(trade_row.get("vol_ratio", 0) or 0)
+        htf    = trade_row.get("htf_bias", "?")
+        news   = bool(int(trade_row.get("news_flag", 0) or 0))
+        ts_open = trade_row.get("timestamp", "")
+
+        # Build a short, honest lesson from the outcome
+        lesson_bits = []
+        if result == "LOSS":
+            if conv < 70:
+                lesson_bits.append(f"low conviction ({conv}) - tighter floor needed")
+            if adx_v < 18:
+                lesson_bits.append(f"low ADX ({adx_v:.1f}) - market was choppy")
+            if news:
+                lesson_bits.append("news window - structural setups fake out on volatility spikes")
+            if vol < 0.8:
+                lesson_bits.append(f"thin volume ({vol:.1f}x) - no institutional participation")
+            if ("BEAR" in setup and htf == "HH_HL") or ("BULL" in setup and htf == "LH_LL"):
+                lesson_bits.append(f"counter-trend trade vs HTF {htf} - directional bias too strong")
+            if not lesson_bits:
+                lesson_bits.append("clean loss in a real-looking setup - check entry timing, maybe wait for more confirmation")
+        else:  # WIN
+            if conv >= 80:
+                lesson_bits.append(f"HIGH tier conviction ({conv}) delivered as expected")
+            if rr >= 2.5:
+                lesson_bits.append(f"big RR ({rr:.1f}) winner - high-quality structural target")
+            if ("BULL" in setup and htf == "HH_HL") or ("BEAR" in setup and htf == "LH_LL"):
+                lesson_bits.append(f"trend-aligned with HTF {htf} - go-with-the-flow win")
+            if not lesson_bits:
+                lesson_bits.append("clean win - keep doing this")
+
+        entry_obj = {
+            "timestamp":    datetime.now(timezone.utc).isoformat(),
+            "opened_at":    ts_open,
+            "market":       market,
+            "setup":        setup,
+            "direction":    direction,
+            "result":       result,
+            "entry":        round(entry, 4),
+            "exit":         round(float(exit_p), 4),
+            "points":       round(float(pts), 4),
+            "rr_planned":   round(rr, 2),
+            "rr_actual":    round(rr if result == "WIN" else -1.0, 2),
+            "conviction":   conv,
+            "tier":         tier,
+            "adx":          round(adx_v, 1),
+            "rsi":          round(rsi_v, 1),
+            "vol_ratio":    round(vol, 2),
+            "htf_bias":     htf,
+            "news_active":  news,
+            "held_hours":   held_hours if held_hours != "" else None,
+            "lesson":       " | ".join(lesson_bits),
+        }
+
+        # Append-only write. JSONL = one JSON per line, safe under concurrent appends.
+        with open(LEARNINGS_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry_obj) + "\n")
+    except Exception as e:
+        import logging
+        logging.getLogger("nqcalls").debug(f"_write_learning_entry inner: {e}")
+
+
+def get_recent_learnings(limit: int = 10) -> list:
+    """Return most recent N learning entries (for /journal Telegram command)."""
+    if not os.path.exists(LEARNINGS_FILE):
+        return []
+    entries = []
+    try:
+        with open(LEARNINGS_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entries.append(json.loads(line))
+                except Exception:
+                    continue
+    except Exception:
+        return []
+    return entries[-limit:]
+
+
+def format_journal_text(limit: int = 10) -> str:
+    """Telegram-formatted recent journal entries."""
+    entries = get_recent_learnings(limit)
+    if not entries:
+        return "\U0001f4d3 *Learning Journal*\n\nNo entries yet — lessons appear here as trades close."
+    lines = [
+        f"\U0001f4d3 *Learning Journal* (last {len(entries)})",
+        "\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501",
+    ]
+    for e in entries:
+        result = e.get("result", "?")
+        icon = "\u2705" if result == "WIN" else "\u274c"
+        opened = e.get("opened_at", "")[:16].replace("T", " ") if e.get("opened_at") else ""
+        lines.append(
+            f"{icon} *{e.get('market','?')}* `{e.get('setup','?')}` {e.get('direction','?')}"
+            f" | conv {e.get('conviction','?')} {e.get('tier','?')}"
+        )
+        if opened:
+            lines.append(f"  _{opened}_ pts: {e.get('points', 0):+.2f}")
+        lines.append(f"  \U0001f4ad {e.get('lesson','(no lesson)')}")
+        lines.append("")
+    return "\n".join(lines)
 
 
 def auto_check_outcomes(live_frames: dict):
