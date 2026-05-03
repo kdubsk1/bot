@@ -1,0 +1,57 @@
+{
+  "_README": "Wave 7 conviction boost overrides. Data-backed defaults from May 3 backtest (55 closed trades). Edit any value and save - bot reloads on next scan. Set 'enabled': false on any layer to disable it. To revert to defaults, delete this file.",
+  "_generated_at": "2026-05-03T01:30:00+00:00",
+  "_generated_from": "May 3 backtest of 55 closed trades",
+
+  "layer_1_setup_boosts": {
+    "enabled": true,
+    "_doc": "Per-setup conviction boost. Positive = trust more, negative = trust less. Applied AFTER base conviction calculation, BEFORE tier mapping.",
+    "boosts": {
+      "VWAP_BOUNCE_BULL":   10,
+      "APPROACH_RESIST":   -10,
+      "VWAP_REJECT_BEAR":  -15,
+      "EMA21_PULLBACK_BULL": -5
+    }
+  },
+
+  "layer_2_market_multipliers": {
+    "enabled": true,
+    "_doc": "Per-market direction-aware boost. Penalizes setups going against the market's historical edge. Applied as ADDITIONAL adjustment on top of layer 1.",
+    "multipliers": {
+      "BTC": { "BEAR": -5,  "BULL": 0 },
+      "SOL": { "BEAR": -10, "BULL": 0 },
+      "NQ":  { "BEAR": 0,   "BULL": 0 },
+      "GC":  { "BEAR": 0,   "BULL": 0 }
+    }
+  },
+
+  "layer_3_bucket_recalibration": {
+    "enabled": true,
+    "_doc": "Self-tuning bucket floor. When a conviction bucket has 20+ trades AND is losing, raise the bot's MIN_CONVICTION floor. Auto-managed by bot.",
+    "min_trades_to_act": 20,
+    "wr_threshold_to_raise_floor": 30.0,
+    "max_floor_adjustment": 10,
+    "current_floor_adjustment": 0,
+    "last_recalibrated_at": null
+  },
+
+  "layer_4_priority_lane": {
+    "enabled": true,
+    "_doc": "VWAP_BOUNCE_BULL bypasses family cooldown (cross-setup) but still respects 10-min same-setup dup-guard.",
+    "priority_setups": ["VWAP_BOUNCE_BULL"],
+    "bypass_family_cooldown": true,
+    "bypass_zone_cooldown": false
+  },
+
+  "layer_5_auto_tune": {
+    "enabled": true,
+    "_doc": "Sunday 8 PM ET: auto-run backtest, post Telegram report, adjust layer_1_setup_boosts based on rolling 4-week edge. Adjustments capped at +/-5 per cycle.",
+    "schedule_day": "Sunday",
+    "schedule_hour_et": 20,
+    "rolling_window_days": 28,
+    "max_adjustment_per_cycle": 5,
+    "min_trades_to_adjust": 10,
+    "last_run_at": null,
+    "last_run_summary": null
+  }
+}

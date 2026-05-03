@@ -50,6 +50,7 @@ import strategy_review as sr
 from config import TELEGRAM_TOKEN, CHAT_ID
 from session_clock import SessionClock, SessionEvent, get_session_date
 import auto_sync  # Persistence: commits data/ + outcomes.csv to GitHub every 6h so Railway runtime data survives restarts
+import conviction_boosts as cb  # Wave 7: Iron Robot conviction adjustment layer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 logging.basicConfig(
@@ -306,6 +307,13 @@ def _get_family(setup_type: str) -> str:
     return ""
 
 def _family_cooldown_ok(market: str, setup_type: str) -> bool:
+    # Wave 7 Layer 4: priority setups (e.g. VWAP_BOUNCE_BULL) bypass family cooldown.
+    # The 10-min same-setup dup-guard still applies, just not the cross-setup family lock.
+    try:
+        if cb.can_bypass_family_cooldown(setup_type):
+            return True
+    except Exception:
+        pass
     fam = _get_family(setup_type)
     if not fam:
         return True
@@ -571,12 +579,12 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
                 "news_flag": ot.in_news_window(),
                 "chart_read": setup.get("detail", ""),
             }
-            cb = crypto_sim.format_crypto_sim_block(
+            crypto_block = crypto_sim.format_crypto_sim_block(
                 market, tier, setup["entry"], setup["raw_stop"], target,
                 alert_id, conv, crypto_context,
             )
-            if cb:
-                msg += f"{cb}\n━━━━━━━━━━━━━━━━━━\n"
+            if crypto_block:
+                msg += f"{crypto_block}\n━━━━━━━━━━━━━━━━━━\n"
         except Exception as _ce:
             log.warning(f"[{market}] crypto_sim block: {_ce}")
     msg += "⚠️ Not financial advice. Manage your risk."
@@ -1433,18 +1441,43 @@ async def scan_market(app, market, frames):
             conv, tier, bd_core = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio, clean_path)
             extra         = cfg.extra_conviction_factors(df_e, df_h, stp, trend, adx_v, rsi_v)
             conv          = max(0, min(100, conv+sum(extra.values())))
+
+            # Wave 7 Iron Robot Layer 1+2: setup-specific boost + per-market direction multiplier.
+            # Data-backed adjustments from May 3 backtest of 55 closed trades.
+            # See conviction_boosts.py and data/conviction_boosts.json for the rules.
+            try:
+                conv_pre_w7 = conv
+                conv, w7_breakdown = cb.adjust_conviction(conv, market, stp["type"], stp["direction"])
+                if w7_breakdown.get("applied_layers"):
+                    log.info(f"[{market}] [{entry_tf}] W7 conv adj: {conv_pre_w7} -> {conv} "
+                             f"({', '.join(w7_breakdown['applied_layers'])})")
+            except Exception as _w7e:
+                log.warning(f"[{market}] W7 adjust_conviction failed (non-fatal): {_w7e}")
+                w7_breakdown = {"base": conv, "setup_boost": 0, "market_mult": 0,
+                                "final": conv, "applied_layers": []}
             # Merge core breakdown with market-specific extras for full transparency
             bd_final = dict(bd_core)
             for _k, _v in (extra or {}).items():
                 bd_final[f"extra_{_k}"] = _v
             bd_final["base"] = 15  # the starting base score in conviction_score (lowered 30→15 per BACKLOG #3)
+            # Wave 7: include the Iron Robot adjustments in the breakdown so
+            # /edge and the alert metadata can show exactly what was applied.
+            try:
+                if w7_breakdown.get("setup_boost"):
+                    bd_final["w7_setup_boost"] = w7_breakdown["setup_boost"]
+                if w7_breakdown.get("market_mult"):
+                    bd_final["w7_market_mult"] = w7_breakdown["market_mult"]
+                if w7_breakdown.get("applied_layers"):
+                    bd_final["w7_layers"] = ",".join(w7_breakdown["applied_layers"])
+            except Exception:
+                pass
             bd_final["final_score"] = conv
             if   conv>=80: tier="HIGH"
             elif conv>=65: tier="MEDIUM"
             elif conv>=50: tier="LOW"
             else:          tier="REJECT"
 
-            if tier=="REJECT" or conv < cfg.MIN_CONVICTION:
+            if tier=="REJECT" or conv < (cfg.MIN_CONVICTION + cb.get_min_conviction_adjustment()):
                 decision = sl.DECISION_ALMOST if conv >= cfg.MIN_CONVICTION-10 else sl.DECISION_REJECTED
                 _conv_reason = (
                     f"Conviction {conv} below {cfg.MIN_CONVICTION} minimum (tier={tier}); gap: {cfg.MIN_CONVICTION - conv} points"
@@ -2074,6 +2107,36 @@ async def scan_loop(app):
             now_utc = datetime.now(timezone.utc)
             now_et = _now_et()
 
+            # Wave 7 Layer 5: Sunday 8 PM ET auto-tune. Wrapped in try/except
+            # so a tune failure can never take down the scan loop.
+            try:
+                if cb.should_run_auto_tune_now():
+                    log.info("Wave 7 Layer 5: triggering Sunday auto-tune")
+                    tune_result = await asyncio.to_thread(cb.run_auto_tune)
+                    n_changes = len(tune_result.get("changes", []))
+                    n_analyzed = tune_result.get("n_setups_analyzed", 0)
+                    summary_lines = [
+                        "\U0001f527 *Wave 7 Auto-Tune (Sunday 8 PM)*",
+                        "\u2501" * 16,
+                        f"*Analyzed:* {n_analyzed} setups (last {tune_result.get('window_days', 28)}d)",
+                        f"*Changes:* {n_changes}",
+                    ]
+                    for ch in tune_result.get("changes", [])[:10]:
+                        icon = "\U0001f7e2" if ch["boost_after"] > ch["boost_before"] else "\U0001f534"
+                        summary_lines.append(
+                            f"  {icon} `{ch['setup']}` {ch['wr']:.0f}% WR "
+                            f"({ch['trades']}t): {ch['boost_before']:+d} \u2192 {ch['boost_after']:+d}"
+                        )
+                    l3r = tune_result.get("l3_recalibration", {})
+                    if l3r.get("changed"):
+                        summary_lines.append("")
+                        summary_lines.append(
+                            f"*L3 Floor:* {l3r.get('floor_before', 0)} \u2192 {l3r.get('floor_after', 0)}"
+                        )
+                    await tg_send(app, "\n".join(summary_lines))
+            except Exception as _autotune_err:
+                log.warning(f"Wave 7 auto-tune failed (non-fatal): {_autotune_err}")
+
             # Tick the session clock — fires events synchronously
             SESSION_CLOCK.tick(now_utc)
 
@@ -2359,6 +2422,86 @@ async def cmd_cryptostatus(u, c):
     except Exception as e:
         log.error(f"/cryptostatus failed: {e}")
         await u.message.reply_text(f"Crypto status command failed: {e}")
+
+async def cmd_wave7(u, c):
+    """
+    Wave 7: /wave7 shows the Iron Robot conviction adjustment status.
+    All 5 layers (setup boosts, market multipliers, bucket recalibration,
+    priority lane, auto-tune) with current values.
+    """
+    try:
+        await u.message.reply_text(cb.get_status_text(), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/wave7 failed: {e}")
+        await u.message.reply_text(f"Wave7 status failed: {e}")
+
+async def cmd_tune(u, c):
+    """
+    Wave 7: /tune manually triggers the auto-tune cycle.
+    Same as the Sunday 8 PM auto-run but on demand. Posts the diff
+    of what changed (or 'no changes needed').
+
+    Usage:
+        /tune          - run full auto-tune (Layer 1 setup nudges + Layer 3)
+        /tune l3       - only Layer 3 bucket recalibration
+    """
+    try:
+        only_l3 = bool(c and c.args and c.args[0].lower() in ("l3", "layer3", "buckets"))
+
+        await u.message.reply_text(
+            "\U0001f527 Running auto-tune" + (" (L3 only)..." if only_l3 else "..."),
+            parse_mode="Markdown"
+        )
+
+        if only_l3:
+            result = await asyncio.to_thread(cb.recalibrate_bucket_floors, True)
+        else:
+            result = await asyncio.to_thread(cb.run_auto_tune)
+
+        # Format the result for Telegram
+        lines = ["\U0001f527 *Auto-Tune Result*", "\u2501" * 16]
+
+        if only_l3:
+            lines.append(f"*Action:* {result.get('action', '?')}")
+            lines.append(f"*Floor:* {result.get('floor_before', 0)} \u2192 {result.get('floor_after', 0)}")
+            lines.append(f"*Reason:* {result.get('reason', '?')}")
+            buckets = result.get("buckets", {})
+            if buckets:
+                lines.append("")
+                lines.append("*Buckets:*")
+                for bn in ["HIGH (80+)", "UPPER-MID (70-79)", "MID (65-69)", "LOW (50-64)"]:
+                    b = buckets.get(bn, {})
+                    if b.get("total", 0) > 0:
+                        lines.append(f"  `{bn}` {b['wins']}W/{b['losses']}L "
+                                     f"({b['wr']}% WR)")
+        else:
+            changes = result.get("changes", [])
+            n_analyzed = result.get("n_setups_analyzed", 0)
+            window = result.get("window_days", 28)
+            lines.append(f"*Analyzed:* {n_analyzed} setups (last {window}d)")
+            lines.append(f"*Changes:* {len(changes)}")
+            if changes:
+                lines.append("")
+                for ch in changes:
+                    icon = "\U0001f7e2" if ch["boost_after"] > ch["boost_before"] else "\U0001f534"
+                    lines.append(
+                        f"  {icon} `{ch['setup']}` {ch['wr']:.0f}% WR "
+                        f"(${ch['avg_dollar']:+.0f}/trade, {ch['trades']}t): "
+                        f"{ch['boost_before']:+d} \u2192 {ch['boost_after']:+d}"
+                    )
+            l3 = result.get("l3_recalibration", {})
+            if l3.get("changed"):
+                lines.append("")
+                lines.append(f"*L3 Floor:* {l3.get('floor_before', 0)} \u2192 {l3.get('floor_after', 0)}")
+                lines.append(f"  ({l3.get('reason', '?')})")
+
+        msg = "\n".join(lines)
+        await u.message.reply_text(msg, parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/tune failed: {e}")
+        import traceback as _tb
+        log.error(_tb.format_exc())
+        await u.message.reply_text(f"\u274c Auto-tune failed: {e}")
 
 async def cmd_backtest(u, c):
     """
@@ -3716,7 +3859,7 @@ def main():
     app=Application.builder().token(TELEGRAM_TOKEN).post_init(_post_init).build()
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("backtest",cmd_backtest),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("backtest",cmd_backtest),("wave7",cmd_wave7),("tune",cmd_tune),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
