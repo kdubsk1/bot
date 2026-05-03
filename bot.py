@@ -2360,6 +2360,188 @@ async def cmd_cryptostatus(u, c):
         log.error(f"/cryptostatus failed: {e}")
         await u.message.reply_text(f"Crypto status command failed: {e}")
 
+async def cmd_backtest(u, c):
+    """
+    May 3 Wave 6: /backtest replays closed trades through current scoring
+    rules and posts a summary to Telegram.
+
+    Usage:
+        /backtest          - all data
+        /backtest 14       - last 14 days only
+        /backtest NQ       - one market only (NQ, GC, BTC, SOL)
+        /backtest 7 NQ     - last 7 days, NQ only
+
+    Mirrors what backtest.py does locally, but runs in-process so Wayne
+    can trigger it from his phone. The full markdown report still gets
+    written to data/backtest_report_<date>.md for deeper review.
+
+    Pre-mortem:
+      - Q: What if backtest takes 30+ seconds and blocks the bot loop?
+        A: We run it via asyncio.to_thread so the event loop stays free.
+      - Q: What if the report exceeds Telegram's 4096-char limit?
+        A: We truncate to top 5 performers + top 5 suspend candidates,
+           and tell Wayne to read the full markdown for everything else.
+      - Q: What if outcomes.csv has zero closed trades?
+        A: Send a friendly message saying so. No crash.
+      - Q: What if backtest.py is missing or fails to import?
+        A: Caught in try/except, error replied to user. Bot keeps running.
+    """
+    try:
+        # Lazy import so a broken backtest.py never crashes bot startup
+        import backtest as bt
+
+        # Parse args: optional days (int) and/or market (str)
+        args_dict = {"days": None, "market": None, "setup": None, "min_trades": 3}
+        if c and c.args:
+            for a in c.args:
+                a = str(a).strip()
+                # Number = days filter
+                if a.isdigit():
+                    args_dict["days"] = int(a)
+                # Known market codes
+                elif a.upper() in ("NQ", "GC", "BTC", "SOL"):
+                    args_dict["market"] = a.upper()
+                # Otherwise treat as setup name
+                else:
+                    args_dict["setup"] = a.upper()
+
+        await u.message.reply_text(
+            f"\U0001f50d Running backtest..."
+            + (f" (last {args_dict['days']}d)" if args_dict["days"] else "")
+            + (f" market={args_dict['market']}" if args_dict["market"] else "")
+            + (f" setup={args_dict['setup']}" if args_dict["setup"] else ""),
+            parse_mode="Markdown"
+        )
+
+        # Run the analysis off the event loop (it reads files + does math)
+        def _run_analysis():
+            rows = bt._load_outcomes()
+            if not rows:
+                return None, None, 0
+            filtered = bt._filter_outcomes(rows, args_dict)
+            if not filtered:
+                return None, None, 0
+            stats = bt._aggregate(filtered, args_dict["min_trades"])
+            classifications = bt._classify(stats, args_dict["min_trades"])
+            # Also write the markdown + JSON report to disk for deeper review
+            try:
+                bt._write_report(stats, classifications, args_dict)
+            except Exception as _we:
+                log.warning(f"/backtest write_report failed: {_we}")
+            return stats, classifications, len(filtered)
+
+        stats, classifications, n_trades = await asyncio.to_thread(_run_analysis)
+
+        if not stats:
+            await u.message.reply_text(
+                "\u26a0\ufe0f No closed trades match those filters yet. "
+                "Run the bot for a while or relax the filters."
+            )
+            return
+
+        # Build a Telegram-friendly summary (truncated for 4096-char limit)
+        lines = [
+            f"\U0001f4ca *Backtest Results* ({n_trades} closed trades)",
+            "\u2501" * 16,
+        ]
+
+        # By market summary
+        lines.append("\U0001f3af *By Market*")
+        market_rows = sorted(stats["by_market"].items(), key=lambda x: -x[1]["total_r"])
+        for market, v in market_rows:
+            sign = "\U0001f7e2" if v["total_r"] >= 0 else "\U0001f534"
+            lines.append(
+                f"  {sign} `{market}` {v['wins']}W/{v['losses']}L "
+                f"({v['wr']:.1f}% WR, R={v['total_r']:+.1f})"
+            )
+        lines.append("\u2501" * 16)
+
+        # Top 5 KEEP performers (highest expected $/trade)
+        keep_keys = [k for k, cls in classifications.items() if cls.startswith("KEEP")]
+        keep_keys.sort(key=lambda k: -stats["by_setup"][k]["expected_dollar_per_trade"])
+        top_perf = keep_keys[:5]
+        if top_perf:
+            lines.append("\U0001f3c6 *Top Performers*")
+            for k in top_perf:
+                v = stats["by_setup"][k]
+                lines.append(
+                    f"  \u2705 `{k}` {v['wins']}W/{v['losses']}L "
+                    f"({v['wr']:.1f}%, ${v['expected_dollar_per_trade']:+.0f}/trade)"
+                )
+            lines.append("\u2501" * 16)
+
+        # Top 5 SUSPEND candidates (worst expected $/trade)
+        susp_keys = [k for k, cls in classifications.items() if cls.startswith("SUSPEND")]
+        susp_keys.sort(key=lambda k: stats["by_setup"][k]["expected_dollar_per_trade"])
+        top_susp = susp_keys[:5]
+        if top_susp:
+            lines.append("\U0001f6d1 *Suspend Candidates*")
+            for k in top_susp:
+                v = stats["by_setup"][k]
+                lines.append(
+                    f"  \u274c `{k}` {v['wins']}W/{v['losses']}L "
+                    f"({v['wr']:.1f}%, ${v['expected_dollar_per_trade']:+.0f}/trade)"
+                )
+            lines.append("\u2501" * 16)
+
+        # By conviction bucket - quick view
+        from collections import defaultdict as _dd
+        bucket_totals = _dd(lambda: {"wins": 0, "losses": 0, "total_r": 0.0})
+        for key, v in stats["by_setup_bucket"].items():
+            bname = key.split(":", 2)[-1]
+            bucket_totals[bname]["wins"] += v["wins"]
+            bucket_totals[bname]["losses"] += v["losses"]
+            bucket_totals[bname]["total_r"] += v["total_r"]
+        bucket_order = ["HIGH (80+)", "UPPER-MID (70-79)", "MID (65-69)", "LOW (50-64)"]
+        bucket_lines_added = False
+        for bname in bucket_order:
+            v = bucket_totals.get(bname)
+            if not v:
+                continue
+            t = v["wins"] + v["losses"]
+            if t == 0:
+                continue
+            if not bucket_lines_added:
+                lines.append("\U0001f3af *By Conviction*")
+                bucket_lines_added = True
+            wr = v["wins"] / t * 100
+            avg_r = v["total_r"] / t
+            lines.append(f"  `{bname}` {v['wins']}W/{v['losses']}L "
+                         f"({wr:.1f}% WR, avg R={avg_r:+.2f})")
+        if bucket_lines_added:
+            lines.append("\u2501" * 16)
+
+        # Footer with totals
+        n_keep = len(keep_keys)
+        n_susp = len(susp_keys)
+        lines.append(
+            f"_Total: {n_keep} keep, {n_susp} suspend candidates._\n"
+            f"_Full report: data/backtest_report_*.md_"
+        )
+
+        msg = "\n".join(lines)
+        # Telegram hard limit is 4096; chunk if necessary
+        if len(msg) <= 4000:
+            await u.message.reply_text(msg, parse_mode="Markdown")
+        else:
+            chunks = []
+            cur = ""
+            for ln in lines:
+                if len(cur) + len(ln) + 1 > 3800:
+                    chunks.append(cur)
+                    cur = ln
+                else:
+                    cur = (cur + "\n" + ln) if cur else ln
+            if cur:
+                chunks.append(cur)
+            for chunk in chunks:
+                await u.message.reply_text(chunk, parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/backtest failed: {e}")
+        import traceback as _tb
+        log.error(_tb.format_exc())
+        await u.message.reply_text(f"\u274c Backtest command failed: {e}")
+
 async def cmd_simreset(u,c):
     preset=c.args[0] if c.args else None
     valid=list(sim.EVAL_PRESETS.keys())
@@ -3534,7 +3716,7 @@ def main():
     app=Application.builder().token(TELEGRAM_TOKEN).post_init(_post_init).build()
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("backtest",cmd_backtest),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
