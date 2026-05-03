@@ -307,9 +307,17 @@ def _update_lifetime_stats(state: dict):
         stats["worst_session_pnl"] = round(session_pnl, 2)
 
     # Per-setup stats
+    # Wave 8 (May 3) BUGFIX: previously this used t.get("tier") which made
+    # keys like "NQ:MEDIUM" instead of the actual setup name. The result was
+    # a useless best_setup_overall field. Now prefers the real setup name,
+    # falling back to tier for any legacy trade dicts written before Wave 8.
     per_setup = stats.get("per_setup_stats", {})
     for t in session_trades:
-        setup = t.get("tier", "UNKNOWN")
+        setup = (
+            t.get("setup_type")
+            or t.get("setup")
+            or t.get("tier", "UNKNOWN")
+        )
         market = t.get("market", "?")
         key = f"{market}:{setup}"
         if key not in per_setup:
@@ -614,7 +622,13 @@ def suggest_contracts(market: str, tier: str, entry: float, stop: float,
 # ── Open sim trade ────────────────────────────────────────────────
 def open_sim_trade(alert_id: str, market: str, direction: str,
                    entry: float, stop: float, target: float,
-                   contracts: int, tier: str) -> dict:
+                   contracts: int, tier: str,
+                   setup_type: str = "UNKNOWN") -> dict:
+    """
+    Wave 8 (May 3): added setup_type parameter (default UNKNOWN for backward
+    compat). When the bot opens a sim trade from an alert it now passes the
+    real setup name so per_setup_stats can group correctly.
+    """
     state = load_state()
     state = _reset_daily_if_needed(state)
     trade = {
@@ -626,6 +640,7 @@ def open_sim_trade(alert_id: str, market: str, direction: str,
         "target":    target,
         "contracts": contracts,
         "tier":      tier,
+        "setup_type": setup_type,  # Wave 8: real setup name, not tier
         "opened_at": datetime.now().isoformat(),
         "status":    "OPEN",
         "pnl":       0.0,
@@ -780,7 +795,9 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
             f"  Balance: `${risk['balance']:,.2f}` | Cushion: `${risk['dd_left']:,.0f}`"
         )
 
-    open_sim_trade(alert_id, market, direction, entry, stop, target, contracts, tier)
+    # Wave 8: pass setup_name so per_setup_stats keys correctly
+    open_sim_trade(alert_id, market, direction, entry, stop, target, contracts, tier,
+                   setup_type=setup_name)
 
     used_pct = risk["daily_used_pct"]
     bar_n    = int(min(10, used_pct / 10))

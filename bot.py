@@ -134,16 +134,34 @@ COOLDOWNS: dict = {}
 COOLDOWN_FILE = os.path.join(BASE_DIR, "data", "cooldowns.json")
 
 def _load_cooldowns():
+    """
+    Load persistent cooldowns from disk. Wave 8 (May 3): auto-prune any
+    cooldowns older than 24 hours so the file doesn't accumulate stale
+    Apr-13/14/15 entries forever. Cooldowns themselves are scoped to
+    minutes (typically 60-120) so anything 24h+ old is definitely expired.
+    """
     global COOLDOWNS
     try:
         if os.path.exists(COOLDOWN_FILE):
             with open(COOLDOWN_FILE) as f:
                 raw = json.load(f)
-            COOLDOWNS = {
-                tuple(k.split("|", 1)): datetime.fromisoformat(v)
-                for k, v in raw.items()
-            }
-            log.info(f"Loaded {len(COOLDOWNS)} cooldowns from disk")
+            now = datetime.now(timezone.utc)
+            prune_before = now - timedelta(hours=24)
+            COOLDOWNS = {}
+            n_pruned = 0
+            for k, v in raw.items():
+                try:
+                    ts = datetime.fromisoformat(v)
+                    if ts < prune_before:
+                        n_pruned += 1
+                        continue
+                    COOLDOWNS[tuple(k.split("|", 1))] = ts
+                except Exception:
+                    continue
+            log.info(f"Loaded {len(COOLDOWNS)} cooldowns from disk "
+                     f"(pruned {n_pruned} older than 24h)")
+            if n_pruned > 0:
+                _save_cooldowns()  # Persist the pruned set
     except Exception as e:
         log.warning(f"_load_cooldowns: {e}")
         COOLDOWNS = {}
@@ -223,6 +241,68 @@ def _save_active(d):
     try:
         with open(ACTIVE_FILE, "w") as f: json.dump(d, f, indent=2)
     except Exception as e: log.warning(f"_save_active: {e}")
+
+def _prune_stale_state_files():
+    """
+    Wave 8 (May 3): walk family_cooldowns.json and active_setups.json and
+    drop entries that are clearly stale. Helps keep state files clean and
+    /diag output accurate.
+
+    Rules:
+      - family_cooldowns: drop any whose `expiry` is in the past
+      - active_setups:    drop any whose `fired_at` is more than 12h ago
+                          (matches the existing 8h ignore-window in
+                          _is_approach_active, with 4h slop)
+    """
+    now = datetime.now(timezone.utc)
+
+    # family_cooldowns
+    try:
+        if os.path.exists(FAMILY_CD_FILE):
+            with open(FAMILY_CD_FILE) as f:
+                cds = json.load(f)
+            keep = {}
+            n_dropped = 0
+            for key, entry in cds.items():
+                try:
+                    expiry = datetime.fromisoformat(entry.get("expiry", ""))
+                    if expiry > now:
+                        keep[key] = entry
+                    else:
+                        n_dropped += 1
+                except Exception:
+                    n_dropped += 1
+            if n_dropped > 0:
+                with open(FAMILY_CD_FILE, "w") as f:
+                    json.dump(keep, f, indent=2)
+                log.info(f"Wave 8 prune: dropped {n_dropped} expired family cooldowns")
+    except Exception as e:
+        log.warning(f"_prune_stale_state_files family_cd: {e}")
+
+    # active_setups
+    try:
+        if os.path.exists(ACTIVE_FILE):
+            with open(ACTIVE_FILE) as f:
+                d = json.load(f)
+            cutoff = now - timedelta(hours=12)
+            keep = {}
+            n_dropped = 0
+            for key, entry in d.items():
+                try:
+                    fired_at = datetime.fromisoformat(entry.get("fired_at", ""))
+                    if fired_at > cutoff:
+                        keep[key] = entry
+                    else:
+                        n_dropped += 1
+                except Exception:
+                    n_dropped += 1
+            if n_dropped > 0:
+                with open(ACTIVE_FILE, "w") as f:
+                    json.dump(keep, f, indent=2)
+                log.info(f"Wave 8 prune: dropped {n_dropped} stale active_setups")
+    except Exception as e:
+        log.warning(f"_prune_stale_state_files active: {e}")
+
 
 def _is_approach_active(market, setup_type, entry, tolerance_pct=0.15):
     d   = _load_active()
@@ -508,10 +588,27 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
     te  = {"HIGH":"🔥","MEDIUM":"✅","LOW":"⚡"}.get(tier,"")
     safe_method = _md(method)
 
+    # Wave 8 (May 3): show Wave 7 Iron Robot adjustment when active so Wayne
+    # can SEE that the boost is firing. Only displayed when applied_layers is
+    # non-empty — silent for setups that don't get a W7 adjustment.
+    w7_line = ""
+    try:
+        w7 = setup.get("_w7_breakdown") or {}
+        applied = w7.get("applied_layers") or []
+        if applied:
+            base = int(w7.get("base", conv))
+            delta = int(w7.get("setup_boost", 0)) + int(w7.get("market_mult", 0))
+            arrow_w7 = "🟢" if delta > 0 else ("🔴" if delta < 0 else "⚪")
+            sign = "+" if delta >= 0 else ""
+            w7_line = f"{arrow_w7} *W7:* {base} → {conv}/100 ({sign}{delta})  `{', '.join(applied)}`\n"
+    except Exception:
+        pass
+
     msg = (
         f"{header}{nw}\n"
         f"{cfg.EMOJI} {dir_icon} {arrow}  |  *{_md(cfg.FULL_NAME)}*  |  [{tf}]\n"
         f"{te} Tier: *{tier}*  |  Conviction: *{conv}/100*\n"
+        f"{w7_line}"
         f"🔭 Trend: `{trend:+d}`  |  ADX: `{round(adx_v,1)}`  |  RSI: `{round(rsi_v,1)}`\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"📍 *Entry:*  `{round(setup['entry'],4)}`\n"
@@ -1455,6 +1552,10 @@ async def scan_market(app, market, frames):
                 log.warning(f"[{market}] W7 adjust_conviction failed (non-fatal): {_w7e}")
                 w7_breakdown = {"base": conv, "setup_boost": 0, "market_mult": 0,
                                 "final": conv, "applied_layers": []}
+            # Wave 8 (May 3): attach w7_breakdown to setup dict so format_alert
+            # can show the breakdown to Wayne. Otherwise the alert just shows
+            # final conviction with no indication that Wave 7 modified it.
+            stp["_w7_breakdown"] = w7_breakdown
             # Merge core breakdown with market-specific extras for full transparency
             bd_final = dict(bd_core)
             for _k, _v in (extra or {}).items():
@@ -1577,6 +1678,10 @@ async def scan_market(app, market, frames):
                 log.info(f"[{market}] [{entry_tf}] DUP-GUARD-DIR blocked {stp['type']} {stp['direction']} (within {_RECENT_DIRECTION_WINDOW_MIN} min)")
                 continue
 
+            # Wave 8 (May 3): include Wave 7 breakdown fields so we can later
+            # measure whether the boost actually changed outcomes. Without this
+            # the auto-tune (Layer 5) flies blind and we lose the signal.
+            _w7_for_log = w7_breakdown if "w7_breakdown" in dir() else {}
             alert_id = ot.log_alert({
                 "market":market, "tf":entry_tf, "setup":stp["type"], "direction":stp["direction"],
                 "entry":round(stp["entry"],4), "stop":round(stp["raw_stop"],4), "target":round(tgt,4),
@@ -1584,6 +1689,10 @@ async def scan_market(app, market, frames):
                 "leverage":lev or "", "suggested_hold":hold or "", "rsi":round(rsi_v,2),
                 "atr":round(atr_v,4), "adx":round(adx_v,2), "htf_bias":htf_bias,
                 "hour":datetime.now(timezone.utc).hour, "vol_ratio":round(vol_ratio,2), "news_flag":int(news_flag),
+                # Wave 8: W7 transparency
+                "w7_setup_boost": int(_w7_for_log.get("setup_boost", 0)) if _w7_for_log else 0,
+                "w7_market_mult": int(_w7_for_log.get("market_mult", 0)) if _w7_for_log else 0,
+                "w7_applied_layers": ",".join(_w7_for_log.get("applied_layers", [])) if _w7_for_log else "",
             })
 
             # Task 8: Increment daily trade counter
@@ -3376,6 +3485,14 @@ async def _post_init(app):
             log.info("Scanner FORCE-OFF on boot (SCANNER_FORCE_OFF_ON_BOOT=true) — was ON, now OFF")
         else:
             log.info("Scanner FORCE-OFF on boot (SCANNER_FORCE_OFF_ON_BOOT=true) — already OFF")
+
+    # May 3 Wave 8: prune stale family_cooldowns and active_setups files.
+    # Same rationale as the cooldowns prune — old entries don't block anything
+    # but pollute state files and clutter /diag output.
+    try:
+        _prune_stale_state_files()
+    except Exception as _pse:
+        log.warning(f"Wave 8 stale-state prune failed (non-fatal): {_pse}")
 
     # May 2 Wave 5: reconcile any stale crypto open_trades against outcomes.csv.
     # If outcome_tracker.py auto-resolved a stop/target hit but didn't propagate

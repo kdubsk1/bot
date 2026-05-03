@@ -63,7 +63,15 @@ CSV_COLS = [
     "trend_score","conviction","tier","leverage","suggested_hold",
     "rsi","atr","adx","htf_bias","hour","vol_ratio","news_flag",
     "status","result","bars_to_resolution","exit_price","last_rescore_conviction",
-    "partial_exit_done","session_id"
+    "partial_exit_done","session_id",
+    # Wave 8 (May 3): Wave 7 Iron Robot conviction breakdown.
+    # Lets us measure later: did the +10 boost on VWAP_BOUNCE_BULL actually
+    # change outcomes vs pre-W7 baseline? Without these fields we lose the
+    # signal vs noise distinction and Layer 5 auto-tune flies blind on the
+    # question of "is the boost helping or hurting?"
+    "w7_setup_boost",       # int, signed — Layer 1 setup-specific delta
+    "w7_market_mult",       # int, signed — Layer 2 per-market direction delta
+    "w7_applied_layers",    # comma-separated string — which layers fired
 ]
 
 # ------------------------------------------------------------------ #
@@ -2036,9 +2044,54 @@ def check_auto_review() -> Optional[str]:
 # CSV logger
 # ------------------------------------------------------------------ #
 def _ensure_csv():
+    """
+    Ensure outcomes.csv exists with the current CSV_COLS schema.
+    If a file exists with an older schema (fewer columns), migrate in place
+    by adding empty values for the new columns. Never loses data.
+
+    Wave 8 (May 3): This is a NEW migration capability. Pre-Wave 8 there was
+    no schema migration here — adding columns to CSV_COLS would have broken
+    the CSV format silently. Pattern copied from strategy_log.py _ensure_csv.
+    """
     if not os.path.exists(OUTCOMES_CSV):
         with open(OUTCOMES_CSV, "w", newline="") as f:
             csv.DictWriter(f, fieldnames=CSV_COLS).writeheader()
+        return
+
+    # File exists. Compare its header to current CSV_COLS.
+    try:
+        with open(OUTCOMES_CSV, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing_header = next(reader, [])
+    except Exception:
+        existing_header = []
+
+    if existing_header == CSV_COLS:
+        return  # already on current schema
+
+    # Schema drift detected. Back up first, then rewrite with new header.
+    backup_path = OUTCOMES_CSV + ".pre_wave8.bak"
+    try:
+        import shutil
+        shutil.copy2(OUTCOMES_CSV, backup_path)
+    except Exception:
+        pass
+
+    try:
+        with open(OUTCOMES_CSV, newline="", encoding="utf-8") as f:
+            old_rows = list(csv.DictReader(f))
+    except Exception:
+        old_rows = []
+
+    with open(OUTCOMES_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_COLS)
+        writer.writeheader()
+        for row in old_rows:
+            # Fill any missing columns with empty string. DictWriter ignores
+            # extra keys not in fieldnames so legacy fields are dropped — but
+            # CSV_COLS only ever GROWS in Wave 8+, so nothing real is dropped.
+            clean = {k: row.get(k, "") for k in CSV_COLS}
+            writer.writerow(clean)
 
 def log_alert(row: dict) -> str:
     _ensure_csv()
