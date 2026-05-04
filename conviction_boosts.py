@@ -112,6 +112,36 @@ _DEFAULTS = {
         "last_run_at": None,
         "last_run_summary": None,
     },
+    # Wave 9 (May 4): Edge Decay Defense
+    # The Wave 7 hardcoded boosts were calibrated on data that turned stale
+    # within 2 weeks (NQ:VWAP_BOUNCE_BULL went from 71% WR -> 0% WR in 14 days).
+    # This layer auto-zeros a positive boost if the underlying setup has gone
+    # cold in the recent 14-day window. Protects against fitting noise from
+    # an old market regime.
+    "layer_6_edge_decay": {
+        "enabled": True,
+        "window_days": 14,           # rolling window to evaluate decay
+        "min_trades_for_decay": 3,   # need at least 3 closed trades to act
+        "wr_threshold_to_zero": 25.0, # if WR < 25%, zero out positive boost
+        "penalty_threshold_wr": 30.0, # if WR < 30%, apply -5 penalty even if no boost
+        "max_decay_penalty": -10,    # cap penalty so we don't overshoot
+        "last_decay_check_at": None,
+        "last_decay_actions": [],    # list of {setup, action, boost_before, boost_after}
+    },
+    # Wave 9 (May 4): Daily soft auto-tune
+    # Sunday 8 PM is too slow for weekly market regime changes. This runs
+    # every day at 6 AM ET (before NY open) with smaller adjustment caps
+    # so the bot adapts faster but can't thrash. Compounds with weekly tune.
+    "layer_7_daily_soft_tune": {
+        "enabled": True,
+        "schedule_hour_et": 6,        # 6 AM ET daily
+        "window_days": 7,             # last 7 days for daily tuning
+        "min_trades_to_adjust": 5,    # smaller threshold than weekly
+        "max_adjustment_per_cycle": 3, # smaller caps than weekly
+        "min_dollar_threshold": 30.0, # only act if |$/trade| > $30
+        "last_run_at": None,
+        "last_run_summary": None,
+    },
 }
 
 # In-memory cache to avoid disk reads on every scan
@@ -564,6 +594,290 @@ def run_auto_tune() -> dict:
 
 
 # ============================================================
+# LAYER 6 (Wave 9): Edge Decay Defense
+# ============================================================
+def _read_setup_outcomes_in_window(window_days: int) -> dict:
+    """
+    Walk outcomes.csv and return per-setup stats for closed trades within
+    the last `window_days` days. Returns dict[setup_type] = {w, l, dollar}.
+
+    Wave 9 (May 4): shared helper used by Layer 6 (edge decay) and
+    Layer 7 (daily soft tune) so both read the same source of truth.
+
+    Note: groups by setup_type ALONE (not market:setup), matching how
+    Layer 1 boosts work. A boost on VWAP_BOUNCE_BULL applies across all
+    markets, so its decay should reflect cross-market WR.
+    """
+    outcomes_path = os.path.join(_BASE_DIR, "outcomes.csv")
+    if not os.path.exists(outcomes_path):
+        return {}
+    import csv
+    from datetime import timedelta
+    cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
+    stats = {}
+    try:
+        with open(outcomes_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if r.get("status") != "CLOSED":
+                    continue
+                result = r.get("result")
+                if result not in ("WIN", "LOSS"):
+                    continue
+                try:
+                    ts = datetime.fromisoformat(r.get("timestamp", ""))
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                    if ts < cutoff:
+                        continue
+                except Exception:
+                    continue
+                setup = r.get("setup", "?")
+                try:
+                    rr = float(r.get("rr", 0))
+                except Exception:
+                    rr = 0.0
+                if setup not in stats:
+                    stats[setup] = {"w": 0, "l": 0, "dollar": 0.0}
+                if result == "WIN":
+                    stats[setup]["w"] += 1
+                    stats[setup]["dollar"] += rr * 100.0
+                else:
+                    stats[setup]["l"] += 1
+                    stats[setup]["dollar"] -= 100.0
+    except Exception as e:
+        _log.warning(f"_read_setup_outcomes_in_window: {e}")
+    return stats
+
+
+def check_edge_decay(force: bool = False) -> dict:
+    """
+    Wave 9 (May 4): Edge Decay Defense.
+
+    Walks recent (last 14d) closed trades. For each setup that currently
+    has a positive Layer 1 boost, check if it's gone cold:
+      - If WR < 25% with 3+ trades -> zero out the boost
+      - If WR < 30% (and no positive boost yet) -> apply -5 penalty
+
+    The Wave 7 boosts were hard-coded from May 3 backtest data. Within
+    2 weeks, NQ:VWAP_BOUNCE_BULL went from 71% WR to 0%. Without this
+    layer, the bot would keep boosting a dead setup forever.
+
+    Returns: {action, changed, decay_actions: [...]}
+    """
+    cfg = _load_config()
+    l6 = cfg.get("layer_6_edge_decay", {})
+    if not l6.get("enabled") and not force:
+        return {"action": "skipped (layer disabled)", "changed": False, "decay_actions": []}
+
+    window_days = int(l6.get("window_days", 14))
+    min_trades = int(l6.get("min_trades_for_decay", 3))
+    zero_thresh = float(l6.get("wr_threshold_to_zero", 25.0))
+    pen_thresh = float(l6.get("penalty_threshold_wr", 30.0))
+    max_penalty = int(l6.get("max_decay_penalty", -10))
+
+    setup_stats = _read_setup_outcomes_in_window(window_days)
+    l1 = cfg.get("layer_1_setup_boosts", {})
+    boosts = l1.get("boosts", {}).copy()
+    decay_actions = []
+
+    for setup, stats in setup_stats.items():
+        total = stats["w"] + stats["l"]
+        if total < min_trades:
+            continue
+        wr = stats["w"] / total * 100
+        current_boost = boosts.get(setup, 0)
+
+        # Case 1: Setup has a positive boost but WR < zero_threshold
+        # -> zero it out
+        if current_boost > 0 and wr < zero_thresh:
+            decay_actions.append({
+                "setup": setup,
+                "action": "zeroed",
+                "reason": f"{stats['w']}W/{stats['l']}L = {wr:.1f}% WR < {zero_thresh}",
+                "boost_before": current_boost,
+                "boost_after": 0,
+                "window_days": window_days,
+            })
+            boosts[setup] = 0
+
+        # Case 2: Setup has zero/positive boost but WR < penalty threshold
+        # AND wasn't already zeroed -> apply -5 penalty
+        elif current_boost >= 0 and wr < pen_thresh and current_boost == 0:
+            new_boost = max(max_penalty, current_boost - 5)
+            decay_actions.append({
+                "setup": setup,
+                "action": "penalized",
+                "reason": f"{stats['w']}W/{stats['l']}L = {wr:.1f}% WR < {pen_thresh}",
+                "boost_before": current_boost,
+                "boost_after": new_boost,
+                "window_days": window_days,
+            })
+            boosts[setup] = new_boost
+
+        # Case 3: Setup has a negative boost but WR has recovered
+        # -> gradually relax the penalty (1 point per cycle)
+        elif current_boost < 0 and wr >= pen_thresh:
+            new_boost = min(0, current_boost + 1)
+            if new_boost != current_boost:
+                decay_actions.append({
+                    "setup": setup,
+                    "action": "relaxed",
+                    "reason": f"{stats['w']}W/{stats['l']}L = {wr:.1f}% WR >= {pen_thresh}",
+                    "boost_before": current_boost,
+                    "boost_after": new_boost,
+                    "window_days": window_days,
+                })
+                boosts[setup] = new_boost
+
+    # Save updated config if anything changed
+    changed = len(decay_actions) > 0
+    if changed:
+        cfg["layer_1_setup_boosts"]["boosts"] = boosts
+        cfg["layer_6_edge_decay"]["last_decay_check_at"] = datetime.now(timezone.utc).isoformat()
+        cfg["layer_6_edge_decay"]["last_decay_actions"] = decay_actions[-20:]  # keep last 20
+        _save_config(cfg)
+        _log.info(f"check_edge_decay: {len(decay_actions)} actions applied")
+        for action in decay_actions:
+            _log.info(f"  {action['action']} {action['setup']}: "
+                      f"{action['boost_before']} -> {action['boost_after']} "
+                      f"({action['reason']})")
+
+    return {
+        "action": "applied" if changed else "no_change",
+        "changed": changed,
+        "decay_actions": decay_actions,
+        "window_days": window_days,
+        "n_setups_analyzed": len(setup_stats),
+    }
+
+
+# ============================================================
+# LAYER 7 (Wave 9): Daily soft auto-tune
+# ============================================================
+def should_run_daily_soft_tune_now() -> bool:
+    """
+    Wave 9 (May 4): Returns True if we're at the configured daily soft-tune
+    hour AND haven't run yet today. Distinct from Layer 5 (Sunday 8 PM weekly).
+    """
+    cfg = _load_config()
+    l7 = cfg.get("layer_7_daily_soft_tune", {})
+    if not l7.get("enabled"):
+        return False
+
+    try:
+        from zoneinfo import ZoneInfo
+        et = ZoneInfo("America/New_York")
+        now = datetime.now(et)
+    except Exception:
+        from datetime import timedelta
+        now = datetime.now(timezone.utc) - timedelta(hours=4)
+
+    target_hour = int(l7.get("schedule_hour_et", 6))
+    if now.hour != target_hour:
+        return False
+
+    # Don't run if we already ran in the last 23 hours
+    last_run = l7.get("last_run_at")
+    if last_run:
+        try:
+            from datetime import timedelta
+            last = datetime.fromisoformat(last_run)
+            if last.tzinfo is None:
+                last = last.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) - last < timedelta(hours=23):
+                return False
+        except Exception:
+            pass
+
+    return True
+
+
+def run_daily_soft_tune() -> dict:
+    """
+    Wave 9 (May 4): Daily soft auto-tune cycle.
+
+    Compared to Layer 5 (Sunday weekly):
+      - Window: 7 days (vs 28)
+      - Min trades: 5 (vs 10)
+      - Max adjustment: +/-3 per cycle (vs +/-5)
+      - Min dollar threshold: $30 (vs $50)
+
+    Step 1: Run edge-decay check (Layer 6) FIRST. Zero out boosts on
+            stale-edge setups before computing new tunings.
+    Step 2: For each setup with 5+ trades in last 7 days:
+              - Positive EV (>$30/trade) and not max-boosted -> +3
+              - Negative EV (<-$30/trade) and not max-penalized -> -3
+    Step 3: Save config with new boosts + last_run timestamp.
+
+    Compounds with Layer 5 (Sunday) for fast adaptation.
+    """
+    cfg = _load_config()
+    l7 = cfg.get("layer_7_daily_soft_tune", {})
+    if not l7.get("enabled"):
+        return {"action": "skipped (disabled)", "changes": [], "decay": {}}
+
+    # Step 1: Edge decay check first
+    decay_result = check_edge_decay()
+
+    # Reload config after edge-decay (may have updated boosts)
+    cfg = _load_config()
+    window_days = int(l7.get("window_days", 7))
+    min_trades = int(l7.get("min_trades_to_adjust", 5))
+    max_adj = int(l7.get("max_adjustment_per_cycle", 3))
+    min_dollar = float(l7.get("min_dollar_threshold", 30.0))
+
+    setup_stats = _read_setup_outcomes_in_window(window_days)
+    l1 = cfg.get("layer_1_setup_boosts", {})
+    boosts = l1.get("boosts", {}).copy()
+    changes = []
+
+    for setup, stats in setup_stats.items():
+        total = stats["w"] + stats["l"]
+        if total < min_trades:
+            continue
+        avg_dollar = stats["dollar"] / total
+        wr = stats["w"] / total * 100
+        current_boost = boosts.get(setup, 0)
+        new_boost = current_boost
+
+        if avg_dollar > min_dollar and current_boost < 15:
+            new_boost = min(current_boost + max_adj, 15)
+        elif avg_dollar < -min_dollar and current_boost > -20:
+            new_boost = max(current_boost - max_adj, -20)
+
+        if new_boost != current_boost:
+            boosts[setup] = new_boost
+            changes.append({
+                "setup": setup,
+                "wr": round(wr, 1),
+                "avg_dollar": round(avg_dollar, 0),
+                "trades": total,
+                "boost_before": current_boost,
+                "boost_after": new_boost,
+            })
+
+    # Save
+    if changes:
+        cfg["layer_1_setup_boosts"]["boosts"] = boosts
+
+    cfg["layer_7_daily_soft_tune"]["last_run_at"] = datetime.now(timezone.utc).isoformat()
+    cfg["layer_7_daily_soft_tune"]["last_run_summary"] = {
+        "cycle_changes": len(changes),
+        "decay_actions": len(decay_result.get("decay_actions", [])),
+        "n_setups_analyzed": len(setup_stats),
+    }
+    _save_config(cfg)
+
+    return {
+        "action": "completed",
+        "changes": changes,
+        "decay": decay_result,
+        "n_setups_analyzed": len(setup_stats),
+        "window_days": window_days,
+    }
+
+
+# ============================================================
 # Status / introspection (used by /edge and /tune Telegram cmds)
 # ============================================================
 def get_status_text() -> str:
@@ -623,7 +937,37 @@ def get_status_text() -> str:
             last = t.strftime("%Y-%m-%d %H:%M UTC")
         except Exception:
             pass
-    lines.append(f"{en} *L5: Auto-Tune* (last: `{last}`)")
+    lines.append(f"{en} *L5: Weekly Auto-Tune* (last: `{last}`)")
+
+    # Layer 6 (Wave 9)
+    l6 = cfg.get("layer_6_edge_decay", {})
+    en = "\u2705" if l6.get("enabled") else "\u26d4"
+    last_decay = l6.get("last_decay_check_at", "never")
+    if last_decay and last_decay != "never":
+        try:
+            t = datetime.fromisoformat(last_decay)
+            last_decay = t.strftime("%Y-%m-%d %H:%M UTC")
+        except Exception:
+            pass
+    last_actions = l6.get("last_decay_actions", [])
+    lines.append(f"{en} *L6: Edge Decay Defense* (last check: `{last_decay}`)")
+    if last_actions:
+        lines.append(f"  Last {min(3, len(last_actions))} actions:")
+        for a in last_actions[-3:]:
+            lines.append(f"  \u2022 `{a['setup']}` {a['action']} "
+                         f"({a['boost_before']}\u2192{a['boost_after']}) — {a['reason']}")
+
+    # Layer 7 (Wave 9)
+    l7 = cfg.get("layer_7_daily_soft_tune", {})
+    en = "\u2705" if l7.get("enabled") else "\u26d4"
+    last_soft = l7.get("last_run_at", "never")
+    if last_soft and last_soft != "never":
+        try:
+            t = datetime.fromisoformat(last_soft)
+            last_soft = t.strftime("%Y-%m-%d %H:%M UTC")
+        except Exception:
+            pass
+    lines.append(f"{en} *L7: Daily Soft Tune* (last: `{last_soft}`)")
 
     lines.append("\u2501" * 16)
     lines.append("_Edit data/conviction_boosts.json to override._")

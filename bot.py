@@ -2246,6 +2246,50 @@ async def scan_loop(app):
             except Exception as _autotune_err:
                 log.warning(f"Wave 7 auto-tune failed (non-fatal): {_autotune_err}")
 
+            # Wave 9 (May 4) Layer 7: Daily soft auto-tune at 6 AM ET.
+            # Includes Layer 6 edge-decay check (zeros boosts on stale-edge setups).
+            # Wrapped in try/except so a tune failure can never take down the scan loop.
+            try:
+                if cb.should_run_daily_soft_tune_now():
+                    log.info("Wave 9 Layer 7: triggering daily soft auto-tune (6 AM ET)")
+                    soft_result = await asyncio.to_thread(cb.run_daily_soft_tune)
+                    soft_changes = soft_result.get("changes", [])
+                    decay_actions = soft_result.get("decay", {}).get("decay_actions", [])
+                    soft_lines = [
+                        "\U0001f504 *Wave 9 Daily Soft Tune (6 AM ET)*",
+                        "\u2501" * 16,
+                        f"*Analyzed:* {soft_result.get('n_setups_analyzed', 0)} setups "
+                        f"(last {soft_result.get('window_days', 7)}d)",
+                        f"*Tune changes:* {len(soft_changes)}",
+                        f"*Edge-decay actions:* {len(decay_actions)}",
+                    ]
+                    if decay_actions:
+                        soft_lines.append("")
+                        soft_lines.append("\U0001f6e1\ufe0f *Edge Decay (L6):*")
+                        for da in decay_actions[:8]:
+                            icon = ("\U0001f7e2" if da["action"] == "relaxed" else
+                                    "\U0001f534" if da["action"] in ("zeroed", "penalized") else
+                                    "\u26aa")
+                            soft_lines.append(
+                                f"  {icon} `{da['setup']}` {da['action']}: "
+                                f"{da['boost_before']:+d}\u2192{da['boost_after']:+d} — {da['reason']}"
+                            )
+                    if soft_changes:
+                        soft_lines.append("")
+                        soft_lines.append("\U0001f3af *Soft Tune Changes (L7):*")
+                        for ch in soft_changes[:8]:
+                            icon = "\U0001f7e2" if ch["boost_after"] > ch["boost_before"] else "\U0001f534"
+                            soft_lines.append(
+                                f"  {icon} `{ch['setup']}` {ch['wr']:.0f}% WR "
+                                f"({ch['trades']}t): {ch['boost_before']:+d} \u2192 {ch['boost_after']:+d}"
+                            )
+                    if not decay_actions and not soft_changes:
+                        soft_lines.append("")
+                        soft_lines.append("_No changes — boosts stable._")
+                    await tg_send(app, "\n".join(soft_lines))
+            except Exception as _softtune_err:
+                log.warning(f"Wave 9 daily soft tune failed (non-fatal): {_softtune_err}")
+
             # Tick the session clock — fires events synchronously
             SESSION_CLOCK.tick(now_utc)
 
@@ -2793,6 +2837,103 @@ async def cmd_backtest(u, c):
         import traceback as _tb
         log.error(_tb.format_exc())
         await u.message.reply_text(f"\u274c Backtest command failed: {e}")
+
+async def cmd_recalibrate(u, c):
+    """
+    Wave 9 (May 4): /recalibrate - manually trigger Layer 6 edge-decay check
+    + Layer 7 daily soft tune. Same logic as the 6 AM auto-run, on demand.
+
+    Useful when:
+      - Wayne sees a suspended setup that should still be active
+      - Wayne wants to force a tune after a market regime change
+      - Wayne wants to verify the decay logic is working
+    """
+    try:
+        await u.message.reply_text("\U0001f504 Running Wave 9 recalibration (edge decay + soft tune)...")
+        result = await asyncio.to_thread(cb.run_daily_soft_tune)
+        soft_changes = result.get("changes", [])
+        decay_actions = result.get("decay", {}).get("decay_actions", [])
+        lines = [
+            "\U0001f527 *Wave 9 Manual Recalibration*",
+            "\u2501" * 16,
+            f"*Analyzed:* {result.get('n_setups_analyzed', 0)} setups "
+            f"(last {result.get('window_days', 7)}d)",
+            f"*Tune changes (L7):* {len(soft_changes)}",
+            f"*Edge-decay actions (L6):* {len(decay_actions)}",
+        ]
+        if decay_actions:
+            lines.append("")
+            lines.append("\U0001f6e1\ufe0f *Edge Decay (L6):*")
+            for da in decay_actions[:10]:
+                icon = ("\U0001f7e2" if da["action"] == "relaxed" else
+                        "\U0001f534" if da["action"] in ("zeroed", "penalized") else
+                        "\u26aa")
+                lines.append(
+                    f"  {icon} `{da['setup']}` {da['action']}: "
+                    f"{da['boost_before']:+d}\u2192{da['boost_after']:+d} — {da['reason']}"
+                )
+        if soft_changes:
+            lines.append("")
+            lines.append("\U0001f3af *Soft Tune (L7):*")
+            for ch in soft_changes[:10]:
+                icon = "\U0001f7e2" if ch["boost_after"] > ch["boost_before"] else "\U0001f534"
+                lines.append(
+                    f"  {icon} `{ch['setup']}` {ch['wr']:.0f}% WR "
+                    f"({ch['trades']}t): {ch['boost_before']:+d} \u2192 {ch['boost_after']:+d}"
+                )
+        if not decay_actions and not soft_changes:
+            lines.append("")
+            lines.append("_No changes — boosts already aligned with current data._")
+        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/recalibrate failed: {e}")
+        import traceback as _tb
+        log.error(_tb.format_exc())
+        await u.message.reply_text(f"\u274c Recalibrate failed: {e}")
+
+async def cmd_pulldata(u, c):
+    """
+    Wave 9 (May 4): /pulldata - report whether local Desktop data matches
+    Railway runtime. The bot itself runs on Railway and writes its truth to
+    GitHub via auto_sync every 6h. The local Desktop copy can drift if
+    nobody runs `git pull` locally.
+
+    This command tells Wayne the freshness gap so he can decide whether
+    to manually pull the latest data files.
+    """
+    try:
+        # Check the freshest timestamp in the on-disk outcomes.csv (Railway side)
+        outcomes_path = os.path.join(BASE_DIR, "outcomes.csv")
+        last_outcome = "never"
+        n_rows = 0
+        if os.path.exists(outcomes_path):
+            import csv
+            try:
+                with open(outcomes_path, "r", encoding="utf-8") as f:
+                    rows = list(csv.DictReader(f))
+                n_rows = len(rows)
+                if rows:
+                    last_ts = rows[-1].get("timestamp", "")
+                    last_outcome = last_ts[:19] if last_ts else "never"
+            except Exception:
+                pass
+        sync_status = auto_sync.status() if hasattr(auto_sync, "status") else "unknown"
+        lines = [
+            "\U0001f4e1 *Data Freshness Check*",
+            "\u2501" * 16,
+            f"*Runtime outcomes.csv:* `{n_rows}` rows",
+            f"*Last trade closed:* `{last_outcome}`",
+            "",
+            f"*Auto-sync:* {sync_status}",
+            "",
+            "_The bot runs on Railway. Auto-sync pushes data→GitHub every 6h._",
+            "_Your local Desktop files may be stale. Run `git pull` locally_",
+            "_to refresh, or just trust /backtest and /edge for live truth._",
+        ]
+        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/pulldata failed: {e}")
+        await u.message.reply_text(f"\u274c Pulldata failed: {e}")
 
 async def cmd_simreset(u,c):
     preset=c.args[0] if c.args else None
@@ -3976,7 +4117,7 @@ def main():
     app=Application.builder().token(TELEGRAM_TOKEN).post_init(_post_init).build()
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("backtest",cmd_backtest),("wave7",cmd_wave7),("tune",cmd_tune),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("backtest",cmd_backtest),("wave7",cmd_wave7),("tune",cmd_tune),("recalibrate",cmd_recalibrate),("pulldata",cmd_pulldata),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
