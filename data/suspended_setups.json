@@ -108,5 +108,33 @@
     "total_at_suspension": 3,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": -100.0
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "reason": "bled $200 in 7d",
+    "suspended_at": "2026-05-04T13:28:56.022120+00:00",
+    "total_at_suspension": 2,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
+  },
+  "NQ:APPROACH_SUPPORT": {
+    "reason": "bled $200 in 7d",
+    "suspended_at": "2026-05-04T13:28:56.022157+00:00",
+    "total_at_suspension": 2,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
+  },
+  "NQ:STOCH_REVERSAL_BULL": {
+    "reason": "bled $200 in 7d",
+    "suspended_at": "2026-05-04T13:28:56.022177+00:00",
+    "total_at_suspension": 2,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
+  },
+  "BTC:VWAP_BOUNCE_BULL": {
+    "reason": "bled $400 in 7d",
+    "suspended_at": "2026-05-04T13:28:56.022196+00:00",
+    "total_at_suspension": 10,
+    "wr_at_suspension": 40.0,
+    "bleed_at_suspension": -400.0
   }
 }
