@@ -57,10 +57,10 @@
   },
   "NQ:EMA21_PULLBACK_BULL": {
     "wins": 0,
-    "losses": 0,
-    "total": 0,
+    "losses": 1,
+    "total": 1,
     "win_rate": 0.0,
-    "last_updated": "2026-04-16T00:00:00.000000"
+    "last_updated": "2026-05-04T15:25:06.741043"
   },
   "BTC:EMA21_PULLBACK_BULL": {
     "wins": 1,

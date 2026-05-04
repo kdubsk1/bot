@@ -25,15 +25,15 @@
   },
   "EMA21_PULLBACK_BULL|||MIXED": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 0.0,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "EMA21_PULLBACK_BULL|||ALL": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 0.0,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "APPROACH_SUPPORT|||MIXED": {
     "wins": 0,

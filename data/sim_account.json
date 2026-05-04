@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 49912.0,
+  "balance": 49817.91,
   "peak_balance": 50077.0,
   "starting_balance": 50000.0,
   "daily_loss_limit": 1000.0,
@@ -12,10 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": -88.0,
+  "today_pnl": -182.09,
   "today_date": "2026-05-04",
   "session_date": "2026-05-04",
-  "total_pnl": -88.0,
+  "total_pnl": -182.09,
   "trades": [
     {
       "alert_id": "1486a214ab",
@@ -67,6 +67,23 @@
       "exit_price": 27813.622234266117,
       "result": "LOSS",
       "closed_at": "2026-05-04T13:01:16.016685"
+    },
+    {
+      "alert_id": "b9c30d074b",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 27851.0,
+      "stop": 27803.955349844553,
+      "target": 27965.75,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "EMA21_PULLBACK_BULL",
+      "opened_at": "2026-05-04T13:21:29.013119",
+      "status": "CLOSED",
+      "pnl": -94.09,
+      "exit_price": 27803.955349844553,
+      "result": "LOSS",
+      "closed_at": "2026-05-04T15:25:07.803203"
     }
   ],
   "open_sim_trades": [
@@ -85,16 +102,16 @@
       "pnl": 0.0
     },
     {
-      "alert_id": "b9c30d074b",
+      "alert_id": "eac0c5ee0a",
       "market": "NQ",
       "direction": "LONG",
-      "entry": 27851.0,
-      "stop": 27803.955349844553,
+      "entry": 27711.25,
+      "stop": 27591.07303146606,
       "target": 27965.75,
       "contracts": 1,
       "tier": "MEDIUM",
-      "setup_type": "EMA21_PULLBACK_BULL",
-      "opened_at": "2026-05-04T13:21:29.013119",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-05-04T16:28:51.630328",
       "status": "OPEN",
       "pnl": 0.0
     }
