@@ -106,10 +106,10 @@
   },
   "NQ:APPROACH_SUPPORT": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 2,
+    "total": 2,
     "win_rate": 0.0,
-    "last_updated": "2026-04-30T14:50:28.005278"
+    "last_updated": "2026-05-04T08:10:44.846352"
   },
   "BTC:BREAK_RETEST_BEAR": {
     "wins": 1,
@@ -204,9 +204,16 @@
   },
   "NQ:STOCH_REVERSAL_BULL": {
     "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-04T10:26:53.966066"
+  },
+  "NQ:MACD_CROSS_BULL": {
+    "wins": 0,
     "losses": 1,
     "total": 1,
     "win_rate": 0.0,
-    "last_updated": "2026-05-04T07:00:29.508302"
+    "last_updated": "2026-05-04T12:24:36.764751"
   }
 }
