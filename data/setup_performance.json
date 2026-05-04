@@ -194,5 +194,19 @@
     "total": 2,
     "win_rate": 0.0,
     "last_updated": "2026-05-01T21:27:26.671947"
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "wins": 0,
+    "losses": 2,
+    "total": 2,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-04T02:28:09.174088"
+  },
+  "NQ:STOCH_REVERSAL_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-04T07:00:29.508302"
   }
 }

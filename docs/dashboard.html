@@ -250,7 +250,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-04T01:23:13.609092+00:00",
+  "generated_at": "2026-05-04T07:23:20.280041+00:00",
   "topstep": {
     "balance": 50000.0,
     "starting_balance": 50000.0,
@@ -259,7 +259,7 @@ const DATA = {
     "max_drawdown": 2000.0,
     "daily_loss_limit": 1000.0,
     "profit_target": 3000.0,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -328,15 +328,19 @@ const DATA = {
       {
         "time": "2026-05-01 17:46",
         "balance": 41478.03
+      },
+      {
+        "time": "2026-05-04 06:59",
+        "balance": 40855.86
       }
     ]
   },
   "crypto": {
-    "balance": 165.51,
+    "balance": 119.58,
     "starting_balance": 1000.0,
-    "total_pnl": -834.49,
+    "total_pnl": -880.42,
     "open_count": 0,
-    "closed_count": 10,
+    "closed_count": 12,
     "equity_curve": [
       {
         "time": "Start",
@@ -381,20 +385,28 @@ const DATA = {
       {
         "time": "2026-05-04 01:16",
         "balance": 165.51
+      },
+      {
+        "time": "2026-05-04 01:57",
+        "balance": 140.68
+      },
+      {
+        "time": "2026-05-04 02:29",
+        "balance": 119.58
       }
     ]
   },
   "all_time": {
     "wins": 5,
-    "losses": 40,
-    "wr": 11.1,
-    "total_trades": 45
+    "losses": 43,
+    "wr": 10.4,
+    "total_trades": 48
   },
   "today": {
     "wins": 0,
-    "losses": 2,
+    "losses": 5,
     "wr": 0.0,
-    "total_trades": 2
+    "total_trades": 5
   },
   "setup_stats": [
     {
@@ -482,6 +494,13 @@ const DATA = {
       "wr": 0.0
     },
     {
+      "setup": "SOL:VWAP_BOUNCE_BULL",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
+      "wr": 0.0
+    },
+    {
       "setup": "BTC:APPROACH_SUPPORT",
       "fires": 1,
       "wins": 0,
@@ -522,9 +541,64 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "NQ:STOCH_REVERSAL_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-04 06:59",
+      "market": "NQ",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "27899.5",
+      "stop": "27860.8799",
+      "target": "27965.75",
+      "rr": "1.72",
+      "conv": "88",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "27860.8799"
+    },
+    {
+      "time": "2026-05-04 02:26",
+      "market": "SOL",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "84.81",
+      "stop": "83.3113",
+      "target": "88.1",
+      "rr": "2.2",
+      "conv": "86",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "83.3113"
+    },
+    {
+      "time": "2026-05-04 01:56",
+      "market": "SOL",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "84.63",
+      "stop": "83.2416",
+      "target": "88.1",
+      "rr": "2.5",
+      "conv": "85",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "83.2416"
+    },
     {
       "time": "2026-05-04 01:15",
       "market": "BTC",
@@ -876,54 +950,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "76830.7555"
-    },
-    {
-      "time": "2026-04-30 14:47",
-      "market": "NQ",
-      "setup": "APPROACH_SUPPORT",
-      "tf": "15m",
-      "dir": "WATCH_LONG",
-      "entry": "27163.25",
-      "stop": "27125.1431",
-      "target": "27252.0",
-      "rr": "2.33",
-      "conv": "72",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "27125.1431"
-    },
-    {
-      "time": "2026-04-30 02:44",
-      "market": "BTC",
-      "setup": "BREAK_RETEST_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "75604.03",
-      "stop": "75841.2079",
-      "target": "74922.47",
-      "rr": "2.87",
-      "conv": "67",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "75841.2079"
-    },
-    {
-      "time": "2026-04-30 02:42",
-      "market": "BTC",
-      "setup": "BREAK_RETEST_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "75586.41",
-      "stop": "75841.2079",
-      "target": "74922.47",
-      "rr": "2.61",
-      "conv": "67",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "75841.2079"
     }
   ],
   "suspended_setups": [

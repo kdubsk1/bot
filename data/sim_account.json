@@ -17,5 +17,20 @@
   "session_date": "2026-05-04",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "0489aa0b72",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 27899.5,
+      "stop": 27860.879856572516,
+      "target": 27965.75,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "STOCH_REVERSAL_BULL",
+      "opened_at": "2026-05-04T06:59:58.363106",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
