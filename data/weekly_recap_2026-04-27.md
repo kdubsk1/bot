@@ -1,7 +1,7 @@
 # 📅 NQ CALLS Weekly Recap
 ## Apr 27 — May 03, 2026
 
-**Generated:** 2026-05-04 13:29:11 ET
+**Generated:** 2026-05-04 13:49:39 ET
 
 This recap reviews 7 days of real trades AND shadow-tracked signals
 (signals where gates/suspension would have blocked — we track their
