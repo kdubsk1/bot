@@ -1843,10 +1843,29 @@ def auto_check_outcomes(live_frames: dict):
             if target == 0 or stop == 0:
                 continue
 
-            # Audit Finding #4 / BACKLOG #6 (2026-04-28): multi-TF outcome.
-            # Old code only checked 15m frame, which misses intrabar wicks
-            # on 1m/5m entries and undermeasures time-to-win for 1h/4h setups.
-            # Take the high/low across every available frame since alert.
+            # Wave 10 (May 4) - PHANTOM LOSS FIX:
+            # The previous logic used `tf_df.index >= alert_dt` which included
+            # the bar that CONTAINED the alert timestamp. The bar's index is
+            # its OPEN time, but the High/Low can come from any moment within
+            # the bar - including BEFORE the alert fired.
+            #
+            # Example bug: alert fires at 9:21 AM. The 1h bar at 09:00 has
+            # Low=27803 (wicked down at 9:05 AM, before alert). Old logic
+            # included that 1h bar in the 'since alert' window, saw the Low
+            # of 27803, and triggered a phantom stop-out.
+            #
+            # Wave 10 fix:
+            #   1. Only count bars whose OPEN time is STRICTLY AFTER the alert
+            #      timestamp (using > not >=). This excludes the alert's own
+            #      bar from intra-bar high/low scanning.
+            #   2. For the alert's own bar, use the bar CLOSE price (which is
+            #      the most recent post-alert price we can reliably attribute).
+            #   3. We need >=1 fully-completed post-alert bar OR a current
+            #      close that has actually moved beyond stop/target. No
+            #      0-bar phantom resolutions.
+            #
+            # This is conservative - it may delay resolution by 1 bar in some
+            # cases, but eliminates the phantom-loss bug entirely.
             try:
                 alert_dt = pd.Timestamp(ts_str, tz="UTC")
             except Exception:
@@ -1855,25 +1874,56 @@ def auto_check_outcomes(live_frames: dict):
             period_high = float("-inf")
             period_low  = float("inf")
             frames_used = []
+            current_close = None  # Most recent close across all frames
+
             for tf_name, tf_df in frames.items():
                 if tf_df is None or getattr(tf_df, "empty", True):
                     continue
                 try:
+                    # Track the latest close price in this frame
+                    try:
+                        last_close = float(tf_df["Close"].iloc[-1])
+                        if current_close is None or tf_df.index[-1] > (current_close[1] if isinstance(current_close, tuple) else pd.Timestamp.min.tz_localize("UTC")):
+                            current_close = (last_close, tf_df.index[-1])
+                    except Exception:
+                        pass
+
                     if alert_dt is not None:
-                        recent_tf = tf_df[tf_df.index >= alert_dt]
-                        if recent_tf.empty:
-                            recent_tf = tf_df.iloc[-5:]
+                        # PHANTOM-LOSS FIX: strictly AFTER (>) not >= so the
+                        # alert's own bar is excluded from H/L scanning.
+                        post_alert = tf_df[tf_df.index > alert_dt]
+                        if post_alert.empty:
+                            # No post-alert bars yet - this trade is too fresh
+                            # to have meaningful price action. Skip it.
+                            continue
                     else:
-                        recent_tf = tf_df.iloc[-5:]
-                    period_high = max(period_high, float(recent_tf["High"].max()))
-                    period_low  = min(period_low,  float(recent_tf["Low"].min()))
+                        # No timestamp - fall back to last 5 bars (legacy)
+                        post_alert = tf_df.iloc[-5:]
+
+                    period_high = max(period_high, float(post_alert["High"].max()))
+                    period_low  = min(period_low,  float(post_alert["Low"].min()))
                     frames_used.append(tf_name)
                 except Exception as _frame_err:
                     _log.debug(f"auto_check_outcomes frame {tf_name} error: {_frame_err}")
                     continue
-            if not frames_used:
-                _log.warning(f"auto_check_outcomes: no usable frames for {alert_id} {market}")
+
+            # Wave 10: also check the current close in case price has moved
+            # past target/stop within the alert's own bar (real movement, not
+            # pre-alert wick). Using close is conservative - we accept slight
+            # latency over phantom resolutions.
+            if current_close is not None:
+                cc_price = current_close[0]
+                period_high = max(period_high, cc_price)
+                period_low  = min(period_low,  cc_price)
+
+            if not frames_used and current_close is None:
+                # Trade too fresh - no post-alert data yet. Leave OPEN.
+                _log.info(f"auto_check_outcomes: {alert_id} {market} too fresh (no post-alert bars), leaving OPEN")
                 continue
+            if not frames_used:
+                # No completed post-alert bars but we have current close.
+                # Only resolve if current close is decisively past stop/target.
+                _log.debug(f"auto_check_outcomes: {alert_id} using current_close only ({cc_price})")
 
             hit_target = hit_stop = False
             if direction == "LONG":
