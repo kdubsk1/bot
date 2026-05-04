@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 50000.0,
+  "peak_balance": 50000.0,
+  "starting_balance": 50000.0,
+  "daily_loss_limit": 1000.0,
+  "max_drawdown": 2000.0,
+  "profit_target": 3000.0,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": 0.0,
+  "today_date": "2026-05-03",
+  "session_date": "2026-05-03",
+  "total_pnl": 0.0,
+  "trades": [],
+  "open_sim_trades": []
+}

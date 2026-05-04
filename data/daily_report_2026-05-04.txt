@@ -1,0 +1,58 @@
+NQ CALLS DAILY REPORT
+Date: Monday, May 04, 2026
+Generated: 00:01 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  0
+Closed today:        0
+Wins:                0
+Losses:              0
+Skipped:             0
+Still open:          0
+Today win rate:      0.0%
+
+ALL-TIME STATS
+------------------------------
+Total closed: 43
+All-time W/L: 5W / 38L (11.6% WR)
+
+ALL-TIME LEARNING FILE:
+------------------------------
+  BTC:VWAP_BOUNCE_BULL: 4W/4L (50.0% WR) → Conv adj: 0
+  SOL:APPROACH_RESIST: 2W/5L (28.6% WR) → Conv adj: -6
+  SOL:VWAP_REJECT_BEAR: 0W/6L (0.0% WR) → Conv adj: -12
+  BTC:APPROACH_RESIST: 2W/4L (33.3% WR) → Conv adj: -6
+  NQ:VWAP_BOUNCE_BULL: 0W/6L (0.0% WR) → Conv adj: -12
+  BTC:EMA21_PULLBACK_BEAR: 2W/4L (33.3% WR) → Conv adj: -6
+  BTC:VWAP_REJECT_BEAR: 0W/5L (0.0% WR) → Conv adj: -12
+  BTC:EMA21_PULLBACK_BULL: 1W/4L (20.0% WR) → Conv adj: -6
+  BTC:BREAK_RETEST_BEAR: 1W/4L (20.0% WR) → Conv adj: -6
+  BTC:BREAK_RETEST_BULL: 0W/4L (0.0% WR) → Conv adj: -6
+  BTC:APPROACH_SUPPORT: 0W/3L (0.0% WR) → Conv adj: -6
+  NQ:BREAK_RETEST_BULL: 1W/2L (33.3% WR) → Conv adj: -6
+  SOL:BREAK_RETEST_BEAR: 1W/2L (33.3% WR) → Conv adj: -6
+  SOL:EMA21_PULLBACK_BEAR: 0W/3L (0.0% WR) → Conv adj: -6
+  BTC:EMA50_RECLAIM: 0W/2L (0.0% WR) → Conv adj: 0
+  SOL:RSI_DIV_BEAR: 0W/2L (0.0% WR) → Conv adj: 0
+  GC:APPROACH_RESIST: 0W/2L (0.0% WR) → Conv adj: 0
+  GC:STOCH_REVERSAL_BEAR: 0W/2L (0.0% WR) → Conv adj: 0
+  BTC:BB_REVERSION_BULL: 0W/2L (0.0% WR) → Conv adj: 0
+  SOL:EMA50_BREAKDOWN: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:VWAP_REJECT_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:VWAP_BOUNCE_BULL: 1W/0L (100.0% WR) → Conv adj: 0
+  NQ:APPROACH_SUPPORT: 0W/1L (0.0% WR) → Conv adj: 0
+  BTC:STOCH_REVERSAL_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+  NQ:BB_REVERSION_BULL: 0W/1L (0.0% WR) → Conv adj: 0
+  BTC:RSI_DIV_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:BB_REVERSION_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+  NQ:EMA21_PULLBACK_BULL: 0W/0L (0.0% WR) → Conv adj: 0
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  No open trades.
+
+==================================================
+END OF REPORT
+Paste this into Claude to review and update bot settings.

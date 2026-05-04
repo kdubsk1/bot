@@ -1,6 +1,6 @@
 NQ CALLS DAILY REPORT
-Date: Saturday, May 02, 2026
-Generated: 00:02 EST
+Date: Monday, May 04, 2026
+Generated: 00:01 EST
 ==================================================
 
 TODAY'S PERFORMANCE
@@ -15,13 +15,13 @@ Today win rate:      0.0%
 
 ALL-TIME STATS
 ------------------------------
-Total closed: 42
-All-time W/L: 5W / 37L (11.9% WR)
+Total closed: 43
+All-time W/L: 5W / 38L (11.6% WR)
 
 ALL-TIME LEARNING FILE:
 ------------------------------
+  BTC:VWAP_BOUNCE_BULL: 4W/4L (50.0% WR) → Conv adj: 0
   SOL:APPROACH_RESIST: 2W/5L (28.6% WR) → Conv adj: -6
-  BTC:VWAP_BOUNCE_BULL: 4W/3L (57.1% WR) → Conv adj: 0
   SOL:VWAP_REJECT_BEAR: 0W/6L (0.0% WR) → Conv adj: -12
   BTC:APPROACH_RESIST: 2W/4L (33.3% WR) → Conv adj: -6
   NQ:VWAP_BOUNCE_BULL: 0W/6L (0.0% WR) → Conv adj: -12
