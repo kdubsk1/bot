@@ -989,6 +989,65 @@ async def scan_market(app, market, frames):
             except Exception:
                 pass
 
+    # ============================================================
+    # Wave 11 (May 4): Phantom-Loss Alarm Handler
+    # Pick up any events the phantom guard caught during this scan
+    # and Telegram-alarm them. Filter to only this market's events so
+    # the alarm appears in the right scan_market call. Safe even if
+    # the queue is empty - just returns []. Wrapped in try/except so
+    # an alarm bug can never block sim/crypto auto-checks below.
+    # ============================================================
+    try:
+        phantom_events = ot.get_and_clear_phantom_events()
+        # Re-queue any events for OTHER markets so they fire on those
+        # markets' scans (preserves correct attribution in alarms).
+        leftover = []
+        for evt in phantom_events:
+            if evt.get("market") != market:
+                leftover.append(evt)
+                continue
+            try:
+                reasons = evt.get("reasons", [])
+                reasons_str = ", ".join(reasons) if reasons else "unknown"
+                elapsed = evt.get("elapsed_seconds")
+                elapsed_str = f"{elapsed}s" if elapsed is not None else "unknown"
+                period_h = evt.get("period_high")
+                period_l = evt.get("period_low")
+                period_str = (f"`{period_h:.2f}` / `{period_l:.2f}`"
+                              if period_h is not None and period_l is not None
+                              else "`(none)`")
+                cc = evt.get("current_close")
+                cc_str = f"`{cc:.4f}`" if cc is not None else "`(none)`"
+                frames_str = ",".join(evt.get("frames_used", [])) or "(none)"
+                msg = (
+                    f"🛡 *PHANTOM-LOSS GUARD ACTIVATED*\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"Bot tried to close `{evt.get('alert_id','?')}` as a "
+                    f"*{evt.get('would_have_been','?')}* but the guard refused.\n\n"
+                    f"🔍 *Setup:* {market} {_md(evt.get('setup','?'))} {evt.get('direction','?')}\n"
+                    f"⚠️ *Why blocked:* `{reasons_str}`\n\n"
+                    f"📊 *Diagnostics:*\n"
+                    f"• Alert opened: `{evt.get('alert_timestamp','?')[:19]}`\n"
+                    f"• Elapsed: `{elapsed_str}`\n"
+                    f"• Entry / Stop / Target: `{evt.get('entry')}` / `{evt.get('stop')}` / `{evt.get('target')}`\n"
+                    f"• Would have exited at: `{evt.get('would_have_exited_at')}`\n"
+                    f"• Current close: {cc_str}\n"
+                    f"• Period H/L (post-alert): {period_str}\n"
+                    f"• Frames seen: `{frames_str}`\n"
+                    f"━━━━━━━━━━━━━━━━━━\n"
+                    f"✅ Trade left OPEN. No data corruption.\n"
+                    f"_Wave 10 + Wave 11 self-defense layer working as designed._"
+                )
+                await tg_send(app, msg)
+            except Exception as _pe_msg:
+                log.warning(f"[{market}] phantom alarm format/send: {_pe_msg}")
+        # Push back any other-market events
+        if leftover:
+            for evt in leftover:
+                ot._record_phantom_event(evt)
+    except Exception as _pe_outer:
+        log.warning(f"[{market}] phantom alarm handler outer: {_pe_outer}")
+
     if sim.load_state().get("enabled"):
         try:
             df15 = frames.get("15m")

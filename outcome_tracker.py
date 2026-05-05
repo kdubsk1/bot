@@ -1592,6 +1592,81 @@ def in_news_window(now_utc: Optional[datetime] = None) -> bool:
     return any(a <= hm <= b for a, b in windows)
 
 # ------------------------------------------------------------------ #
+# Wave 11 (May 4): Phantom-Loss Defense Layer
+# Defensive guard rail beyond Wave 10. Catches any close that smells
+# like a phantom (resolved too fast, or current price diverges from
+# claimed exit price). Refuses to close suspicious trades, keeps them
+# OPEN, and queues a Telegram alarm so Wayne sees self-correction.
+#
+# Why two layers (Wave 10 + Wave 11):
+#   Wave 10 = root cause fix (don't read pre-alert wicks). Should make
+#             phantoms structurally impossible.
+#   Wave 11 = defense in depth. If Wave 10 has a hole or a future change
+#             reintroduces the bug, this catches it before data corrupts.
+#
+# Detection criteria (any one triggers refusal to close):
+#   1. elapsed_seconds < 30 since alert: real stops/targets shouldn't fire
+#      that fast on bar-resolution scans (which run every 1-5 min)
+#   2. Price divergence > 0.2%: if we claim stop hit but current_close is
+#      well above stop (LONG) or below stop (SHORT), suspect stale data
+#      or another bug class
+#
+# Events flow to bot.py via _PHANTOM_EVENTS_QUEUE for Telegram alarming.
+# All events also persisted to data/phantom_events.jsonl for audit trail.
+# ------------------------------------------------------------------ #
+PHANTOM_LOG_FILE = os.path.join(_BASE_DIR, "data", "phantom_events.jsonl")
+_PHANTOM_EVENTS_QUEUE: list = []
+_PHANTOM_QUEUE_MAX = 100  # cap so a misfiring guard can't OOM the bot
+_PHANTOM_TIME_THRESHOLD_SEC = 30      # closes faster than this = suspect
+_PHANTOM_PRICE_DIVERGE_PCT = 0.002    # 0.2% gap between current_close and claimed exit = suspect
+
+
+def get_and_clear_phantom_events() -> list:
+    """
+    bot.py calls this after each scan to pick up any phantom events the
+    guard caught. Returns a list of dicts; clears the queue.
+    """
+    global _PHANTOM_EVENTS_QUEUE
+    events = list(_PHANTOM_EVENTS_QUEUE)
+    _PHANTOM_EVENTS_QUEUE = []
+    return events
+
+
+def _record_phantom_event(event: dict):
+    """
+    Append a phantom event to the in-memory queue (for Telegram alarm)
+    and the on-disk log (for permanent audit trail). Both wrapped
+    defensively so a phantom-event recording bug can never break the
+    main trade-resolution path.
+    """
+    global _PHANTOM_EVENTS_QUEUE
+    try:
+        _PHANTOM_EVENTS_QUEUE.append(event)
+        # Cap queue size - drop oldest if exceeded
+        if len(_PHANTOM_EVENTS_QUEUE) > _PHANTOM_QUEUE_MAX:
+            _PHANTOM_EVENTS_QUEUE = _PHANTOM_EVENTS_QUEUE[-_PHANTOM_QUEUE_MAX:]
+    except Exception:
+        pass
+    try:
+        os.makedirs(os.path.dirname(PHANTOM_LOG_FILE), exist_ok=True)
+        with open(PHANTOM_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(event) + "\n")
+    except Exception:
+        pass
+
+
+def get_phantom_events_count() -> int:
+    """For /diag command - lets Wayne see how many phantoms have been blocked."""
+    if not os.path.exists(PHANTOM_LOG_FILE):
+        return 0
+    try:
+        with open(PHANTOM_LOG_FILE, "r", encoding="utf-8") as f:
+            return sum(1 for line in f if line.strip())
+    except Exception:
+        return 0
+
+
+# ------------------------------------------------------------------ #
 # Auto outcome checker
 # Runs after every scan — checks if open trades hit target or stop
 # ------------------------------------------------------------------ #
@@ -1936,6 +2011,95 @@ def auto_check_outcomes(live_frames: dict):
             # If both hit same candle — stop wins (conservative)
             if hit_target and hit_stop:
                 hit_target = False
+
+            # ============================================================
+            # Wave 11 (May 4): PHANTOM-LOSS GUARD
+            # Defensive layer beyond Wave 10. Two independent checks:
+            #   (1) Time-elapsed: if trade is closing < 30 seconds after
+            #       alert, it's almost certainly phantom (real bar-based
+            #       resolution can't run that fast).
+            #   (2) Price-divergence: if we claim stop hit but current
+            #       close is far on the winning side, the period_low
+            #       came from somewhere stale - suspect.
+            # If either fires, refuse to close, log alarm, leave OPEN.
+            # Wrapped in try/except so guard bug can't break trade flow.
+            # ============================================================
+            if hit_target or hit_stop:
+                try:
+                    phantom_reasons = []
+                    elapsed_seconds = None
+
+                    # Check 1: time-elapsed
+                    if alert_dt is not None:
+                        try:
+                            elapsed_seconds = (
+                                datetime.now(timezone.utc) -
+                                alert_dt.to_pydatetime()
+                            ).total_seconds()
+                            if elapsed_seconds < _PHANTOM_TIME_THRESHOLD_SEC:
+                                phantom_reasons.append(
+                                    f"too_fast_{elapsed_seconds:.0f}s"
+                                )
+                        except Exception:
+                            pass
+
+                    # Check 2: price-divergence (against current_close)
+                    cc_for_check = (current_close[0]
+                                    if isinstance(current_close, tuple)
+                                    else None)
+                    if cc_for_check is not None and stop > 0 and target > 0:
+                        if hit_stop:
+                            if direction == "LONG" and cc_for_check > stop * (1 + _PHANTOM_PRICE_DIVERGE_PCT):
+                                phantom_reasons.append(
+                                    f"price_diverge_long_cc{cc_for_check:.2f}_stop{stop:.2f}"
+                                )
+                            elif direction == "SHORT" and cc_for_check < stop * (1 - _PHANTOM_PRICE_DIVERGE_PCT):
+                                phantom_reasons.append(
+                                    f"price_diverge_short_cc{cc_for_check:.2f}_stop{stop:.2f}"
+                                )
+                        if hit_target:
+                            if direction == "LONG" and cc_for_check < target * (1 - _PHANTOM_PRICE_DIVERGE_PCT):
+                                phantom_reasons.append(
+                                    f"target_diverge_long_cc{cc_for_check:.2f}_tgt{target:.2f}"
+                                )
+                            elif direction == "SHORT" and cc_for_check > target * (1 + _PHANTOM_PRICE_DIVERGE_PCT):
+                                phantom_reasons.append(
+                                    f"target_diverge_short_cc{cc_for_check:.2f}_tgt{target:.2f}"
+                                )
+
+                    if phantom_reasons:
+                        _log.error(
+                            f"PHANTOM GUARD: refusing to close {alert_id} "
+                            f"{market} {setup_type} - reasons={','.join(phantom_reasons)}"
+                        )
+                        _record_phantom_event({
+                            "timestamp":         datetime.now(timezone.utc).isoformat(),
+                            "alert_id":          alert_id,
+                            "market":            market,
+                            "setup":             setup_type,
+                            "direction":         direction,
+                            "alert_timestamp":   ts_str,
+                            "elapsed_seconds":   round(elapsed_seconds, 1) if elapsed_seconds is not None else None,
+                            "would_have_been":   "WIN" if hit_target else "LOSS",
+                            "would_have_exited_at": float(target if hit_target else stop),
+                            "current_close":     cc_for_check,
+                            "entry":             float(entry),
+                            "stop":               float(stop),
+                            "target":             float(target),
+                            "period_high":        float(period_high) if period_high != float("-inf") else None,
+                            "period_low":         float(period_low) if period_low != float("inf") else None,
+                            "frames_used":        list(frames_used),
+                            "reasons":            list(phantom_reasons),
+                        })
+                        # CRITICAL: skip the close. Trade stays OPEN.
+                        # No update_result, no record_trade_result, no
+                        # _log_trade_outcome - none of the data-corrupting
+                        # downstream side effects fire.
+                        continue
+                except Exception as _pe:
+                    # Guard bug must not break trade resolution. Log and
+                    # fall through to original close logic.
+                    _log.warning(f"phantom guard error on {alert_id}: {_pe}")
 
             if hit_target:
                 update_result(alert_id, "WIN", 0, target)
