@@ -250,104 +250,100 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-04T19:54:42.685758+00:00",
+  "generated_at": "2026-05-05T01:55:20.862911+00:00",
   "topstep": {
-    "balance": 49817.91,
-    "starting_balance": 50000.0,
-    "today_pnl": -182.09,
-    "total_pnl": -182.09,
-    "max_drawdown": 2000.0,
-    "daily_loss_limit": 1000.0,
-    "profit_target": 3000.0,
-    "open_count": 2,
+    "balance": 50000,
+    "starting_balance": 50000,
+    "today_pnl": 0.0,
+    "total_pnl": 0.0,
+    "max_drawdown": 2000,
+    "daily_loss_limit": 1000,
+    "profit_target": 3000,
+    "open_count": 0,
     "equity_curve": [
       {
         "time": "Start",
-        "balance": 50000.0
-      },
-      {
-        "time": "2026-04-27 19:08",
-        "balance": 52032.5
+        "balance": 50000
       },
       {
         "time": "2026-04-30 14:47",
-        "balance": 51252.01
+        "balance": 49250.0
       },
       {
         "time": "2026-04-30 14:54",
-        "balance": 50483.23
+        "balance": 48511.25
       },
       {
         "time": "2026-04-30 15:24",
-        "balance": 49725.98
+        "balance": 47783.58
       },
       {
         "time": "2026-04-30 16:08",
-        "balance": 48980.09
+        "balance": 47066.83
       },
       {
         "time": "2026-04-30 16:25",
-        "balance": 48245.39
+        "balance": 46360.83
       },
       {
         "time": "2026-04-30 16:41",
-        "balance": 47521.71
+        "balance": 45665.41
       },
       {
         "time": "2026-04-30 16:53",
-        "balance": 46808.89
+        "balance": 44980.43
       },
       {
         "time": "2026-04-30 17:04",
-        "balance": 46106.75
+        "balance": 44305.73
       },
       {
         "time": "2026-04-30 18:38",
-        "balance": 45415.15
+        "balance": 43641.14
       },
       {
         "time": "2026-05-01 14:02",
-        "balance": 44733.92
+        "balance": 42986.52
       },
       {
         "time": "2026-05-01 14:14",
-        "balance": 44062.92
+        "balance": 42341.72
       },
       {
         "time": "2026-05-01 15:06",
-        "balance": 43401.97
+        "balance": 41706.6
       },
       {
         "time": "2026-05-01 16:22",
-        "balance": 42750.94
+        "balance": 41081.0
       },
       {
         "time": "2026-05-01 16:37",
-        "balance": 42109.68
+        "balance": 40464.78
       },
       {
         "time": "2026-05-01 17:46",
-        "balance": 41478.03
+        "balance": 39857.81
       },
       {
         "time": "2026-05-04 06:59",
-        "balance": 40855.86
+        "balance": 39259.95
       },
       {
         "time": "2026-05-04 08:08",
-        "balance": 40243.02
+        "balance": 38671.05
       },
       {
         "time": "2026-05-04 10:26",
-        "balance": 39639.38
+        "balance": 38090.98
       },
       {
         "time": "2026-05-04 12:22",
-        "balance": 39044.79
+        "balance": 37519.62
       },
       {
         "time": "2026-05-04 13:21",
-        "balance": 38459.12
+        "balance": 36956.82
       }
     ]
   },
@@ -413,16 +409,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 5,
-    "losses": 47,
-    "wr": 9.6,
-    "total_trades": 52
+    "wins": 4,
+    "losses": 43,
+    "wr": 8.5,
+    "total_trades": 47
   },
   "today": {
     "wins": 0,
-    "losses": 9,
-    "wr": 0.0,
-    "total_trades": 9
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -454,25 +450,11 @@ const DATA = {
       "wr": 0.0
     },
     {
-      "setup": "SOL:BREAK_RETEST_BEAR",
-      "fires": 3,
-      "wins": 1,
-      "losses": 2,
-      "wr": 33.3
-    },
-    {
       "setup": "SOL:EMA21_PULLBACK_BEAR",
-      "fires": 3,
+      "fires": 2,
       "wins": 0,
-      "losses": 3,
-      "wr": 0.0
-    },
-    {
-      "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 3,
-      "wins": 1,
       "losses": 2,
-      "wr": 33.3
+      "wr": 0.0
     },
     {
       "setup": "BTC:BREAK_RETEST_BULL",
@@ -490,6 +472,13 @@ const DATA = {
     },
     {
       "setup": "NQ:APPROACH_SUPPORT",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
+      "wr": 0.0
+    },
+    {
+      "setup": "NQ:BREAK_RETEST_BULL",
       "fires": 2,
       "wins": 0,
       "losses": 2,
@@ -531,11 +520,11 @@ const DATA = {
       "wr": 0.0
     },
     {
-      "setup": "BTC:APPROACH_SUPPORT",
+      "setup": "SOL:BREAK_RETEST_BEAR",
       "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
     },
     {
       "setup": "BTC:STOCH_REVERSAL_BEAR",
