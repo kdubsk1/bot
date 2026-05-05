@@ -154,11 +154,11 @@
     "last_updated": "2026-04-30T14:50:28.866109"
   },
   "NQ:BB_REVERSION_BULL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 1,
-    "total": 1,
-    "win_rate": 0.0,
-    "last_updated": "2026-04-30T14:55:50.645504"
+    "total": 2,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-05T12:09:21.966339"
   },
   "BTC:RSI_DIV_BEAR": {
     "wins": 0,

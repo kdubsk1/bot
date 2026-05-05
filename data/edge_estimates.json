@@ -132,9 +132,9 @@
     "total_loss_r": 0.0
   },
   "BB_REVERSION_BULL|||ALL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 3,
-    "total_win_r": 0.0,
+    "total_win_r": 2.1177097115088634,
     "total_loss_r": 3.0
   },
   "BB_REVERSION_BULL|||HH_HL": {
@@ -256,5 +256,11 @@
     "losses": 1,
     "total_win_r": 0.0,
     "total_loss_r": 1.0
+  },
+  "BB_REVERSION_BULL|||LH_LL": {
+    "wins": 1,
+    "losses": 0,
+    "total_win_r": 2.1177097115088634,
+    "total_loss_r": 0.0
   }
 }

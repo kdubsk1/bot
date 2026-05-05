@@ -1,81 +1,143 @@
 {
-  "_README": "Wave 7+9 conviction boost overrides. Data-backed defaults from May 3 backtest (55 closed trades) + Wave 9 edge-decay defense. Edit any value and save - bot reloads on next scan. Set 'enabled': false on any layer to disable it. To revert to defaults, delete this file.",
-  "_generated_at": "2026-05-04T13:00:00+00:00",
-  "_generated_from": "May 3 backtest + May 4 Wave 9 edge-decay layers",
-
   "layer_1_setup_boosts": {
     "enabled": true,
-    "_doc": "Per-setup conviction boost. Positive = trust more, negative = trust less. Applied AFTER base conviction calculation, BEFORE tier mapping. Layer 6 (Wave 9) auto-zeros these when a setup goes cold.",
     "boosts": {
-      "VWAP_BOUNCE_BULL":   10,
-      "APPROACH_RESIST":   -10,
-      "VWAP_REJECT_BEAR":  -15,
-      "EMA21_PULLBACK_BULL": -5
-    }
+      "VWAP_BOUNCE_BULL": -3,
+      "APPROACH_RESIST": -10,
+      "VWAP_REJECT_BEAR": -15,
+      "EMA21_PULLBACK_BULL": -5,
+      "EMA21_PULLBACK_BEAR": -5,
+      "BREAK_RETEST_BULL": -5,
+      "RSI_DIV_BEAR": -5,
+      "STOCH_REVERSAL_BEAR": -5,
+      "BB_REVERSION_BULL": -5
+    },
+    "_doc": "Per-setup conviction boost. Positive = trust more, negative = trust less. Applied AFTER base conviction calculation, BEFORE tier mapping. Layer 6 (Wave 9) auto-zeros these when a setup goes cold."
   },
-
   "layer_2_market_multipliers": {
     "enabled": true,
-    "_doc": "Per-market direction-aware boost. Penalizes setups going against the market's historical edge. Applied as ADDITIONAL adjustment on top of layer 1.",
     "multipliers": {
-      "BTC": { "BEAR": -5,  "BULL": 0 },
-      "SOL": { "BEAR": -10, "BULL": 0 },
-      "NQ":  { "BEAR": 0,   "BULL": 0 },
-      "GC":  { "BEAR": 0,   "BULL": 0 }
-    }
+      "BTC": {
+        "BEAR": -5,
+        "BULL": 0
+      },
+      "SOL": {
+        "BEAR": -10,
+        "BULL": 0
+      },
+      "NQ": {
+        "BEAR": 0,
+        "BULL": 0
+      },
+      "GC": {
+        "BEAR": 0,
+        "BULL": 0
+      }
+    },
+    "_doc": "Per-market direction-aware boost. Penalizes setups going against the market's historical edge. Applied as ADDITIONAL adjustment on top of layer 1."
   },
-
   "layer_3_bucket_recalibration": {
     "enabled": true,
-    "_doc": "Self-tuning bucket floor. When a conviction bucket has 20+ trades AND is losing, raise the bot's MIN_CONVICTION floor. Auto-managed by bot.",
     "min_trades_to_act": 20,
     "wr_threshold_to_raise_floor": 30.0,
     "max_floor_adjustment": 10,
     "current_floor_adjustment": 0,
-    "last_recalibrated_at": null
+    "last_recalibrated_at": null,
+    "_doc": "Self-tuning bucket floor. When a conviction bucket has 20+ trades AND is losing, raise the bot's MIN_CONVICTION floor. Auto-managed by bot."
   },
-
   "layer_4_priority_lane": {
     "enabled": true,
-    "_doc": "VWAP_BOUNCE_BULL bypasses family cooldown (cross-setup) but still respects 10-min same-setup dup-guard.",
-    "priority_setups": ["VWAP_BOUNCE_BULL"],
+    "priority_setups": [
+      "VWAP_BOUNCE_BULL"
+    ],
     "bypass_family_cooldown": true,
-    "bypass_zone_cooldown": false
+    "bypass_zone_cooldown": false,
+    "_doc": "VWAP_BOUNCE_BULL bypasses family cooldown (cross-setup) but still respects 10-min same-setup dup-guard."
   },
-
   "layer_5_auto_tune": {
     "enabled": true,
-    "_doc": "Sunday 8 PM ET: auto-run backtest, post Telegram report, adjust layer_1_setup_boosts based on rolling 4-week edge. Adjustments capped at +/-5 per cycle.",
     "schedule_day": "Sunday",
     "schedule_hour_et": 20,
     "rolling_window_days": 28,
     "max_adjustment_per_cycle": 5,
     "min_trades_to_adjust": 10,
     "last_run_at": null,
-    "last_run_summary": null
+    "last_run_summary": null,
+    "_doc": "Sunday 8 PM ET: auto-run backtest, post Telegram report, adjust layer_1_setup_boosts based on rolling 4-week edge. Adjustments capped at +/-5 per cycle."
   },
-
   "layer_6_edge_decay": {
     "enabled": true,
-    "_doc": "Wave 9 (May 4): Edge Decay Defense. Auto-zeros a Layer 1 boost if 14-day WR < 25% with 3+ trades. Penalizes -5 if WR < 30% with no positive boost. Relaxes +1 when WR recovers. Protects against fitting noise from old market regimes.",
     "window_days": 14,
     "min_trades_for_decay": 3,
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": null,
-    "last_decay_actions": []
+    "last_decay_check_at": "2026-05-05T10:01:02.218224+00:00",
+    "last_decay_actions": [
+      {
+        "setup": "EMA21_PULLBACK_BEAR",
+        "action": "penalized",
+        "reason": "2W/6L = 25.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
+        "window_days": 14
+      },
+      {
+        "setup": "BREAK_RETEST_BULL",
+        "action": "penalized",
+        "reason": "0W/4L = 0.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
+        "window_days": 14
+      },
+      {
+        "setup": "RSI_DIV_BEAR",
+        "action": "penalized",
+        "reason": "0W/3L = 0.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
+        "window_days": 14
+      },
+      {
+        "setup": "STOCH_REVERSAL_BEAR",
+        "action": "penalized",
+        "reason": "0W/3L = 0.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
+        "window_days": 14
+      },
+      {
+        "setup": "BB_REVERSION_BULL",
+        "action": "penalized",
+        "reason": "0W/3L = 0.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
+        "window_days": 14
+      },
+      {
+        "setup": "VWAP_BOUNCE_BULL",
+        "action": "zeroed",
+        "reason": "0W/12L = 0.0% WR < 25.0",
+        "boost_before": 10,
+        "boost_after": 0,
+        "window_days": 14
+      }
+    ],
+    "_doc": "Wave 9 (May 4): Edge Decay Defense. Auto-zeros a Layer 1 boost if 14-day WR < 25% with 3+ trades. Penalizes -5 if WR < 30% with no positive boost. Relaxes +1 when WR recovers. Protects against fitting noise from old market regimes."
   },
-
   "layer_7_daily_soft_tune": {
     "enabled": true,
-    "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5.",
     "schedule_hour_et": 6,
     "window_days": 7,
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": null,
-    "last_run_summary": null
+    "last_run_at": "2026-05-05T10:01:02.221690+00:00",
+    "last_run_summary": {
+      "cycle_changes": 1,
+      "decay_actions": 6,
+      "n_setups_analyzed": 13
+    },
+    "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."
   }
 }
