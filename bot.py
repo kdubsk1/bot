@@ -3668,6 +3668,65 @@ SESSION_CLOCK.on(SessionEvent.CRYPTO_DAY_BOUNDARY, _on_crypto_day)
 async def _post_init(app):
     log.info("Running startup...")
 
+    # ============================================================
+    # Wave 12 (May 5, 2026): Phantom-Loss Data Cleanup Migration
+    # One-shot, idempotent. Marks 4 confirmed May-4 phantom losses as
+    # SKIP and rebuilds setup_performance.json + suspended_setups.json
+    # from cleaned data. Marker file prevents re-runs.
+    #
+    # Wrapped in try/except - migration failure does NOT break startup.
+    # If something goes wrong, bot still starts with current (poisoned)
+    # data and Wayne can investigate via data/wave12_audit.json.
+    # ============================================================
+    try:
+        import wave12_migrate
+        _w12_result = wave12_migrate.maybe_run()
+        if _w12_result.get("ran"):
+            ok = _w12_result.get("ok", False)
+            summary = _w12_result.get("summary", "(no summary)")
+            log.info(f"Wave 12 result: ok={ok} {summary}")
+            try:
+                icon = "\u2705" if ok else "\u26a0\ufe0f"
+                msg_lines = [
+                    f"{icon} *Wave 12 Migration {'Complete' if ok else 'FAILED'}*",
+                    "\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501",
+                    "Phantom-loss data cleanup ran on this startup.",
+                    "",
+                    f"`{summary}`",
+                    "",
+                ]
+                if ok:
+                    audit = _w12_result.get("audit", {})
+                    marked = audit.get("phantoms_found_and_marked", [])
+                    already = audit.get("phantoms_already_skipped", [])
+                    unsuspended = audit.get("manual_unsuspend", [])
+                    if marked:
+                        msg_lines.append("*Marked as SKIP:*")
+                        for aid in marked:
+                            msg_lines.append(f"  \u2022 `{aid}`")
+                    if already:
+                        msg_lines.append("*Already SKIP (no change):*")
+                        for aid in already:
+                            msg_lines.append(f"  \u2022 `{aid}`")
+                    if unsuspended:
+                        msg_lines.append("*Force-restored setups:*")
+                        for k in unsuspended:
+                            msg_lines.append(f"  \u2022 `{k}`")
+                    msg_lines.append("")
+                    msg_lines.append("_Audit log: data/wave12_audit.json_")
+                    msg_lines.append("_Backups: outcomes.csv.pre_wave12.bak (and others)_")
+                    msg_lines.append("_Use /setups and /stats to verify clean state._")
+                else:
+                    msg_lines.append("_Bot started normally with current data._")
+                    msg_lines.append("_Check Railway logs for the error._")
+                await tg_send(app, "\n".join(msg_lines))
+            except Exception as _w12_tg:
+                log.warning(f"Wave 12 telegram notify failed: {_w12_tg}")
+        else:
+            log.info("Wave 12: already complete, skipping.")
+    except Exception as _w12_e:
+        log.error(f"Wave 12 startup wrap failed: {_w12_e}", exc_info=True)
+
     # Task 1: Restore scanner state from disk BEFORE anything else
     scanner_info = _load_scanner_state()
     SETTINGS["scanner_on"] = scanner_info["scanner_on"]
