@@ -1,0 +1,15 @@
+{
+  "wave": 12,
+  "completed_at": "2026-05-06T13:46:18.952302+00:00",
+  "phantoms_marked": [
+    "0489aa0b72",
+    "1486a214ab",
+    "c67a93bb0e",
+    "eff365e825"
+  ],
+  "manual_unsuspend": [
+    "NQ:STOCH_REVERSAL_BULL",
+    "NQ:APPROACH_SUPPORT"
+  ],
+  "note": "Delete this file to allow Wave 12 to re-run."
+}
