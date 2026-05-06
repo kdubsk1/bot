@@ -217,10 +217,10 @@
     "last_updated": "2026-05-04T12:24:36.764751"
   },
   "SOL:BREAK_RETEST_BULL": {
-    "wins": 0,
-    "losses": 1,
-    "total": 1,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-05T16:43:26.139460"
+    "wins": 2,
+    "losses": 2,
+    "total": 4,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-06T01:26:22.264104"
   }
 }
