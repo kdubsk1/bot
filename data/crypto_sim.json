@@ -33,6 +33,33 @@
         "chart_read": "Stochastic %K crossed up through %D from oversold (21.9\u219233.4 vs D 27.8). Early reversal trigger."
       },
       "status": "OPEN"
+    },
+    {
+      "alert_id": "cb0f18e6a4",
+      "market": "SOL",
+      "direction": "LONG",
+      "entry": 88.39,
+      "stop": 87.7889350029653,
+      "target": 89.61,
+      "leverage": 10,
+      "position_size_usd": 360.98,
+      "notional_usd": 3609.85,
+      "risk_dollars": 2.45,
+      "opened_at": "2026-05-07T01:30:05.779622+00:00",
+      "max_hold_until": "2026-05-14T01:30:05.779622+00:00",
+      "tier": "HIGH",
+      "conviction": 85,
+      "context": {
+        "trend_score": 10,
+        "rsi": 35.33,
+        "adx": 23.73,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Asia Session",
+        "news_flag": false,
+        "chart_read": "Tagged lower Bollinger (88.2378) and reversed. RSI 35.3 oversold. Mean reversion to middle band."
+      },
+      "status": "OPEN"
     }
   ],
   "closed_trades": [

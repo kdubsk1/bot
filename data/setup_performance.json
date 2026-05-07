@@ -126,11 +126,11 @@
     "last_updated": "2026-05-04T02:28:09.174088"
   },
   "NQ:EMA21_PULLBACK_BULL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 2,
-    "total": 2,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-06T06:43:09.512115"
+    "total": 3,
+    "win_rate": 33.3,
+    "last_updated": "2026-05-06T20:11:36.658741"
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,

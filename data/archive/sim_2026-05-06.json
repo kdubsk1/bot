@@ -1,0 +1,50 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 50000,
+  "peak_balance": 50000,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": 0.0,
+  "today_date": "2026-05-06",
+  "session_date": "2026-05-06",
+  "total_pnl": 0.0,
+  "trades": [],
+  "open_sim_trades": [
+    {
+      "alert_id": "69fbbcebd5",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 28345.75,
+      "stop": 28310.583774814168,
+      "target": 28422.0,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "EMA21_PULLBACK_BULL",
+      "opened_at": "2026-05-06T06:06:36.551024",
+      "status": "OPEN",
+      "pnl": 0.0
+    },
+    {
+      "alert_id": "5eec7e8ab7",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 28338.25,
+      "stop": 28304.47722535847,
+      "target": 28422.0,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "EMA21_PULLBACK_BULL",
+      "opened_at": "2026-05-06T07:11:47.451837",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
+}
