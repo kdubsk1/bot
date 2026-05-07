@@ -138,5 +138,19 @@
     "total": 4,
     "win_rate": 50.0,
     "last_updated": "2026-05-06T01:26:22.264104"
+  },
+  "SOL:BB_REVERSION_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-07T03:33:20.035404"
+  },
+  "BTC:STOCH_REVERSAL_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-07T04:14:17.537098"
   }
 }

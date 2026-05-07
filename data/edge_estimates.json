@@ -133,9 +133,9 @@
   },
   "BB_REVERSION_BULL|||ALL": {
     "wins": 1,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 2.1177097115088634,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "BB_REVERSION_BULL|||HH_HL": {
     "wins": 0,
@@ -229,15 +229,15 @@
   },
   "STOCH_REVERSAL_BULL|||ALL": {
     "wins": 0,
-    "losses": 2,
+    "losses": 3,
     "total_win_r": 0.0,
-    "total_loss_r": 2.0
+    "total_loss_r": 3.0
   },
   "STOCH_REVERSAL_BULL|||HH_HL": {
     "wins": 0,
-    "losses": 2,
+    "losses": 3,
     "total_win_r": 0.0,
-    "total_loss_r": 2.0
+    "total_loss_r": 3.0
   },
   "MACD_CROSS_BULL|||UNKNOWN": {
     "wins": 0,
@@ -268,5 +268,11 @@
     "losses": 0,
     "total_win_r": 0.0,
     "total_loss_r": 0.0
+  },
+  "BB_REVERSION_BULL|||MIXED": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
   }
 }
