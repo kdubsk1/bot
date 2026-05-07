@@ -43,10 +43,10 @@
   },
   "NQ:APPROACH_SUPPORT": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 3,
+    "total": 3,
     "win_rate": 0.0,
-    "last_updated": "2026-05-04T08:10:44.846352"
+    "last_updated": "2026-05-07T17:22:51.505063"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
     "wins": 0,
@@ -141,10 +141,10 @@
   },
   "SOL:BB_REVERSION_BULL": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 2,
+    "total": 2,
     "win_rate": 0.0,
-    "last_updated": "2026-05-07T03:33:20.035404"
+    "last_updated": "2026-05-07T15:27:28.739408"
   },
   "BTC:STOCH_REVERSAL_BULL": {
     "wins": 0,
@@ -162,9 +162,23 @@
   },
   "SOL:APPROACH_SUPPORT": {
     "wins": 0,
+    "losses": 3,
+    "total": 3,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-07T15:28:45.936875"
+  },
+  "GC:BREAK_RETEST_BULL": {
+    "wins": 0,
     "losses": 1,
     "total": 1,
     "win_rate": 0.0,
-    "last_updated": "2026-05-07T13:49:25.792492"
+    "last_updated": "2026-05-07T16:16:25.728059"
+  },
+  "NQ:STOCH_REVERSAL_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-07T17:01:51.988088"
   }
 }

@@ -13,15 +13,15 @@
   },
   "APPROACH_SUPPORT|||HH_HL": {
     "wins": 0,
-    "losses": 4,
+    "losses": 8,
     "total_win_r": 0.0,
-    "total_loss_r": 4.0
+    "total_loss_r": 8.0
   },
   "APPROACH_SUPPORT|||ALL": {
     "wins": 0,
-    "losses": 6,
+    "losses": 10,
     "total_win_r": 0.0,
-    "total_loss_r": 6.0
+    "total_loss_r": 10.0
   },
   "EMA21_PULLBACK_BULL|||MIXED": {
     "wins": 0,
@@ -85,15 +85,15 @@
   },
   "BREAK_RETEST_BULL|||MIXED": {
     "wins": 0,
-    "losses": 4,
+    "losses": 5,
     "total_win_r": 0.0,
-    "total_loss_r": 4.0
+    "total_loss_r": 5.0
   },
   "BREAK_RETEST_BULL|||ALL": {
     "wins": 2,
-    "losses": 7,
+    "losses": 8,
     "total_win_r": 5.037609492486316,
-    "total_loss_r": 7.0
+    "total_loss_r": 8.0
   },
   "RSI_DIV_BEAR|||LH_LL": {
     "wins": 0,
@@ -133,15 +133,15 @@
   },
   "BB_REVERSION_BULL|||ALL": {
     "wins": 1,
-    "losses": 4,
+    "losses": 5,
     "total_win_r": 2.1177097115088634,
-    "total_loss_r": 4.0
+    "total_loss_r": 5.0
   },
   "BB_REVERSION_BULL|||HH_HL": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 0.0,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "RSI_DIV_BEAR|||MIXED": {
     "wins": 0,
@@ -229,15 +229,15 @@
   },
   "STOCH_REVERSAL_BULL|||ALL": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 0.0,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "STOCH_REVERSAL_BULL|||HH_HL": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 0.0,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "MACD_CROSS_BULL|||UNKNOWN": {
     "wins": 0,

@@ -4,7 +4,15 @@
     "reason": "LOSS"
   },
   "SOL:mean_rev_long": {
-    "expiry": "2026-05-07T15:19:26.809650+00:00",
+    "expiry": "2026-05-07T16:58:46.907618+00:00",
+    "reason": "LOSS"
+  },
+  "GC:cont_long": {
+    "expiry": "2026-05-07T17:46:26.514090+00:00",
+    "reason": "LOSS"
+  },
+  "NQ:mean_rev_long": {
+    "expiry": "2026-05-07T18:52:52.596379+00:00",
     "reason": "LOSS"
   }
 }
