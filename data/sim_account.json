@@ -17,5 +17,20 @@
   "session_date": "2026-05-07",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "9356907ee1",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4743.6,
+      "stop": 4726.78786397698,
+      "target": 4790.8,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-05-07T09:14:55.980444",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }

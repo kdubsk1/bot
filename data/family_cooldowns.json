@@ -1,1 +1,10 @@
-{}
+{
+  "SOL:cont_long": {
+    "expiry": "2026-05-07T14:18:42.006030+00:00",
+    "reason": "LOSS"
+  },
+  "SOL:mean_rev_long": {
+    "expiry": "2026-05-07T15:19:26.809650+00:00",
+    "reason": "LOSS"
+  }
+}
