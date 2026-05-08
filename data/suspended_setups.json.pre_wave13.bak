@@ -1,4 +1,16 @@
 {
+  "BTC:VWAP_REJECT_BEAR": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238908+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0
+  },
+  "SOL:VWAP_REJECT_BEAR": {
+    "reason": "0W/6L (0.0% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238921+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 0.0
+  },
   "SOL:APPROACH_RESIST": {
     "reason": "2W/5L (28.6% WR)",
     "suspended_at": "2026-04-15T14:42:17.238931+00:00",
@@ -10,6 +22,36 @@
     "suspended_at": "2026-04-15T14:42:17.238938+00:00",
     "total_at_suspension": 6,
     "wr_at_suspension": 33.3
+  },
+  "BTC:EMA21_PULLBACK_BULL": {
+    "reason": "1W/4L (20.0% WR)",
+    "suspended_at": "2026-04-15T14:42:17.238945+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 20.0
+  },
+  "BTC:EMA21_PULLBACK_BEAR": {
+    "reason": "2W/4L (33.3% WR)",
+    "suspended_at": "2026-04-28T20:00:59.960412+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 33.3
+  },
+  "BTC:BREAK_RETEST_BULL": {
+    "reason": "0W/4L (0.0% WR)",
+    "suspended_at": "2026-04-30T12:35:52.135514+00:00",
+    "total_at_suspension": 4,
+    "wr_at_suspension": 0.0
+  },
+  "BTC:BREAK_RETEST_BEAR": {
+    "reason": "1W/4L (20.0% WR)",
+    "suspended_at": "2026-04-30T12:35:52.135526+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 20.0
+  },
+  "NQ:VWAP_BOUNCE_BULL": {
+    "reason": "0W/6L (0.0% WR)",
+    "suspended_at": "2026-04-30T20:00:10.982610+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 0.0
   },
   "BTC:BB_REVERSION_BULL": {
     "reason": "bled $200 in 7d",
@@ -66,6 +108,20 @@
     "total_at_suspension": 3,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": -100.0
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "reason": "bled $200 in 7d",
+    "suspended_at": "2026-05-04T13:28:56.022120+00:00",
+    "total_at_suspension": 2,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
+  },
+  "BTC:VWAP_BOUNCE_BULL": {
+    "reason": "bled $400 in 7d",
+    "suspended_at": "2026-05-04T13:28:56.022196+00:00",
+    "total_at_suspension": 10,
+    "wr_at_suspension": 40.0,
+    "bleed_at_suspension": -400.0
   },
   "NQ:EMA21_PULLBACK_BULL": {
     "reason": "bled $200 in 7d",
