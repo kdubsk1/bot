@@ -129,5 +129,26 @@
     "total_at_suspension": 2,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": -200.0
+  },
+  "SOL:APPROACH_SUPPORT": {
+    "reason": "0W/3L (0.0% WR) + bled $300 in 7d",
+    "suspended_at": "2026-05-07T20:00:27.088164+00:00",
+    "total_at_suspension": 3,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -300.0
+  },
+  "NQ:APPROACH_SUPPORT": {
+    "reason": "0W/3L (0.0% WR) + bled $200 in 7d",
+    "suspended_at": "2026-05-07T20:00:27.088184+00:00",
+    "total_at_suspension": 3,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
+  },
+  "SOL:BB_REVERSION_BULL": {
+    "reason": "bled $200 in 7d",
+    "suspended_at": "2026-05-07T20:00:27.088208+00:00",
+    "total_at_suspension": 2,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
   }
 }

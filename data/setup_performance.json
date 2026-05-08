@@ -56,11 +56,11 @@
     "last_updated": "2026-04-30T14:50:28.866109"
   },
   "NQ:BB_REVERSION_BULL": {
-    "wins": 1,
+    "wins": 2,
     "losses": 1,
-    "total": 2,
-    "win_rate": 50.0,
-    "last_updated": "2026-05-05T12:09:21.966339"
+    "total": 3,
+    "win_rate": 66.7,
+    "last_updated": "2026-05-07T19:55:25.099745"
   },
   "BTC:RSI_DIV_BEAR": {
     "wins": 0,
@@ -141,10 +141,10 @@
   },
   "SOL:BB_REVERSION_BULL": {
     "wins": 0,
-    "losses": 2,
-    "total": 2,
+    "losses": 3,
+    "total": 3,
     "win_rate": 0.0,
-    "last_updated": "2026-05-07T15:27:28.739408"
+    "last_updated": "2026-05-07T21:10:04.971104"
   },
   "BTC:STOCH_REVERSAL_BULL": {
     "wins": 0,
@@ -180,5 +180,12 @@
     "total": 1,
     "win_rate": 0.0,
     "last_updated": "2026-05-07T17:01:51.988088"
+  },
+  "SOL:STOCH_REVERSAL_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-07T22:37:39.440516"
   }
 }
