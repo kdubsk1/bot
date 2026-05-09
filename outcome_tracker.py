@@ -1254,6 +1254,49 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
             except Exception as _wlog_err:
                 _rlog.debug(f"Wave 15 watch-log write failed: {_wlog_err}")
             continue
+        # Wave 16 (May 8, 2026): Skip setups with stops too tight for
+        # market noise. Bot's own May 7 anomaly detector flagged 6 SOL
+        # trades with stops 0.19-0.47% as "stop-out on normal noise is
+        # likely." All 6 lost. Per-market thresholds in
+        # MIN_RISK_PCT_BY_MARKET keep crypto from firing setups that
+        # are mathematically guaranteed to stop out.
+        # Suppressed setups persist to data/tight_stop_suppressed.jsonl
+        # for future backtest analysis (Wayne's data preservation rule).
+        try:
+            _entry_p = float(s.get("entry", 0))
+            _stop_p  = float(s.get("stop", 0))
+            if _entry_p > 0 and _stop_p > 0:
+                _risk_pct = abs(_entry_p - _stop_p) / _entry_p
+                _min_pct  = MIN_RISK_PCT_BY_MARKET.get(s.get("market", ""), 0.0050)
+                if _risk_pct < _min_pct:
+                    _rlog.info(
+                        f"Stop too tight (Wave 16): {st} "
+                        f"{_risk_pct*100:.3f}% < {_min_pct*100:.2f}% "
+                        f"min for {s.get('market', '?')}"
+                    )
+                    try:
+                        _tspath = os.path.join(_BASE_DIR, "data", "tight_stop_suppressed.jsonl")
+                        os.makedirs(os.path.dirname(_tspath), exist_ok=True)
+                        _tsentry = {
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "market":    s.get("market", ""),
+                            "tf":        s.get("tf", ""),
+                            "setup":     st,
+                            "direction": s.get("direction", ""),
+                            "entry":     _entry_p,
+                            "stop":      _stop_p,
+                            "target":    s.get("target"),
+                            "rr":        s.get("rr"),
+                            "risk_pct":  round(_risk_pct * 100, 4),
+                            "min_pct":   round(_min_pct * 100, 4),
+                        }
+                        with open(_tspath, "a", encoding="utf-8") as _tsf:
+                            _tsf.write(json.dumps(_tsentry) + "\n")
+                    except Exception as _tslog_err:
+                        _rlog.debug(f"Wave 16 tight-stop log failed: {_tslog_err}")
+                    continue
+        except Exception as _stop_err:
+            _rlog.debug(f"Wave 16 stop-floor check failed: {_stop_err}")
         regime_filtered.append(s)
 
     return regime_filtered
@@ -1320,6 +1363,32 @@ SETUP_RR_FLOORS = {
     # Default for any new setup not in this map
     "_DEFAULT":              1.5,
 }
+
+
+# ============================================================
+# Wave 16 (May 8, 2026): Per-market minimum stop distance.
+#
+# Setups with stops tighter than market-typical noise level get
+# skipped because they're statistically guaranteed to stop out
+# on normal price action.
+#
+# May 7 evidence: 6 SOL trades fired with stops 0.19-0.47%. Bot's
+# own anomaly detector flagged them: "Stop-out on normal noise
+# is likely." All 6 lost.
+#
+# Thresholds tuned per market based on typical noise behavior:
+#   NQ  - 0.25%: respects levels precisely, tight stops OK
+#   GC  - 0.30%: slower but wickier than NQ
+#   BTC - 0.50%: volatile, needs buffer
+#   SOL - 0.80%: most volatile of the four, needs most room
+# ============================================================
+MIN_RISK_PCT_BY_MARKET = {
+    "NQ":  0.0025,  # 0.25%
+    "GC":  0.0030,  # 0.30%
+    "BTC": 0.0050,  # 0.50%
+    "SOL": 0.0080,  # 0.80%
+}
+
 
 def get_rr_floor(setup_type: str) -> float:
     """Return the minimum acceptable R:R for this setup type."""
