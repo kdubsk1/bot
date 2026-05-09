@@ -2504,50 +2504,86 @@ async def scan_loop(app):
 
 # ── Menu ──────────────────────────────────────────────────────────
 def main_menu():
-    s=SETTINGS; m=s["markets"]; ss=sim.load_state()
-    sim_on=ss.get("enabled",False); use_mnq=ss.get("use_mnq",False)
-    preset=ss.get("preset","50k").upper(); risk=sim.check_risk_limits(ss)
-    pnl=risk["daily_pnl"]; pnl_str=f"+${pnl:,.0f}" if pnl>=0 else f"-${abs(pnl):,.0f}"
+    """
+    Wave 17 (May 9, 2026): Major UI overhaul.
+
+    REMOVED user-tunable strategy controls (Conv/Int/CD/Risk) -
+    let the bot decide. Removed rare buttons (Test/RR/Rescore
+    toggle/Analyze).
+
+    NEW info-rich status row: live state + active markets +
+    open trade count, all in one glance.
+
+    Layout: 10 rows, max 4 buttons per row. 26 buttons total
+    (was 34). Logical grouping by frequency of use.
+    """
+    s = SETTINGS
+    m = s["markets"]
+    ss = sim.load_state()
+    sim_on = ss.get("enabled", False)
+    use_mnq = ss.get("use_mnq", False)
+    preset = ss.get("preset", "50k").upper()
+    risk = sim.check_risk_limits(ss)
+    pnl = risk["daily_pnl"]
+    pnl_str = f"+${pnl:,.0f}" if pnl >= 0 else f"-${abs(pnl):,.0f}"
+
+    # Info-rich status row text
     if s["scanner_on"]:
-        active_mkts = " ".join([k for k,v in m.items() if v])
-        scan_btn = f"🟢 ON • {active_mkts} — tap to stop"
+        active_mkts = ",".join([k for k, v in m.items() if v]) or "—"
+        try:
+            n_open = len(ot.load_open_trades())
+        except Exception:
+            n_open = 0
+        scan_btn = f"🟢 LIVE • {active_mkts} • {n_open} open"
     else:
-        scan_btn = "🔴 SCANNER OFF — tap to start"
-    kb=[
+        scan_btn = "🔴 OFFLINE — tap to start"
+
+    kb = [
+        # Row 1: Master scanner state (full width, info-rich)
         [InlineKeyboardButton(scan_btn, callback_data="toggle_scan")],
+
+        # Row 2: Market toggles
         [InlineKeyboardButton(f"{'✅' if m['NQ'] else '⬜'} NQ",   callback_data="toggle_NQ"),
          InlineKeyboardButton(f"{'✅' if m['GC'] else '⬜'} Gold", callback_data="toggle_GC"),
          InlineKeyboardButton(f"{'✅' if m['BTC'] else '⬜'} BTC", callback_data="toggle_BTC"),
          InlineKeyboardButton(f"{'✅' if m['SOL'] else '⬜'} SOL", callback_data="toggle_SOL")],
-        [InlineKeyboardButton("✅ WIN",         callback_data="trade_win"),
-         InlineKeyboardButton("❌ LOSS",        callback_data="trade_loss"),
-         InlineKeyboardButton("⏭ SKIP",        callback_data="trade_skip"),
-         InlineKeyboardButton("📋 Open",        callback_data="open_trades")],
-        [InlineKeyboardButton("📊 Status",      callback_data="status"),
-         InlineKeyboardButton("📈 Stats",       callback_data="stats"),
-         InlineKeyboardButton("🧠 Learned",     callback_data="learning"),
+
+        # Row 3: Manual outcome marking
+        [InlineKeyboardButton("✅ WIN",  callback_data="trade_win"),
+         InlineKeyboardButton("❌ LOSS", callback_data="trade_loss"),
+         InlineKeyboardButton("⏭ SKIP", callback_data="trade_skip")],
+
+        # Row 4: Open trades (prominent, full width)
+        [InlineKeyboardButton("📋 OPEN TRADES", callback_data="open_trades")],
+
+        # Row 5: At-a-glance info (4 cols)
+        [InlineKeyboardButton("📊 Status",  callback_data="status"),
+         InlineKeyboardButton("📈 Stats",   callback_data="stats"),
+         InlineKeyboardButton("📅 Session", callback_data="session"),
+         InlineKeyboardButton("🎯 Edge",    callback_data="learning")],
+
+        # Row 6: Live market info
+        [InlineKeyboardButton("📡 Live Brief", callback_data="live_brief"),
+         InlineKeyboardButton("📋 Report",     callback_data="report_now")],
+
+        # Row 7: Scheduled briefs
+        [InlineKeyboardButton("🌅 Morning Brief", callback_data="brief_morning"),
+         InlineKeyboardButton("🌙 Asia Brief",    callback_data="brief_asia")],
+
+        # Row 8: Sim primary - status & P&L
+        [InlineKeyboardButton(f"💰 SIM {'🟢' if sim_on else '🔴'}",  callback_data="toggle_sim"),
+         InlineKeyboardButton(f"💵 {pnl_str} today",                     callback_data="sim_status")],
+
+        # Row 9: Sim utilities
+        [InlineKeyboardButton(f"🔄 Reset {preset}",                       callback_data="simreset_current"),
+         InlineKeyboardButton(f"{'🔵 MNQ' if use_mnq else '⚪ NQ'}", callback_data="toggle_mnq"),
+         InlineKeyboardButton("📅 Weekly",                                callback_data="sim_weekly")],
+
+        # Row 10: Archives & info footer
+        [InlineKeyboardButton("📜 History",  callback_data="history_list"),
+         InlineKeyboardButton("🏆 Lifetime", callback_data="lifetime"),
+         InlineKeyboardButton("📊 Dashboard", callback_data="dashboard"),
          InlineKeyboardButton("❓ Help",         callback_data="help")],
-        [InlineKeyboardButton("🌅 Morning",     callback_data="brief_morning"),
-         InlineKeyboardButton("🌙 Asia",        callback_data="brief_asia"),
-         InlineKeyboardButton("📋 Report",      callback_data="report_now"),
-         InlineKeyboardButton("🔬 Analyze",     callback_data="analyze"),
-         InlineKeyboardButton("📡 Live",        callback_data="live_brief")],
-        [InlineKeyboardButton(f"{'💰 SIM 🟢' if sim_on else '💰 SIM 🔴'}", callback_data="toggle_sim"),
-         InlineKeyboardButton(f"{'🔵 MNQ' if use_mnq else '⚪ NQ'}",       callback_data="toggle_mnq"),
-         InlineKeyboardButton(f"{pnl_str} today",                           callback_data="sim_status"),
-         InlineKeyboardButton(f"🔄 {preset}",                               callback_data="simreset_current"),
-         InlineKeyboardButton("📅 Weekly",                                   callback_data="sim_weekly")],
-        [InlineKeyboardButton(f"🎯 {s['min_conviction']}",       callback_data="set_conv"),
-         InlineKeyboardButton(f"🕐 {s['scan_interval_min']}m",   callback_data="set_int"),
-         InlineKeyboardButton(f"⏳ CD {s['cooldown_min']}m",     callback_data="set_cd"),
-         InlineKeyboardButton(f"💸 {s['account_risk_pct']}%",    callback_data="set_risk")],
-        [InlineKeyboardButton("📊 Session",  callback_data="session"),
-         InlineKeyboardButton("📜 History", callback_data="history_list"),
-         InlineKeyboardButton("🏆 Lifetime", callback_data="lifetime")],
-        [InlineKeyboardButton("🧪 Test",                                          callback_data="test"),
-         InlineKeyboardButton(f"🔄 Rescore {'✅' if s['rescore_on'] else '❌'}",  callback_data="toggle_rescore"),
-         InlineKeyboardButton("⚖️ RR",                                            callback_data="rr_info"),
-         InlineKeyboardButton("📊 Dashboard",                                     callback_data="dashboard")],
     ]
     return InlineKeyboardMarkup(kb)
 
@@ -3276,28 +3312,89 @@ async def cmd_rejected(u, c):
     await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
 async def cmd_help(u,c):
+    """
+    Wave 17 (May 9, 2026): Cleaned to remove obsolete WATCH/HEADS UP
+    references killed by Wave 14. Points to /commands for full list.
+    """
     await u.message.reply_text(
-        "🤖 *NQ CALLS Bot — Quick Guide*\n"
+        "🤖 *NQ CALLS — Quick Guide*\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "🟢 *ENTER NOW* — confirmed, enter immediately\n"
-        "👀 *HEADS UP* — setup forming, get ready\n"
+        "🟢 *Alerts:* only confirmed entries (LONG / SHORT)\n"
+        "🔥 HIGH 80+   ✅ MEDIUM 65-79   ⚡ LOW 50-64\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "🔥 HIGH (80+) — 5 MNQ / full size\n"
-        "✅ MEDIUM (65-79) — 3 MNQ / normal size\n"
-        "⚡ LOW (50-64) — 1 MNQ / smaller size\n"
+        "📍 Entry | 🛑 Stop | 🎯 Target | 📦 Size by tier\n"
+        "🔭 Trend (-10 to +10) | ADX | RSI | Volume\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "📍 Entry | 🛑 Stop (place immediately) | 🎯 Target\n"
-        "🔭 Trend (-10 to +10) | 📦 Size (contracts)\n"
+        "🌅 8:30am Morning   🌙 6pm Asia   📋 8pm Report\n"
+        "📡 /brief anytime — live market analysis\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "🌅 8:30am Morning brief | 🌙 6pm Asia brief | 📋 8pm Daily report\n"
-        "📡 Live — instant market analysis any time\n"
-        "━━━━━━━━━━━━━━━━━━\n"
-        "`/stats` `/open` `/win` `/loss` `/skip` `/report` `/brief`\n"
-        "`/session` `/history [date]` `/lifetime`\n"
-        "`/rejected` `/detections [market]` — see what bot is thinking\n"
+        "*Most-used:*\n"
+        "`/open`  `/stats`  `/session`  `/edge`  `/diag`\n"
+        "\n"
+        "*Full command list:*  /commands\n"
         "━━━━━━━━━━━━━━━━━━\n"
         "⚠️ Not financial advice. Manage your risk.",
         parse_mode="Markdown")
+
+
+async def cmd_commands(u, c):
+    """
+    Wave 17 (May 9, 2026): Comprehensive categorized command list.
+    Replaces the partial command listing that was crammed into /help.
+    Six categories cover all ~35 registered commands.
+    """
+    text = (
+        "🤖 *NQ CALLS — All Commands*\n"
+        "━━━━━━━━━━━━━━━━━━\n"
+        "📊 *TRADING*\n"
+        "`/open`  — list open trades\n"
+        "`/win [id]`  — mark trade as won\n"
+        "`/loss [id]`  — mark trade as lost\n"
+        "`/skip [id]`  — mark trade as skipped\n"
+        "\n"
+        "📈 *STATS & ANALYSIS*\n"
+        "`/stats`  — overall stats\n"
+        "`/session`  — current session\n"
+        "`/history [date]`  — past sessions\n"
+        "`/lifetime`  — lifetime totals\n"
+        "`/edge`  — per-setup win rate\n"
+        "`/setups`  — active setup catalog\n"
+        "`/journal [N]`  — recent trade lessons\n"
+        "`/detections [mkt]`  — recent detections\n"
+        "`/rejected`  — recent rejections\n"
+        "`/backtest`  — replay closed trades\n"
+        "`/review [days]`  — strategy review\n"
+        "`/analyze`  — strategy log patterns\n"
+        "\n"
+        "📋 *REPORTS*\n"
+        "`/report`  — full daily report\n"
+        "`/recap`  — quick session recap\n"
+        "`/brief`  — live market brief\n"
+        "`/dashboard`  — HTML dashboard\n"
+        "\n"
+        "💰 *SIM ACCOUNT*\n"
+        "`/simstatus`  — sim status\n"
+        "`/simon`  `/simoff`  — toggle sim\n"
+        "`/simreset [preset]`  — reset 50k/100k/150k\n"
+        "`/mnq`  — toggle MNQ vs NQ\n"
+        "`/simweekly`  — weekly breakdown\n"
+        "`/cryptostatus`  — crypto sim\n"
+        "\n"
+        "🧠 *AUTO-TUNING*\n"
+        "`/tune [l3]`  — manual auto-tune\n"
+        "`/recalibrate`  — daily soft-tune\n"
+        "`/wave7`  — layer status\n"
+        "\n"
+        "⚙️ *UTILITY*\n"
+        "`/diag`  — bot health check\n"
+        "`/sync`  — push data to GitHub\n"
+        "`/pulldata`  — data freshness\n"
+        "`/menu`  — main menu\n"
+        "`/start` `/help` `/commands`\n"
+        "━━━━━━━━━━━━━━━━━━\n"
+        "_Type / in chat for native command dropdown._"
+    )
+    await u.message.reply_text(text, parse_mode="Markdown")
 
 async def cmd_dashboard(u,c):
     await u.message.reply_text("⏳ Building dashboard...")
@@ -3971,6 +4068,43 @@ async def _post_init(app):
     except Exception as e:
         log.error(f"Startup verification message: {e}")
 
+    # Wave 17 (May 9, 2026): Register Telegram-native UI surfaces.
+    # set_my_commands populates the "/" autocomplete dropdown so users
+    # see all commands when they type "/" in any chat with the bot.
+    # set_my_short_description shows in the bot profile / share screen.
+    # This is what makes the bot feel professional / robot-like.
+    try:
+        from telegram import BotCommand
+        await app.bot.set_my_commands([
+            BotCommand("menu",       "Open main menu"),
+            BotCommand("status",     "Bot status & open trades"),
+            BotCommand("stats",      "Overall trading stats"),
+            BotCommand("session",    "Current session breakdown"),
+            BotCommand("open",       "List open trades"),
+            BotCommand("edge",       "Per-setup win rate"),
+            BotCommand("setups",     "Active setup catalog"),
+            BotCommand("brief",      "Live market brief"),
+            BotCommand("report",     "Daily report"),
+            BotCommand("recap",      "Quick session recap"),
+            BotCommand("backtest",   "Replay closed trades"),
+            BotCommand("simstatus",  "Sim account status"),
+            BotCommand("diag",       "Bot health check"),
+            BotCommand("commands",   "Full command list"),
+            BotCommand("help",       "Quick guide"),
+        ])
+        log.info("Wave 17: Telegram /-dropdown commands registered (15)")
+    except Exception as e:
+        log.warning(f"Wave 17 set_my_commands failed (non-fatal): {e}")
+
+    try:
+        await app.bot.set_my_short_description(
+            "Self-improving trading alert bot for NQ Futures, Gold, BTC, "
+            "and SOL. Confirmed entries only. Type /menu to start."
+        )
+        log.info("Wave 17: Telegram short description registered")
+    except Exception as e:
+        log.warning(f"Wave 17 set_my_short_description failed (non-fatal): {e}")
+
     asyncio.create_task(scan_loop(app)); log.info("Scan loop launched.")
 
     # Launch auto-sync periodic loop (commits data/ + outcomes.csv to GitHub every 6h)
@@ -4245,7 +4379,7 @@ def main():
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
-                   ("journal",cmd_journal)]:
+                   ("journal",cmd_journal),("commands",cmd_commands)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
