@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NQ CALLS Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        padding: 20px;
+    }
+    .header {
+        text-align: center;
+        padding: 30px 0;
+        border-bottom: 1px solid #21262d;
+        margin-bottom: 30px;
+    }
+    .header h1 {
+        font-size: 2em;
+        color: #58a6ff;
+        margin-bottom: 8px;
+    }
+    .header .subtitle {
+        color: #8b949e;
+        font-size: 0.95em;
+    }
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+    }
+    .stat-card .value {
+        font-size: 2em;
+        font-weight: 700;
+        color: #58a6ff;
+    }
+    .stat-card .value.green { color: #3fb950; }
+    .stat-card .value.red { color: #f85149; }
+    .stat-card .value.yellow { color: #d29922; }
+    .stat-card .label {
+        font-size: 0.85em;
+        color: #8b949e;
+        margin-top: 4px;
+    }
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+    .chart-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    .chart-card h3 {
+        color: #58a6ff;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+    .full-width {
+        grid-column: 1 / -1;
+    }
+    .insights {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 30px;
+    }
+    .insights h3 {
+        color: #58a6ff;
+        margin-bottom: 15px;
+    }
+    .insight-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #21262d;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .insight-item:last-child { border-bottom: none; }
+    .insight-icon { font-size: 1.2em; }
+    .footer {
+        text-align: center;
+        padding: 20px;
+        color: #484f58;
+        font-size: 0.85em;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>NQ CALLS Dashboard</h1>
+    <div class="subtitle">All time | Generated: 2026-05-09 17:27 | 35 total alerts</div>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="value red">22.7%</div>
+        <div class="label">Win Rate</div>
+    </div>
+    <div class="stat-card">
+        <div class="value green">5</div>
+        <div class="label">Wins</div>
+    </div>
+    <div class="stat-card">
+        <div class="value red">17</div>
+        <div class="label">Losses</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">0</div>
+        <div class="label">Open Trades</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">35</div>
+        <div class="label">Total Alerts</div>
+    </div>
+    <div class="stat-card">
+        <div class="value green">1</div>
+        <div class="label">Best Win Streak</div>
+    </div>
+    <div class="stat-card">
+        <div class="value red">12</div>
+        <div class="label">Worst Loss Streak</div>
+    </div>
+    <div class="stat-card">
+        <div class="value yellow">535</div>
+        <div class="label">Missed Winners</div>
+    </div>
+</div>
+
+<div class="charts-grid">
+
+    <div class="chart-card">
+        <h3>Win Rate by Setup Type</h3>
+        <div class="chart-container"><canvas id="setupChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Win Rate by Market</h3>
+        <div class="chart-container"><canvas id="marketChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Win Rate by Hour (UTC)</h3>
+        <div class="chart-container"><canvas id="hourChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Win Rate by Conviction Tier</h3>
+        <div class="chart-container"><canvas id="tierChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Win Rate by Day of Week</h3>
+        <div class="chart-container"><canvas id="dowChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Scan Decisions (Strategy Log)</h3>
+        <div class="chart-container"><canvas id="decisionChart"></canvas></div>
+    </div>
+
+    <div class="chart-card full-width">
+        <h3>Cumulative PnL Over Time</h3>
+        <div class="chart-container"><canvas id="pnlChart"></canvas></div>
+    </div>
+
+    <div class="chart-card full-width">
+        <h3>Cumulative Wins vs Losses Over Time</h3>
+        <div class="chart-container"><canvas id="timelineChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Top Rejection Reasons</h3>
+        <div class="chart-container"><canvas id="reasonChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Missed Opportunities</h3>
+        <div class="chart-container"><canvas id="missedChart"></canvas></div>
+    </div>
+
+</div>
+
+<div class="insights">
+    <h3>Key Insights</h3>
+    <div class="insight-item"><span class="insight-icon">🔴</span><span>Win rate at 22.7% — needs attention, consider tightening filters</span></div><div class="insight-item"><span class="insight-icon">⭐</span><span>Best setup: BB_REVERSION_BULL (40.0% WR over 5 trades)</span></div><div class="insight-item"><span class="insight-icon">⚠️</span><span>Weakest setup: STOCH_REVERSAL_BULL (0.0% WR) — consider raising filters</span></div><div class="insight-item"><span class="insight-icon">💡</span><span>535 setups were rejected but would have won — review filter thresholds</span></div><div class="insight-item"><span class="insight-icon">✅</span><span>909 rejected setups would have lost — filters working correctly</span></div><div class="insight-item"><span class="insight-icon">🔥</span><span>HIGH conviction trades: 0.0% WR — needs review</span></div>
+</div>
+
+<div class="footer">
+    NQ CALLS Bot | Built with Claude | Dashboard auto-generated
+</div>
+
+<script>
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#21262d';
+
+const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: true } },
+    scales: {
+        y: { beginAtZero: true, grid: { color: '#21262d' } },
+        x: { grid: { color: '#21262d' } }
+    }
+};
+
+// Setup chart
+new Chart(document.getElementById('setupChart'), {
+    type: 'bar',
+    data: {
+        labels: ["BB_REVERSION_BULL", "BREAK_RETEST_BULL", "STOCH_REVERSAL_BULL", "EMA21_PULLBACK_BULL", "APPROACH_SUPPORT"],
+        datasets: [
+            { label: 'Wins', data: [2, 2, 0, 1, 0], backgroundColor: '#3fb950' },
+            { label: 'Losses', data: [3, 4, 3, 2, 5], backgroundColor: '#f85149' }
+        ]
+    },
+    options: barOptions
+});
+
+// Market chart
+new Chart(document.getElementById('marketChart'), {
+    type: 'bar',
+    data: {
+        labels: ["NQ", "SOL", "BTC", "GC"],
+        datasets: [
+            { label: 'Wins', data: [3, 2, 0, 0], backgroundColor: '#3fb950' },
+            { label: 'Losses', data: [4, 11, 1, 1], backgroundColor: '#f85149' }
+        ]
+    },
+    options: barOptions
+});
+
+// Hour chart
+new Chart(document.getElementById('hourChart'), {
+    type: 'line',
+    data: {
+        labels: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+        datasets: [{
+            label: 'Win Rate %',
+            data: [100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 33.3, 50.0, 0.0, 100.0, 0.0, 0.0, 0.0, 0.0],
+            borderColor: '#58a6ff',
+            backgroundColor: 'rgba(88,166,255,0.1)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true } },
+        scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#21262d' },
+                  ticks: { callback: v => v + '%' } },
+            x: { grid: { color: '#21262d' } }
+        }
+    }
+});
+
+// Tier chart
+new Chart(document.getElementById('tierChart'), {
+    type: 'bar',
+    data: {
+        labels: ["HIGH", "MEDIUM"],
+        datasets: [
+            { label: 'Wins', data: [0, 5], backgroundColor: '#3fb950' },
+            { label: 'Losses', data: [8, 9], backgroundColor: '#f85149' }
+        ]
+    },
+    options: barOptions
+});
+
+// Day of week chart
+new Chart(document.getElementById('dowChart'), {
+    type: 'bar',
+    data: {
+        labels: ["Mon", "Tue", "Wed", "Thu"],
+        datasets: [
+            { label: 'Wins', data: [1, 1, 2, 1], backgroundColor: '#3fb950' },
+            { label: 'Losses', data: [0, 3, 1, 13], backgroundColor: '#f85149' }
+        ]
+    },
+    options: barOptions
+});
+
+// Decision pie chart
+new Chart(document.getElementById('decisionChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Fired', 'Rejected', 'Almost'],
+        datasets: [{
+            data: [93, 6755, 50],
+            backgroundColor: ['#3fb950', '#f85149', '#d29922']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+// Timeline chart
+new Chart(document.getElementById('timelineChart'), {
+    type: 'line',
+    data: {
+        labels: ["2026-05-01", "2026-05-01", "2026-05-01", "2026-05-03", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-04", "2026-05-05", "2026-05-05", "2026-05-05", "2026-05-05", "2026-05-06", "2026-05-06", "2026-05-06", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07", "2026-05-07"],
+        datasets: [
+            { label: 'Cumulative Wins', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5], borderColor: '#3fb950',
+               backgroundColor: 'rgba(63,185,80,0.1)', fill: true },
+            { label: 'Cumulative Losses', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 16, 17], borderColor: '#f85149',
+               backgroundColor: 'rgba(248,81,73,0.1)', fill: true }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#21262d' } },
+            x: { grid: { color: '#21262d' },
+                  ticks: { maxTicksLimit: 15 } }
+        }
+    }
+});
+
+// Cumulative PnL chart
+new Chart(document.getElementById('pnlChart'), {
+    type: 'line',
+    data: {
+        labels: ["04-13", "04-14", "04-28", "04-29", "04-30", "05-01", "05-02", "05-03", "05-04", "05-05", "05-06", "05-07", "05-08"],
+        datasets: [{
+            label: 'Cumulative PnL ($)',
+            data: [7470.97, 22655.7, 22655.7, 22655.7, 23849.7, 24031.19, 24031.19, 24031.19, 23849.1, 23849.1, 23849.1, 23547.64, 23547.64],
+            borderColor: '#58a6ff',
+            backgroundColor: 'rgba(88,166,255,0.15)',
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: [7470.97, 22655.7, 22655.7, 22655.7, 23849.7, 24031.19, 24031.19, 24031.19, 23849.1, 23849.1, 23849.1, 23547.64, 23547.64].map(v => v >= 0 ? '#3fb950' : '#f85149'),
+            pointRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true },
+            tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } }
+        },
+        scales: {
+            y: { grid: { color: '#21262d' }, ticks: { callback: v => '$' + v.toLocaleString() } },
+            x: { grid: { color: '#21262d' } }
+        }
+    }
+});
+
+// Rejection reasons chart
+new Chart(document.getElementById('reasonChart'), {
+    type: 'bar',
+    data: {
+        labels: ["Volume data degraded or zero (vol_mean=n", "APPROACH_RESIST blocked: trend +3 not be", "APPROACH_RESIST blocked: trend +9 not be", "APPROACH_RESIST requires trend <= -2 for", "APPROACH_SUPPORT blocked: trend -10 not ", "Conv 43 < min 65", "No real swing target available \u2014 nearest", "No real swing target available"],
+        datasets: [{
+            label: 'Rejections',
+            data: [996, 463, 450, 383, 343, 339, 251, 104],
+            backgroundColor: '#d29922'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: true } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#21262d' } },
+            x: { grid: { color: '#21262d' } }
+        }
+    }
+});
+
+// Missed opportunities chart
+new Chart(document.getElementById('missedChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Missed Winners', 'Missed Losers (good filter)', 'Unresolved'],
+        datasets: [{
+            data: [535, 909, 5361],
+            backgroundColor: ['#d29922', '#3fb950', '#484f58']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+</script>
+</body>
+</html>
