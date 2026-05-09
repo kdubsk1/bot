@@ -1231,6 +1231,28 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
         # APPROACH_SUPPORT produce WATCH_LONG/WATCH_SHORT directions.
         if s.get("direction", "").startswith("WATCH_"):
             _rlog.info(f"WATCH skip (Wave 14): {st} {s.get('direction')}")
+            # Wave 15 (May 8, 2026): Persist WATCH suppressions to JSONL
+            # so future backtest can measure what these setups WOULD
+            # have done. File is append-only JSONL (same pattern as
+            # phantom_events.jsonl and learnings.jsonl).
+            try:
+                _wpath = os.path.join(_BASE_DIR, "data", "watch_alerts_suppressed.jsonl")
+                os.makedirs(os.path.dirname(_wpath), exist_ok=True)
+                _wentry = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "market":    s.get("market", ""),
+                    "tf":        s.get("tf", ""),
+                    "setup":     st,
+                    "direction": s.get("direction", ""),
+                    "entry":     s.get("entry"),
+                    "stop":      s.get("stop"),
+                    "target":    s.get("target"),
+                    "rr":        s.get("rr"),
+                }
+                with open(_wpath, "a", encoding="utf-8") as _wf:
+                    _wf.write(json.dumps(_wentry) + "\n")
+            except Exception as _wlog_err:
+                _rlog.debug(f"Wave 15 watch-log write failed: {_wlog_err}")
             continue
         regime_filtered.append(s)
 
