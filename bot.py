@@ -2508,15 +2508,25 @@ def main_menu():
     Wave 17 (May 9, 2026): Major UI overhaul - removed user-tunable
     strategy controls, info-rich status row.
 
-    Wave 18 (May 9, 2026): Restored Analyze button to row 6 (Wayne
-    uses it for lifetime scan/trade stats). Changed Dashboard from
-    callback button to URL button so it opens GitHub Pages externally.
+    Wave 18 (May 9, 2026): Restored Analyze button to row 6.
+
+    Wave 18b (May 9, 2026): Menu polish based on Wayne's feedback:
+      - Renamed "Live Brief" to just "Brief"
+      - Removed Morning Brief / Asia Brief row entirely (briefs
+        still auto-run at scheduled times; manual-trigger buttons
+        weren't being used)
+      - Removed MNQ toggle (force-locked to MNQ on 50k accounts -
+        the toggle was cosmetic-only, no effect on bot behavior)
+      - Reverted Dashboard from URL button to callback (GitHub
+        Pages requires public repo - we're private. Will switch
+        back to URL when alt hosting is set up)
+
+    Layout: 9 rows / 22 buttons (was 10 / 26).
     """
     s = SETTINGS
     m = s["markets"]
     ss = sim.load_state()
     sim_on = ss.get("enabled", False)
-    use_mnq = ss.get("use_mnq", False)
     preset = ss.get("preset", "50k").upper()
     risk = sim.check_risk_limits(ss)
     pnl = risk["daily_pnl"]
@@ -2543,7 +2553,7 @@ def main_menu():
          InlineKeyboardButton(f"{'✅' if m['BTC'] else '⬜'} BTC", callback_data="toggle_BTC"),
          InlineKeyboardButton(f"{'✅' if m['SOL'] else '⬜'} SOL", callback_data="toggle_SOL")],
 
-        # Row 3: Manual outcome marking
+        # Row 3: Manual outcome marking (when bot misses an exit)
         [InlineKeyboardButton("✅ WIN",  callback_data="trade_win"),
          InlineKeyboardButton("❌ LOSS", callback_data="trade_loss"),
          InlineKeyboardButton("⏭ SKIP", callback_data="trade_skip")],
@@ -2557,29 +2567,27 @@ def main_menu():
          InlineKeyboardButton("📅 Session", callback_data="session"),
          InlineKeyboardButton("🎯 Edge",    callback_data="learning")],
 
-        # Row 6: Live market info & analysis (Wave 18: Analyze restored)
-        [InlineKeyboardButton("📡 Live Brief", callback_data="live_brief"),
-         InlineKeyboardButton("📋 Report",     callback_data="report_now"),
-         InlineKeyboardButton("🔬 Analyze",    callback_data="analyze")],
+        # Row 6: Live market info & analysis (Wave 18b: "Live Brief" -> "Brief")
+        [InlineKeyboardButton("📡 Brief",    callback_data="live_brief"),
+         InlineKeyboardButton("📋 Report",   callback_data="report_now"),
+         InlineKeyboardButton("🔬 Analyze",  callback_data="analyze")],
 
-        # Row 7: Scheduled briefs
-        [InlineKeyboardButton("🌅 Morning Brief", callback_data="brief_morning"),
-         InlineKeyboardButton("🌙 Asia Brief",    callback_data="brief_asia")],
+        # (Wave 18b: removed Morning Brief / Asia Brief row -
+        #  briefs still auto-post at 8:30am ET / 6pm ET)
 
-        # Row 8: Sim primary - status & P&L
+        # Row 7: Sim primary - status & P&L
         [InlineKeyboardButton(f"💰 SIM {'🟢' if sim_on else '🔴'}",  callback_data="toggle_sim"),
          InlineKeyboardButton(f"💵 {pnl_str} today",                     callback_data="sim_status")],
 
-        # Row 9: Sim utilities
-        [InlineKeyboardButton(f"🔄 Reset {preset}",                       callback_data="simreset_current"),
-         InlineKeyboardButton(f"{'🔵 MNQ' if use_mnq else '⚪ NQ'}", callback_data="toggle_mnq"),
-         InlineKeyboardButton("📅 Weekly",                                callback_data="sim_weekly")],
+        # Row 8: Sim utilities (Wave 18b: removed MNQ toggle - cosmetic-only on 50k)
+        [InlineKeyboardButton(f"🔄 Reset {preset}", callback_data="simreset_current"),
+         InlineKeyboardButton("📅 Weekly",          callback_data="sim_weekly")],
 
-        # Row 10: Archives & info footer (Wave 18: Dashboard now URL button)
-        [InlineKeyboardButton("📜 History",  callback_data="history_list"),
-         InlineKeyboardButton("🏆 Lifetime", callback_data="lifetime"),
-         InlineKeyboardButton("🌐 Dashboard ⇗", url="https://kdubsk1.github.io/bot/dashboard.html"),
-         InlineKeyboardButton("❓ Help",         callback_data="help")],
+        # Row 9: Archives & info footer (Wave 18b: Dashboard back to callback)
+        [InlineKeyboardButton("📜 History",   callback_data="history_list"),
+         InlineKeyboardButton("🏆 Lifetime",  callback_data="lifetime"),
+         InlineKeyboardButton("📊 Dashboard", callback_data="dashboard"),
+         InlineKeyboardButton("❓ Help",          callback_data="help")],
     ]
     return InlineKeyboardMarkup(kb)
 
