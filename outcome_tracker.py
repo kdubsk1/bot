@@ -1225,6 +1225,13 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
         if st in BULL_SETUPS and current_regime == "TRENDING_BEAR":
             _rlog.info(f"Regime skip: {st} blocked in TRENDING_BEAR")
             continue
+        # Wave 14 (May 8, 2026): Suppress WATCH/APPROACH alerts.
+        # Wayne's preference - only fire confirmed entries (LONG/SHORT),
+        # not speculative 'about to take' scouts. APPROACH_RESIST and
+        # APPROACH_SUPPORT produce WATCH_LONG/WATCH_SHORT directions.
+        if s.get("direction", "").startswith("WATCH_"):
+            _rlog.info(f"WATCH skip (Wave 14): {st} {s.get('direction')}")
+            continue
         regime_filtered.append(s)
 
     return regime_filtered
