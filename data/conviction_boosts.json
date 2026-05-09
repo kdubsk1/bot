@@ -5,12 +5,14 @@
       "VWAP_BOUNCE_BULL": -6,
       "APPROACH_RESIST": -10,
       "VWAP_REJECT_BEAR": -15,
-      "EMA21_PULLBACK_BULL": -4,
+      "EMA21_PULLBACK_BULL": -3,
       "EMA21_PULLBACK_BEAR": -5,
-      "BREAK_RETEST_BULL": -5,
+      "BREAK_RETEST_BULL": -4,
       "RSI_DIV_BEAR": -5,
       "STOCH_REVERSAL_BEAR": -5,
-      "BB_REVERSION_BULL": -8
+      "BB_REVERSION_BULL": -4,
+      "STOCH_REVERSAL_BULL": -5,
+      "APPROACH_SUPPORT": -8
     },
     "_doc": "Per-setup conviction boost. Positive = trust more, negative = trust less. Applied AFTER base conviction calculation, BEFORE tier mapping. Layer 6 (Wave 9) auto-zeros these when a setup goes cold."
   },
@@ -72,14 +74,46 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-05-07T10:01:07.718122+00:00",
+    "last_decay_check_at": "2026-05-09T10:00:41.914315+00:00",
     "last_decay_actions": [
+      {
+        "setup": "BB_REVERSION_BULL",
+        "action": "relaxed",
+        "reason": "2W/3L = 40.0% WR >= 30.0",
+        "boost_before": -8,
+        "boost_after": -7,
+        "window_days": 14
+      },
+      {
+        "setup": "BREAK_RETEST_BULL",
+        "action": "relaxed",
+        "reason": "2W/4L = 33.3% WR >= 30.0",
+        "boost_before": -5,
+        "boost_after": -4,
+        "window_days": 14
+      },
+      {
+        "setup": "STOCH_REVERSAL_BULL",
+        "action": "penalized",
+        "reason": "0W/3L = 0.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
+        "window_days": 14
+      },
       {
         "setup": "EMA21_PULLBACK_BULL",
         "action": "relaxed",
         "reason": "1W/2L = 33.3% WR >= 30.0",
-        "boost_before": -5,
-        "boost_after": -4,
+        "boost_before": -4,
+        "boost_after": -3,
+        "window_days": 14
+      },
+      {
+        "setup": "APPROACH_SUPPORT",
+        "action": "penalized",
+        "reason": "0W/5L = 0.0% WR < 30.0",
+        "boost_before": 0,
+        "boost_after": -5,
         "window_days": 14
       }
     ],
@@ -92,11 +126,11 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-05-07T10:01:07.721816+00:00",
+    "last_run_at": "2026-05-09T10:00:41.919103+00:00",
     "last_run_summary": {
       "cycle_changes": 2,
-      "decay_actions": 1,
-      "n_setups_analyzed": 10
+      "decay_actions": 5,
+      "n_setups_analyzed": 5
     },
     "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."
   }
