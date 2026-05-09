@@ -455,7 +455,12 @@ def lifetime_stats_text() -> str:
             l = data.get("losses", 0)
             p = data.get("pnl", 0)
             p_str = f"+${p:,.2f}" if p >= 0 else f"-${abs(p):,.2f}"
-            lines.append(f"  {key}: {w}W/{l}L | {p_str}")
+            # Wave 18 (May 9, 2026): wrap key in backticks. Setup names
+            # like NQ:BREAK_RETEST_BULL have underscores which Telegram
+            # Markdown was interpreting as italic markers. Unmatched
+            # underscores broke the parse and the message was silently
+            # rejected, so the Lifetime button appeared to do nothing.
+            lines.append(f"  `{key}`: {w}W/{l}L | {p_str}")
 
     return "\n".join(lines)
 

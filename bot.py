@@ -2505,17 +2505,12 @@ async def scan_loop(app):
 # ── Menu ──────────────────────────────────────────────────────────
 def main_menu():
     """
-    Wave 17 (May 9, 2026): Major UI overhaul.
+    Wave 17 (May 9, 2026): Major UI overhaul - removed user-tunable
+    strategy controls, info-rich status row.
 
-    REMOVED user-tunable strategy controls (Conv/Int/CD/Risk) -
-    let the bot decide. Removed rare buttons (Test/RR/Rescore
-    toggle/Analyze).
-
-    NEW info-rich status row: live state + active markets +
-    open trade count, all in one glance.
-
-    Layout: 10 rows, max 4 buttons per row. 26 buttons total
-    (was 34). Logical grouping by frequency of use.
+    Wave 18 (May 9, 2026): Restored Analyze button to row 6 (Wayne
+    uses it for lifetime scan/trade stats). Changed Dashboard from
+    callback button to URL button so it opens GitHub Pages externally.
     """
     s = SETTINGS
     m = s["markets"]
@@ -2562,9 +2557,10 @@ def main_menu():
          InlineKeyboardButton("📅 Session", callback_data="session"),
          InlineKeyboardButton("🎯 Edge",    callback_data="learning")],
 
-        # Row 6: Live market info
+        # Row 6: Live market info & analysis (Wave 18: Analyze restored)
         [InlineKeyboardButton("📡 Live Brief", callback_data="live_brief"),
-         InlineKeyboardButton("📋 Report",     callback_data="report_now")],
+         InlineKeyboardButton("📋 Report",     callback_data="report_now"),
+         InlineKeyboardButton("🔬 Analyze",    callback_data="analyze")],
 
         # Row 7: Scheduled briefs
         [InlineKeyboardButton("🌅 Morning Brief", callback_data="brief_morning"),
@@ -2579,10 +2575,10 @@ def main_menu():
          InlineKeyboardButton(f"{'🔵 MNQ' if use_mnq else '⚪ NQ'}", callback_data="toggle_mnq"),
          InlineKeyboardButton("📅 Weekly",                                callback_data="sim_weekly")],
 
-        # Row 10: Archives & info footer
+        # Row 10: Archives & info footer (Wave 18: Dashboard now URL button)
         [InlineKeyboardButton("📜 History",  callback_data="history_list"),
          InlineKeyboardButton("🏆 Lifetime", callback_data="lifetime"),
-         InlineKeyboardButton("📊 Dashboard", callback_data="dashboard"),
+         InlineKeyboardButton("🌐 Dashboard ⇗", url="https://kdubsk1.github.io/bot/dashboard.html"),
          InlineKeyboardButton("❓ Help",         callback_data="help")],
     ]
     return InlineKeyboardMarkup(kb)
@@ -4104,6 +4100,26 @@ async def _post_init(app):
         log.info("Wave 17: Telegram short description registered")
     except Exception as e:
         log.warning(f"Wave 17 set_my_short_description failed (non-fatal): {e}")
+
+    # Wave 18 (May 9, 2026): Dashboard auto-regen loop.
+    # Every 5 minutes the bot regenerates dashboard.html and
+    # docs/dashboard.html so the GitHub Pages URL stays fresh.
+    # auto_sync (every 6h) commits and pushes the docs/ copy.
+    # For instant push: /sync command.
+    async def _wave18_dashboard_regen_loop():
+        # Initial delay - let the bot finish startup first.
+        await asyncio.sleep(60)
+        while True:
+            try:
+                import generate_dashboard
+                # Run in thread to avoid blocking the event loop
+                # on file I/O (reads outcomes.csv, writes 25KB+ HTML).
+                await asyncio.to_thread(generate_dashboard.main)
+            except Exception as e:
+                log.warning(f"Wave 18 dashboard regen failed: {e}")
+            await asyncio.sleep(300)  # 5 minutes
+    asyncio.create_task(_wave18_dashboard_regen_loop())
+    log.info("Wave 18: Dashboard auto-regen loop launched (5 min cadence)")
 
     asyncio.create_task(scan_loop(app)); log.info("Scan loop launched.")
 
