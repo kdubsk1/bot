@@ -79,7 +79,10 @@ ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
 SCANNER_STATE_FILE = os.path.join(BASE_DIR, "data", "scanner_state.json")
 
 def _save_scanner_state():
-    """Persist scanner_on so it survives Railway restarts."""
+    """
+    Persist scanner_on so it survives Railway restarts.
+    Wave 22 (May 9, 2026): also append JSONL event for audit trail.
+    """
     try:
         os.makedirs(os.path.dirname(SCANNER_STATE_FILE), exist_ok=True)
         data = {
@@ -88,6 +91,18 @@ def _save_scanner_state():
         }
         with open(SCANNER_STATE_FILE, "w") as f:
             json.dump(data, f)
+        # Wave 22: persistent JSONL audit log of every scanner toggle
+        try:
+            evt_path = os.path.join(BASE_DIR, "data", "scanner_events.jsonl")
+            evt = {
+                "timestamp":   data["last_changed"],
+                "scanner_on":  data["scanner_on"],
+                "action":      "TURNED_ON" if data["scanner_on"] else "TURNED_OFF",
+            }
+            with open(evt_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(evt) + "\n")
+        except Exception:
+            pass  # never break state save on logging failure
     except Exception as e:
         log.warning(f"_save_scanner_state: {e}")
 
@@ -1721,7 +1736,9 @@ async def scan_market(app, market, frames):
             lev = risk_pct = hold = None
             if market in ("BTC","SOL"):
                 lev_cap = cfg.LEVERAGE_BY_TIER.get(tier,5)
-                lev, risk_pct = ot.suggest_leverage(tier, stp["entry"], stp["raw_stop"], SETTINGS["account_risk_pct"])
+                # Wave 22: pass regime for trending-aware leverage scaling
+                _w22_regime = snapshot_context.get("regime", "UNKNOWN") if isinstance(snapshot_context, dict) else "UNKNOWN"
+                lev, risk_pct = ot.suggest_leverage(tier, stp["entry"], stp["raw_stop"], SETTINGS["account_risk_pct"], regime=_w22_regime)
                 lev = min(lev, lev_cap)
             hold = ot.HOLD_BY_TIER.get(tier)
 
@@ -4279,6 +4296,10 @@ async def _post_init(app):
 
     asyncio.create_task(scan_loop(app)); log.info("Scan loop launched.")
 
+    # Wave 22 (May 9, 2026): scanner watchdog
+    asyncio.create_task(scanner_watchdog(app))
+    log.info("Wave 22: scanner watchdog launched (1h checks, 6h alert cooldown)")
+
     # Launch auto-sync periodic loop (commits data/ + outcomes.csv to GitHub every 6h)
     # Without this, Railway restarts wipe all runtime trade data, scan decisions,
     # suspended setups, cooldowns, etc. With it, data persists across restarts.
@@ -4535,6 +4556,87 @@ async def cmd_journal(u, c):
     except Exception as e:
         log.error(f"/journal failed: {e}")
         await u.message.reply_text(f"❌ Journal command failed: {e}")
+
+# Wave 22 (May 9, 2026): scanner watchdog state
+# Tracks the last time we sent a watchdog alert so we don't spam
+# Telegram. Reset to None on each successful state transition.
+_LAST_WATCHDOG_ALERT_AT = None
+_WATCHDOG_ALERT_COOLDOWN_HOURS = 6
+_WATCHDOG_OFF_THRESHOLD_HOURS = 2
+_WATCHDOG_STUCK_THRESHOLD_MIN = 30
+
+
+async def scanner_watchdog(app):
+    """
+    Wave 22 (May 9, 2026): Hourly background check for stuck scanner states.
+
+    Sends Telegram alert if:
+      - scanner_on=False AND last_changed > 2 hours ago (paused too long)
+      - scanner_on=True AND _LAST_SCAN_TIMESTAMP > 30 min old (stuck loop)
+
+    Cooldown of 6h between alerts so a single stuck state doesn't spam.
+    Wrapped in defensive try/except so a watchdog bug can never crash
+    the bot.
+    """
+    global _LAST_WATCHDOG_ALERT_AT
+    log.info("Wave 22: scanner watchdog started (hourly checks)")
+    while True:
+        try:
+            await asyncio.sleep(60 * 60)  # 1 hour between checks
+
+            # Cooldown: skip if we alerted recently
+            now = datetime.now(timezone.utc)
+            if _LAST_WATCHDOG_ALERT_AT is not None:
+                hours_since = (now - _LAST_WATCHDOG_ALERT_AT).total_seconds() / 3600.0
+                if hours_since < _WATCHDOG_ALERT_COOLDOWN_HOURS:
+                    continue
+
+            state = _load_scanner_state()
+            scanner_on = state.get("scanner_on", False)
+            last_changed_str = state.get("last_changed", "")
+            alert_msg = None
+
+            if not scanner_on:
+                # Scanner OFF — check how long
+                try:
+                    last_changed = datetime.fromisoformat(last_changed_str) if last_changed_str else now
+                    if last_changed.tzinfo is None:
+                        last_changed = last_changed.replace(tzinfo=timezone.utc)
+                    hours_off = (now - last_changed).total_seconds() / 3600.0
+                    if hours_off >= _WATCHDOG_OFF_THRESHOLD_HOURS:
+                        alert_msg = (
+                            "⚠️ *SCANNER PAUSED ALERT*\n"
+                            "━━━━━━━━━━━━━━━━━━\n"
+                            f"Scanner has been OFF for `{hours_off:.1f}` hours.\n"
+                            "No alerts will fire until you turn it back on.\n\n"
+                            "Tap /menu — hit *Toggle Scan* to resume."
+                        )
+                except Exception as _wd_off_err:
+                    log.warning(f"Wave 22 watchdog OFF-check err: {_wd_off_err}")
+            else:
+                # Scanner ON — check if loop is alive
+                if _LAST_SCAN_TIMESTAMP is not None:
+                    mins_since_scan = (now - _LAST_SCAN_TIMESTAMP).total_seconds() / 60.0
+                    if mins_since_scan >= _WATCHDOG_STUCK_THRESHOLD_MIN:
+                        alert_msg = (
+                            "⚠️ *SCANNER STUCK ALERT*\n"
+                            "━━━━━━━━━━━━━━━━━━\n"
+                            f"Scanner is ON but hasn't scanned for `{int(mins_since_scan)}` min.\n"
+                            "Bot may be hung or all markets halted.\n\n"
+                            "Check /status and /diag. Restart Railway if needed."
+                        )
+
+            if alert_msg:
+                try:
+                    await tg_send(app, alert_msg)
+                    _LAST_WATCHDOG_ALERT_AT = now
+                    log.warning("Wave 22 watchdog: alert sent")
+                except Exception as _wd_send_err:
+                    log.warning(f"Wave 22 watchdog send err: {_wd_send_err}")
+        except Exception as _wd_top_err:
+            log.error(f"Wave 22 watchdog top-level err: {_wd_top_err}", exc_info=True)
+            await asyncio.sleep(60)  # short sleep on error
+
 
 async def cmd_suspended(u, c):
     """Wave 20 (May 9, 2026): /suspended - list suspended setups + countdown.

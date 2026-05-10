@@ -33,9 +33,9 @@ TIMEFRAMES       = ["15m", "1h", "4h", "1d"]
 # ─── Quality Filters ───────────────────────────────────────────────
 # SOL requires STRONGER confirmation than other markets due to volatility
 MIN_ADX          = 22      # Needs clear trend — SOL chops violently
-MIN_RR           = 2.5     # Higher RR needed — stops are wider
+MIN_RR           = 2.0     # Wave 22 (May 9, 2026): lowered 2.5->2.0 for crypto scalp mode
 NEWS_MIN_RR      = 4.0     # Lowered from 5.0 — was blocking some real setups, still high for safety
-MIN_CONVICTION   = 72      # Raised from 68 — SOL at 20% WR, needs stronger confirmation
+MIN_CONVICTION   = 70      # Wave 22 (May 9, 2026): lowered 72->70 for crypto scalp mode (modest reduction; SOL has weak data)
 COOLDOWN_MIN     = 60      # 1 hour cooldown
 
 # ─── Per-setup ADX minimums ────────────────────────────────────────

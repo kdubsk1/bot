@@ -1752,8 +1752,26 @@ def structure_target(df: pd.DataFrame, direction: str,
 # Leverage (BTC/SOL only)
 # ------------------------------------------------------------------ #
 def suggest_leverage(tier: str, entry: float, stop: float,
-                     account_risk_pct: Optional[float] = None) -> tuple[int, float]:
-    cap      = LEV_BY_TIER.get(tier, 5)
+                     account_risk_pct: Optional[float] = None,
+                     regime: Optional[str] = None) -> tuple[int, float]:
+    """
+    Suggest leverage given tier, stop distance, and account risk %.
+
+    Wave 22 (May 9, 2026): Optional `regime` param scales the cap:
+      TRENDING_BULL/TRENDING_BEAR -> 1.5x (more leverage in clear trends)
+      VOLATILE_EXPANSION          -> 0.6x (less leverage in chaos)
+      RANGING / None / unknown    -> 1.0x (no change)
+
+    Risk per trade is still bounded by account_risk_pct -- higher
+    leverage just lets the position size shrink to keep the same
+    dollar risk. Wave 22 does NOT raise per-trade dollar risk.
+    """
+    cap = LEV_BY_TIER.get(tier, 5)
+    # Wave 22: regime-aware leverage scaling
+    if regime in ("TRENDING_BULL", "TRENDING_BEAR"):
+        cap = int(round(cap * 1.5))
+    elif regime == "VOLATILE_EXPANSION":
+        cap = max(1, int(round(cap * 0.6)))
     risk_pct = abs(entry-stop)/entry*100 if entry else 0
     arp      = account_risk_pct if account_risk_pct is not None else _ACCOUNT_RISK_PCT
     if risk_pct <= 0:

@@ -33,9 +33,9 @@ TIMEFRAMES       = ["15m", "1h", "4h", "1d"]
 # ─── Quality Filters ───────────────────────────────────────────────
 MIN_ADX          = 16      # Lowered — BTC trending at 17+ overnight is real
 MIN_ADX_PRIME    = 20      # US/London sessions require stronger trend
-MIN_RR           = 2.0     # BTC moves fast — 2R is achievable
+MIN_RR           = 1.5     # Wave 22 (May 9, 2026): lowered 2.0->1.5 for crypto scalp mode
 NEWS_MIN_RR      = 2.8     # Lowered from 3.5 — 28 missed winners at RR 2.5 during news
-MIN_CONVICTION   = 62      # BTC setups can be cleaner
+MIN_CONVICTION   = 60      # Wave 22 (May 9, 2026): lowered 62->60 for crypto scalp mode
 COOLDOWN_MIN     = 45      # 45 min — BTC moves faster than Gold
 
 # ─── Per-setup ADX minimums ────────────────────────────────────────
