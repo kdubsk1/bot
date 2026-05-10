@@ -271,7 +271,15 @@ def main():
         },
         "setup_stats":      setup_stats,
         "recent_alerts":    recent,
-        "suspended_setups": list(suspended.keys()),
+        # Wave 20 (May 9, 2026): pass full info including countdown for dashboard render
+        "suspended_setups": [
+            {
+                "key": k,
+                "reason": v.get("reason", ""),
+                "suspended_at": v.get("suspended_at", ""),
+            }
+            for k, v in suspended.items()
+        ],
         "by_market":        by_market,        # Wave 19
         "by_tier":          by_tier,          # Wave 19
     }
@@ -666,7 +674,25 @@ function renderSuspended() {{
     list.innerHTML = '<div style="color: #56d364;">✅ No setups currently suspended</div>';
     return;
   }}
-  list.innerHTML = DATA.suspended_setups.map(s => `<span class="susp-tag">⛔ ${{s}}</span>`).join('');
+  // Wave 20: render objects with countdown to auto-unsuspend (14d)
+  const AUTO_DAYS = 14;
+  const now = new Date();
+  list.innerHTML = DATA.suspended_setups.map(s => {{
+    if (typeof s === 'string') return `<span class='susp-tag'>⛔ ${{s}}</span>`;
+    const key = s.key || '?';
+    const reason = s.reason || '';
+    let countdown = '';
+    if (s.suspended_at) {{
+      try {{
+        const sa = new Date(s.suspended_at);
+        const daysIn = (now - sa) / (1000 * 60 * 60 * 24);
+        const daysLeft = Math.max(0, AUTO_DAYS - Math.floor(daysIn));
+        countdown = daysLeft > 0 ? ` <span style='opacity:0.7;'>(${{daysLeft}}d left)</span>` : ` <span style='color:#56d364;'>(eligible)</span>`;
+      }} catch (e) {{ /* skip countdown */ }}
+    }}
+    const tooltip = reason ? ` title='${{reason.replace(/'/g, "&apos;")}}'` : '';
+    return `<span class='susp-tag'${{tooltip}}>⛔ ${{key}}${{countdown}}</span>`;
+  }}).join('');
 }}
 
 function renderSetups() {{

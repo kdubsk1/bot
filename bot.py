@@ -4217,6 +4217,7 @@ async def _post_init(app):
             BotCommand("open",       "List open trades"),
             BotCommand("edge",       "Per-setup win rate"),
             BotCommand("setups",     "Active setup catalog"),
+            BotCommand("suspended",  "Suspended setups + countdown"),  # Wave 20
             BotCommand("brief",      "Live market brief"),
             BotCommand("report",     "Daily report"),
             BotCommand("recap",      "Quick session recap"),
@@ -4518,6 +4519,20 @@ async def cmd_journal(u, c):
         log.error(f"/journal failed: {e}")
         await u.message.reply_text(f"❌ Journal command failed: {e}")
 
+async def cmd_suspended(u, c):
+    """Wave 20 (May 9, 2026): /suspended - list suspended setups + countdown.
+
+    Wayne discovered no slash command exposed the existing
+    get_suspension_report() function. This adds it.
+    """
+    try:
+        text = ot.get_suspension_report()
+        await u.message.reply_text(text, parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/suspended failed: {e}")
+        await u.message.reply_text(f"❌ Suspended command failed: {e}")
+
+
 def main():
     log.info("NQ CALLS Bot starting...")
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
@@ -4534,7 +4549,9 @@ def main():
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
-                   ("journal",cmd_journal),("commands",cmd_commands)]:
+                   ("journal",cmd_journal),
+                   ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
+                   ("commands",cmd_commands)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")

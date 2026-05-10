@@ -90,6 +90,9 @@ def get_account_risk_pct() -> float:
 # Restores them when recent performance improves.
 # ------------------------------------------------------------------ #
 SUSPENDED_SETUPS_FILE = os.path.join(_BASE_DIR, "data", "suspended_setups.json")
+# Wave 20: persistent JSONL log of every suspension/restoration event.
+# Append-only; per Wayne's "data is most important" rule.
+SUSPENSION_EVENTS_FILE = os.path.join(_BASE_DIR, "data", "suspension_events.jsonl")
 
 # Thresholds (May 2 tightened further after the BTC $210 loss exposed that
 # 4-trade-minimum was still too lenient. Setups bleeding from a tiny sample
@@ -106,6 +109,16 @@ _SUSPEND_WR_BELOW   = 35.0    # suspend if win_rate < this (May 2: was 40)
 _RESTORE_WR_ABOVE   = 50.0    # restore if recent win_rate climbs above this
 _SUSPEND_DOLLAR_BLEED = 200.0 # May 2: suspend if setup lost this much in 7 days
 _DOLLAR_BLEED_WINDOW_DAYS = 7
+
+# Wave 20 (May 9, 2026): time-based auto-unsuspension. Fixes deadlock
+# where suspended setups can never restore (WR can't climb above 50%
+# threshold while suspension blocks new trades from firing). Setups
+# auto-unsuspend after this many days regardless of stats, get a fresh
+# shot under current market conditions. If they lose, normal suspension
+# logic re-suspends them on the next loss. Net cost: at most 1 losing
+# trade per setup per 14-day window. Net benefit: previously-good setups
+# can reactivate when conditions favour them again.
+_AUTO_UNSUSPEND_DAYS = 14
 
 
 def get_suspended_setups() -> dict:
@@ -125,6 +138,35 @@ def get_suspended_setups() -> dict:
 
 def _save_suspended_setups(data: dict):
     safe_io.atomic_write_json(SUSPENDED_SETUPS_FILE, data)
+
+
+def _log_suspension_event(action: str, key: str, reason: str, info: dict = None) -> None:
+    """
+    Wave 20 (May 9, 2026): persistent JSONL audit log for every
+    suspension/restoration event. Append-only, ~200 bytes per row.
+
+    action is one of: SUSPENDED, RESTORED, AUTO_RESTORED.
+    Wrapped in try/except so a logging failure can never break the
+    main suspension engine.
+    """
+    try:
+        os.makedirs(os.path.dirname(SUSPENSION_EVENTS_FILE), exist_ok=True)
+        evt = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "action":    action,
+            "key":       key,
+            "reason":    reason,
+        }
+        if info:
+            for fld in ("total_at_suspension", "wr_at_suspension",
+                        "bleed_at_suspension", "suspended_at"):
+                if fld in info:
+                    evt[fld] = info[fld]
+        with open(SUSPENSION_EVENTS_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(evt) + "\n")
+    except Exception:
+        # silent fail - logging must never break trade flow
+        pass
 
 
 def is_setup_suspended(market: str, setup: str) -> bool:
@@ -152,6 +194,30 @@ def check_and_update_suspensions() -> list[str]:
     # May 2: build dollar-bleed map from last N days of outcomes.csv
     bleed_by_setup = _compute_dollar_bleed(_DOLLAR_BLEED_WINDOW_DAYS)
 
+    # Wave 20 (May 9, 2026): time-based auto-unsuspension. THE deadlock fix.
+    # Suspended setups would otherwise stay suspended forever because the WR
+    # restore gate requires new trades that suspension blocks. Iterate the
+    # SUSPENDED dict (not all_keys) since suspended setups may not be in perf.
+    _now_utc = datetime.now(timezone.utc)
+    _auto_cutoff = timedelta(days=_AUTO_UNSUSPEND_DAYS)
+    for _key in list(suspended.keys()):
+        _info = suspended[_key]
+        _suspended_at_str = _info.get("suspended_at", "")
+        try:
+            _suspended_at = datetime.fromisoformat(_suspended_at_str)
+            if _suspended_at.tzinfo is None:
+                _suspended_at = _suspended_at.replace(tzinfo=timezone.utc)
+            if (_now_utc - _suspended_at) >= _auto_cutoff:
+                _reason = f"auto-unsuspended after {_AUTO_UNSUSPEND_DAYS} days (cooldown)"
+                _info_copy = dict(_info)
+                del suspended[_key]
+                changes.append(f"AUTO_RESTORED {_key} ({_reason})")
+                _log_suspension_event("AUTO_RESTORED", _key, _reason, _info_copy)
+        except Exception:
+            # bad timestamp - leave entry alone, will need WR-based restore
+            continue
+
+
     # Combine perf keys and bleed keys so both gates are evaluated
     all_keys = set(perf.keys()) | set(bleed_by_setup.keys())
 
@@ -168,7 +234,10 @@ def check_and_update_suspensions() -> list[str]:
             # WR back above threshold AND no recent dollar bleed.
             if total >= _SUSPEND_MIN_TRADES and wr >= _RESTORE_WR_ABOVE and bleed > -_SUSPEND_DOLLAR_BLEED:
                 del suspended[key]
+                _restore_reason = f"WR climbed to {wr}% over {total} trades, bleed ${bleed:+.0f} 7d"
+                _restore_info = {"total_at_restore": total, "wr_at_restore": wr, "bleed_at_restore": round(bleed, 2)}
                 changes.append(f"RESTORED {key} ({wr}% WR, {total} trades, ${bleed:+.0f} 7d)")
+                _log_suspension_event("RESTORED", key, _restore_reason, _restore_info)  # Wave 20
         else:
             # Not suspended -- check both gates
             wr_gate    = total >= _SUSPEND_MIN_TRADES and wr < _SUSPEND_WR_BELOW
@@ -186,6 +255,7 @@ def check_and_update_suspensions() -> list[str]:
                     "bleed_at_suspension": round(bleed, 2),
                 }
                 changes.append(f"SUSPENDED {key} ({reason_str})")
+                _log_suspension_event("SUSPENDED", key, reason_str, suspended[key])  # Wave 20
 
     _save_suspended_setups(suspended)
     return changes
@@ -240,7 +310,10 @@ def _compute_dollar_bleed(days: int = 7) -> dict:
 
 
 def get_suspension_report() -> str:
-    """Telegram-formatted string showing suspended/restored setups."""
+    """
+    Telegram-formatted string showing suspended/restored setups.
+    Wave 20 (May 9, 2026): now shows days-until-auto-unsuspend per setup.
+    """
     suspended = get_suspended_setups()
     if not suspended:
         return "✅ *No setups currently suspended.* All setups active."
@@ -251,13 +324,26 @@ def get_suspension_report() -> str:
         "_These setups are blocked from firing due to negative EV._",
         "",
     ]
+    _now = datetime.now(timezone.utc)
     for key, info in sorted(suspended.items()):
         reason = info.get("reason", "?")
-        since  = info.get("suspended_at", "")[:10]
-        lines.append(f"  🔴 `{key}` — {reason} (since {since})")
+        since_full = info.get("suspended_at", "")
+        since = since_full[:10] if since_full else "?"
+        # Wave 20: countdown to auto-unsuspend
+        countdown = ""
+        try:
+            _sa = datetime.fromisoformat(since_full)
+            if _sa.tzinfo is None:
+                _sa = _sa.replace(tzinfo=timezone.utc)
+            _days_in = (_now - _sa).total_seconds() / 86400.0
+            _days_left = max(0, _AUTO_UNSUSPEND_DAYS - int(_days_in))
+            countdown = f" (auto-restore in {_days_left}d)" if _days_left > 0 else " (eligible for auto-restore now)"
+        except Exception:
+            pass
+        lines.append(f"  🔴 `{key}` — {reason} (since {since}){countdown}")
 
     lines.append("")
-    lines.append("_Setups auto-restore when WR climbs above 45%._")
+    lines.append(f"_Setups auto-restore when WR climbs above 50% OR after {_AUTO_UNSUSPEND_DAYS} days._")
     return "\n".join(lines)
 
 
