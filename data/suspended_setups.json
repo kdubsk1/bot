@@ -1,16 +1,4 @@
 {
-  "SOL:APPROACH_RESIST": {
-    "reason": "2W/5L (28.6% WR)",
-    "suspended_at": "2026-04-15T14:42:17.238931+00:00",
-    "total_at_suspension": 7,
-    "wr_at_suspension": 28.6
-  },
-  "BTC:APPROACH_RESIST": {
-    "reason": "2W/4L (33.3% WR)",
-    "suspended_at": "2026-04-15T14:42:17.238938+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 33.3
-  },
   "BTC:BB_REVERSION_BULL": {
     "reason": "bled $200 in 7d",
     "suspended_at": "2026-05-03T00:48:22.200494+00:00",

@@ -279,7 +279,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-10T00:49:19.920493+00:00",
+  "generated_at": "2026-05-10T02:48:52.073805+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -939,20 +939,66 @@ const DATA = {
     }
   ],
   "suspended_setups": [
-    "SOL:APPROACH_RESIST",
-    "BTC:APPROACH_RESIST",
-    "BTC:BB_REVERSION_BULL",
-    "GC:APPROACH_RESIST",
-    "SOL:RSI_DIV_BEAR",
-    "SOL:BREAK_RETEST_BEAR",
-    "SOL:EMA21_PULLBACK_BEAR",
-    "NQ:BREAK_RETEST_BULL",
-    "GC:STOCH_REVERSAL_BEAR",
-    "BTC:APPROACH_SUPPORT",
-    "NQ:EMA21_PULLBACK_BULL",
-    "SOL:APPROACH_SUPPORT",
-    "NQ:APPROACH_SUPPORT",
-    "SOL:BB_REVERSION_BULL"
+    {
+      "key": "BTC:BB_REVERSION_BULL",
+      "reason": "bled $200 in 7d",
+      "suspended_at": "2026-05-03T00:48:22.200494+00:00"
+    },
+    {
+      "key": "GC:APPROACH_RESIST",
+      "reason": "bled $200 in 7d",
+      "suspended_at": "2026-05-03T00:48:22.200507+00:00"
+    },
+    {
+      "key": "SOL:RSI_DIV_BEAR",
+      "reason": "bled $200 in 7d",
+      "suspended_at": "2026-05-03T00:48:22.200524+00:00"
+    },
+    {
+      "key": "SOL:BREAK_RETEST_BEAR",
+      "reason": "1W/2L (33.3% WR)",
+      "suspended_at": "2026-05-03T00:48:22.200531+00:00"
+    },
+    {
+      "key": "SOL:EMA21_PULLBACK_BEAR",
+      "reason": "0W/3L (0.0% WR) + bled $300 in 7d",
+      "suspended_at": "2026-05-03T00:48:22.200537+00:00"
+    },
+    {
+      "key": "NQ:BREAK_RETEST_BULL",
+      "reason": "1W/2L (33.3% WR)",
+      "suspended_at": "2026-05-03T00:48:22.200542+00:00"
+    },
+    {
+      "key": "GC:STOCH_REVERSAL_BEAR",
+      "reason": "bled $200 in 7d",
+      "suspended_at": "2026-05-03T00:48:22.200546+00:00"
+    },
+    {
+      "key": "BTC:APPROACH_SUPPORT",
+      "reason": "0W/3L (0.0% WR)",
+      "suspended_at": "2026-05-03T00:48:22.200552+00:00"
+    },
+    {
+      "key": "NQ:EMA21_PULLBACK_BULL",
+      "reason": "bled $200 in 7d",
+      "suspended_at": "2026-05-06T13:46:18.947898+00:00"
+    },
+    {
+      "key": "SOL:APPROACH_SUPPORT",
+      "reason": "0W/3L (0.0% WR) + bled $300 in 7d",
+      "suspended_at": "2026-05-07T20:00:27.088164+00:00"
+    },
+    {
+      "key": "NQ:APPROACH_SUPPORT",
+      "reason": "0W/3L (0.0% WR) + bled $200 in 7d",
+      "suspended_at": "2026-05-07T20:00:27.088184+00:00"
+    },
+    {
+      "key": "SOL:BB_REVERSION_BULL",
+      "reason": "bled $200 in 7d",
+      "suspended_at": "2026-05-07T20:00:27.088208+00:00"
+    }
   ],
   "by_market": {
     "NQ": {
@@ -1099,7 +1145,25 @@ function renderSuspended() {
     list.innerHTML = '<div style="color: #56d364;">✅ No setups currently suspended</div>';
     return;
   }
-  list.innerHTML = DATA.suspended_setups.map(s => `<span class="susp-tag">⛔ ${s}</span>`).join('');
+  // Wave 20: render objects with countdown to auto-unsuspend (14d)
+  const AUTO_DAYS = 14;
+  const now = new Date();
+  list.innerHTML = DATA.suspended_setups.map(s => {
+    if (typeof s === 'string') return `<span class='susp-tag'>⛔ ${s}</span>`;
+    const key = s.key || '?';
+    const reason = s.reason || '';
+    let countdown = '';
+    if (s.suspended_at) {
+      try {
+        const sa = new Date(s.suspended_at);
+        const daysIn = (now - sa) / (1000 * 60 * 60 * 24);
+        const daysLeft = Math.max(0, AUTO_DAYS - Math.floor(daysIn));
+        countdown = daysLeft > 0 ? ` <span style='opacity:0.7;'>(${daysLeft}d left)</span>` : ` <span style='color:#56d364;'>(eligible)</span>`;
+      } catch (e) { /* skip countdown */ }
+    }
+    const tooltip = reason ? ` title='${reason.replace(/'/g, "&apos;")}'` : '';
+    return `<span class='susp-tag'${tooltip}>⛔ ${key}${countdown}</span>`;
+  }).join('');
 }
 
 function renderSetups() {
