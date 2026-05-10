@@ -32,7 +32,7 @@ TIMEFRAMES       = ["15m", "1h", "4h", "1d"]
 MIN_ADX          = 22      # NQ needs real trend — higher than crypto
 MIN_RR           = 2.5     # Minimum risk/reward
 NEWS_MIN_RR      = 3.0     # Lowered from 4.0 — 20 missed winners at RR 2.5 during news
-MIN_CONVICTION   = 65      # MEDIUM+ only
+MIN_CONVICTION   = 70      # Wave 24 (May 10, 2026): raised 65->70 based on backtest_pro EV sweep (plateau 55-68 = -5R, 70 = -2R)
 COOLDOWN_MIN     = 60      # 1 hour between alerts
 
 # ─── Per-setup ADX minimums ────────────────────────────────────────
