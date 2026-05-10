@@ -191,6 +191,35 @@ def main():
     setup_stats   = _by_setup_stats(trades)
     recent        = _recent_alerts(trades, limit=25)
 
+    # Wave 21 (May 9, 2026): build open_trades list for live dashboard card
+    open_trades_data = []
+    for _t in trades:
+        if _t.get("status") != "OPEN":
+            continue
+        try:
+            _conv = int(float(_t.get("conviction", 0) or 0))
+        except Exception:
+            _conv = 0
+        try:
+            _rescore = int(float(_t.get("last_rescore_conviction", _t.get("conviction", 0)) or 0))
+        except Exception:
+            _rescore = _conv
+        open_trades_data.append({
+            "market":       _t.get("market", "?"),
+            "setup":        _t.get("setup", "?"),
+            "tf":           _t.get("tf", "?"),
+            "direction":    _t.get("direction", "?"),
+            "entry":        _t.get("entry", ""),
+            "target":       _t.get("target", ""),
+            "stop":         _t.get("stop", ""),
+            "conviction":   _conv,
+            "last_rescore_conviction": _rescore,
+            "tier":         _t.get("tier", "?"),
+            "timestamp":    _t.get("timestamp", ""),
+        })
+    # sort newest first so the freshest open trade is on top
+    open_trades_data.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+
     # Wave 19: per-market and per-tier summaries
     by_market = {}
     by_tier = {}
@@ -282,6 +311,7 @@ def main():
         ],
         "by_market":        by_market,        # Wave 19
         "by_tier":          by_tier,          # Wave 19
+        "open_trades":      open_trades_data,  # Wave 21: live open trades section
     }
 
     # Pretty-print as JS const
@@ -510,6 +540,10 @@ def main():
 <div class="section-title">Performance by Tier</div>
 <div class="grid" id="tier-grid"></div>
 
+<!-- Wave 21: live open trades -->
+<div class="section-title">Open Trades <span style="font-size: 12px; opacity: 0.6; font-weight: normal;">(updates on each W/L)</span></div>
+<div id="open-trades-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+
 <div class="chart-card">
   <h2 style="margin-bottom: 12px;">Equity Curve</h2>
   <canvas id="equity-chart" style="max-height: 320px;"></canvas>
@@ -611,6 +645,10 @@ function setView(which) {{
 
   // Render equity chart
   renderChart(data.equity_curve, which);
+
+  // Wave 21: refresh tab-filtered cards on view change
+  renderMarketGrid(which);
+  renderOpenTrades(which);
 }}
 
 function renderChart(points, label) {{
@@ -759,11 +797,12 @@ updateLastUpdated();
 setInterval(updateLastUpdated, 30000);
 
 // Wave 19: per-market cards
-function renderMarketGrid() {{
+function renderMarketGrid(view) {{
   const grid = document.getElementById('market-grid');
   if (!grid) return;
   const markets = DATA.by_market || {{}};
-  const order = ['NQ', 'GC', 'BTC', 'SOL'];
+  // Wave 21: tab-filtered market cards
+  const order = view === 'crypto' ? ['BTC', 'SOL'] : ['NQ', 'GC'];
   const cards = [];
   for (const m of order) {{
     const d = markets[m];
@@ -816,11 +855,47 @@ function renderTierGrid() {{
   }}
 }}
 
+// Wave 21: live Open Trades card (filtered by active view)
+function renderOpenTrades(view) {{
+  const list = document.getElementById('open-trades-list');
+  if (!list) return;
+  const trades = DATA.open_trades || [];
+  const allowedMarkets = view === 'crypto' ? ['BTC', 'SOL'] : ['NQ', 'GC'];
+  const filtered = trades.filter(t => allowedMarkets.includes(t.market));
+
+  if (filtered.length === 0) {{
+    list.innerHTML = '<div style="color: #8b949e; text-align: center; padding: 20px; background: #161b22; border: 1px solid #30363d; border-radius: 8px;">No open trades on this view.</div>';
+    return;
+  }}
+
+  const cards = filtered.map(t => {{
+    const conv = t.last_rescore_conviction || t.conviction || 0;
+    const orig = t.conviction || 0;
+    const delta = conv - orig;
+    const deltaStr = delta > 0 ? `+${{delta}}` : `${{delta}}`;
+    const deltaColor = delta > 0 ? '#56d364' : delta < 0 ? '#f85149' : '#8b949e';
+    const tierColor = t.tier === 'HIGH' ? '#56d364' : t.tier === 'MEDIUM' ? '#d29922' : '#8b949e';
+    const dirIcon = t.direction.includes('LONG') ? '▲' : '▼';
+    const dirColor = t.direction.includes('LONG') ? '#56d364' : '#f85149';
+    const ts = t.timestamp ? new Date(t.timestamp).toLocaleString('en-US', {{month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'}}) : '';
+    return `<div style='background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px;'>
+      <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;'>
+        <div><span style='color: ${{dirColor}}; font-weight: 700; font-size: 16px;'>${{dirIcon}} ${{t.market}}</span> <span style='color: #8b949e; margin-left: 8px;'>${{t.setup}} [${{t.tf}}]</span></div>
+        <div style='font-size: 11px; color: #6e7681;'>${{ts}}</div>
+      </div>
+      <div style='font-size: 13px; color: #c9d1d9; margin-bottom: 6px;'>Entry <code style='color: #58a6ff;'>${{t.entry}}</code> → Target <code style='color: #56d364;'>${{t.target}}</code> · Stop <code style='color: #f85149;'>${{t.stop}}</code></div>
+      <div style='font-size: 13px; color: #8b949e;'>Conviction <strong style='color: #c9d1d9;'>${{conv}}</strong> <span style='color: ${{deltaColor}};'>(${{deltaStr}} from ${{orig}})</span> · Tier <strong style='color: ${{tierColor}};'>${{t.tier}}</strong></div>
+    </div>`;
+  }});
+  list.innerHTML = cards.join('');
+}}
+
 renderSuspended();
 renderSetups();
 renderAlerts();
-renderMarketGrid();
+renderMarketGrid('topstep');  // Wave 21: default view
 renderTierGrid();
+renderOpenTrades('topstep');  // Wave 21: live open trades
 setView.bind(null, 'topstep')();
 // Default to Topstep view
 (function() {{

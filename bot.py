@@ -867,7 +867,9 @@ async def scan_market(app, market, frames):
             log.warning(f"[{market}] crypto_sim auto_check: {_ce}")
 
     # Auto-check outcomes
-    for c in ot.auto_check_outcomes({market: frames}):
+    # Wave 21 (May 9, 2026): capture closures so we can trigger dashboard regen
+    _closed_now = list(ot.auto_check_outcomes({market: frames}))
+    for c in _closed_now:
         icon   = "✅" if c["result"]=="WIN" else "❌"
         result = c["result"]
         all_rows = ot._read_all()
@@ -988,6 +990,21 @@ async def scan_market(app, market, frames):
                     sim.record_trade_for_sizing(orig.get("setup","UNKNOWN"), htf_bias, True, r_mult)
             except Exception:
                 pass
+
+    # Wave 21 (May 9, 2026): trigger background dashboard regen if any
+    # trades closed. Updates the live dashboard within seconds of a W/L
+    # instead of waiting up to 5 min for the auto-refresh loop. Fire-and-
+    # forget on background thread; doesn't block the rest of the scan.
+    if _closed_now:
+        try:
+            import generate_dashboard as _w21_gd
+            asyncio.create_task(asyncio.to_thread(_w21_gd.main))
+            log.info(
+                f"[{market}] Wave 21: dashboard regen triggered "
+                f"after {len(_closed_now)} closure(s)"
+            )
+        except Exception as _w21_regen_err:
+            log.warning(f"Wave 21 regen trigger failed: {_w21_regen_err}")
 
     # ============================================================
     # Wave 11 (May 4): Phantom-Loss Alarm Handler
