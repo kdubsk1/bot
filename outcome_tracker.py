@@ -2695,6 +2695,30 @@ def build_session_summary(session_id: str = None) -> dict:
     markets_traded = list(set(r.get("market", "?") for r in trades))
     setups_fired = list(set(r.get("setup", "?") for r in trades))
 
+    # Wave 19 (May 9, 2026): per-market breakdown for /session
+    by_market: dict = {}
+    for r in closed:
+        m = r.get("market", "?")
+        if m not in by_market:
+            by_market[m] = {"wins": 0, "losses": 0, "pnl_r": 0.0, "open": 0}
+        try:
+            rr_val = float(r.get("rr", 0))
+        except (ValueError, TypeError):
+            rr_val = 0.0
+        if r["result"] == "WIN":
+            by_market[m]["wins"] += 1
+            by_market[m]["pnl_r"] += rr_val
+        else:
+            by_market[m]["losses"] += 1
+            by_market[m]["pnl_r"] -= 1.0
+    for r in open_trades:
+        m = r.get("market", "?")
+        if m not in by_market:
+            by_market[m] = {"wins": 0, "losses": 0, "pnl_r": 0.0, "open": 0}
+        by_market[m]["open"] = by_market[m].get("open", 0) + 1
+    for m in by_market:
+        by_market[m]["pnl_r"] = round(by_market[m]["pnl_r"], 2)
+
     return {
         "session_id": session_id,
         "total_trades": len(trades),
@@ -2707,6 +2731,7 @@ def build_session_summary(session_id: str = None) -> dict:
         "markets_traded": markets_traded,
         "setups_fired": setups_fired,
         "open_count": len(open_trades),
+        "by_market": by_market,  # Wave 19
     }
 
 
@@ -2981,10 +3006,26 @@ def print_stats(session_only: bool = True) -> str:
     mkt_lines = [f"  {m}: {w}W/{l}L ({(w/max(1,w+l))*100:.0f}%)"
                  for m,(w,l) in by_mkt.items()]
 
+    # Wave 19 (May 9, 2026): suspended count + 20-trade rolling WR
+    _suspended_count = len(get_suspended_setups())
+    _all_closed = [r for r in rows if r.get("status") == "CLOSED" and r.get("result") in ("WIN", "LOSS")]
+    _all_closed.sort(key=lambda r: r.get("timestamp", ""))
+    _recent_20 = _all_closed[-20:]
+    _recent_w = sum(1 for r in _recent_20 if r["result"] == "WIN")
+    _recent_l = sum(1 for r in _recent_20 if r["result"] == "LOSS")
+    _recent_wr = round(_recent_w / max(1, _recent_w + _recent_l) * 100, 1) if _recent_20 else 0.0
+    if _recent_20:
+        _rolling_line = f"\nRecent 20: {_recent_w}W / {_recent_l}L ({_recent_wr}% WR)"
+    else:
+        _rolling_line = "\nRecent 20: no closed trades yet"
+    _suspended_icon = "⛔" if _suspended_count else "✅"
+    _suspended_line = f"\n{_suspended_icon} Suspended setups: {_suspended_count}"
+
     return (
         f"{header}\n"
         f"Total: {len(display_rows)} | Open: {len(open_)} | Closed: {len(closed)}\n"
-        f"Overall: {wins}W / {losses}L / {be}BE — WR {wr:.1f}%\n\n"
+        f"Overall: {wins}W / {losses}L / {be}BE — WR {wr:.1f}%"
+        f"{_rolling_line}{_suspended_line}\n\n"
         f"By tier:\n  {tier_wr(TIER_HIGH)}\n  {tier_wr(TIER_MED)}\n  {tier_wr(TIER_LOW)}\n\n"
         f"By market:\n" + ("\n".join(mkt_lines) if mkt_lines else "  —") +
         f"\n\n{get_learning_summary()}"

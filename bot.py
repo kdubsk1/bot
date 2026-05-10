@@ -2262,11 +2262,13 @@ _LAST_SESSION_CLOSE_FIRED = None   # session_date string that was already closed
 _LAST_DAILY_REPORT_DATE   = None   # date string for which report was sent
 # Pre-Batch Follow-up Part B 2026-04-21: weekly recap deduplication
 _LAST_WEEKLY_RECAP_DATE   = None   # Monday isoformat for which weekly recap was sent
+_LAST_SCAN_TIMESTAMP      = None   # Wave 19: UTC timestamp of most recent completed scan cycle
 
 # ── Scan loop ─────────────────────────────────────────────────────
 async def scan_loop(app):
     global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE, _LAST_WEEKLY_RECAP_DATE
+    global _LAST_SCAN_TIMESTAMP  # Wave 19: powers /status "last scan" line
     last_brief=last_asia=last_report=None
     last_hb=datetime.now(timezone.utc)
     scan_interval = SETTINGS["scan_interval_min"]
@@ -2481,6 +2483,7 @@ async def scan_loop(app):
 
                 scan_interval, reason = get_smart_interval(active, frames_by_market)
                 log.info(f"--- Scanning {active} | {reason} ---")
+                _LAST_SCAN_TIMESTAMP = datetime.now(timezone.utc)  # Wave 19: track most recent scan
 
                 try:
                     live_15m = {m: f.get("15m") for m,f in frames_by_market.items() if f.get("15m") is not None}
@@ -2522,6 +2525,10 @@ def main_menu():
         back to URL when alt hosting is set up)
 
     Layout: 9 rows / 22 buttons (was 10 / 26).
+
+    Wave 19 (May 9, 2026): Dashboard URL button restored. Repo
+    is now public + GitHub Pages enabled at /docs - URL routing
+    live. Tap Dashboard -> opens browser.
     """
     s = SETTINGS
     m = s["markets"]
@@ -2583,10 +2590,10 @@ def main_menu():
         [InlineKeyboardButton(f"🔄 Reset {preset}", callback_data="simreset_current"),
          InlineKeyboardButton("📅 Weekly",          callback_data="sim_weekly")],
 
-        # Row 9: Archives & info footer (Wave 18b: Dashboard back to callback)
+        # Row 9: Archives & info footer (Wave 19: Dashboard URL restored - Pages live)
         [InlineKeyboardButton("📜 History",   callback_data="history_list"),
          InlineKeyboardButton("🏆 Lifetime",  callback_data="lifetime"),
-         InlineKeyboardButton("📊 Dashboard", callback_data="dashboard"),
+         InlineKeyboardButton("📊 Dashboard", url="https://kdubsk1.github.io/bot/dashboard.html"),
          InlineKeyboardButton("❓ Help",          callback_data="help")],
     ]
     return InlineKeyboardMarkup(kb)
@@ -3051,6 +3058,102 @@ async def cmd_mnq(u,c):
 async def cmd_simweekly(u,c):
     await u.message.reply_text(sim.sim_period_text(7), parse_mode="Markdown")
 
+def _build_status_text() -> str:
+    """
+    Wave 19 (May 9, 2026): shared builder for /status output.
+    Used by cmd_status (slash) and the status button (callback).
+    Returns a Markdown-formatted Telegram message string.
+    """
+    on = SETTINGS.get("scanner_on", False)
+    scanner_info = _load_scanner_state()
+    hrs_ago = scanner_info.get("hours_ago", 0)
+
+    active = [m for m in ALL_MARKETS if SETTINGS["markets"].get(m)]
+
+    try:
+        open_trades = ot.load_open_trades()
+    except Exception:
+        open_trades = []
+    open_by_mkt: dict = {}
+    for t in open_trades:
+        m = t.get("market", "?")
+        open_by_mkt[m] = open_by_mkt.get(m, 0) + 1
+
+    regimes: dict = {}
+    for m in active:
+        try:
+            frames = get_frames(m)
+            df15 = frames.get("15m")
+            if df15 is not None and not df15.empty and len(df15) >= 20:
+                from regime_classifier import classify_regime
+                regime = classify_regime(df15).get("regime", "UNKNOWN")
+                trend, _ = ot.trend_score(frames, m)
+                regimes[m] = {"regime": regime, "trend": int(trend)}
+            else:
+                regimes[m] = {"regime": "no data", "trend": 0}
+        except Exception:
+            regimes[m] = {"regime": "?", "trend": 0}
+
+    halted = [m for m in active if _is_halted(m)]
+
+    last_scan = _LAST_SCAN_TIMESTAMP
+    if last_scan:
+        delta_min = (datetime.now(timezone.utc) - last_scan).total_seconds() / 60.0
+        if delta_min < 1:
+            last_scan_str = "just now"
+        elif delta_min < 60:
+            last_scan_str = f"{int(delta_min)} min ago"
+        else:
+            last_scan_str = f"{int(delta_min/60)}h {int(delta_min%60)}m ago"
+    else:
+        last_scan_str = "never (scanner just started)" if on else "scanner off"
+
+    news = ot.in_news_window()
+
+    if on:
+        state_line = "🟢 Running" + (f" (since {hrs_ago}h ago)" if hrs_ago > 0 else "")
+    else:
+        state_line = "🔴 Stopped"
+
+    lines = [
+        "🤖 *Bot Status*",
+        "━" * 18,
+        f"*Scanner:* {state_line}",
+        f"*Last scan:* {last_scan_str}",
+        f"*Markets active:* {', '.join(active) if active else 'none'}",
+        f"*Open trades:* `{len(open_trades)}`",
+    ]
+    if open_by_mkt:
+        for m in ("NQ", "GC", "BTC", "SOL"):
+            if m in open_by_mkt:
+                lines.append(f"  {m}: {open_by_mkt[m]} open")
+    if regimes:
+        lines.append("━" * 18)
+        lines.append("*Market regimes:*")
+        for m in active:
+            r = regimes.get(m, {})
+            regime = r.get("regime", "?")
+            trend = r.get("trend", 0)
+            t_arrow = "🟢" if trend >= 2 else "🔴" if trend <= -2 else "⚪"
+            lines.append(f"  {t_arrow} {m}: {regime} (trend {trend:+d})")
+    lines.append("━" * 18)
+    news_str = "⚠️ Active window" if news else "✅ Clear"
+    lines.append(f"*News:* {news_str}")
+    lines.append(f"*Conv min:* {SETTINGS['min_conviction']} | *RR min:* {SETTINGS['min_rr']}")
+    if halted:
+        lines.append(f"*Halted:* {', '.join(halted)}")
+    return "\n".join(lines)
+
+
+async def cmd_status(u, c):
+    """Wave 19 (May 9, 2026): /status - bot health + market state.
+
+    Wayne discovered /status was registered in set_my_commands but had
+    no handler function. Slash command did nothing. This is the fix.
+    """
+    await u.message.reply_text(_build_status_text(), parse_mode="Markdown")
+
+
 async def cmd_session(u,c):
     """Show current session data only."""
     sid = get_session_date()
@@ -3082,6 +3185,21 @@ async def cmd_session(u,c):
         f"*P&L:* `{pnl_str}`",
         f"*Markets:* {', '.join(summary['markets_traded']) if summary['markets_traded'] else 'None'}",
     ]
+    # Wave 19: per-market breakdown
+    by_mkt = summary.get("by_market", {})
+    if by_mkt:
+        _mkt_lines = []
+        for _m in ("NQ", "GC", "BTC", "SOL"):
+            if _m in by_mkt:
+                _d = by_mkt[_m]
+                _w = _d.get("wins", 0); _l = _d.get("losses", 0); _pnl = _d.get("pnl_r", 0.0)
+                _pnl_s = f"+{_pnl}R" if _pnl >= 0 else f"{_pnl}R"
+                _open_n = _d.get("open", 0)
+                _open_s = f" ({_open_n} open)" if _open_n else ""
+                _mkt_lines.append(f"  {_m}: {_w}W/{_l}L {_pnl_s}{_open_s}")
+        if _mkt_lines:
+            lines.append("*Per-market today:*")
+            lines.extend(_mkt_lines)
     if setups_fired:
         lines.append(f"*Setups fired:* {', '.join(setups_fired[:8])}")
     if summary.get("best_setup") != "N/A":
@@ -3401,25 +3519,27 @@ async def cmd_commands(u, c):
     await u.message.reply_text(text, parse_mode="Markdown")
 
 async def cmd_dashboard(u,c):
-    await u.message.reply_text("⏳ Building dashboard...")
+    """Wave 19 (May 9, 2026): regenerate live dashboard and send URL."""
+    await u.message.reply_text("⏳ Refreshing dashboard...")
     try:
-        html = dash.build_dashboard()
-        with open(os.path.join(BASE_DIR, "data", "dashboard.html"), "w", encoding="utf-8") as f:
-            f.write(html)
+        import generate_dashboard
+        await asyncio.to_thread(generate_dashboard.main)
         outcomes = dash.load_outcomes()
-        closed = [r for r in outcomes if r.get("status") == "CLOSED"]
+        closed = [r for r in outcomes if r.get("status") == "CLOSED" and r.get("result") in ("WIN", "LOSS")]
         wins = sum(1 for r in closed if r.get("result") == "WIN")
         losses = sum(1 for r in closed if r.get("result") == "LOSS")
-        wr = round(wins / max(1, wins + losses) * 100, 1)
+        wr = round(wins / max(1, wins + losses) * 100, 1) if closed else 0
+        open_n = sum(1 for r in outcomes if r.get("status") == "OPEN")
+        bar = "━" * 18
         await u.message.reply_text(
-            f"📊 *Dashboard Generated*\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"*Overall:* {wins}W / {losses}L ({wr}% WR)\n"
+            f"📊 *Dashboard Refreshed*\n{bar}\n"
+            f"*All-time:* {wins}W / {losses}L ({wr}% WR)\n"
             f"*Total alerts:* {len(outcomes)}\n"
-            f"*Open:* {sum(1 for r in outcomes if r.get('status')=='OPEN')}\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"Dashboard saved to data/dashboard.html",
-            parse_mode="Markdown")
+            f"*Open trades:* {open_n}\n{bar}\n"
+            "🌐 [Open Dashboard](https://kdubsk1.github.io/bot/dashboard.html)\n"
+            "_Auto-refreshes every 5 min._",
+            parse_mode="Markdown",
+            disable_web_page_preview=True)
     except Exception as e:
         await u.message.reply_text(f"❌ Dashboard error: {e}")
 
@@ -3507,16 +3627,8 @@ async def on_button(u, c):
         icons={"WIN":"✅","LOSS":"❌","SKIP":"⏭"}
         await q.message.reply_text(f"{icons[result]} *{result}* — {match.get('market')} | {_md(match.get('setup',''))}\nLearning updated.",parse_mode="Markdown"); return
     elif d=="status":
-        active=[m for m in ALL_MARKETS if SETTINGS["markets"].get(m)]
-        halted = [m for m in active if _is_halted(m)]
-        await q.message.reply_text(
-            f"*Status:* {'🟢 Running' if SETTINGS['scanner_on'] else '🔴 Stopped'}\n"
-            f"*Markets:* {', '.join(active)}\n"
-            f"*Open trades:* {len(ot.load_open_trades())}\n"
-            f"*Conv:* {SETTINGS['min_conviction']} *R:R:* {SETTINGS['min_rr']}\n"
-            f"*News:* {'⚠️ YES' if ot.in_news_window() else '✅ No'}\n"
-            + (f"*Halted:* {', '.join(halted)}" if halted else ""),
-            parse_mode="Markdown"); return
+        # Wave 19: delegated to shared _build_status_text helper
+        await q.message.reply_text(_build_status_text(), parse_mode="Markdown"); return
     elif d=="stats":
         await q.message.reply_text(ot.print_stats(session_only=True),parse_mode="Markdown"); return
     elif d=="session":
@@ -3547,6 +3659,21 @@ async def on_button(u, c):
             f"*P&L:* `{pnl_str}`",
             f"*Markets:* {', '.join(summary['markets_traded']) if summary['markets_traded'] else 'None'}",
         ]
+        # Wave 19: per-market breakdown (mirrors cmd_session)
+        _by_mkt = summary.get("by_market", {})
+        if _by_mkt:
+            _mkt_lines = []
+            for _m in ("NQ", "GC", "BTC", "SOL"):
+                if _m in _by_mkt:
+                    _d = _by_mkt[_m]
+                    _w = _d.get("wins", 0); _l = _d.get("losses", 0); _pnl = _d.get("pnl_r", 0.0)
+                    _pnl_s = f"+{_pnl}R" if _pnl >= 0 else f"{_pnl}R"
+                    _open_n = _d.get("open", 0)
+                    _open_s = f" ({_open_n} open)" if _open_n else ""
+                    _mkt_lines.append(f"  {_m}: {_w}W/{_l}L {_pnl_s}{_open_s}")
+            if _mkt_lines:
+                msg_lines.append("*Per-market today:*")
+                msg_lines.extend(_mkt_lines)
         if setups_fired: msg_lines.append(f"*Setups:* {', '.join(setups_fired[:8])}")
         if sim_line: msg_lines.append(sim_line)
         await q.message.reply_text("\n".join(msg_lines), parse_mode="Markdown"); return
@@ -3639,21 +3766,24 @@ async def on_button(u, c):
             "Everything is in the menu. Type /help for full guide.\n"
             "━━━━━━━━━━━━━━━━━━\n⚠️ Not financial advice.",parse_mode="Markdown"); return
     elif d=="dashboard":
-        await q.message.reply_text("⏳ Building dashboard...")
+        # Wave 19: regen + URL (kept as fallback for users with old menu cached)
+        await q.message.reply_text("⏳ Refreshing dashboard...")
         try:
-            html = dash.build_dashboard()
-            with open(os.path.join(BASE_DIR, "data", "dashboard.html"), "w", encoding="utf-8") as f:
-                f.write(html)
+            import generate_dashboard
+            await asyncio.to_thread(generate_dashboard.main)
             outcomes = dash.load_outcomes()
-            closed = [r for r in outcomes if r.get("status") == "CLOSED"]
+            closed = [r for r in outcomes if r.get("status") == "CLOSED" and r.get("result") in ("WIN", "LOSS")]
             wins = sum(1 for r in closed if r.get("result") == "WIN")
             losses = sum(1 for r in closed if r.get("result") == "LOSS")
-            wr = round(wins / max(1, wins + losses) * 100, 1)
+            wr = round(wins / max(1, wins + losses) * 100, 1) if closed else 0
+            bar = "━" * 18
             await q.message.reply_text(
-                f"📊 *Dashboard Generated*\n━━━━━━━━━━━━━━━━━━\n"
-                f"*Overall:* {wins}W / {losses}L ({wr}% WR)\n"
-                f"*Total:* {len(outcomes)} alerts\n━━━━━━━━━━━━━━━━━━\n"
-                f"Open data/dashboard.html in your browser.", parse_mode="Markdown")
+                f"📊 *Dashboard Refreshed*\n{bar}\n"
+                f"*All-time:* {wins}W / {losses}L ({wr}% WR)\n"
+                f"*Total:* {len(outcomes)} alerts\n{bar}\n"
+                "🌐 [Open Dashboard](https://kdubsk1.github.io/bot/dashboard.html)",
+                parse_mode="Markdown",
+                disable_web_page_preview=True)
         except Exception as e:
             await q.message.reply_text(f"❌ {e}")
         return
@@ -4399,6 +4529,7 @@ def main():
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
+                   ("status",cmd_status),  # Wave 19: was missing - slash did nothing
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),

@@ -17,6 +17,14 @@ Re-run anytime: `python generate_dashboard.py`
 Then double-click dashboard.html to view.
 
 For a live public URL: push dashboard.html to GitHub, enable Pages, done.
+
+Wave 19 (May 9, 2026): Major polish for "professional website" feel.
+  - Cleaner equity-curve timestamps (May 9, 2:30 PM vs raw ISO)
+  - "Last updated X min ago" auto-updating badge in header
+  - Per-market summary cards under main stats grid
+  - Tier breakdown card
+  - Empty-state messaging when no data
+  - Mobile-responsive grid + refined spacing
 """
 import os
 import json
@@ -183,6 +191,41 @@ def main():
     setup_stats   = _by_setup_stats(trades)
     recent        = _recent_alerts(trades, limit=25)
 
+    # Wave 19: per-market and per-tier summaries
+    by_market = {}
+    by_tier = {}
+    for t in trades:
+        if t.get("status") != "CLOSED" or t.get("result") not in ("WIN", "LOSS"):
+            continue
+        m = t.get("market", "?")
+        if m not in by_market:
+            by_market[m] = {"wins": 0, "losses": 0, "total_pnl_r": 0.0}
+        try:
+            rr_val = float(t.get("rr", 0) or 0)
+        except Exception:
+            rr_val = 0.0
+        if t["result"] == "WIN":
+            by_market[m]["wins"] += 1
+            by_market[m]["total_pnl_r"] += rr_val
+        else:
+            by_market[m]["losses"] += 1
+            by_market[m]["total_pnl_r"] -= 1.0
+        ti = t.get("tier", "?")
+        if ti not in by_tier:
+            by_tier[ti] = {"wins": 0, "losses": 0}
+        if t["result"] == "WIN":
+            by_tier[ti]["wins"] += 1
+        else:
+            by_tier[ti]["losses"] += 1
+    for m in by_market:
+        by_market[m]["total_pnl_r"] = round(by_market[m]["total_pnl_r"], 2)
+        tot = by_market[m]["wins"] + by_market[m]["losses"]
+        by_market[m]["wr"] = round(by_market[m]["wins"] / max(1, tot) * 100, 1) if tot else 0.0
+    for ti in by_tier:
+        tot = by_tier[ti]["wins"] + by_tier[ti]["losses"]
+        by_tier[ti]["wr"] = round(by_tier[ti]["wins"] / max(1, tot) * 100, 1) if tot else 0.0
+
+
     # All-time wins/losses
     closed_all = [t for t in trades if t.get("status") == "CLOSED" and t.get("result") in ("WIN","LOSS")]
     total_w    = sum(1 for t in closed_all if t["result"] == "WIN")
@@ -229,6 +272,8 @@ def main():
         "setup_stats":      setup_stats,
         "recent_alerts":    recent,
         "suspended_setups": list(suspended.keys()),
+        "by_market":        by_market,        # Wave 19
+        "by_tier":          by_tier,          # Wave 19
     }
 
     # Pretty-print as JS const
@@ -266,7 +311,28 @@ def main():
     border-radius: 8px;
   }}
   h1 {{ font-size: 24px; color: #58a6ff; }}
-  .gen-time {{ font-size: 12px; color: #8b949e; }}
+  .gen-time {{ font-size: 12px; color: #8b949e; display: flex; align-items: center; gap: 6px; }}
+  /* Wave 19: live indicator dot */
+  .live-dot {{
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #56d364;
+    box-shadow: 0 0 8px #56d364;
+    animation: pulse 2s ease-in-out infinite;
+  }}
+  @keyframes pulse {{
+    0%, 100% {{ opacity: 1; }}
+    50% {{ opacity: 0.4; }}
+  }}
+  /* Wave 19: market cards */
+  .market-card {{ position: relative; }}
+  .market-card .mkt-symbol {{ font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }}
+  .market-card .mkt-pnl {{ font-size: 24px; font-weight: 700; margin-top: 6px; }}
+  .market-card .mkt-stats {{ font-size: 13px; color: #8b949e; margin-top: 4px; }}
+  .market-card .wr-bar {{ height: 4px; border-radius: 2px; background: #21262d; margin-top: 12px; overflow: hidden; }}
+  .market-card .wr-fill {{ height: 100%; background: linear-gradient(90deg, #58a6ff, #56d364); transition: width 0.4s; }}
   .toggle {{
     display: flex;
     gap: 4px;
@@ -386,12 +452,12 @@ def main():
 
 <header>
   <div>
-    <h1>📊 NQ CALLS Dashboard</h1>
-    <div class="gen-time" id="gen-time"></div>
+    <h1>📊 NQ CALLS Trading Bot</h1>
+    <div class="gen-time"><span id="live-dot" class="live-dot"></span><span id="gen-time"></span></div>
   </div>
   <div class="toggle">
-    <button class="active" onclick="setView('topstep')">Topstep Sim</button>
-    <button onclick="setView('crypto')">Crypto Sim</button>
+    <button class="active" onclick="setView('topstep')">Topstep $50K</button>
+    <button onclick="setView('crypto')">Crypto $1K</button>
   </div>
 </header>
 
@@ -427,6 +493,14 @@ def main():
     <div class="stat-sub">All-time</div>
   </div>
 </div>
+
+<!-- Wave 19: per-market summary cards -->
+<div class="section-title">Performance by Market</div>
+<div class="grid" id="market-grid"></div>
+
+<!-- Wave 19: tier breakdown -->
+<div class="section-title">Performance by Tier</div>
+<div class="grid" id="tier-grid"></div>
 
 <div class="chart-card">
   <h2 style="margin-bottom: 12px;">Equity Curve</h2>
@@ -563,7 +637,20 @@ function renderChart(points, label) {{
         }}
       }},
       scales: {{
-        x: {{ ticks: {{ color: '#8b949e', maxRotation: 0, autoSkip: true }}, grid: {{ color: '#21262d' }} }},
+        x: {{ ticks: {{ color: '#8b949e', maxRotation: 0, autoSkip: true, maxTicksLimit: 8,
+                       callback: function(val, idx) {{
+                         /* Wave 19: format '2026-05-09 14:30' -> 'May 9, 2:30p' */
+                         const raw = this.getLabelForValue(val);
+                         if (!raw || raw === 'Start') return raw;
+                         try {{
+                           const d = new Date(raw.replace(' ', 'T') + 'Z');
+                           if (isNaN(d.getTime())) return raw;
+                           const m = d.toLocaleString('en-US', {{ month: 'short', day: 'numeric' }});
+                           const t = d.toLocaleString('en-US', {{ hour: 'numeric', minute: '2-digit' }}).replace(' ', '');
+                           return m + ' ' + t;
+                         }} catch (e) {{ return raw; }}
+                       }}
+        }}, grid: {{ color: '#21262d' }} }},
         y: {{
           ticks: {{ color: '#8b949e', callback: (v) => fmtMoney(v) }},
           grid: {{ color: '#21262d' }}
@@ -624,10 +711,90 @@ function renderAlerts() {{
 }}
 
 // Init
-document.getElementById('gen-time').textContent = 'Generated ' + new Date(DATA.generated_at).toLocaleString();
+// Wave 19: 'Last updated' that auto-updates every 30s
+function updateLastUpdated() {{
+  const t = new Date(DATA.generated_at);
+  const now = new Date();
+  const mins = Math.floor((now - t) / 60000);
+  let label;
+  if (mins < 1) label = 'Last updated just now';
+  else if (mins < 60) label = 'Last updated ' + mins + ' min ago';
+  else if (mins < 1440) label = 'Last updated ' + Math.floor(mins/60) + 'h ago';
+  else label = 'Last updated ' + t.toLocaleDateString();
+  const el = document.getElementById('gen-time');
+  if (el) el.textContent = label;
+  const dot = document.getElementById('live-dot');
+  if (dot) {{
+    if (mins > 30) {{ dot.style.background = '#f85149'; dot.style.boxShadow = '0 0 8px #f85149'; }}
+    else if (mins > 10) {{ dot.style.background = '#d29922'; dot.style.boxShadow = '0 0 8px #d29922'; }}
+  }}
+}}
+updateLastUpdated();
+setInterval(updateLastUpdated, 30000);
+
+// Wave 19: per-market cards
+function renderMarketGrid() {{
+  const grid = document.getElementById('market-grid');
+  if (!grid) return;
+  const markets = DATA.by_market || {{}};
+  const order = ['NQ', 'GC', 'BTC', 'SOL'];
+  const cards = [];
+  for (const m of order) {{
+    const d = markets[m];
+    if (!d) continue;
+    const total = d.wins + d.losses;
+    if (total === 0) continue;
+    const pnl = d.total_pnl_r;
+    const pnlClass = pnl >= 0 ? 'pos' : 'neg';
+    const pnlStr = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + 'R';
+    const wrColor = d.wr >= 60 ? '#56d364' : d.wr >= 45 ? '#d29922' : '#f85149';
+    cards.push(`<div class='card market-card'>
+      <div class='mkt-symbol'>${{m}}</div>
+      <div class='mkt-pnl ${{pnlClass}}'>${{pnlStr}}</div>
+      <div class='mkt-stats'>${{d.wins}}W / ${{d.losses}}L · ${{d.wr}}% WR</div>
+      <div class='wr-bar'><div class='wr-fill' style='width:${{d.wr}}%; background:${{wrColor}};'></div></div>
+    </div>`);
+  }}
+  if (cards.length === 0) {{
+    grid.innerHTML = '<div style="grid-column: 1/-1; color: #8b949e; text-align: center; padding: 20px;">No closed trades yet — bot is waiting.</div>';
+  }} else {{
+    grid.innerHTML = cards.join('');
+  }}
+}}
+
+// Wave 19: tier cards
+function renderTierGrid() {{
+  const grid = document.getElementById('tier-grid');
+  if (!grid) return;
+  const tiers = DATA.by_tier || {{}};
+  const order = ['HIGH', 'MEDIUM', 'LOW'];
+  const tierIcons = {{ HIGH: '🔥', MEDIUM: '✅', LOW: '⚡' }};
+  const cards = [];
+  for (const t of order) {{
+    const d = tiers[t];
+    if (!d) continue;
+    const total = d.wins + d.losses;
+    if (total === 0) continue;
+    const wrColor = d.wr >= 60 ? '#56d364' : d.wr >= 45 ? '#d29922' : '#f85149';
+    cards.push(`<div class='card market-card'>
+      <div class='mkt-symbol'>${{tierIcons[t] || ''}} ${{t}}</div>
+      <div class='mkt-pnl' style='color:${{wrColor}};'>${{d.wr}}%</div>
+      <div class='mkt-stats'>${{d.wins}}W / ${{d.losses}}L (${{total}} trades)</div>
+      <div class='wr-bar'><div class='wr-fill' style='width:${{d.wr}}%; background:${{wrColor}};'></div></div>
+    </div>`);
+  }}
+  if (cards.length === 0) {{
+    grid.innerHTML = '<div style="grid-column: 1/-1; color: #8b949e; text-align: center; padding: 20px;">No tier data yet.</div>';
+  }} else {{
+    grid.innerHTML = cards.join('');
+  }}
+}}
+
 renderSuspended();
 renderSetups();
 renderAlerts();
+renderMarketGrid();
+renderTierGrid();
 setView.bind(null, 'topstep')();
 // Default to Topstep view
 (function() {{
