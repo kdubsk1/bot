@@ -165,19 +165,21 @@ def _ensure_session_current(state: dict) -> dict:
     Compare state['session_date'] to get_session_date().
     If they differ, a new session started (or bot was restarted after
     a session boundary was missed).
-    Action: archive old state, then reset to fresh preset balance.
-    This runs on EVERY load_state() call — the only reset mechanism.
+
+    Wave 30 (May 11, 2026): changed to call _handle_session_end() which
+    branches on eval outcome (ACTIVE = preserve balance via daily counter
+    reset only; BUSTED/PASSED = full preset reset for new eval). The
+    previous behavior unconditionally wiped balance every session, which
+    broke Topstep eval simulation.
+
+    This runs on EVERY load_state() call.
     """
     current_sid = _get_session_date()
     stored_sid = state.get("session_date", state.get("today_date", ""))
 
     if stored_sid and stored_sid != current_sid:
-        _log.info("Session rolled: %s -> %s — archiving and resetting", stored_sid, current_sid)
-        _archive_day(state)
-        _archive_sim_state(state, stored_sid)
-        _update_lifetime_stats(state)
-        # Reset to fresh preset — this prevents the $72k accumulation bug
-        _reset_to_fresh_preset(state, current_sid)
+        # Wave 30: shared end-of-session handler (carries balance if eval ACTIVE)
+        _handle_session_end(state, stored_sid, current_sid)
         save_state(state)
     elif not stored_sid:
         state["today_date"]   = current_sid
@@ -204,10 +206,147 @@ def _reset_to_fresh_preset(state: dict, new_session_date: str):
     state["open_sim_trades"]  = []
 
 
+# ── Wave 30 (May 11, 2026): Eval outcome + daily counters reset ──
+#
+# These three functions replace the previous behavior where every
+# 4PM ET session boundary called _reset_to_fresh_preset() and wiped
+# balance/peak/total_pnl/trades. Topstep evals are CUMULATIVE - the
+# balance must carry day-to-day until the user busts or passes.
+#
+# Wave 30 changes the contract so:
+#   - On session boundary with ACTIVE eval: reset daily counters only.
+#     Balance, peak, starting_balance, total_pnl, trades, open trades
+#     all preserved.
+#   - On session boundary with BUSTED or PASSED eval: full preset reset
+#     to start a fresh eval (unchanged from previous behavior).
+#
+def check_eval_outcome(state: dict) -> str:
+    """
+    Wave 30 (May 11, 2026): Detect whether the current eval has ended.
+
+    Returns one of:
+      "ACTIVE"            - eval still in progress, carry balance
+      "BUSTED_MAX_DD"     - (peak - balance) >= max_drawdown
+      "BUSTED_DAILY_LOSS" - today_pnl <= -daily_loss_limit
+      "PASSED_TARGET"     - (balance - starting_balance) >= profit_target
+
+    These thresholds match standard Topstep eval rules:
+      50K eval: daily_loss=$1000, max_drawdown=$2000, profit_target=$3000
+
+    Defensive: any exception returns "ACTIVE" (safest default - the worst
+    case is the eval continues when it should have ended, which Wayne can
+    fix manually via /reset).
+    """
+    try:
+        balance       = float(state.get("balance", 0))
+        peak          = float(state.get("peak_balance", balance))
+        starting      = float(state.get("starting_balance", 50_000.0))
+        today_pnl     = float(state.get("today_pnl", 0))
+        max_dd        = float(state.get("max_drawdown", 2_000.0))
+        daily_limit   = float(state.get("daily_loss_limit", 1_000.0))
+        profit_target = float(state.get("profit_target", 3_000.0))
+
+        # Profit target check: total profit since eval started
+        if (balance - starting) >= profit_target:
+            return "PASSED_TARGET"
+
+        # Daily loss check: today_pnl negative beyond daily_loss_limit
+        if today_pnl <= -daily_limit:
+            return "BUSTED_DAILY_LOSS"
+
+        # Max drawdown check: drawdown from peak
+        drawdown = peak - balance
+        if drawdown >= max_dd:
+            return "BUSTED_MAX_DD"
+
+        return "ACTIVE"
+    except Exception as _err:
+        _log.warning("check_eval_outcome failed (%s) - defaulting to ACTIVE", _err)
+        return "ACTIVE"
+
+
+def _reset_daily_counters(state: dict, new_session_date: str):
+    """
+    Wave 30 (May 11, 2026): Reset ONLY the daily counters; preserve
+    everything else.
+
+    This is the new normal-case session boundary behavior. The previous
+    _reset_to_fresh_preset() wiped balance / peak / total_pnl / trades /
+    open_sim_trades, which broke Topstep eval simulation by preventing
+    cumulative balance accumulation.
+
+    Resets:
+      today_pnl          -> 0.0
+      today_date         -> new_session_date
+      session_date       -> new_session_date
+      trades             -> [] (today's trades archived to sim_history)
+
+    Preserves:
+      balance            (cumulative since eval started)
+      peak_balance       (highest seen this eval)
+      starting_balance   (preset starting; doesn't change until new eval)
+      total_pnl          (cumulative since eval started)
+      open_sim_trades    (Topstep 4:10 force-flatten should empty these,
+                          but if any survive, they continue tracking)
+      All preset config: daily_loss_limit, max_drawdown, profit_target
+      All settings: max_contracts_NQ/GC, use_mnq, account_risk_pct, etc.
+    """
+    state["today_pnl"]    = 0.0
+    state["today_date"]   = new_session_date
+    state["session_date"] = new_session_date
+    state["trades"]       = []
+    # NOTE: balance, peak_balance, starting_balance, total_pnl,
+    # open_sim_trades, preset config, and all settings preserved.
+
+
+def _handle_session_end(state: dict, stored_sid: str, current_sid: str) -> str:
+    """
+    Wave 30 (May 11, 2026): Shared end-of-session handler used by both
+    _ensure_session_current() and on_session_close(). Returns the eval
+    outcome string for callers that want to log it.
+
+    Flow:
+      1. Archive closing session (sim_history + per-day file + lifetime_stats)
+      2. Check eval outcome
+      3. If ACTIVE     -> _reset_daily_counters (preserve balance)
+      4. If BUSTED/PASSED -> _reset_to_fresh_preset (start new eval)
+
+    Both paths leave the state in a valid "ready for next session" form.
+    Caller is expected to save_state() after.
+    """
+    # Step 1: archive (regardless of outcome)
+    _archive_day(state)
+    _archive_sim_state(state, stored_sid)
+    _update_lifetime_stats(state)
+
+    # Step 2: detect eval outcome
+    outcome = check_eval_outcome(state)
+
+    # Step 3/4: branch on outcome
+    if outcome == "ACTIVE":
+        _log.info("Session rolled: %s -> %s (eval ACTIVE, balance preserved)",
+                  stored_sid, current_sid)
+        _reset_daily_counters(state, current_sid)
+    else:
+        _log.info("Session rolled: %s -> %s (eval %s, full reset for new eval)",
+                  stored_sid, current_sid, outcome)
+        # TODO Bucket 2: archive eval outcome to data/eval_history.json
+        # before the reset wipes the final state.
+        _reset_to_fresh_preset(state, current_sid)
+
+    return outcome
+
+
 def on_session_close(state: dict = None) -> dict:
     """
     Called by SessionClock on FUTURES_SESSION_CLOSE event.
-    Archives and resets the sim for the closing session.
+
+    Wave 30 (May 11, 2026): refactored to use the shared
+    _handle_session_end() helper so the eval outcome branch (ACTIVE =
+    carry balance; BUSTED/PASSED = full reset) is applied consistently
+    with _ensure_session_current(). Previously this always called
+    _reset_to_fresh_preset() and wiped balance.
+
     Returns the new state.
     """
     if state is None:
@@ -216,15 +355,11 @@ def on_session_close(state: dict = None) -> dict:
     if not sid:
         sid = _get_session_date()
 
-    _archive_day(state)
-    _archive_sim_state(state, sid)
-    _update_lifetime_stats(state)
-
-    # Reset to fresh preset for next session
     new_sid = _get_session_date()
-    _reset_to_fresh_preset(state, new_sid)
+    # Wave 30: shared end-of-session handler (carries balance if eval ACTIVE)
+    outcome = _handle_session_end(state, sid, new_sid)
     save_state(state)
-    _log.info("Session close reset complete: %s -> %s", sid, new_sid)
+    _log.info("Session close complete: %s -> %s (outcome=%s)", sid, new_sid, outcome)
     return state
 
 
