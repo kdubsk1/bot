@@ -1,9 +1,9 @@
 {
-  "total_sessions": 13,
-  "total_trades": 15,
-  "total_wins": 7,
+  "total_sessions": 14,
+  "total_trades": 16,
+  "total_wins": 8,
   "total_losses": 8,
-  "total_pnl_dollars": 891.94,
+  "total_pnl_dollars": 1355.94,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -301.46,
   "best_setup_overall": "NQ:MEDIUM",
@@ -52,11 +52,16 @@
       "wins": 1,
       "losses": 0,
       "pnl": 67.0
+    },
+    "GC:BB_REVERSION_BULL": {
+      "wins": 1,
+      "losses": 0,
+      "pnl": 464.0
     }
   },
-  "last_updated": "2026-05-11T02:47:59.529231+00:00",
+  "last_updated": "2026-05-11T20:00:11.943603+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 50891.94,
+  "lifetime_balance": 51355.94,
   "lifetime_peak_balance": 51375.49
 }

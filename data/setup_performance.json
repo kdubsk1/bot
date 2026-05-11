@@ -82,5 +82,12 @@
     "total": 1,
     "win_rate": 0.0,
     "last_updated": "2026-05-11T05:00:41.525970"
+  },
+  "GC:BB_REVERSION_BULL": {
+    "wins": 1,
+    "losses": 0,
+    "total": 1,
+    "win_rate": 100.0,
+    "last_updated": "2026-05-11T17:23:11.475757"
   }
 }
