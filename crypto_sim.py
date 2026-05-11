@@ -1,6 +1,11 @@
 """
 crypto_sim.py — Persistent $1,000 crypto build-up sim track for BTC/SOL.
 
+Wave 31 (May 11, 2026): Fixed leverage-applied-twice bug. Each crypto trade
+now correctly risks account_risk_pct (1.5%) per trade, matching the docstring
+promise. Before Wave 31, actual risk was 10x intent because pnl calculation
+multiplied position_size_usd (already sized for 1.5% risk) by leverage again.
+
 Runs alongside the Topstep eval sim (sim_account.py). Opens a position on every
 BTC/SOL alert, sizes to risk 1.5% of current balance, applies 10x leverage,
 holds up to 7 days, exits on target/stop/bias-flip/max-hold.
@@ -153,7 +158,12 @@ def close_crypto_trade(alert_id: str, exit_price: float,
         pct_move = (float(exit_price) - entry) / entry
     else:
         pct_move = (entry - float(exit_price)) / entry
-    pnl_dollars = float(match["position_size_usd"]) * pct_move * float(match["leverage"])
+    # Wave 31 (May 11, 2026): position_size_usd is ALREADY sized for the
+    # configured risk (risk_dollars / stop_pct). Multiplying by leverage
+    # AGAIN here was double-applying the 10x, making actual risk 15%/trade
+    # instead of the docstring-promised 1.5%. Account died 10x faster
+    # ($1000 -> $31.91 in 26 trades). Fix: drop the redundant * leverage.
+    pnl_dollars = float(match["position_size_usd"]) * pct_move
 
     opened_at = datetime.fromisoformat(match["opened_at"])
     now = datetime.now(timezone.utc)
@@ -217,7 +227,8 @@ def auto_check_crypto_trades(live_prices: dict, live_frames: dict) -> list:
                 pct_move = (float(price) - entry) / entry
             else:
                 pct_move = (entry - float(price)) / entry
-            pnl_est = float(t["position_size_usd"]) * pct_move * float(t["leverage"])
+            # Wave 31: leverage-2x fix - pnl_est is for WIN/LOSS classification
+            pnl_est = float(t["position_size_usd"]) * pct_move
             r = close_crypto_trade(alert_id, float(price),
                                    "WIN" if pnl_est > 0 else "LOSS",
                                    "max_hold_exceeded")
@@ -238,7 +249,8 @@ def auto_check_crypto_trades(live_prices: dict, live_frames: dict) -> list:
                         pct_move = (float(price) - entry) / entry
                     else:
                         pct_move = (entry - float(price)) / entry
-                    pnl_est = float(t["position_size_usd"]) * pct_move * float(t["leverage"])
+                    # Wave 31: leverage-2x fix
+                    pnl_est = float(t["position_size_usd"]) * pct_move
                     r = close_crypto_trade(alert_id, float(price),
                                            "WIN" if pnl_est > 0 else "LOSS",
                                            "bias_flip")
@@ -250,7 +262,8 @@ def auto_check_crypto_trades(live_prices: dict, live_frames: dict) -> list:
                         pct_move = (float(price) - entry) / entry
                     else:
                         pct_move = (entry - float(price)) / entry
-                    pnl_est = float(t["position_size_usd"]) * pct_move * float(t["leverage"])
+                    # Wave 31: leverage-2x fix
+                    pnl_est = float(t["position_size_usd"]) * pct_move
                     r = close_crypto_trade(alert_id, float(price),
                                            "WIN" if pnl_est > 0 else "LOSS",
                                            "bias_flip")
@@ -317,7 +330,8 @@ def format_crypto_sim_block(market: str, tier: str,
     notional_usd      = position_size_usd * float(state["leverage"])
 
     target_pct = abs(target - entry) / entry
-    reward_est = position_size_usd * target_pct * float(state["leverage"])
+    # Wave 31: same leverage-2x fix - reward should not double-apply leverage
+    reward_est = position_size_usd * target_pct
     rr = abs(target - entry) / abs(entry - stop) if abs(entry - stop) > 0 else 0.0
 
     open_crypto_trade(alert_id, market, direction,
