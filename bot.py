@@ -4055,6 +4055,80 @@ async def _post_init(app):
     except Exception as _w12_e:
         log.error(f"Wave 12 startup wrap failed: {_w12_e}", exc_info=True)
 
+    # ============================================================
+    # Wave 29 (May 11, 2026): Suspend confirmed losers from data.
+    # Adds BTC:BREAK_RETEST_BULL (0W/13L from backtest_pro 2026-05-10)
+    # and NQ:STOCH_REVERSAL_BULL (0W/2L lifetime, -$221.93) to
+    # suspended_setups.json. Auto-suspend doesn't catch these because
+    # (BTC) was filtered before firing so no real-fire history, and
+    # (NQ) losses happened before its $200/7d threshold. Wave 29
+    # hard-suspends both. Idempotent via marker file. 14-day Wave 20
+    # auto-unsuspend still applies if recent data shows improvement.
+    # ============================================================
+    try:
+        _w29_marker = os.path.join(BASE_DIR, "data", "wave29_complete.json")
+        if not os.path.exists(_w29_marker):
+            _w29_now_iso = datetime.now(timezone.utc).isoformat()
+            _w29_targets = [
+                ("BTC:BREAK_RETEST_BULL", {
+                    "reason": "Wave 29 manual: backtest_pro 2026-05-10 showed 0W/13L (0% WR) - hard suspend",
+                    "total_at_suspension": 13,
+                    "wr_at_suspension": 0.0,
+                    "bleed_at_suspension": -1300.0,
+                    "wave29_manual": True,
+                }),
+                ("NQ:STOCH_REVERSAL_BULL", {
+                    "reason": "Wave 29 manual: lifetime_stats 0W/2L (-$221.93) - hard suspend",
+                    "total_at_suspension": 2,
+                    "wr_at_suspension": 0.0,
+                    "bleed_at_suspension": -221.93,
+                    "wave29_manual": True,
+                }),
+            ]
+            _w29_susp = ot.get_suspended_setups()
+            _w29_added = []
+            _w29_skipped = []
+            for _k, _info in _w29_targets:
+                if _k in _w29_susp:
+                    _w29_skipped.append(_k)
+                else:
+                    _w29_susp[_k] = {**_info, "suspended_at": _w29_now_iso}
+                    _w29_added.append(_k)
+            ot._save_suspended_setups(_w29_susp)
+            try:
+                os.makedirs(os.path.dirname(_w29_marker), exist_ok=True)
+                with open(_w29_marker, "w", encoding="utf-8") as _f:
+                    json.dump({
+                        "completed_at": _w29_now_iso,
+                        "added":        _w29_added,
+                        "skipped":      _w29_skipped,
+                        "wave":         "Wave 29 (May 11, 2026)",
+                    }, _f, indent=2)
+            except Exception as _w29_marker_err:
+                log.warning(f"Wave 29 marker write failed: {_w29_marker_err}")
+            log.info(f"Wave 29 migration: added={_w29_added}, skipped={_w29_skipped}")
+            try:
+                _w29_msg = "\U0001f6ab *Wave 29 Migration*\n"
+                _w29_msg += "\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                _w29_msg += "Suspended confirmed losers based on data:\n"
+                if _w29_added:
+                    _w29_msg += "\n*Added to suspended_setups:*\n"
+                    for _k in _w29_added:
+                        _w29_msg += f"  \u2022 `{_k}`\n"
+                if _w29_skipped:
+                    _w29_msg += "\n*Already suspended (no change):*\n"
+                    for _k in _w29_skipped:
+                        _w29_msg += f"  \u2022 `{_k}`\n"
+                _w29_msg += "\n_Wave 20 14-day auto-unsuspend still applies if data improves._\n"
+                _w29_msg += "_Marker: data/wave29_complete.json_"
+                await tg_send(app, _w29_msg)
+            except Exception as _w29_tg:
+                log.warning(f"Wave 29 telegram notify failed: {_w29_tg}")
+        else:
+            log.info("Wave 29: already complete, skipping.")
+    except Exception as _w29_e:
+        log.error(f"Wave 29 startup wrap failed: {_w29_e}", exc_info=True)
+
     # Task 1: Restore scanner state from disk BEFORE anything else
     scanner_info = _load_scanner_state()
     SETTINGS["scanner_on"] = scanner_info["scanner_on"]
