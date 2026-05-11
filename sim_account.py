@@ -1103,32 +1103,31 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     _life_starting = float(_load_lifetime_stats().get("lifetime_starting_balance", 50_000.0))
     _life_pct = ((_life_bal - _life_starting) / _life_starting * 100.0) if _life_starting > 0 else 0.0
 
+    # Wave 34 (May 11, 2026): Compact SIM block. Was 8-10 lines with
+    # redundant data (session==combine post-Wave 30, today P&L doubled by
+    # daily cushion, 0% progress bar). Now 4 lines + optional warning.
+    # Same info, less noise.
+    try:
+        rr_display = total_reward / max(1, total_risk)
+    except Exception:
+        rr_display = 0.0
+    today_pnl_str = f"{plus_dp2}${risk['daily_pnl']:,.0f}"
     block = (
-        f"\n\U0001f4b0 *SIM MODE \u2014 {label}*\n"
-        f"  \U0001f4b3 Session bal: `${risk['balance']:,.2f}` (resets each session)\n"
-        f"  \U0001f3c6 Combine bal: `${_life_bal:,.2f}` ({_life_pnl_sign}${_life_pnl:,.2f} | {_life_pct:+.1f}%)\n"
-        f"  \U0001f4e6 Size: `{contracts}` {label}  |  Risk: `${total_risk:,.0f}` ({cushion_pct:.1f}% of cushion)\n"
-        f"  \U0001f4b8 Reward est: `${total_reward:,.0f}`\n"
-        f"  _{reasoning}_\n"
-        f"  \U0001f4c5 Today P&L: `${plus_dp2}{risk['daily_pnl']:,.2f}`\n"
-        f"  \U0001f6e1 Daily left: `${risk['daily_left']:,.0f}` | Cushion: `${risk['dd_left']:,.0f}`\n"
-        f"  {bar} {used_pct:.0f}% daily limit used"
+        f"\n\U0001f4b0 *SIM \u2014 {contracts} {label}* | Risk `${total_risk:,.0f}` \u2192 Reward `${total_reward:,.0f}` (R:R `{rr_display:.1f}`)\n"
+        f"  Balance: `${risk['balance']:,.2f}` ({today_pnl_str} today \u00b7 combine {_life_pnl_sign}${_life_pnl:,.0f} \u00b7 {_life_pct:+.1f}%)\n"
+        f"  Cushion: Daily `${risk['daily_left']:,.0f}` \u00b7 DD `${risk['dd_left']:,.0f}`\n"
+        f"  _{reasoning}_"
     )
+    # Only show the daily-limit warning when actually approaching (>=60%).
+    # Wave 34: dropped the always-shown progress bar that was 0% on quiet days.
     if used_pct >= 60:
-        block += "\n  \u26a0\ufe0f Getting close to daily limit \u2014 be selective"
+        block += f"\n  \u26a0\ufe0f `{used_pct:.0f}%` of daily limit used \u2014 be selective"
 
-    # Append context line (matches crypto_sim format) when caller supplies it.
-    # Wayne's ask (2026-04-29): show same trend/RSI/ADX/regime context on NQ/GC
-    # alerts that the crypto sim block already shows for BTC/SOL.
-    if context:
-        try:
-            _ctrend = context.get("trend_score", 0)
-            _crsi   = context.get("rsi", 0)
-            _cadx   = context.get("adx", 0)
-            _cregime = context.get("regime", "UNKNOWN")
-            block += f"\n  \U0001f4ca Context: Trend `{_ctrend:+d}` | RSI {_crsi} | ADX {_cadx} | {_cregime}"
-        except Exception:
-            pass
+    # Wave 34: context line dropped. The main alert header already shows
+    # Trend/ADX/RSI on every alert (see format_alert in bot.py), so the
+    # context here was duplicating data. `context` arg kept for backward
+    # compat with callers but no longer rendered.
+    _ = context  # noqa: kept for backward compat
 
     return block
 
