@@ -2471,6 +2471,20 @@ async def scan_loop(app):
                     try:
                         _full, short = ot.build_daily_report()
                         await tg_send(app, short)
+
+                        # Wave 35 (May 11, 2026): also send the eval progression
+                        # view at the same daily checkpoint. Wayne gets two
+                        # messages: (1) what happened today (above), (2) journey
+                        # status (below). Inner try/except: a /eval failure does
+                        # NOT break the daily report which has already been sent.
+                        try:
+                            await asyncio.sleep(1)  # preserve message order in Telegram
+                            _eval_view = sim.eval_progression_text()
+                            await tg_send(app, _eval_view)
+                            log.info("Wave 35: eval progression view sent")
+                        except Exception as _w35_err:
+                            log.warning(f"Wave 35 eval progression send failed: {_w35_err}")
+
                         _LAST_DAILY_REPORT_DATE = today_str
                         log.info(f"Daily report sent for {today_str}")
                     except Exception as e:
