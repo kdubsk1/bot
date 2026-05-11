@@ -1822,6 +1822,18 @@ _PHANTOM_QUEUE_MAX = 100  # cap so a misfiring guard can't OOM the bot
 _PHANTOM_TIME_THRESHOLD_SEC = 30      # closes faster than this = suspect
 _PHANTOM_PRICE_DIVERGE_PCT = 0.002    # 0.2% gap between current_close and claimed exit = suspect
 
+# Wave 28 (May 11, 2026): phantom-loss event dedup cache. Prevents the
+# stuck-trade spam loop where the same alert_id would log a phantom
+# event on every scan (~10 min apart) because the guard kept blocking
+# the close (price diverged from stop/target). Evidence: BTC
+# 9950dc8fc9 fired 4 phantom events in 30 min on May 7. With this cache,
+# same alert_id is silenced for 30 min after its first event.
+# In-memory only; resets on bot restart (acceptable: at most one
+# duplicate per trade per restart, not per scan).
+_PHANTOM_DEDUP_CACHE: dict = {}            # alert_id -> datetime (UTC)
+_PHANTOM_DEDUP_COOLDOWN_SEC = 1800         # 30 min - skip dedup matches within this window
+_PHANTOM_DEDUP_MAX_SIZE = 500              # cap; trim oldest half when exceeded
+
 
 def get_and_clear_phantom_events() -> list:
     """
@@ -1840,8 +1852,41 @@ def _record_phantom_event(event: dict):
     and the on-disk log (for permanent audit trail). Both wrapped
     defensively so a phantom-event recording bug can never break the
     main trade-resolution path.
+
+    Wave 28 (May 11, 2026): added a dedup check at the start. If the
+    same alert_id triggered a phantom event within the last
+    _PHANTOM_DEDUP_COOLDOWN_SEC seconds (default 30 min), silently
+    skip both queue append AND disk write. Stops the stuck-trade spam
+    loop where one trade could fire a phantom event every scan.
+    Phantom guard's refuse-to-close behavior is unchanged - this only
+    affects logging.
     """
-    global _PHANTOM_EVENTS_QUEUE
+    global _PHANTOM_EVENTS_QUEUE, _PHANTOM_DEDUP_CACHE
+
+    # Wave 28 dedup: skip if same alert_id was logged within cooldown
+    try:
+        alert_id = event.get("alert_id", "")
+        if alert_id:
+            now_dt = datetime.now(timezone.utc)
+            last_dt = _PHANTOM_DEDUP_CACHE.get(alert_id)
+            if last_dt is not None:
+                age_sec = (now_dt - last_dt).total_seconds()
+                if age_sec < _PHANTOM_DEDUP_COOLDOWN_SEC:
+                    # Same alert recorded recently - skip silently.
+                    # This is the noise-reduction point. Bot guard
+                    # already refused the close; nothing more to do.
+                    return
+            _PHANTOM_DEDUP_CACHE[alert_id] = now_dt
+            # Trim cache if too big: drop oldest half by timestamp
+            if len(_PHANTOM_DEDUP_CACHE) > _PHANTOM_DEDUP_MAX_SIZE:
+                items = sorted(_PHANTOM_DEDUP_CACHE.items(), key=lambda kv: kv[1])
+                for k, _v in items[:len(items)//2]:
+                    _PHANTOM_DEDUP_CACHE.pop(k, None)
+    except Exception:
+        # If dedup itself errors, fall through and record normally.
+        # Recording is more important than dedup.
+        pass
+
     try:
         _PHANTOM_EVENTS_QUEUE.append(event)
         # Cap queue size - drop oldest if exceeded
