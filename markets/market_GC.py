@@ -31,7 +31,7 @@ TIMEFRAMES       = ["1h", "4h", "1d"]
 # ─── Quality Filters ───────────────────────────────────────────────
 MIN_ADX          = 14      # Lowered — Gold at 15+ ADX overnight is a real trend
 MIN_ADX_PRIME    = 18      # London/NY sessions require stronger trend
-MIN_RR           = 2.5     # Gold moves are slower so need good RR
+MIN_RR           = 1.5     # Wave 25 (May 11, 2026): lowered 2.5->1.5 based on backtest_pro showing 30+ winners killed at RR 1.5-1.79
 NEWS_MIN_RR      = 3.5     # Lowered from 4.5 — was blocking too many winners
 MIN_CONVICTION   = 62      # Slightly lower threshold — Gold is cleaner
 COOLDOWN_MIN     = 90      # 90 min between alerts — Gold is slower
