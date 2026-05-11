@@ -78,6 +78,12 @@ ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
 # ── Scanner state persistence (Task 1) ───────────────────────────
 SCANNER_STATE_FILE = os.path.join(BASE_DIR, "data", "scanner_state.json")
 
+# Wave 26 (May 11, 2026): bot brain log - exhaustive internal record
+# for Claude analysis. Phantom-loss detections, mid-trade re-scores,
+# partial-exit suggestions go here INSTEAD of Telegram. Telegram
+# stays curated (entries, real exits, briefs, watchdog, commands).
+BOT_BRAIN_FILE = os.path.join(BASE_DIR, "data", "bot_brain.jsonl")
+
 def _save_scanner_state():
     """
     Persist scanner_on so it survives Railway restarts.
@@ -105,6 +111,41 @@ def _save_scanner_state():
             pass  # never break state save on logging failure
     except Exception as e:
         log.warning(f"_save_scanner_state: {e}")
+
+def bot_brain_log(event_type: str, data: dict):
+    """
+    Wave 26 (May 11, 2026): Persistent exhaustive log of the bot's
+    internal thoughts.
+
+    Used for events that are signal-worthy for Claude analysis but
+    NOT signal-worthy for Telegram. Examples:
+      - phantom_loss   : guard blocked a phantom-priced close
+      - partial_exit   : 1R hit, would suggest partial off
+      - rescore        : mid-trade conviction shift
+
+    Each entry is a single JSON line in data/bot_brain.jsonl.
+    Append-only, never trimmed. Cheap (~500 bytes/event, ~25KB/day max).
+
+    Wrapped in try/except - logging failure must never crash the bot.
+    """
+    try:
+        entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "type":      event_type,
+        }
+        if isinstance(data, dict):
+            entry.update(data)
+        else:
+            entry["raw"] = str(data)
+        os.makedirs(os.path.dirname(BOT_BRAIN_FILE), exist_ok=True)
+        with open(BOT_BRAIN_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, default=str) + "\n")
+    except Exception as _bb_err:
+        try:
+            log.warning(f"bot_brain_log[{event_type}] failed: {_bb_err}")
+        except Exception:
+            pass  # logger itself unavailable - silently drop
+
 
 def _load_scanner_state() -> dict:
     """Returns {'scanner_on': bool, 'last_changed': iso_str, 'hours_ago': float}."""
@@ -1070,9 +1111,16 @@ async def scan_market(app, market, frames):
                     f"✅ Trade left OPEN. No data corruption.\n"
                     f"_Wave 10 + Wave 11 self-defense layer working as designed._"
                 )
-                await tg_send(app, msg)
+                # Wave 26 (May 11, 2026): Telegram alert silenced.
+                # Phantom-loss events persisted to data/phantom_events.jsonl
+                # via _record_phantom_event (Wave 10/11) AND now to
+                # data/bot_brain.jsonl for Claude analysis. The formatted
+                # 'msg' variable above is left unused (cosmetic; raw evt
+                # dict has all the same data plus more).
+                bot_brain_log("phantom_loss", evt)
+                log.info(f"[{market}] Wave 26: phantom-loss event logged (no Telegram)")
             except Exception as _pe_msg:
-                log.warning(f"[{market}] phantom alarm format/send: {_pe_msg}")
+                log.warning(f"[{market}] phantom alarm log: {_pe_msg}")
         # Push back any other-market events
         if leftover:
             for evt in leftover:
@@ -2000,14 +2048,21 @@ async def watch_open_trades(app, frames_by_market):
                 partial_done = row.get("partial_exit_done", "") == "True"
                 if profit_dist >= risk_dist and not partial_done:
                     ot.update_partial_exit(row["alert_id"])
-                    await tg_send(app,
-                        f"📤 *Partial Exit Signal* — {cfg.EMOJI} {_md(cfg.FULL_NAME)}\n"
-                        f"━━━━━━━━━━━━━━━━━━\n"
-                        f"{_md(row.get('direction',''))} hit 1R at `{round(cur_p,2)}`\n"
-                        f"Consider taking 50% off.\n"
-                        f"Move stop to breakeven (`{round(entry_val,2)}`).\n"
-                        f"━━━━━━━━━━━━━━━━━━"
-                    )
+                    # Wave 26 (May 11, 2026): Telegram "consider taking 50% off"
+                    # message silenced. The bot still tracks partial-exit triggers
+                    # via ot.update_partial_exit (so re-suggestion logic works)
+                    # and now logs the event to bot_brain.jsonl for Claude analysis.
+                    bot_brain_log("partial_exit_suggestion", {
+                        "market":     market,
+                        "alert_id":   row.get("alert_id"),
+                        "setup":      row.get("setup"),
+                        "direction":  row.get("direction", ""),
+                        "tf":         row.get("tf"),
+                        "trigger":    "1R_reached",
+                        "current_price": round(cur_p, 4),
+                        "entry":      round(entry_val, 4),
+                        "suggestion": "take_50_pct_off_move_stop_to_breakeven",
+                    })
         except Exception as e:
             log.debug(f"Partial exit check: {e}")
 
@@ -2076,15 +2131,28 @@ async def watch_open_trades(app, frames_by_market):
             header = f"ℹ️ *{cfg.FULL_NAME} — Position Update*"
             detail = f"{note}\n" if note else ""
 
-        msg = (
-            f"{header}\n"
-            f"{cfg.EMOJI} {_md(row.get('setup',''))} [{row.get('tf')}] | {direction}\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"{dist_lines}"
-            f"{detail}"
-            f"━━━━━━━━━━━━━━━━━━"
-        )
-        await tg_send(app, msg)
+        # Wave 26 (May 11, 2026): mid-trade rescore Telegram alert silenced.
+        # The bot still re-scores conviction every scan (rescore_open_trade)
+        # and stores it via ot.update_rescore (dashboard surfaces it via
+        # last_rescore_conviction column). This patch only stops Telegram noise.
+        # Full event detail logged to bot_brain.jsonl for Claude analysis.
+        bot_brain_log("rescore", {
+            "market":           market,
+            "alert_id":         row.get("alert_id"),
+            "setup":            row.get("setup"),
+            "direction":        direction,
+            "tf":               row.get("tf"),
+            "action":           action,
+            "old_conviction":   old_conv,
+            "new_conviction":   new_c,
+            "delta":            delta,
+            "current_price":    round(cur_price, 4) if cur_price else None,
+            "entry":            round(entry_p, 4) if entry_p else None,
+            "stop":             round(stop_p, 4) if stop_p else None,
+            "target":           round(target_p, 4) if target_p else None,
+            "progress_to_target_pct": round(progress * 100, 1) if "progress" in dir() else None,
+            "note":             note,
+        })
 
 # ── Smart interval engine ─────────────────────────────────────────
 def get_smart_interval(active_markets, frames_by_market) -> tuple:
