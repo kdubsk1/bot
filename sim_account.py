@@ -554,6 +554,157 @@ def get_lifetime_stats() -> dict:
     return _load_lifetime_stats()
 
 
+def eval_progression_text() -> str:
+    """
+    Wave 33 (May 11, 2026): Single-screen Topstep eval progression view.
+
+    Returns a Telegram-formatted Markdown block answering the four
+    key questions of any prop firm eval journey:
+      1. Where am I now (balance, peak, % of starting)
+      2. How far to PASS (target, remaining, progress bar)
+      3. How safe from BUST (daily + DD cushions)
+      4. Am I on track (pace, days to pass at pace, trade quality)
+
+    Reads from lifetime_stats.json (combine cumulative) + sim_account.json
+    (today's session for daily cushion). No state mutation.
+    """
+    state = load_state()
+    if not state.get("enabled"):
+        return (
+            "\U0001f4b0 *Sim Mode is OFF*\n"
+            "Use the Settings menu to turn it on.\n"
+            "Sim tracks your eval account alongside real alerts."
+        )
+
+    risk  = check_risk_limits(state)
+    stats = _load_lifetime_stats()
+
+    # Section 1: Balance
+    life_bal  = get_lifetime_balance()
+    life_pnl  = get_lifetime_pnl()
+    starting  = float(stats.get("lifetime_starting_balance", 50_000.0))
+    peak      = float(stats.get("lifetime_peak_balance", max(starting, life_bal)))
+    pct       = ((life_bal - starting) / starting * 100.0) if starting > 0 else 0.0
+
+    # Section 2: Path to PASS
+    target    = float(state.get("profit_target", 3_000.0))
+    to_pass   = max(0.0, target - life_pnl)
+    pct_done  = max(0.0, min(100.0, (life_pnl / target * 100.0) if target > 0 else 0.0))
+    bars      = int(pct_done / 10)
+    bar       = "\u2588" * bars + "\u2591" * (10 - bars)
+
+    # Section 3: Bust guardrails
+    daily_left = float(risk.get("daily_left", 0))
+    cushion    = float(risk.get("dd_left", 0))
+    daily_lim  = float(state.get("daily_loss_limit", 1_000.0))
+    max_dd     = float(state.get("max_drawdown", 2_000.0))
+
+    # Section 4: Pace
+    started_iso = stats.get("combine_started_at", "")
+    days_in     = 1
+    if started_iso:
+        try:
+            started = datetime.fromisoformat(started_iso)
+            if started.tzinfo is None:
+                started = started.replace(tzinfo=timezone.utc)
+            elapsed = (datetime.now(timezone.utc) - started).total_seconds()
+            days_in = max(1, int(elapsed / 86400))
+        except Exception:
+            pass
+
+    daily_avg = life_pnl / days_in if days_in > 0 else 0.0
+
+    # Trade quality
+    wins   = int(stats.get("total_wins", 0))
+    losses = int(stats.get("total_losses", 0))
+    total  = wins + losses
+    wr     = round(wins / max(1, total) * 100.0, 1)
+
+    best_sess  = float(stats.get("best_session_pnl", 0))
+    worst_sess = float(stats.get("worst_session_pnl", 0))
+
+    # Profit factor from per_setup totals
+    per_setup       = stats.get("per_setup_stats", {})
+    total_winning   = sum(s.get("pnl", 0) for s in per_setup.values() if s.get("pnl", 0) > 0)
+    total_losing    = abs(sum(s.get("pnl", 0) for s in per_setup.values() if s.get("pnl", 0) < 0))
+    if total_losing > 0:
+        pf = total_winning / total_losing
+    elif total_winning > 0:
+        pf = 99.99  # no losses, cap display
+    else:
+        pf = 0.0
+
+    # Status indicator
+    if life_pnl >= target:
+        status_emoji = "\U0001f3c6"
+        status_text  = "PASSED! Withdraw and start funded account."
+    elif cushion < 500:
+        status_emoji = "\U0001f6a8"
+        status_text  = "DANGER ZONE - cushion below $500"
+    elif life_pnl < -1500:
+        status_emoji = "\u26a0\ufe0f"
+        status_text  = "Deep drawdown - be selective today"
+    elif daily_avg > 200:
+        status_emoji = "\U0001f680"
+        status_text  = "Excellent pace - keep it up"
+    elif daily_avg > 50:
+        status_emoji = "\u2705"
+        status_text  = "On track for pass"
+    elif daily_avg > 0:
+        status_emoji = "\U0001f4c8"
+        status_text  = "Building positive momentum"
+    else:
+        status_emoji = "\u23f3"
+        status_text  = "Below water - focus on quality setups only"
+
+    # Pace projection (only if positive avg)
+    if daily_avg > 0 and to_pass > 0:
+        days_to_pass = int(to_pass / daily_avg)
+        if days_to_pass > 365:
+            pace_line = "Below pace - small avg makes target distant"
+        else:
+            pace_line = f"At this pace: ~`{days_to_pass}` days to PASS"
+    elif to_pass <= 0:
+        pace_line = "Target already reached!"
+    else:
+        pace_line = "Need positive avg to reach PASS - focus on cleaner setups"
+
+    # Formatted P&L strings
+    pnl_str   = f"+${life_pnl:,.0f}"  if life_pnl   >= 0 else f"-${abs(life_pnl):,.0f}"
+    best_str  = f"+${best_sess:,.0f}" if best_sess  >= 0 else f"-${abs(best_sess):,.0f}"
+    worst_str = f"+${worst_sess:,.0f}" if worst_sess >= 0 else f"-${abs(worst_sess):,.0f}"
+    avg_str   = f"+${daily_avg:,.0f}" if daily_avg  >= 0 else f"-${abs(daily_avg):,.0f}"
+
+    day_word = "day" if days_in == 1 else "days"
+
+    return (
+        f"\U0001f3af *TOPSTEP $50K EVAL*\n"
+        f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+        f"\n"
+        f"*Balance:* `${life_bal:,.2f}` ({pct:+.2f}%)\n"
+        f"*Peak:*    `${peak:,.2f}`  \u00b7  *Total P&L:* `{pnl_str}`\n"
+        f"\n"
+        f"*\U0001f3af Path to PASS* (+${target:,.0f} from start)\n"
+        f"  {bar} `{pct_done:.0f}%`\n"
+        f"  `${to_pass:,.0f}` left to target\n"
+        f"\n"
+        f"*\U0001f6e1 Bust Guardrails*\n"
+        f"  Daily: `${daily_left:,.0f}` cushion (limit -${daily_lim:,.0f})\n"
+        f"  DD:    `${cushion:,.0f}` cushion (max -${max_dd:,.0f})\n"
+        f"\n"
+        f"*\U0001f4ca Pace*\n"
+        f"  `{days_in}` {day_word} in  \u00b7  Avg `{avg_str}/day`\n"
+        f"  {pace_line}\n"
+        f"\n"
+        f"*\U0001f3b2 Trade Quality*\n"
+        f"  `{wins}W/{losses}L` ({wr}% WR) over `{total}` trades\n"
+        f"  Best day: `{best_str}`  \u00b7  Worst: `{worst_str}`\n"
+        f"  Profit factor: `{pf:.2f}`\n"
+        f"\n"
+        f"{status_emoji} {status_text}"
+    )
+
+
 def lifetime_stats_text() -> str:
     """Returns formatted lifetime stats for /lifetime command."""
     stats = _load_lifetime_stats()

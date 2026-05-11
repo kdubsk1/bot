@@ -3369,6 +3369,15 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_eval(u, c):
+    """
+    Wave 33 (May 11, 2026): Topstep eval progression view.
+
+    Single-screen status of the entire eval journey:
+    balance, path to PASS, bust guardrails, pace, trade quality.
+    """
+    await u.message.reply_text(sim.eval_progression_text(), parse_mode="Markdown")
+
 async def cmd_detections(u, c):
     """
     Show the last 20 DETECTED entries from strategy_log.csv with full context.
@@ -4799,7 +4808,7 @@ def main():
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("status",cmd_status),  # Wave 19: was missing - slash did nothing
-                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),
+                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
