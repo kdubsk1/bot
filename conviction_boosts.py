@@ -452,10 +452,21 @@ def should_run_auto_tune_now() -> bool:
     target_hour = int(l5.get("schedule_hour_et", 20))
     if now.strftime("%A") != target_day:
         return False
-    if now.hour != target_hour:
+    # Wave 32 (May 11, 2026): widened hour gate from exact-match (==)
+    # to "at or after target hour" (<). The strict hour==20 check meant
+    # Layer 5 only had a 1-hour window per week - any restart, redeploy,
+    # or scan-tick race in that window caused it to silently skip the
+    # week. Result: last_run_at stayed null since May 2 despite many
+    # Sundays passing. Widening to 8PM-midnight ET gives 4 hours of
+    # opportunity, paired with the 6-day cooldown below to prevent
+    # re-firing within the same Sunday.
+    if now.hour < target_hour:
         return False
 
-    # Don't run if we already ran in the last 23 hours
+    # Wave 32: Stretched cooldown from 23h to 6 days. The wider 4-hour
+    # firing window means we need a longer cooldown to prevent multiple
+    # runs in one Sunday evening. 6 days lets us still fire on the
+    # *next* Sunday even if last week was a Sat-ish run.
     last_run = l5.get("last_run_at")
     if last_run:
         try:
@@ -463,7 +474,7 @@ def should_run_auto_tune_now() -> bool:
             last = datetime.fromisoformat(last_run)
             if last.tzinfo is None:
                 last = last.replace(tzinfo=timezone.utc)
-            if datetime.now(timezone.utc) - last < timedelta(hours=23):
+            if datetime.now(timezone.utc) - last < timedelta(days=6):
                 return False
         except Exception:
             pass
