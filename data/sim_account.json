@@ -17,5 +17,20 @@
   "session_date": "2026-05-11",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "a57040634b",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4670.1,
+      "stop": 4648.8268784962565,
+      "target": 4716.5,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-05-11T06:09:27.183792",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }

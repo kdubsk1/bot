@@ -75,5 +75,12 @@
     "total": 1,
     "win_rate": 0.0,
     "last_updated": "2026-05-07T22:37:39.440516"
+  },
+  "BTC:MACD_CROSS_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-11T05:00:41.525970"
   }
 }

@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-11T04:35:27.660911+00:00",
+  "generated_at": "2026-05-11T10:35:29.880889+00:00",
   "topstep": {
     "balance": 50000.0,
     "starting_balance": 50000.0,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000.0,
     "daily_loss_limit": 1000.0,
     "profit_target": 3000.0,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -455,9 +455,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 5,
-    "losses": 17,
-    "wr": 22.7,
-    "total_trades": 22
+    "losses": 18,
+    "wr": 21.7,
+    "total_trades": 23
   },
   "today": {
     "wins": 0,
@@ -542,9 +542,32 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "BTC:MACD_CROSS_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-11 06:09",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4670.1",
+      "stop": "4648.8269",
+      "target": "4716.5",
+      "rr": "2.18",
+      "conv": "79",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-05-10 13:46",
       "market": "BTC",
@@ -557,9 +580,9 @@ const DATA = {
       "rr": "2.91",
       "conv": "86",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "80704.4552"
     },
     {
       "time": "2026-05-07 22:13",
@@ -928,22 +951,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "SKIP",
       "exit": "27803.9553"
-    },
-    {
-      "time": "2026-05-04 12:22",
-      "market": "NQ",
-      "setup": "MACD_CROSS_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "27857.5",
-      "stop": "27813.6222",
-      "target": "27951.25",
-      "rr": "2.14",
-      "conv": "80",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "SKIP",
-      "exit": "27813.6222"
     }
   ],
   "suspended_setups": [
@@ -1033,8 +1040,8 @@ const DATA = {
     },
     "BTC": {
       "wins": 0,
-      "losses": 1,
-      "total_pnl_r": -1.0,
+      "losses": 2,
+      "total_pnl_r": -2.0,
       "wr": 0.0
     },
     "GC": {
@@ -1052,23 +1059,23 @@ const DATA = {
     },
     "HIGH": {
       "wins": 0,
-      "losses": 8,
+      "losses": 9,
       "wr": 0.0
     }
   },
   "open_trades": [
     {
-      "market": "BTC",
-      "setup": "MACD_CROSS_BULL",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
       "tf": "1h",
       "direction": "LONG",
-      "entry": "80961.74",
-      "target": "81709.17",
-      "stop": "80704.4552",
-      "conviction": 86,
-      "last_rescore_conviction": 86,
-      "tier": "HIGH",
-      "timestamp": "2026-05-10T13:46:04.101625+00:00"
+      "entry": "4670.1",
+      "target": "4716.5",
+      "stop": "4648.8269",
+      "conviction": 79,
+      "last_rescore_conviction": 79,
+      "tier": "MEDIUM",
+      "timestamp": "2026-05-11T06:09:27.165263+00:00"
     }
   ]
 };
