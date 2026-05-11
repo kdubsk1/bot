@@ -1601,29 +1601,22 @@ async def scan_market(app, market, frames):
             # Fall through.
 
             if stp["type"] in ("APPROACH_SUPPORT","APPROACH_RESIST"):
-                if _is_approach_active(market, stp["type"], stp["entry"]):
-                    continue
-
-            if stp["type"] == "APPROACH_RESIST" and trend > -2:
+                # Wave 27 (May 11, 2026): APPROACH setups are DETECTION-ONLY.
+                # Wave 14 was supposed to remove them as alerts but left a leak:
+                # if trend was strong enough (>= +2 for SUPPORT, <= -2 for RESIST)
+                # they could still fire. Lifetime stats showed NQ:APPROACH_SUPPORT
+                # firing 2 trades (1W/1L) and backtest showed 2 more losses on NQ.
+                # Hard-skip ALL APPROACH alerts here. The setup type is still
+                # detected by detect_setups() for use in conviction scoring of
+                # OTHER setups (e.g., a LIQ_SWEEP_BULL near an APPROACH_SUPPORT
+                # still gets that conviction bonus).
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                     sl.DECISION_REJECTED,
-                    f"APPROACH_RESIST requires trend <= -2 for bearish approach; current trend is {trend:+d}",
+                    "APPROACH setups are detection-only (Wave 27 block; never fire as alerts)",
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
-                _sample_reject_log(market, entry_tf, stp["type"], f"APPROACH_RESIST blocked: trend {trend:+d} not bearish")
-                continue
-
-            if stp["type"] == "APPROACH_SUPPORT" and trend < 2:
-                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                    cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
-                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                    sl.DECISION_REJECTED,
-                    f"APPROACH_SUPPORT requires trend >= +2 for bullish approach; current trend is {trend:+d}",
-                    context=snapshot_context,
-                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
-                _sample_reject_log(market, entry_tf, stp["type"], f"APPROACH_SUPPORT blocked: trend {trend:+d} not bullish")
                 continue
 
             tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
