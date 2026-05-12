@@ -89,5 +89,12 @@
     "total": 1,
     "win_rate": 100.0,
     "last_updated": "2026-05-11T17:23:11.475757"
+  },
+  "NQ:VWAP_BOUNCE_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-12T17:37:02.132908"
   }
 }

@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50000,
+  "balance": 49881.27,
   "peak_balance": 50000,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -12,12 +12,11 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 0.0,
+  "today_pnl": -118.73,
   "today_date": "2026-05-12",
   "session_date": "2026-05-12",
-  "total_pnl": 0.0,
-  "trades": [],
-  "open_sim_trades": [
+  "total_pnl": -118.73,
+  "trades": [
     {
       "alert_id": "55180c2fd8",
       "market": "NQ",
@@ -29,6 +28,25 @@
       "tier": "HIGH",
       "setup_type": "VWAP_BOUNCE_BULL",
       "opened_at": "2026-05-12T02:56:48.677103",
+      "status": "CLOSED",
+      "pnl": -118.73,
+      "exit_price": 29296.137,
+      "result": "LOSS",
+      "closed_at": "2026-05-12T17:37:03.015564"
+    }
+  ],
+  "open_sim_trades": [
+    {
+      "alert_id": "1e3345333b",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 28900.25,
+      "stop": 28707.205038453612,
+      "target": 29399.75,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-05-12T17:42:17.104645",
       "status": "OPEN",
       "pnl": 0.0
     }

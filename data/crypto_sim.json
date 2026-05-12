@@ -6,7 +6,35 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "967628ff4f",
+      "market": "BTC",
+      "direction": "LONG",
+      "entry": 80698.81,
+      "stop": 80414.49346290251,
+      "target": 81288.83,
+      "leverage": 10,
+      "position_size_usd": 113.72,
+      "notional_usd": 1137.18,
+      "risk_dollars": 0.4,
+      "opened_at": "2026-05-12T18:57:40.689045+00:00",
+      "max_hold_until": "2026-05-19T18:57:40.689045+00:00",
+      "tier": "HIGH",
+      "conviction": 86,
+      "context": {
+        "trend_score": 8,
+        "rsi": 56.21,
+        "adx": 34.45,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "VWAP bounce at 80666.7574. Institutional support level."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
