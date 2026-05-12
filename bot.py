@@ -2708,6 +2708,10 @@ def main_menu():
         [InlineKeyboardButton(f"🔄 Reset {preset}", callback_data="simreset_current"),
          InlineKeyboardButton("📅 Weekly",          callback_data="sim_weekly")],
 
+        # Wave 37 (May 11, 2026): explicit reset buttons (separate from cycling preset reset)
+        [InlineKeyboardButton("♻️ Reset Topstep", callback_data="reset_topstep_confirm"),
+         InlineKeyboardButton("♻️ Reset Crypto",  callback_data="reset_crypto_confirm")],
+
         # Row 9: Archives & info footer (Wave 19: Dashboard URL restored - Pages live)
         [InlineKeyboardButton("📜 History",   callback_data="history_list"),
          InlineKeyboardButton("🏆 Lifetime",  callback_data="lifetime"),
@@ -3741,6 +3745,85 @@ async def on_button(u, c):
         await q.message.reply_text(
             f"✅ *Sim reset — {st['preset'].upper()}*\nBalance: `${st['balance']:,.2f}`\nDaily limit: `${st['daily_loss_limit']:,.2f}`",
             parse_mode="Markdown")
+        return
+    # Wave 37 (May 11, 2026): explicit reset buttons with 2-step confirmation.
+    elif d=="reset_topstep_confirm":
+        st_cur = sim.load_state()
+        preset_cur = st_cur.get("preset", "50k").upper()
+        bal_cur = float(st_cur.get("balance", 50_000.0))
+        confirm_kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("✅ Yes, reset", callback_data="reset_topstep_yes"),
+             InlineKeyboardButton("❌ Cancel",     callback_data="reset_cancel")],
+        ])
+        await q.message.reply_text(
+            f"⚠️ *Reset Topstep {preset_cur}?*\n"
+            f"Current balance: `${bal_cur:,.2f}`\n"
+            f"\nThis will:\n"
+            f"  • Reset balance to preset starting value\n"
+            f"  • Clear all open + closed sim trades\n"
+            f"  • Reset today_pnl and total_pnl to 0\n"
+            f"  • PRESERVE lifetime_stats.json (combine history)\n"
+            f"\nUse this when starting a fresh eval attempt.",
+            parse_mode="Markdown",
+            reply_markup=confirm_kb,
+        )
+        return
+    elif d=="reset_topstep_yes":
+        cur_preset = sim.load_state().get("preset", "50k")
+        sim.reset_sim(cur_preset)  # reset to CURRENT preset (no cycling)
+        st_new = sim.load_state()
+        await q.message.reply_text(
+            f"✅ *Topstep Reset Complete*\n"
+            f"Preset: `{st_new['preset'].upper()}`\n"
+            f"Balance: `${st_new['balance']:,.2f}`\n"
+            f"Daily limit: `${st_new['daily_loss_limit']:,.2f}`\n"
+            f"Max DD: `${st_new['max_drawdown']:,.2f}`\n"
+            f"\n_Lifetime stats preserved._",
+            parse_mode="Markdown",
+        )
+        return
+    elif d=="reset_crypto_confirm":
+        try:
+            cs_state = crypto_sim.load_crypto_state()
+            cur_bal = float(cs_state.get("balance", 0))
+            start_bal = float(cs_state.get("starting_balance", 1000))
+            n_closed = len(cs_state.get("closed_trades", []))
+            n_open = len(cs_state.get("open_trades", []))
+        except Exception:
+            cur_bal, start_bal, n_closed, n_open = 0, 1000, 0, 0
+        confirm_kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("✅ Yes, reset", callback_data="reset_crypto_yes"),
+             InlineKeyboardButton("❌ Cancel",     callback_data="reset_cancel")],
+        ])
+        await q.message.reply_text(
+            f"⚠️ *Reset Crypto Sim?*\n"
+            f"Current balance: `${cur_bal:,.2f}` of `${start_bal:,.2f}` starting\n"
+            f"Closed trades: `{n_closed}`  ·  Open: `{n_open}`\n"
+            f"\nThis will:\n"
+            f"  • Reset balance to `$1,000`\n"
+            f"  • Clear all open + closed crypto trades\n"
+            f"\nUse this after Wave 31 to get clean data.",
+            parse_mode="Markdown",
+            reply_markup=confirm_kb,
+        )
+        return
+    elif d=="reset_crypto_yes":
+        try:
+            crypto_sim.reset_crypto_account()
+            new_state = crypto_sim.load_crypto_state()
+            await q.message.reply_text(
+                f"✅ *Crypto Sim Reset Complete*\n"
+                f"Balance: `${float(new_state.get('balance', 1000)):,.2f}`\n"
+                f"Leverage: `{new_state.get('leverage', 10)}x`\n"
+                f"Risk per trade: `{new_state.get('account_risk_pct', 1.5)}%`\n"
+                f"\nFresh slate to validate Wave 31 leverage fix.",
+                parse_mode="Markdown",
+            )
+        except Exception as _w37_e:
+            await q.message.reply_text(f"❌ Crypto reset failed: `{_w37_e}`", parse_mode="Markdown")
+        return
+    elif d=="reset_cancel":
+        await q.message.reply_text("❌ Reset cancelled. Nothing changed.")
         return
     elif d=="sim_status":
         await q.message.reply_text(sim.sim_status_text(),parse_mode="Markdown"); return
