@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-11T21:18:02.030634+00:00",
+  "generated_at": "2026-05-12T03:18:08.086570+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -337,11 +337,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 27.12,
+    "balance": 26.71,
     "starting_balance": 1000.0,
-    "total_pnl": -972.88,
+    "total_pnl": -973.29,
     "open_count": 0,
-    "closed_count": 27,
+    "closed_count": 28,
     "equity_curve": [
       {
         "time": "Start",
@@ -454,28 +454,32 @@ const DATA = {
       {
         "time": "2026-05-11 03:28",
         "balance": 27.12
+      },
+      {
+        "time": "2026-05-12 01:41",
+        "balance": 26.71
       }
     ]
   },
   "all_time": {
     "wins": 6,
-    "losses": 18,
-    "wr": 25.0,
-    "total_trades": 24
+    "losses": 19,
+    "wr": 24.0,
+    "total_trades": 25
   },
   "today": {
-    "wins": 1,
-    "losses": 0,
-    "wr": 100.0,
+    "wins": 0,
+    "losses": 1,
+    "wr": 0.0,
     "total_trades": 1
   },
   "setup_stats": [
     {
       "setup": "SOL:BREAK_RETEST_BULL",
-      "fires": 5,
+      "fires": 6,
       "wins": 2,
-      "losses": 3,
-      "wr": 40.0
+      "losses": 4,
+      "wr": 33.3
     },
     {
       "setup": "SOL:BB_REVERSION_BULL",
@@ -563,6 +567,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-12 02:56",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29355.5",
+      "stop": "29296.137",
+      "target": "29480.0",
+      "rr": "2.1",
+      "conv": "86",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-05-12 01:12",
+      "market": "SOL",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "97.07",
+      "stop": "96.556",
+      "target": "98.39",
+      "rr": "2.57",
+      "conv": "77",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "96.556"
+    },
     {
       "time": "2026-05-11 06:09",
       "market": "GC",
@@ -930,38 +966,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "85.1846"
-    },
-    {
-      "time": "2026-05-04 16:28",
-      "market": "NQ",
-      "setup": "BB_REVERSION_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "27711.25",
-      "stop": "27591.073",
-      "target": "27965.75",
-      "rr": "2.12",
-      "conv": "69",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "27965.75"
-    },
-    {
-      "time": "2026-05-04 13:21",
-      "market": "NQ",
-      "setup": "EMA21_PULLBACK_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "27851.0",
-      "stop": "27803.9553",
-      "target": "27965.75",
-      "rr": "2.44",
-      "conv": "75",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "SKIP",
-      "exit": "27803.9553"
     }
   ],
   "suspended_setups": [
@@ -1045,9 +1049,9 @@ const DATA = {
     },
     "SOL": {
       "wins": 2,
-      "losses": 11,
-      "total_pnl_r": -5.97,
-      "wr": 15.4
+      "losses": 12,
+      "total_pnl_r": -6.97,
+      "wr": 14.3
     },
     "BTC": {
       "wins": 0,
@@ -1065,8 +1069,8 @@ const DATA = {
   "by_tier": {
     "MEDIUM": {
       "wins": 6,
-      "losses": 9,
-      "wr": 40.0
+      "losses": 10,
+      "wr": 37.5
     },
     "HIGH": {
       "wins": 0,
@@ -1074,7 +1078,21 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "29355.5",
+      "target": "29480.0",
+      "stop": "29296.137",
+      "conviction": 86,
+      "last_rescore_conviction": 86,
+      "tier": "HIGH",
+      "timestamp": "2026-05-12T02:56:48.658014+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

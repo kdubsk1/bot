@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "balance": 27.12,
+  "balance": 26.71,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
@@ -898,12 +898,45 @@
       "pnl_dollars": -4.79,
       "closed_at": "2026-05-11T03:28:44.298587+00:00",
       "held_hours": 13.71
+    },
+    {
+      "alert_id": "4786196f00",
+      "market": "SOL",
+      "direction": "LONG",
+      "entry": 97.07,
+      "stop": 96.55604519839375,
+      "target": 98.39,
+      "leverage": 10,
+      "position_size_usd": 76.83,
+      "notional_usd": 768.32,
+      "risk_dollars": 0.41,
+      "opened_at": "2026-05-12T01:12:28.919165+00:00",
+      "max_hold_until": "2026-05-19T01:12:28.919165+00:00",
+      "tier": "MEDIUM",
+      "conviction": 77,
+      "context": {
+        "trend_score": 10,
+        "rsi": 56.15,
+        "adx": 20.03,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Asia Session",
+        "news_flag": false,
+        "chart_read": "Broke above 96.9, pulled back to retest as support. Holding. Classic break-retest entry."
+      },
+      "status": "CLOSED",
+      "exit_price": 96.55604519839375,
+      "exit_reason": "stop_hit",
+      "result": "LOSS",
+      "pnl_dollars": -0.41,
+      "closed_at": "2026-05-12T01:41:27.768135+00:00",
+      "held_hours": 0.48
     }
   ],
-  "total_pnl": -972.88,
-  "total_trades": 27,
+  "total_pnl": -973.29,
+  "total_trades": 28,
   "wins": 2,
-  "losses": 25,
+  "losses": 26,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }

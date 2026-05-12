@@ -8,10 +8,10 @@
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
-    "losses": 3,
-    "total": 5,
-    "win_rate": 40.0,
-    "last_updated": "2026-05-07T12:48:41.298080"
+    "losses": 4,
+    "total": 6,
+    "win_rate": 33.3,
+    "last_updated": "2026-05-12T01:41:28.196538"
   },
   "BTC:STOCH_REVERSAL_BULL": {
     "wins": 0,
