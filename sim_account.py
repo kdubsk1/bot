@@ -1313,7 +1313,11 @@ def sim_status_text() -> str:
         f"  Sessions:  `{life_sessions}` | Trades: `{life_trades}` ({life_wins}W/{life_losses}L \u2014 {life_wr}% WR)\n"
         f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
         f"\U0001f4c5 *TODAY'S SESSION*\n"
-        f"  Balance:    `${risk['balance']:,.2f}` (resets at 4PM ET close)\n"
+        # Wave 38 (May 11, 2026): Post-Wave 30 balance carries day-to-day.
+        # Old label "(resets at 4PM ET close)" was a lie. The cumulative
+        # framing matches the truth: balance only resets when eval ends
+        # via bust or pass.
+        f"  Balance:    `${risk['balance']:,.2f}` (cumulative this eval)\n"
         f"  Today P&L:  `${plus_dp}{risk['daily_pnl']:,.2f}`\n"
         f"  Daily left: `${risk['daily_left']:,.2f}` ({100-risk['daily_used_pct']:.0f}% remaining)\n"
         f"  Cushion:    `${risk['dd_left']:,.2f}` ({100-risk['dd_used_pct']:.0f}% remaining)\n"
