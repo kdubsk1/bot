@@ -1,0 +1,2 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+a57040634b,2026-05-11T06:09:27.165263+00:00,GC,1h,BB_REVERSION_BULL,LONG,4670.1,4648.8269,4716.5,2.18,swing_level_sweet,6,79,MEDIUM,,intraday (hours),35.26,20.9104,25.52,HH_HL,6,0.31,0,CLOSED,WIN,0,4716.5,79,,2026-05-11,0,0,L1:BB_REVERSION_BULL+0
