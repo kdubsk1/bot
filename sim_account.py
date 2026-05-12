@@ -1028,7 +1028,12 @@ def reconcile_with_outcomes() -> int:
     if not state.get("enabled") or not state.get("open_sim_trades"):
         return 0
 
-    outcomes_path = os.path.join(_BASE_DIR, "data", "outcomes.csv")
+    # Wave 40 (May 11, 2026): outcomes.csv lives at repo root, NOT in data/.
+    # outcome_tracker.py writes to _BASE_DIR/outcomes.csv (see its OUTCOMES_CSV
+    # constant at line 42). Wave 36 had this wrong, making the reconcile
+    # silently no-op every call. crypto_sim.reconcile_with_outcomes had the
+    # correct path - we now mirror it exactly.
+    outcomes_path = os.path.join(_BASE_DIR, "outcomes.csv")
     if not os.path.exists(outcomes_path):
         return 0
 
