@@ -921,6 +921,19 @@ def open_sim_trade(alert_id: str, market: str, direction: str,
     real setup name so per_setup_stats can group correctly.
     """
     state = load_state()
+    # Wave 39 (May 11, 2026): dedup by alert_id to prevent phantom
+    # OPEN trades when a signal re-fires (rescore, restart mid-fire, etc).
+    # Without this guard, two open_sim_trades with the same alert_id can
+    # exist - close_sim_trade only closes the first, leaving a permanent
+    # phantom that inflates open count and breaks correlation-risk calc.
+    for _existing in state.get("open_sim_trades", []):
+        if _existing.get("alert_id") == alert_id:
+            _log.info(
+                "Wave 39 dedup: open_sim_trade called twice for %s "
+                "(market=%s direction=%s). Returning existing trade.",
+                alert_id, market, direction,
+            )
+            return _existing
     state = _reset_daily_if_needed(state)
     trade = {
         "alert_id":  alert_id,
@@ -950,6 +963,15 @@ def close_sim_trade(alert_id: str, exit_price: float, result: str) -> Optional[d
             match = t
             break
     if not match:
+        # Wave 39 (May 11, 2026): log when no match found. Was silent which
+        # made PNL desync hard to diagnose. Common reasons: sim was disabled
+        # when alert opened, risk-rejected the open, or trade already closed
+        # by Wave 36 reconcile or a prior auto_check_sim_trades call.
+        _log.info(
+            "close_sim_trade: no open match for alert_id=%s (exit=%s, result=%s). "
+            "Likely already closed elsewhere or never opened.",
+            alert_id, exit_price, result,
+        )
         return None
 
     market    = match["market"]
