@@ -1133,6 +1133,15 @@ async def scan_market(app, market, frames):
             df15 = frames.get("15m")
             if df15 is not None and not df15.empty:
                 price = float(df15["Close"].iloc[-1])
+                # Wave 36 (May 11, 2026): reconcile against outcomes.csv FIRST so we
+                # close any sim trade that outcome_tracker already resolved (wick
+                # hits etc that auto_check_sim_trades misses on 15m close prices).
+                try:
+                    _w36_n = sim.reconcile_with_outcomes()
+                    if _w36_n:
+                        log.info(f"[{market}] Wave 36 reconcile: closed {_w36_n} stale sim trade(s)")
+                except Exception as _w36_e:
+                    log.warning(f"[{market}] Wave 36 sim reconcile in scan: {_w36_e}")
                 for sc in sim.auto_check_sim_trades({market: price}):
                     s_icon = "\u2705" if sc.get("result")=="WIN" else "\u274c"
                     pnl    = sc.get("pnl",0)
@@ -3255,6 +3264,15 @@ def _build_status_text() -> str:
 
 
 async def cmd_status(u, c):
+    # Wave 36 (May 11, 2026): reconcile sim against outcomes.csv before
+    # displaying status so /status always shows fresh PNL state, never
+    # stale balance from a missed auto-close.
+    try:
+        _w36_n = sim.reconcile_with_outcomes()
+        if _w36_n:
+            log.info(f"/status: Wave 36 reconciled {_w36_n} stale sim trade(s)")
+    except Exception as _w36_e:
+        log.warning(f"/status Wave 36 reconcile: {_w36_e}")
     """Wave 19 (May 9, 2026): /status - bot health + market state.
 
     Wayne discovered /status was registered in set_my_commands but had
@@ -4188,6 +4206,17 @@ async def _post_init(app):
             log.info(f"Startup reconcile: closed {n_reconciled} stale crypto trade(s) from outcomes.csv")
     except Exception as e:
         log.warning(f"Startup crypto reconcile failed (non-fatal): {e}")
+
+    # Wave 36 (May 11, 2026): same reconcile but for the Topstep sim (NQ/GC).
+    # Crypto had this since Wave 5; Topstep was missing it - causing PNL
+    # desync when outcome_tracker auto-resolved a wick-stop that
+    # auto_check_sim_trades missed on 15m close prices.
+    try:
+        n_sim_rec = sim.reconcile_with_outcomes()
+        if n_sim_rec > 0:
+            log.info(f"Startup Wave 36 sim reconcile: closed {n_sim_rec} stale sim trade(s)")
+    except Exception as e:
+        log.warning(f"Startup Wave 36 sim reconcile failed (non-fatal): {e}")
 
     # TopstepX probe (primary data source for NQ/GC)
     tsx_result = {"auth": False, "nq_contract": None, "gc_contract": None, "nq_bars_15m": 0, "gc_bars_15m": 0}

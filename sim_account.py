@@ -984,6 +984,87 @@ def close_sim_trade(alert_id: str, exit_price: float, result: str) -> Optional[d
     return match
 
 # ── Auto check sim trades ─────────────────────────────────────────
+def reconcile_with_outcomes() -> int:
+    """
+    Wave 36 (May 11, 2026): Topstep sim reconciliation against outcomes.csv.
+
+    The bot has two close-detection paths for NQ/GC trades:
+      A. outcome_tracker.py uses high/low/close (catches wicks)
+      B. sim_account.auto_check_sim_trades uses 15m close (misses wicks)
+
+    When path A closes a trade but path B misses it, sim balance stays
+    stale. This function reads outcomes.csv (source of truth), finds any
+    open_sim_trades that should be closed, and closes them with the
+    correct exit_price + result.
+
+    Mirrors crypto_sim.reconcile_with_outcomes (Wave 5). Same semantics:
+      - Safe to call repeatedly (no-op when in sync)
+      - close_sim_trade is idempotent on alert_id
+      - Returns count of reconciled trades
+    """
+    state = load_state()
+    if not state.get("enabled") or not state.get("open_sim_trades"):
+        return 0
+
+    outcomes_path = os.path.join(_BASE_DIR, "data", "outcomes.csv")
+    if not os.path.exists(outcomes_path):
+        return 0
+
+    # Read outcomes.csv into {alert_id: (status, result, exit_price)}
+    # Use last occurrence per alert_id (most recent state).
+    closed_lookup = {}
+    try:
+        with open(outcomes_path, "r", encoding="utf-8") as f:
+            header_line = f.readline()
+            cols = [c.strip() for c in header_line.strip().split(",")]
+            try:
+                idx_id     = cols.index("alert_id")
+                idx_status = cols.index("status")
+                idx_result = cols.index("result")
+                idx_exit   = cols.index("exit_price")
+            except ValueError:
+                _log.warning("Wave 36 reconcile: outcomes.csv missing required columns")
+                return 0
+            for line in f:
+                row = line.strip().split(",")
+                if len(row) <= max(idx_id, idx_status, idx_result, idx_exit):
+                    continue
+                aid    = row[idx_id]
+                status = row[idx_status]
+                result = row[idx_result]
+                ep_raw = row[idx_exit]
+                if status != "CLOSED":
+                    continue
+                if result not in ("WIN", "LOSS"):
+                    continue
+                try:
+                    exit_price = float(ep_raw) if ep_raw else 0.0
+                except Exception:
+                    exit_price = 0.0
+                if exit_price > 0:
+                    closed_lookup[aid] = (status, result, exit_price)
+    except Exception as e:
+        _log.warning("Wave 36 reconcile: failed to read outcomes.csv: %s", e)
+        return 0
+
+    # Walk open_sim_trades and close any that are CLOSED in outcomes.csv
+    reconciled = 0
+    for t in list(state["open_sim_trades"]):
+        aid = t.get("alert_id")
+        if aid in closed_lookup:
+            _, result, exit_price = closed_lookup[aid]
+            r = close_sim_trade(aid, exit_price, result)
+            if r is not None:
+                reconciled += 1
+                _log.info(
+                    "Wave 36 reconcile: closed stale sim trade %s "
+                    "(%s %s, result=%s, exit=%.4f, pnl=%.2f)",
+                    aid, t.get("market"), t.get("direction"),
+                    result, exit_price, r.get("pnl", 0),
+                )
+    return reconciled
+
+
 def auto_check_sim_trades(live_prices: dict) -> list:
     state  = load_state()
     closed = []
