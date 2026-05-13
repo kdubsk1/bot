@@ -3199,6 +3199,128 @@ def _add_suspension(market: str, setup: str, reason: str) -> None:
 
 
 
+def market_trend_text(market: str = None) -> str:
+    """
+    Wave 49 (May 12, 2026): Render market trend direction summary.
+
+    market arg: None = all markets, or a specific market name/alias:
+      NQ, NASDAQ -> NQ
+      GC, GOLD   -> GC
+      BTC, BITCOIN -> BTC
+      SOL, SOLANA -> SOL
+
+    Output shows direction, HTF bias, ADX, RSI per market.
+    Uses live data with 60s cache (fast).
+    """
+    from datetime import datetime as _dt
+
+    ALIASES = {
+        "NQ": "NQ", "NASDAQ": "NQ", "ENQ": "NQ",
+        "GC": "GC", "GOLD": "GC", "XAU": "GC",
+        "BTC": "BTC", "BITCOIN": "BTC", "XBT": "BTC",
+        "SOL": "SOL", "SOLANA": "SOL",
+    }
+    ALL_MARKETS = ["NQ", "GC", "BTC", "SOL"]
+
+    # Resolve which markets to show
+    if market:
+        m = ALIASES.get(market.upper().strip())
+        if not m:
+            return f"*MARKET TREND*\nUnknown market `{market}`. Try NQ, GC (GOLD), BTC, or SOL."
+        markets_to_show = [m]
+    else:
+        markets_to_show = ALL_MARKETS
+
+    # Header
+    try:
+        from session_clock import _now_et
+        ts = _now_et().strftime("%Y-%m-%d %H:%M ET")
+    except Exception:
+        ts = _dt.now().strftime("%Y-%m-%d %H:%M")
+
+    if len(markets_to_show) == 1:
+        lines = [f"*{markets_to_show[0]} TREND* - `{ts}`",
+                 "-" * 36]
+    else:
+        lines = [f"*MARKET TREND* - `{ts}`",
+                 "-" * 36]
+
+    # Lazy imports to avoid circular at module load
+    try:
+        from data_layer import get_frames
+    except Exception as e:
+        return f"*MARKET TREND*\nData layer unavailable: `{e}`"
+
+    for mk in markets_to_show:
+        try:
+            frames = get_frames(mk)
+            if not frames or all((df is None or df.empty) for df in frames.values()):
+                lines.append(f"`{mk}` data unavailable")
+                continue
+
+            # Score and bias
+            score, breakdown = trend_score(frames, mk)
+            df_htf = frames.get("1h")
+            if df_htf is None or df_htf.empty:
+                df_htf = frames.get("4h")
+            htf_bias = structure_bias(df_htf) if (df_htf is not None and not df_htf.empty) else "?"
+
+            df_entry = frames.get("15m") or frames.get("1h")
+            if df_entry is not None and not df_entry.empty:
+                try:
+                    adx_v = float(adx(df_entry).iloc[-1])
+                except Exception:
+                    adx_v = 0.0
+                try:
+                    rsi_v = float(rsi(df_entry["Close"]).iloc[-1])
+                except Exception:
+                    rsi_v = 0.0
+                try:
+                    vol_mean = df_entry["Volume"].rolling(20).mean().iloc[-1]
+                    vol_ratio = float(df_entry["Volume"].iloc[-1] / max(1e-9, vol_mean))
+                except Exception:
+                    vol_ratio = 0.0
+            else:
+                adx_v, rsi_v, vol_ratio = 0.0, 0.0, 0.0
+
+            # Direction label from score
+            if score >= 6:    direction_label = "bullish"
+            elif score >= 3:  direction_label = "mild bull"
+            elif score >= -2: direction_label = "choppy"
+            elif score >= -5: direction_label = "mild bear"
+            else:             direction_label = "bearish"
+
+            adx_label = "weak"
+            if adx_v >= 30: adx_label = "strong"
+            elif adx_v >= 25: adx_label = "decent"
+            elif adx_v >= 20: adx_label = "mild"
+
+            if len(markets_to_show) == 1:
+                # Single market - detailed view
+                lines.append(f"Direction: *{direction_label}* (score `{score:+}/10`)")
+                lines.append(f"HTF bias:  `{htf_bias}`")
+                lines.append(f"ADX:       `{adx_v:.1f}` ({adx_label} trend)")
+                lines.append(f"RSI:       `{rsi_v:.1f}`")
+                lines.append(f"Volume:    `{vol_ratio:.2f}x` avg")
+                if breakdown:
+                    lines.append("")
+                    lines.append("By timeframe:")
+                    for tf, bd in breakdown.items():
+                        ema_s = bd.get("ema", 0)
+                        struct_s = bd.get("struct", 0)
+                        weight_s = bd.get("weighted", 0)
+                        lines.append(f"  `{tf:<3}` ema=`{ema_s:+}` struct=`{struct_s:+}` weighted=`{weight_s:+}`")
+            else:
+                # Multi-market - compact view
+                lines.append(f"`{mk:<4}` *{direction_label:<10}* `{htf_bias:<6}` ADX `{adx_v:>5.1f}`  RSI `{rsi_v:>4.1f}`")
+
+        except Exception as e:
+            lines.append(f"`{mk}` error: `{str(e)[:80]}`")
+
+    return "\n".join(lines)
+
+
+
 def build_daily_report() -> tuple[str, str]:
     """
     Builds a full daily report of everything that happened today.

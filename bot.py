@@ -3498,7 +3498,44 @@ async def cmd_performance(u, c):
 
 async def cmd_trend(u, c):
     """
-    Wave 43 (May 12, 2026): Eval history trend visualization.
+    Wave 49 (May 12, 2026): Market trend direction across NQ/GC/BTC/SOL.
+
+    Optional market arg (case insensitive, aliases supported):
+      /trend           -> all markets, compact summary
+      /trend NQ        -> NQ detailed (also: NASDAQ)
+      /trend GC        -> GC detailed (also: GOLD)
+      /trend BTC       -> BTC detailed (also: BITCOIN)
+      /trend SOL       -> SOL detailed (also: SOLANA)
+
+    Shows: direction label, HTF bias (HH_HL/LH_LL/MIXED), ADX strength,
+    RSI level. Single-market view also includes per-timeframe breakdown.
+    """
+    market = None
+    try:
+        if c.args and len(c.args) > 0:
+            market = c.args[0]
+    except Exception:
+        market = None
+    try:
+        text = ot.market_trend_text(market)
+    except Exception as e:
+        text = f"*MARKET TREND*\nError: `{e}`"
+    await u.message.reply_text(text, parse_mode="Markdown")
+
+async def cmd_journey(u, c):
+    """
+    Wave 49 (May 12, 2026): Eval account history (renamed from /trend).
+
+    Original Wave 43 logic - shows your Topstep balance journey over
+    the last N sessions: per-day balance, sparkline, slope, target%
+    reached, pace to PASS, best/worst day.
+
+    Optional argument: number of sessions (default 7, capped 30).
+      /journey       -> last 7
+      /journey 14    -> last 14
+
+    Note: /trend now shows MARKET trend direction. This command
+    shows your ACCOUNT journey.
 
     Reads data/eval_history.jsonl (Wave 42) and shows the journey
     over the last 7 sessions: per-day balance, sparkline, slope,
@@ -5045,7 +5082,7 @@ def main():
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("status",cmd_status),  # Wave 19: was missing - slash did nothing
-                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),("performance",cmd_performance),
+                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),("journey",cmd_journey),("performance",cmd_performance),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
