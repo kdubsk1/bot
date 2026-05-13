@@ -61,9 +61,9 @@
   },
   "VWAP_BOUNCE_BULL|||ALL": {
     "wins": 0,
-    "losses": 14,
+    "losses": 15,
     "total_win_r": 0.0,
-    "total_loss_r": 14.0
+    "total_loss_r": 15.0
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 2,
@@ -276,6 +276,12 @@
     "total_loss_r": 1.0
   },
   "MACD_CROSS_BULL|||MIXED": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "VWAP_BOUNCE_BULL|||LH_LL": {
     "wins": 0,
     "losses": 1,
     "total_win_r": 0.0,
