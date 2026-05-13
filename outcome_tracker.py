@@ -2916,6 +2916,190 @@ def list_archived_sessions() -> list[str]:
 # ------------------------------------------------------------------ #
 DAILY_REPORT_FILE = os.path.join(_BASE_DIR, "data", "daily_report.txt")
 
+def performance_text(days: int = 30) -> str:
+    """
+    Wave 46 (May 12, 2026): Multi-dimensional cross-tab performance report.
+
+    Returns a Telegram-formatted string with:
+      - Total counts (resolved vs SKIP)
+      - Per-setup WR sorted by sample size
+      - Per-market WR
+      - Per-tier WR (CALIBRATION HEALTH)
+      - Best/worst hours
+      - Best/worst HTF bias
+      - Recent losses for context
+
+    days: window in days (default 30, capped 1..90).
+    """
+    from collections import defaultdict, Counter
+    from datetime import datetime, timezone, timedelta
+
+    days = max(1, min(90, int(days)))
+    cutoff_dt = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff_iso = cutoff_dt.isoformat()
+
+    try:
+        rows = _read_all()
+    except Exception as e:
+        return f"*PERFORMANCE*\nFailed to read outcomes: `{e}`"
+
+    # Filter by window using timestamp string compare (ISO is lex-sortable)
+    window = []
+    for r in rows:
+        ts = r.get("timestamp", "")
+        if ts and ts >= cutoff_iso:
+            window.append(r)
+
+    if not window:
+        return (
+            f"*PERFORMANCE - last {days} days*\n"
+            f"No data in window. The bot may have started recently or all "
+            f"alerts older than {days} days."
+        )
+
+    resolved = [r for r in window if r.get("result") in ("WIN", "LOSS")]
+    skips    = [r for r in window if r.get("result") == "SKIP"]
+    opens    = [r for r in window if r.get("status") == "OPEN"]
+
+    if not resolved:
+        return (
+            f"*PERFORMANCE - last {days} days*\n"
+            f"`{len(window)}` alerts | `{len(skips)}` SKIPs | `{len(opens)}` OPEN\n"
+            f"No resolved (WIN/LOSS) trades yet. Mostly SKIPs means entry levels "
+            f"are missing - alerts firing too far from price."
+        )
+
+    wins = [r for r in resolved if r["result"] == "WIN"]
+    losses = [r for r in resolved if r["result"] == "LOSS"]
+    overall_wr = 100.0 * len(wins) / max(1, len(resolved))
+
+    lines = [f"*PERFORMANCE - last `{days}` days*",
+             "-" * 36,
+             f"`{len(window)}` alerts | `{len(resolved)}` resolved | `{len(skips)}` SKIP | `{len(opens)}` OPEN",
+             f"Overall: `{len(wins)}W`/`{len(losses)}L` = `{overall_wr:.1f}%` WR",
+             ""]
+
+    # Per-setup
+    setup_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in resolved:
+        s = r.get("setup", "?")
+        if r["result"] == "WIN":  setup_stats[s]["W"] += 1
+        else:                     setup_stats[s]["L"] += 1
+    try:
+        suspended = get_suspended_setups()
+    except Exception:
+        suspended = {}
+
+    if setup_stats:
+        lines.append("*By setup:*")
+        items = sorted(setup_stats.items(),
+                       key=lambda x: -(x[1]["W"] + x[1]["L"]))
+        for setup, st in items[:12]:
+            tot = st["W"] + st["L"]
+            wr = 100.0 * st["W"] / tot if tot else 0
+            marker = ""
+            # Check if any market has this setup suspended
+            for k in suspended.keys():
+                if k.endswith(f":{setup}"):
+                    marker = " (suspended)"
+                    break
+            # Warn flag for 0W with >=3 losses
+            warn = " <- LOSING" if st["W"] == 0 and st["L"] >= 3 else ""
+            name = setup[:20]
+            lines.append(f"  `{name:<20}` `{st['W']}W`/`{st['L']}L` `{wr:>5.1f}%`{marker}{warn}")
+        lines.append("")
+
+    # Per-market
+    mk_stats = defaultdict(lambda: {"W": 0, "L": 0, "SKIP": 0})
+    for r in window:
+        m = r.get("market", "?")
+        if r.get("result") == "WIN":    mk_stats[m]["W"] += 1
+        elif r.get("result") == "LOSS": mk_stats[m]["L"] += 1
+        elif r.get("result") == "SKIP": mk_stats[m]["SKIP"] += 1
+    lines.append("*By market:*")
+    for m, st in sorted(mk_stats.items()):
+        tot = st["W"] + st["L"]
+        wr = 100.0 * st["W"] / tot if tot else 0
+        lines.append(f"  `{m:<4}` `{st['W']}W`/`{st['L']}L` `{wr:>5.1f}%`  (SKIPs: `{st['SKIP']}`)")
+    lines.append("")
+
+    # Per-tier (CALIBRATION HEALTH)
+    tier_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in resolved:
+        t = r.get("tier", "?")
+        if r["result"] == "WIN":  tier_stats[t]["W"] += 1
+        else:                     tier_stats[t]["L"] += 1
+    lines.append("*By tier (CALIBRATION):*")
+    tier_order = ["HIGH", "MEDIUM", "LOW", "SHADOW"]
+    tier_wrs = {}
+    for t in tier_order:
+        st = tier_stats.get(t, {"W": 0, "L": 0})
+        tot = st["W"] + st["L"]
+        wr = 100.0 * st["W"] / tot if tot else 0
+        tier_wrs[t] = wr if tot else None
+        if tot > 0:
+            lines.append(f"  `{t:<7}` `{st['W']}W`/`{st['L']}L` `{wr:>5.1f}%`")
+    # Calibration health check
+    if tier_wrs.get("HIGH") is not None and tier_wrs.get("MEDIUM") is not None:
+        if tier_wrs["HIGH"] < tier_wrs["MEDIUM"] - 5:
+            lines.append(f"  WARNING: HIGH WR `{tier_wrs['HIGH']:.0f}%` < MEDIUM `{tier_wrs['MEDIUM']:.0f}%` - calibration drift")
+    lines.append("")
+
+    # Per-hour - just best/worst
+    hr_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in resolved:
+        try:
+            h = int(r.get("hour", -1))
+            if h < 0: continue
+            if r["result"] == "WIN": hr_stats[h]["W"] += 1
+            else:                    hr_stats[h]["L"] += 1
+        except Exception:
+            continue
+    if hr_stats:
+        hr_items = []
+        for h, st in hr_stats.items():
+            tot = st["W"] + st["L"]
+            if tot >= 2:
+                wr = 100.0 * st["W"] / tot
+                hr_items.append((wr, h, st["W"], st["L"]))
+        hr_items.sort(reverse=True)
+        if hr_items:
+            lines.append("*Best/worst hours (UTC, >=2 trades):*")
+            best = hr_items[0]
+            worst = hr_items[-1]
+            lines.append(f"  Best:  `{best[1]:02d}:00`  `{best[2]}W`/`{best[3]}L` `{best[0]:.0f}%`")
+            lines.append(f"  Worst: `{worst[1]:02d}:00`  `{worst[2]}W`/`{worst[3]}L` `{worst[0]:.0f}%`")
+            lines.append("")
+
+    # Per-direction
+    dir_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in resolved:
+        d = r.get("direction", "?")
+        if r["result"] == "WIN":  dir_stats[d]["W"] += 1
+        else:                     dir_stats[d]["L"] += 1
+    if dir_stats:
+        lines.append("*By direction:*")
+        for d, st in sorted(dir_stats.items()):
+            tot = st["W"] + st["L"]
+            wr = 100.0 * st["W"] / tot if tot else 0
+            lines.append(f"  `{d:<12}` `{st['W']}W`/`{st['L']}L` `{wr:>5.1f}%`")
+        lines.append("")
+
+    # Recent losses for context
+    if losses:
+        recent = sorted(losses, key=lambda r: r.get("timestamp", ""), reverse=True)[:5]
+        lines.append("*Recent losses (last 5):*")
+        for r in recent:
+            ts = r.get("timestamp", "")[:10]
+            mkt = r.get("market", "?")
+            setup = r.get("setup", "?")[:18]
+            conv = r.get("conviction", "?")
+            lines.append(f"  `{ts}` `{mkt}` `{setup}` conv=`{conv}`")
+
+    return "\n".join(lines)
+
+
+
 def build_daily_report() -> tuple[str, str]:
     """
     Builds a full daily report of everything that happened today.

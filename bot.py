@@ -3426,6 +3426,30 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_performance(u, c):
+    """
+    Wave 46 (May 12, 2026): Multi-dimensional performance analytics.
+
+    Cross-tabs outcomes.csv by setup, market, tier, hour, regime,
+    direction. Surfaces calibration health (HIGH vs MEDIUM tier WR).
+
+    Optional argument: days window (default 30, capped 90).
+      /performance       -> last 30 days
+      /performance 7     -> last 7 days
+      /performance 90    -> last 90 days
+    """
+    days = 30
+    try:
+        if c.args and len(c.args) > 0:
+            days = int(c.args[0])
+    except Exception:
+        days = 30
+    try:
+        text = ot.performance_text(days)
+    except Exception as e:
+        text = f"*PERFORMANCE*\nError: `{e}`"
+    await u.message.reply_text(text, parse_mode="Markdown")
+
 async def cmd_trend(u, c):
     """
     Wave 43 (May 12, 2026): Eval history trend visualization.
@@ -4975,7 +4999,7 @@ def main():
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("status",cmd_status),  # Wave 19: was missing - slash did nothing
-                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),
+                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),("performance",cmd_performance),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
