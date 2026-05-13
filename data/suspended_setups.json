@@ -1,9 +1,1 @@
-{
-  "SOL:BREAK_RETEST_BULL": {
-    "reason": "2W/4L (33.3% WR)",
-    "suspended_at": "2026-05-13T14:00:59.459426+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 33.3,
-    "bleed_at_suspension": -200.0
-  }
-}
+{}
