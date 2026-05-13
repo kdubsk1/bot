@@ -139,9 +139,23 @@ def get_session_date(now_et: Optional[datetime] = None) -> str:
 
     if now_et.hour >= 16:
         # 4PM or later: belongs to next calendar day's session
-        return (now_et.date() + timedelta(days=1)).strftime("%Y-%m-%d")
+        next_day = now_et.date() + timedelta(days=1)
     else:
-        return now_et.date().strftime("%Y-%m-%d")
+        next_day = now_et.date()
+
+    # Wave 41 (May 12, 2026): skip weekends. Futures markets are closed
+    # Saturday and Sunday until 6 PM ET. Without this skip, Fri 4:01 PM
+    # through Sun 5:59 PM returns Sat/Sun dates - no trading session
+    # exists on those days. Caused phantom session rolls (3 per weekend),
+    # inflated lifetime_stats.total_sessions, bogus weekend archive files,
+    # and trade attribution errors at the Friday close boundary.
+    #   next_day.weekday(): Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
+    if next_day.weekday() == 5:    # Saturday -> Monday (+2 days)
+        next_day = next_day + timedelta(days=2)
+    elif next_day.weekday() == 6:  # Sunday -> Monday (+1 day)
+        next_day = next_day + timedelta(days=1)
+
+    return next_day.strftime("%Y-%m-%d")
 
 
 def session_date_from_timestamp(ts_str: str) -> str:
