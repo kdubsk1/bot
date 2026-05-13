@@ -2448,8 +2448,8 @@ def check_auto_review() -> Optional[str]:
             return None
 
         # Save new count
-        with open(_AUTO_REVIEW_FILE, "w") as f:
-            json.dump({"count": total_closed}, f)
+        # Wave 48 (May 12, 2026): atomic write.
+        safe_io.atomic_write_json(_AUTO_REVIEW_FILE, {"count": total_closed})
 
         # Build the review
         perf = _load_performance()

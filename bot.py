@@ -41,6 +41,8 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 import outcome_tracker as ot
+import safe_io  # Wave 48: atomic_write_json helpers
+# Wave 48 (May 12, 2026): state files now use atomic writes - see safe_io.atomic_write_json call sites.
 from markets import get_market_config, get_all_markets
 import sim_account as sim
 import crypto_sim
@@ -95,8 +97,8 @@ def _save_scanner_state():
             "scanner_on":   bool(SETTINGS["scanner_on"]),
             "last_changed": datetime.now(timezone.utc).isoformat(),
         }
-        with open(SCANNER_STATE_FILE, "w") as f:
-            json.dump(data, f)
+        # Wave 48 (May 12, 2026): atomic write.
+        safe_io.atomic_write_json(SCANNER_STATE_FILE, data)
         # Wave 22: persistent JSONL audit log of every scanner toggle
         try:
             evt_path = os.path.join(BASE_DIR, "data", "scanner_events.jsonl")
@@ -225,8 +227,11 @@ def _load_cooldowns():
 def _save_cooldowns():
     try:
         os.makedirs(os.path.dirname(COOLDOWN_FILE), exist_ok=True)
-        with open(COOLDOWN_FILE, "w") as f:
-            json.dump({f"{k[0]}|{k[1]}": v.isoformat() for k, v in COOLDOWNS.items()}, f)
+        # Wave 48 (May 12, 2026): atomic write.
+        safe_io.atomic_write_json(
+            COOLDOWN_FILE,
+            {f"{k[0]}|{k[1]}": v.isoformat() for k, v in COOLDOWNS.items()},
+        )
     except Exception as e:
         log.warning(f"_save_cooldowns: {e}")
 
@@ -295,7 +300,8 @@ def _load_active():
 
 def _save_active(d):
     try:
-        with open(ACTIVE_FILE, "w") as f: json.dump(d, f, indent=2)
+        # Wave 48 (May 12, 2026): atomic write.
+        safe_io.atomic_write_json(ACTIVE_FILE, d)
     except Exception as e: log.warning(f"_save_active: {e}")
 
 def _prune_stale_state_files():
@@ -329,8 +335,8 @@ def _prune_stale_state_files():
                 except Exception:
                     n_dropped += 1
             if n_dropped > 0:
-                with open(FAMILY_CD_FILE, "w") as f:
-                    json.dump(keep, f, indent=2)
+                # Wave 48 (May 12, 2026): atomic write.
+                safe_io.atomic_write_json(FAMILY_CD_FILE, keep)
                 log.info(f"Wave 8 prune: dropped {n_dropped} expired family cooldowns")
     except Exception as e:
         log.warning(f"_prune_stale_state_files family_cd: {e}")
@@ -353,8 +359,8 @@ def _prune_stale_state_files():
                 except Exception:
                     n_dropped += 1
             if n_dropped > 0:
-                with open(ACTIVE_FILE, "w") as f:
-                    json.dump(keep, f, indent=2)
+                # Wave 48 (May 12, 2026): atomic write.
+                safe_io.atomic_write_json(ACTIVE_FILE, keep)
                 log.info(f"Wave 8 prune: dropped {n_dropped} stale active_setups")
     except Exception as e:
         log.warning(f"_prune_stale_state_files active: {e}")
@@ -399,8 +405,8 @@ def _load_zone_lockouts() -> list:
 
 def _save_zone_lockouts(zones: list):
     try:
-        with open(ZONE_LOCKOUT_FILE, "w") as f:
-            json.dump(zones, f, indent=2)
+        # Wave 48 (May 12, 2026): atomic write.
+        safe_io.atomic_write_json(ZONE_LOCKOUT_FILE, zones)
     except Exception as e:
         log.warning(f"_save_zone_lockouts: {e}")
 
@@ -481,8 +487,8 @@ def _set_family_cooldown(market: str, setup_type: str, result: str):
             "expiry": (datetime.now(timezone.utc) + timedelta(minutes=cd_min)).isoformat(),
             "reason": result,
         }
-        with open(FAMILY_CD_FILE, "w") as f:
-            json.dump(cds, f, indent=2)
+        # Wave 48 (May 12, 2026): atomic write.
+        safe_io.atomic_write_json(FAMILY_CD_FILE, cds)
     except Exception:
         pass
 

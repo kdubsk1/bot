@@ -79,8 +79,8 @@ def _load_history() -> list:
     return []
 
 def _save_history(history: list):
-    with open(SIM_HISTORY_FILE, "w") as f:
-        json.dump(history, f, indent=2)
+    # Wave 48 (May 12, 2026): atomic write.
+    safe_io.atomic_write_json(SIM_HISTORY_FILE, history)
 
 def _archive_day(state: dict):
     today = state.get("today_date", "")
@@ -145,8 +145,10 @@ def load_state() -> dict:
     return data
 
 def save_state(state: dict):
-    with open(SIM_FILE, "w") as f:
-        json.dump(state, f, indent=2)
+    # Wave 48 (May 12, 2026): atomic write - sim_state.json holds eval
+    # balance, P&L, peak, trade history. Old raw open()+json.dump() risked
+    # corruption if bot crashed mid-write (Railway restart, OOM).
+    safe_io.atomic_write_json(SIM_FILE, state)
 
 def get_state() -> dict:
     return load_state()
@@ -543,9 +545,9 @@ def get_lifetime_pnl() -> float:
 
 
 def _save_lifetime_stats(stats: dict):
+    # Wave 48 (May 12, 2026): atomic write to prevent corruption.
     try:
-        with open(LIFETIME_STATS_FILE, "w") as f:
-            json.dump(stats, f, indent=2)
+        safe_io.atomic_write_json(LIFETIME_STATS_FILE, stats)
     except Exception:
         pass
 
