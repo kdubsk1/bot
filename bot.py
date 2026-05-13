@@ -1984,6 +1984,10 @@ async def force_flatten_futures(app):
             cur = float(row["entry"])
 
         entry_p = row.get("entry", "?")
+        # Wave 44 (May 12, 2026): pre-initialize pts so the exception path
+        # doesn't leave it undefined - prevents NameError on the
+        # subsequent isinstance(pts, float) check.
+        pts = None
         try:
             pts  = cur - float(entry_p)
             if "SHORT" in row.get("direction", ""): pts = -pts
@@ -2018,7 +2022,18 @@ async def force_flatten_futures(app):
                 cur = get_current_price(row["market"])
                 if not np.isfinite(cur):
                     cur = float(row["entry"])
-                r = "WIN" if cur > float(row["entry"]) else "LOSS"
+                # Wave 44 (May 12, 2026): direction-aware WIN/LOSS.
+                # Old code did `cur > entry = WIN` which is wrong for SHORTS.
+                # A SHORT wins when price falls (cur < entry). Without this fix,
+                # every SHORT force-closed at 4:10 PM was recorded with flipped
+                # WIN/LOSS, corrupting sim wins/losses, per_setup_stats, and
+                # lifetime_stats.
+                _w44_direction = row.get("direction", "")
+                _w44_entry = float(row["entry"])
+                if "SHORT" in _w44_direction:
+                    r = "WIN" if cur < _w44_entry else "LOSS"
+                else:
+                    r = "WIN" if cur > _w44_entry else "LOSS"
                 closed = sim.close_sim_trade(row["alert_id"], cur, r)
                 if closed:
                     pnl = closed.get("pnl", 0)
