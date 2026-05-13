@@ -2922,8 +2922,19 @@ def build_daily_report() -> tuple[str, str]:
     Returns (full_text_for_file, short_summary_for_telegram).
     Called automatically at 8pm EST every day.
     """
-    today     = datetime.now().strftime("%Y-%m-%d")
-    today_dt  = datetime.now().strftime("%A, %B %d, %Y")
+    # Wave 45 (May 12, 2026): use ET-aware date so the 8 PM ET report
+    # captures today's session. datetime.now() returns UTC which has
+    # already rolled to tomorrow by 8 PM ET in DST/summer - filter
+    # returned zero matches and report appeared empty. session_clock._now_et
+    # gives correct ET date regardless of OS timezone.
+    try:
+        from session_clock import _now_et
+        _w45_et_now = _now_et()
+        today     = _w45_et_now.strftime("%Y-%m-%d")
+        today_dt  = _w45_et_now.strftime("%A, %B %d, %Y")
+    except Exception:
+        today     = datetime.now().strftime("%Y-%m-%d")
+        today_dt  = datetime.now().strftime("%A, %B %d, %Y")
     rows      = _read_all()
     perf      = _load_performance()
 
