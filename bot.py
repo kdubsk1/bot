@@ -3411,6 +3411,26 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_trend(u, c):
+    """
+    Wave 43 (May 12, 2026): Eval history trend visualization.
+
+    Reads data/eval_history.jsonl (Wave 42) and shows the journey
+    over the last 7 sessions: per-day balance, sparkline, slope,
+    target progress, pace, best/worst day.
+
+    Optional argument: number of sessions (default 7, capped 30).
+      /trend       -> last 7
+      /trend 14    -> last 14
+    """
+    days = 7
+    try:
+        if c.args and len(c.args) > 0:
+            days = int(c.args[0])
+    except Exception:
+        days = 7
+    await u.message.reply_text(sim.eval_trend_text(days), parse_mode="Markdown")
+
 async def cmd_eval(u, c):
     """
     Wave 33 (May 11, 2026): Topstep eval progression view.
@@ -4940,7 +4960,7 @@ def main():
                    ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("status",cmd_status),  # Wave 19: was missing - slash did nothing
-                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),
+                   ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),

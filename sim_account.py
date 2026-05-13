@@ -771,6 +771,125 @@ def eval_progression_text() -> str:
     )
 
 
+def eval_trend_text(days: int = 7) -> str:
+    """
+    Wave 43 (May 12, 2026): Render eval_history.jsonl as a text trend report.
+
+    Reads the most recent N session snapshots from data/eval_history.jsonl
+    (Wave 42), computes session-over-session deltas, renders a per-day
+    line plus sparkline, slope, target%, and pace to target.
+
+    days: how many recent snapshots to render (default 7, capped at 30).
+    """
+    days = max(1, min(30, int(days)))
+    history_path = os.path.join(_BASE_DIR, "data", "eval_history.jsonl")
+
+    if not os.path.exists(history_path):
+        return (
+            "*EVAL TREND*\n"
+            "No history yet. Snapshots accumulate at session boundaries\n"
+            "(4 PM ET close, Mon-Fri). Check back tomorrow."
+        )
+
+    # Read JSONL - skip malformed lines defensively
+    snaps = []
+    try:
+        with open(history_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    snaps.append(json.loads(line))
+                except Exception:
+                    continue  # skip bad line
+    except Exception as e:
+        return f"*EVAL TREND*\nCould not read history: `{e}`"
+
+    if not snaps:
+        return (
+            "*EVAL TREND*\n"
+            "History file exists but no readable snapshots yet."
+        )
+
+    # Take last N (preserves order = chronological)
+    snaps = snaps[-days:]
+
+    # Render lines + compute aggregates
+    lines = ["*EVAL TREND* - Last `" + str(len(snaps)) + "` sessions",
+             "-" * 36]
+
+    best_session = None
+    worst_session = None
+    pnls = []
+    for s in snaps:
+        sid = s.get("session_id", "?")
+        bal = float(s.get("balance", 0))
+        total = float(s.get("total_pnl", 0))
+        sess_pnl = float(s.get("today_pnl_at_close", 0))
+        pnls.append(sess_pnl)
+        sess_s = f"+${sess_pnl:,.0f}" if sess_pnl >= 0 else f"-${abs(sess_pnl):,.0f}"
+        total_s = f"+${total:,.0f}" if total >= 0 else f"-${abs(total):,.0f}"
+        line = f"`{sid}`: `${bal:,.0f}` ({sess_s} sess / {total_s} total)"
+        lines.append(line)
+        if best_session is None or sess_pnl > best_session[0]:
+            best_session = (sess_pnl, sid)
+        if worst_session is None or sess_pnl < worst_session[0]:
+            worst_session = (sess_pnl, sid)
+
+    # Sparkline
+    spark_chars = "\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588"  # 8 unicode block levels
+    balances = [float(s.get("balance", 0)) for s in snaps]
+    bmin, bmax = min(balances), max(balances)
+    bspan = bmax - bmin
+    if bspan > 0:
+        spark = "".join(spark_chars[min(7, int((b - bmin) / bspan * 7))] for b in balances)
+    else:
+        spark = spark_chars[4] * len(balances)
+
+    # Slope (avg per session)
+    if len(pnls) >= 1:
+        avg_per_session = sum(pnls) / len(pnls)
+    else:
+        avg_per_session = 0.0
+
+    # Target progress (from most recent snapshot)
+    latest = snaps[-1]
+    target_pct = float(latest.get("target_pct", 0))
+    profit_target = float(latest.get("profit_target", 3000))
+    total_pnl = float(latest.get("total_pnl", 0))
+    remaining = max(0, profit_target - total_pnl)
+
+    # Pace projection
+    if avg_per_session > 0 and remaining > 0:
+        days_to_pass = remaining / avg_per_session
+        if days_to_pass > 365:
+            pace_line = "Below pace - small avg makes target distant"
+        else:
+            pace_line = f"~`{int(days_to_pass)}` sessions to PASS at current avg"
+    elif remaining <= 0:
+        pace_line = "Target reached!"
+    else:
+        pace_line = "Negative avg - target unreachable at this rate"
+
+    avg_s = f"+${avg_per_session:,.0f}" if avg_per_session >= 0 else f"-${abs(avg_per_session):,.0f}"
+    lines.append("-" * 36)
+    lines.append(f"Spark:  `{spark}`")
+    lines.append(f"Slope:  `{avg_s}/session` avg over {len(pnls)} sessions")
+    lines.append(f"Target: `{target_pct:.1f}%` of `${profit_target:,.0f}` profit goal")
+    lines.append(f"Pace:   {pace_line}")
+
+    if best_session and worst_session:
+        bp, bd = best_session
+        wp, wd = worst_session
+        bp_s = f"+${bp:,.0f}" if bp >= 0 else f"-${abs(bp):,.0f}"
+        wp_s = f"+${wp:,.0f}" if wp >= 0 else f"-${abs(wp):,.0f}"
+        lines.append(f"Best:   `{bp_s}` on `{bd}`")
+        lines.append(f"Worst:  `{wp_s}` on `{wd}`")
+
+    return "\n".join(lines)
+
+
 def lifetime_stats_text() -> str:
     """Returns formatted lifetime stats for /lifetime command."""
     stats = _load_lifetime_stats()
