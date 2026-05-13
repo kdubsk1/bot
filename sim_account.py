@@ -543,6 +543,35 @@ def _update_lifetime_stats(state: dict):
     # Pure additive - if this fails, lifetime stats are already saved above.
     _archive_eval_snapshot(state, stats)
 
+    # Wave 47 (May 12, 2026): auto-suspend setups bleeding 0W/3L+ over 30 days.
+    # Defensive: failure here cannot break session end. Notification fires
+    # via separate mechanism (caller observes return value).
+    try:
+        import outcome_tracker as _ot_w47
+        _w47_newly = _ot_w47.auto_suspend_losing_setups(days=30, min_losses=3)
+        if _w47_newly:
+            _log.warning(
+                "Wave 47 auto-suspended %d (market, setup) pairs: %s",
+                len(_w47_newly),
+                ", ".join(f"{m}:{s}" for m, s, _l, _r in _w47_newly),
+            )
+            # Persist a marker file so bot.py can pick this up and notify
+            try:
+                notify_path = os.path.join(_BASE_DIR, "data", "wave47_pending_notify.json")
+                os.makedirs(os.path.dirname(notify_path), exist_ok=True)
+                with open(notify_path, "w", encoding="utf-8") as _nf:
+                    json.dump({
+                        "newly_suspended": [
+                            {"market": m, "setup": s, "losses": _l, "reason": _r}
+                            for m, s, _l, _r in _w47_newly
+                        ],
+                        "ts": datetime.now(timezone.utc).isoformat(),
+                    }, _nf)
+            except Exception as _ne:
+                _log.warning("Wave 47 notify file write failed: %s", _ne)
+    except Exception as _w47_err:
+        _log.warning("Wave 47 auto-suspend failed: %s", _w47_err)
+
 
 def _load_lifetime_stats() -> dict:
     if os.path.exists(LIFETIME_STATS_FILE):

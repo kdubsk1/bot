@@ -3100,6 +3100,101 @@ def performance_text(days: int = 30) -> str:
 
 
 
+def auto_suspend_losing_setups(days: int = 30, min_losses: int = 3) -> list:
+    """
+    Wave 47 (May 12, 2026): Scan recent outcomes for setups bleeding 0W
+    with min_losses+ losses; add to suspension list. Returns the list of
+    (market, setup) pairs newly suspended.
+
+    Idempotent: setups already in suspension list are skipped.
+    """
+    from collections import defaultdict
+    from datetime import datetime, timezone, timedelta
+
+    days = max(1, min(90, int(days)))
+    min_losses = max(2, int(min_losses))
+
+    cutoff_iso = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+    try:
+        rows = _read_all()
+    except Exception as _e:
+        return []
+
+    # Filter to window + resolved
+    window = [r for r in rows
+              if r.get("timestamp", "") >= cutoff_iso
+              and r.get("result") in ("WIN", "LOSS")]
+    if not window:
+        return []
+
+    # Aggregate per (market, setup)
+    pair_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in window:
+        mk = r.get("market", "")
+        st = r.get("setup", "")
+        if not mk or not st:
+            continue
+        if r["result"] == "WIN":
+            pair_stats[(mk, st)]["W"] += 1
+        else:
+            pair_stats[(mk, st)]["L"] += 1
+
+    # Find 0W with min_losses+ losses
+    try:
+        currently_suspended = set(get_suspended_setups().keys())
+    except Exception:
+        currently_suspended = set()
+
+    newly_suspended = []
+    for (mk, st), s in pair_stats.items():
+        if s["W"] > 0:
+            continue
+        if s["L"] < min_losses:
+            continue
+        key = f"{mk}:{st}"
+        if key in currently_suspended:
+            continue
+        # Add suspension via existing engine
+        try:
+            reason = f"Wave 47 auto: 0W/{s['L']}L over last {days} days"
+            _add_suspension(mk, st, reason)
+            newly_suspended.append((mk, st, s["L"], reason))
+        except Exception as _e:
+            continue
+
+    return newly_suspended
+
+
+def _add_suspension(market: str, setup: str, reason: str) -> None:
+    """
+    Wave 47 helper: add a (market, setup) pair to the suspension JSON.
+    Uses the same on-disk file the suspension engine reads/writes.
+
+    Defensive: looks up file path the same way get_suspended_setups does;
+    if path discovery fails, raises so the caller can log and skip.
+    """
+    susp_path = os.path.join(_BASE_DIR, "data", "suspensions.json")
+    suspensions = {}
+    if os.path.exists(susp_path):
+        try:
+            with open(susp_path, "r", encoding="utf-8") as f:
+                suspensions = json.load(f) or {}
+        except Exception:
+            suspensions = {}
+    key = f"{market}:{setup}"
+    if key not in suspensions:
+        from datetime import datetime, timezone
+        suspensions[key] = {
+            "reason": reason,
+            "suspended_at": datetime.now(timezone.utc).isoformat(),
+            "source": "wave47_auto",
+        }
+        os.makedirs(os.path.dirname(susp_path), exist_ok=True)
+        safe_io.atomic_write_json(susp_path, suspensions)
+
+
+
 def build_daily_report() -> tuple[str, str]:
     """
     Builds a full daily report of everything that happened today.
