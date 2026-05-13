@@ -395,6 +395,67 @@ def _archive_sim_state(state: dict, session_id: str):
         pass
 
 
+def _archive_eval_snapshot(state: dict, stats: dict) -> None:
+    """
+    Wave 42 (May 12, 2026): Append a session-end eval snapshot to
+    data/eval_history.jsonl for trend tracking and future charts.
+
+    One JSON object per line (JSONL format). Pure append - no rewrites,
+    no race conditions, easy to parse later for visualization.
+
+    Captures: timestamp, session_id, balance, peak, P&L, cushions,
+    progress toward profit target, lifetime W/L. Crash-safe inside
+    try/except so a write failure cannot break lifetime stats.
+    """
+    history_path = os.path.join(_BASE_DIR, "data", "eval_history.jsonl")
+    try:
+        balance         = float(state.get("balance", 0))
+        peak_balance    = float(state.get("peak_balance", balance))
+        starting_balance= float(state.get("starting_balance", 50_000))
+        total_pnl       = float(state.get("total_pnl", 0))
+        today_pnl       = float(state.get("today_pnl", 0))
+        profit_target   = float(state.get("profit_target", 3_000))
+        daily_limit     = float(state.get("daily_loss_limit", 1_000))
+        max_dd          = float(state.get("max_drawdown", 2_000))
+
+        daily_used      = abs(min(0, today_pnl))
+        daily_used_pct  = round(daily_used / max(1, daily_limit) * 100, 1)
+        drawdown        = max(0, peak_balance - balance)
+        dd_used_pct     = round(drawdown / max(1, max_dd) * 100, 1)
+        target_pct      = round(min(100, max(0,
+                            (total_pnl / max(1, profit_target)) * 100)), 1)
+
+        snapshot = {
+            "ts":                datetime.now(timezone.utc).isoformat(),
+            "session_id":        state.get("session_date", state.get("today_date", "")),
+            "eval_preset":       state.get("preset", "50k"),
+            "balance":           round(balance, 2),
+            "peak_balance":      round(peak_balance, 2),
+            "starting_balance":  round(starting_balance, 2),
+            "total_pnl":         round(total_pnl, 2),
+            "today_pnl_at_close":round(today_pnl, 2),
+            "daily_used_pct":    daily_used_pct,
+            "dd_used_pct":       dd_used_pct,
+            "profit_target":     profit_target,
+            "target_pct":        target_pct,
+            "lifetime_wins":     int(stats.get("total_wins", 0)),
+            "lifetime_losses":   int(stats.get("total_losses", 0)),
+            "lifetime_trades":   int(stats.get("total_trades", 0)),
+            "session_count":     int(stats.get("total_sessions", 0)),
+        }
+
+        # JSONL append: one line per snapshot. Pure append = atomic for
+        # short lines on local filesystems. No safe_io needed here.
+        os.makedirs(os.path.dirname(history_path), exist_ok=True)
+        with open(history_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(snapshot) + "\n")
+
+        _log.info("Wave 42 eval snapshot saved: session=%s balance=$%s target=%s%%",
+                  snapshot["session_id"], snapshot["balance"], snapshot["target_pct"])
+    except Exception as _w42_err:
+        _log.warning("Wave 42 eval snapshot write failed: %s", _w42_err)
+
+
 def _update_lifetime_stats(state: dict):
     """
     Update lifetime_stats.json with the finishing session's results.
@@ -478,6 +539,9 @@ def _update_lifetime_stats(state: dict):
         stats["total_sessions"], stats["total_trades"],
         stats["total_pnl_dollars"], stats.get("lifetime_balance", 0),
     )
+    # Wave 42 (May 12, 2026): also snapshot full eval state for trend tracking.
+    # Pure additive - if this fails, lifetime stats are already saved above.
+    _archive_eval_snapshot(state, stats)
 
 
 def _load_lifetime_stats() -> dict:
