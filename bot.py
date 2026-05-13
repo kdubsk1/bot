@@ -3930,7 +3930,8 @@ async def on_button(u, c):
             f"Balance: `${st_new['balance']:,.2f}`\n"
             f"Daily limit: `${st_new['daily_loss_limit']:,.2f}`\n"
             f"Max DD: `${st_new['max_drawdown']:,.2f}`\n"
-            f"\n_Lifetime stats preserved._",
+            # Wave 52 (May 13, 2026): trade history now preserved across reset.
+            f"\n_Lifetime stats + trade history preserved._",
             parse_mode="Markdown",
         )
         return
@@ -3968,7 +3969,8 @@ async def on_button(u, c):
                 f"Balance: `${float(new_state.get('balance', 1000)):,.2f}`\n"
                 f"Leverage: `{new_state.get('leverage', 10)}x`\n"
                 f"Risk per trade: `{new_state.get('account_risk_pct', 1.5)}%`\n"
-                f"\nFresh slate to validate Wave 31 leverage fix.",
+                # Wave 52 (May 13, 2026): trade history preserved across reset.
+                f"\n_Trade history preserved_ — fresh balance for next round.",
                 parse_mode="Markdown",
             )
         except Exception as _w37_e:

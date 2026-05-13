@@ -82,9 +82,14 @@ def set_enabled(enabled: bool) -> None:
 
 
 def reset_crypto_account() -> None:
+    # Wave 52 (May 13, 2026): preserve closed_trades history across reset.
+    # Wayne wants the balance reset but the trade record kept so /history,
+    # /performance, /analyze continue to show the full timeline.
+    prev = load_crypto_state()
+    preserved_closed = list(prev.get("closed_trades", []))
     fresh = dict(DEFAULT_STATE)
     fresh["open_trades"] = []
-    fresh["closed_trades"] = []
+    fresh["closed_trades"] = preserved_closed
     fresh["created_at"] = datetime.now(timezone.utc).isoformat()
     save_crypto_state(fresh)
 

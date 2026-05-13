@@ -1495,8 +1495,16 @@ def set_max_contracts(market: str, n: int):
     save_state(state)
 
 def reset_sim(preset_key: str = None):
+    # Wave 52 (May 13, 2026): preserve trade history across reset.
+    # set_preset() wipes state.trades = []; we restore the list
+    # afterward so /performance, /history, /journey continue showing
+    # the full timeline. Balance state IS reset (that's the point).
     state = load_state()
+    preserved_trades = list(state.get("trades", []))
     set_preset(preset_key or state.get("preset", "50k"))
+    state_after = load_state()
+    state_after["trades"] = preserved_trades
+    save_state(state_after)
 
 # ── Status / reporting ────────────────────────────────────────────
 def sim_status_text() -> str:
