@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-13T09:19:17.301410+00:00",
+  "generated_at": "2026-05-13T13:12:06.223777+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -589,6 +589,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-13 13:12",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29292.0",
+      "stop": "29215.2658",
+      "target": "29447.0",
+      "rr": "2.02",
+      "conv": "86",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-05-12 18:57",
       "market": "BTC",
@@ -972,22 +988,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "80706.7898"
-    },
-    {
-      "time": "2026-05-05 22:56",
-      "market": "SOL",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "86.71",
-      "stop": "86.6336",
-      "target": "86.93",
-      "rr": "2.88",
-      "conv": "75",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "86.6336"
     }
   ],
   "suspended_setups": [
@@ -1105,7 +1105,21 @@ const DATA = {
       "wr": 8.3
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "29292.0",
+      "target": "29447.0",
+      "stop": "29215.2658",
+      "conviction": 86,
+      "last_rescore_conviction": 86,
+      "tier": "HIGH",
+      "timestamp": "2026-05-13T13:12:06.200355+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
