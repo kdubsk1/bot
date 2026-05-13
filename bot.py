@@ -2548,6 +2548,24 @@ async def scan_loop(app):
                         _full, short = ot.build_daily_report()
                         await tg_send(app, short)
 
+                        # Wave 54 (May 13, 2026): generate weekly self-review.
+                        # Runs piggy-backed on the daily report trigger so it
+                        # uses the same 8 PM ET schedule. File overwritten daily
+                        # with current date so Wayne always sees latest version.
+                        try:
+                            _wr_md = ot.build_weekly_review()
+                            _wr_path = os.path.join(BASE_DIR, "data",
+                                f"weekly_review_{today_str}.md")
+                            with open(_wr_path, "w", encoding="utf-8") as _wrf:
+                                _wrf.write(_wr_md)
+                            await asyncio.sleep(1)
+                            await tg_send(app,
+                                f"Weekly self-review saved: `weekly_review_{today_str}.md`. "
+                                f"Auto-syncs to GitHub within the hour.")
+                            log.info(f"Wave 54: weekly review saved to {_wr_path}")
+                        except Exception as _w54_e:
+                            log.error(f"Wave 54 weekly review failed: {_w54_e}", exc_info=True)
+
                         # Wave 35 (May 11, 2026): also send the eval progression
                         # view at the same daily checkpoint. Wayne gets two
                         # messages: (1) what happened today (above), (2) journey

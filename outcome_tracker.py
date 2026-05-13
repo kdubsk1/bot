@@ -3328,6 +3328,243 @@ def market_trend_text(market: str = None) -> str:
 
 
 
+
+# Wave 54 (May 13, 2026): Weekly self-review report generator.
+# Produces a comprehensive markdown report covering the last 7 days.
+# Triggered daily as part of the 8 PM ET daily-report flow so Wayne
+# always has a fresh "what happened this week" doc on GitHub.
+def build_weekly_review() -> str:
+    """
+    Build a comprehensive 7-day review markdown report.
+
+    Returns the markdown string. Caller is responsible for saving
+    to disk (typically data/weekly_review_YYYY-MM-DD.md).
+
+    Sections:
+      - Summary stats (trades, W/L, P&L)
+      - Per-setup performance ranked
+      - Per-market performance
+      - Tier calibration (HIGH vs MEDIUM vs LOW)
+      - Suspended / restored this week
+      - Best 3 / Worst 3 trades
+      - Tune suggestions (data-driven, informational only)
+    """
+    from datetime import datetime, timezone, timedelta
+    from collections import defaultdict
+
+    now = datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=7)).isoformat()
+
+    try:
+        rows = _read_all()
+    except Exception as e:
+        return f"# Weekly Review\n\nError reading outcomes.csv: {e}\n"
+
+    # Filter to last 7 days
+    recent = [r for r in rows if r.get("timestamp", "") >= cutoff]
+    closed = [r for r in recent if r.get("result") in ("WIN", "LOSS")]
+
+    lines = []
+    lines.append(f"# Weekly Self-Review")
+    lines.append(f"")
+    lines.append(f"_Generated: {now.strftime('%Y-%m-%d %H:%M UTC')}_")
+    lines.append(f"_Window: last 7 days_")
+    lines.append(f"")
+    lines.append(f"---")
+    lines.append(f"")
+
+    # === Summary ===
+    total = len(recent)
+    fired_count = sum(1 for r in recent if r.get("status") in ("FIRED", "RESOLVED"))
+    wins = sum(1 for r in closed if r.get("result") == "WIN")
+    losses = sum(1 for r in closed if r.get("result") == "LOSS")
+    wr = (100.0 * wins / max(1, wins + losses))
+    open_count = sum(1 for r in recent if r.get("status") in ("OPEN", "FIRED") and r.get("result") not in ("WIN", "LOSS"))
+
+    lines.append(f"## Summary")
+    lines.append(f"")
+    lines.append(f"- Alerts logged: **{total}**")
+    lines.append(f"- Fired: **{fired_count}** | Closed: **{wins + losses}** | Open: **{open_count}**")
+    lines.append(f"- W/L: **{wins}W / {losses}L** ({wr:.1f}% WR)")
+    lines.append(f"")
+
+    if not closed:
+        lines.append(f"_No closed trades in window. Scanner may have been off or no setups qualified._")
+        lines.append(f"")
+        return "\n".join(lines)
+
+    # === Per-setup performance ===
+    setup_stats = defaultdict(lambda: {"W": 0, "L": 0, "convs": []})
+    for r in closed:
+        key = f"{r.get('market', '?')}:{r.get('setup', '?')}"
+        if r["result"] == "WIN":
+            setup_stats[key]["W"] += 1
+        else:
+            setup_stats[key]["L"] += 1
+        try:
+            setup_stats[key]["convs"].append(int(float(r.get("conviction", 0))))
+        except Exception:
+            pass
+
+    lines.append(f"## Per-Setup Performance (closed trades)")
+    lines.append(f"")
+    setup_rows = []
+    for key, s in setup_stats.items():
+        total_t = s["W"] + s["L"]
+        wr_s = 100.0 * s["W"] / max(1, total_t)
+        avg_conv = sum(s["convs"]) / max(1, len(s["convs"])) if s["convs"] else 0
+        setup_rows.append((key, s["W"], s["L"], wr_s, avg_conv, total_t))
+    setup_rows.sort(key=lambda x: (-x[5], -x[3]))  # by total then WR
+    for key, w, l, wr_s, ac, tt in setup_rows[:15]:
+        flag = " WARN" if (tt >= 5 and wr_s < 35) else (" STAR" if (tt >= 5 and wr_s >= 60) else "")
+        lines.append(f"- `{key}` -- {w}W/{l}L ({wr_s:.0f}% WR, avg conv {ac:.0f}){flag}")
+    lines.append(f"")
+
+    # === Per-market performance ===
+    market_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in closed:
+        mk = r.get("market", "?")
+        if r["result"] == "WIN":
+            market_stats[mk]["W"] += 1
+        else:
+            market_stats[mk]["L"] += 1
+
+    lines.append(f"## Per-Market Performance")
+    lines.append(f"")
+    for mk, s in sorted(market_stats.items()):
+        total_m = s["W"] + s["L"]
+        wr_m = 100.0 * s["W"] / max(1, total_m)
+        lines.append(f"- **{mk}**: {s['W']}W/{s['L']}L ({wr_m:.0f}% WR over {total_m} trades)")
+    lines.append(f"")
+
+    # === Tier calibration check ===
+    tier_stats = defaultdict(lambda: {"W": 0, "L": 0})
+    for r in closed:
+        t = r.get("tier", "?")
+        if r["result"] == "WIN":
+            tier_stats[t]["W"] += 1
+        else:
+            tier_stats[t]["L"] += 1
+
+    lines.append(f"## Tier Calibration Check")
+    lines.append(f"")
+    tier_wrs = {}
+    for tier in ("HIGH", "MEDIUM", "LOW"):
+        s = tier_stats.get(tier, {"W": 0, "L": 0})
+        total_t = s["W"] + s["L"]
+        if total_t > 0:
+            wr_t = 100.0 * s["W"] / total_t
+            tier_wrs[tier] = wr_t
+            lines.append(f"- **{tier}**: {s['W']}W/{s['L']}L ({wr_t:.0f}% WR)")
+        else:
+            lines.append(f"- **{tier}**: no data")
+
+    # Calibration drift detection
+    if "HIGH" in tier_wrs and "MEDIUM" in tier_wrs:
+        if tier_wrs["HIGH"] < tier_wrs["MEDIUM"]:
+            lines.append(f"")
+            lines.append(f"**WARNING: Calibration drift!** HIGH tier ({tier_wrs['HIGH']:.0f}%) "
+                         f"is performing WORSE than MEDIUM ({tier_wrs['MEDIUM']:.0f}%). "
+                         f"Conviction scorer may be inflating bad signals at the HIGH tier.")
+    lines.append(f"")
+
+    # === Suspended/restored setups this week ===
+    try:
+        suspended = get_suspended_setups()
+        recent_suspensions = [(k, v) for k, v in suspended.items()
+                              if v.get("suspended_at", "") >= cutoff]
+        if recent_suspensions:
+            lines.append(f"## Suspensions This Week")
+            lines.append(f"")
+            for key, info in recent_suspensions:
+                lines.append(f"- `{key}` -- {info.get('reason', 'unknown')} "
+                             f"(at {info.get('suspended_at', '?')[:10]})")
+            lines.append(f"")
+    except Exception as e:
+        lines.append(f"_Could not load suspensions: {e}_")
+        lines.append(f"")
+
+    # === Best / Worst trades ===
+    pnl_trades = []
+    for r in closed:
+        try:
+            pnl = float(r.get("pnl", 0) or 0)
+            pnl_trades.append((pnl, r))
+        except Exception:
+            continue
+    pnl_trades.sort(key=lambda x: -x[0])
+
+    if pnl_trades:
+        lines.append(f"## Best 3 Trades")
+        lines.append(f"")
+        for pnl, r in pnl_trades[:3]:
+            lines.append(f"- `{r.get('market')}:{r.get('setup')}` -- "
+                         f"{r.get('direction', '?')} -- "
+                         f"P&L ${pnl:+.2f} -- conv {r.get('conviction', '?')} "
+                         f"({r.get('timestamp', '')[:10]})")
+        lines.append(f"")
+
+        lines.append(f"## Worst 3 Trades")
+        lines.append(f"")
+        for pnl, r in pnl_trades[-3:]:
+            lines.append(f"- `{r.get('market')}:{r.get('setup')}` -- "
+                         f"{r.get('direction', '?')} -- "
+                         f"P&L ${pnl:+.2f} -- conv {r.get('conviction', '?')} "
+                         f"({r.get('timestamp', '')[:10]})")
+        lines.append(f"")
+
+    # === Tune suggestions (informational only) ===
+    lines.append(f"## Tune Suggestions (informational, not auto-applied)")
+    lines.append(f"")
+    suggestions = []
+
+    # Suggestion 1: HIGH tier underperforming MEDIUM
+    if "HIGH" in tier_wrs and "MEDIUM" in tier_wrs:
+        if tier_wrs["HIGH"] < tier_wrs["MEDIUM"] - 10:
+            suggestions.append(
+                f"- **HIGH tier calibration**: HIGH WR ({tier_wrs['HIGH']:.0f}%) is "
+                f"{tier_wrs['MEDIUM']-tier_wrs['HIGH']:.0f} points below MEDIUM "
+                f"({tier_wrs['MEDIUM']:.0f}%). Consider raising the conviction "
+                f"threshold for HIGH (currently >=80) or auditing the conviction "
+                f"factors that push trades into HIGH tier."
+            )
+
+    # Suggestion 2: bad setups in window
+    bad_setups = [(k, s) for k, s in setup_stats.items()
+                  if (s["W"] + s["L"]) >= 5 and (s["W"] / max(1, s["W"]+s["L"])) < 0.25]
+    if bad_setups:
+        for k, s in bad_setups[:3]:
+            suggestions.append(
+                f"- **`{k}` underperforming**: {s['W']}W/{s['L']}L. Either suspend or "
+                f"reduce conviction multipliers in markets/{k.split(':')[0]}*.py."
+            )
+
+    # Suggestion 3: market-wide poor performance
+    for mk, s in market_stats.items():
+        total_m = s["W"] + s["L"]
+        wr_m = s["W"] / max(1, total_m)
+        if total_m >= 8 and wr_m < 0.25:
+            suggestions.append(
+                f"- **{mk} market struggling**: {s['W']}W/{s['L']}L ({wr_m*100:.0f}% WR). "
+                f"Consider toggling {mk} off until calibration improves."
+            )
+
+    if suggestions:
+        for sug in suggestions:
+            lines.append(sug)
+    else:
+        lines.append(f"- No critical issues detected this week. Bot is calibrated.")
+    lines.append(f"")
+
+    # === Footer ===
+    lines.append(f"---")
+    lines.append(f"")
+    lines.append(f"_This file is auto-generated by build_weekly_review() in outcome_tracker.py._")
+    lines.append(f"_Saved daily as part of 8 PM ET daily-report flow. Auto-synced to GitHub hourly._")
+    lines.append(f"")
+
+    return "\n".join(lines)
+
 def build_daily_report() -> tuple[str, str]:
     """
     Builds a full daily report of everything that happened today.
