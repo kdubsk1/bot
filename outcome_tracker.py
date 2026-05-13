@@ -104,10 +104,10 @@ SUSPENSION_EVENTS_FILE = os.path.join(_BASE_DIR, "data", "suspension_events.json
 #     days gets suspended REGARDLESS of WR. WR can hide a $300 loss as a
 #     33% WR (1W/2L) with one big win and two big losses. Dollar tracking
 #     catches that. See _check_dollar_bleed below.
-_SUSPEND_MIN_TRADES = 3       # need at least this many trades to judge (May 2: was 4)
+_SUSPEND_MIN_TRADES = 5       # Wave 53 (May 13, 2026): 3->5. Wayne: don't suspend on 2-3 trade samples.
 _SUSPEND_WR_BELOW   = 35.0    # suspend if win_rate < this (May 2: was 40)
 _RESTORE_WR_ABOVE   = 50.0    # restore if recent win_rate climbs above this
-_SUSPEND_DOLLAR_BLEED = 200.0 # May 2: suspend if setup lost this much in 7 days
+_SUSPEND_DOLLAR_BLEED = 500.0 # Wave 53 (May 13, 2026): 200->500. Allow more room before suspending.
 _DOLLAR_BLEED_WINDOW_DAYS = 7
 
 # Wave 20 (May 9, 2026): time-based auto-unsuspension. Fixes deadlock
@@ -118,7 +118,7 @@ _DOLLAR_BLEED_WINDOW_DAYS = 7
 # logic re-suspends them on the next loss. Net cost: at most 1 losing
 # trade per setup per 14-day window. Net benefit: previously-good setups
 # can reactivate when conditions favour them again.
-_AUTO_UNSUSPEND_DAYS = 14
+_AUTO_UNSUSPEND_DAYS = 3  # Wave 53 (May 13, 2026): 14->3. Faster recovery, cockroach mode.
 
 
 def get_suspended_setups() -> dict:
