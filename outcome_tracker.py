@@ -2408,10 +2408,14 @@ def rescore_open_trade(row: dict, live_frames: dict, news_flag: bool) -> dict:
         if not aligned and abs(tscore) >= 3:
             return {"action":"EXIT_SUGGEST","new_conviction":new_conv,"delta":delta,
                     "note":f"Trend flipped against you (score {tscore}). Consider exiting."}
-        if delta <= -20:
+        # Wave 50 (May 13, 2026): lower thresholds so mid-trade alerts
+        # fire on real conviction drift, not just dramatic shifts.
+        # WARN -20 -> -15, LET_RUN +10 -> +7. Trade-off: slightly more
+        # alerts, but indicator wobble below +-7 still gets HOLD.
+        if delta <= -15:
             return {"action":"WARN","new_conviction":new_conv,"delta":delta,
                     "note":f"Conviction dropped {abs(delta)} pts → {new_conv}. Tighten stop."}
-        if delta >= 10:
+        if delta >= 7:
             return {"action":"LET_RUN","new_conviction":new_conv,"delta":delta,
                     "note":f"Conviction strengthened +{delta} → {new_conv}. Let it run."}
         return {"action":"HOLD","new_conviction":new_conv,"delta":delta,"note":""}

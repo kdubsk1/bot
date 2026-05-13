@@ -68,6 +68,18 @@ logging.getLogger("telegram").setLevel(logging.WARNING)
 logging.getLogger("telegram.ext").setLevel(logging.INFO)
 log = logging.getLogger("nqcalls")
 
+
+# Wave 50 (May 13, 2026): in-memory tracker for last Telegram alert per
+# open trade. Used by watch_open_trades to send 2-hour heartbeats when
+# rescore returns HOLD (no significant change to alert on). Trader sees
+# at least one status update per open trade every 2 hours.
+#
+# Keyed by alert_id. Pruned per scan to drop entries for closed trades.
+# Resets on bot restart (acceptable: worst case is one extra heartbeat
+# burst after restart, which is actually useful behavior).
+_LAST_HEARTBEAT = {}
+_HEARTBEAT_INTERVAL_SEC = 2 * 60 * 60  # 2 hours
+
 SETTINGS = {
     "scanner_on": False, "scan_interval_min": 5, "cooldown_min": 60,
     "min_rr": 1.5,
@@ -2051,6 +2063,11 @@ async def watch_open_trades(app, frames_by_market):
     if not SETTINGS["rescore_on"]: return
     trades = ot.load_open_trades()
     if not trades: return
+    # Wave 50 (May 13, 2026): prune heartbeat tracker for closed trades.
+    _w50_open_ids = {row.get("alert_id", "") for row in trades}
+    for _k in list(_LAST_HEARTBEAT.keys()):
+        if _k not in _w50_open_ids:
+            _LAST_HEARTBEAT.pop(_k, None)
     for row in trades:
         m = row["market"]
         cfg = get_market_config(m)
@@ -2091,7 +2108,33 @@ async def watch_open_trades(app, frames_by_market):
 
         r = ot.rescore_open_trade(row, frames, ot.in_news_window())
         if r["new_conviction"] is not None: ot.update_rescore(row["alert_id"], r["new_conviction"])
-        if r["action"]=="HOLD": continue
+        # Wave 50 (May 13, 2026): heartbeat-or-HOLD. If rescore says HOLD
+        # but 2+ hours have passed since last alert for this trade,
+        # send a status update. Otherwise true HOLD = skip.
+        if r["action"]=="HOLD":
+            _w50_aid = row.get("alert_id", "")
+            _w50_now = datetime.now(timezone.utc)
+            _w50_last = _LAST_HEARTBEAT.get(_w50_aid)
+            if _w50_last is None:
+                # First time seen post-restart - seed from trade timestamp
+                try:
+                    _w50_last = datetime.fromisoformat(row.get("timestamp", ""))
+                    if _w50_last.tzinfo is None:
+                        _w50_last = _w50_last.replace(tzinfo=timezone.utc)
+                except Exception:
+                    _w50_last = _w50_now
+                _LAST_HEARTBEAT[_w50_aid] = _w50_last
+            _w50_elapsed = (_w50_now - _w50_last).total_seconds()
+            if _w50_elapsed < _HEARTBEAT_INTERVAL_SEC:
+                continue
+            # Promote HOLD to heartbeat - keep going through the alert builder
+            # with synthetic action that prints status info.
+            r = {**r, "action": "HEARTBEAT",
+                 "note": f"Status update ({int(_w50_elapsed/3600)}h since last alert). Conviction stable."}
+            _LAST_HEARTBEAT[_w50_aid] = _w50_now
+        else:
+            # Real alert firing - record timestamp
+            _LAST_HEARTBEAT[row.get("alert_id", "")] = datetime.now(timezone.utc)
 
         action    = r["action"]
         delta     = r["delta"]
@@ -2141,7 +2184,10 @@ async def watch_open_trades(app, frames_by_market):
                 f"{bar} {'🎯' if progress > 0.7 else '🛑' if progress < 0.3 else '➡️'}\n"
             )
 
-        if action == "LET_RUN":
+        if action == "HEARTBEAT":
+            header = f"ℹ️ *{cfg.FULL_NAME} — Status Update*"
+            detail = f"{note}\n" if note else f"Conviction stable at *{new_c}/100*. Trade still open.\n"
+        elif action == "LET_RUN":
             header = f"🚀 *{cfg.FULL_NAME} — Conviction Rising*"
             detail = f"Conviction up to *{new_c}/100* (+{delta}). Market trending in our favor — hold your position.\n"
         elif action == "WARN":
