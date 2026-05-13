@@ -15,6 +15,12 @@ import os, json, logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
+# Wave 51 (May 13, 2026): import safe_io that Wave 48 forgot to add.
+# Wave 48 added safe_io.atomic_write_json() calls in save_state,
+# save_history, save_lifetime_stats but never imported the module.
+# Result: NameError on every state-mutation, scanner stuck offline.
+import safe_io
+
 _log = logging.getLogger("nqcalls.sim")
 
 # Task 5: Enable eval mode by default

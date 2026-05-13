@@ -2382,7 +2382,11 @@ def rescore_open_trade(row: dict, live_frames: dict, news_flag: bool) -> dict:
             htf_key = get_market_config(market).HTF_CONFIRM
         except Exception:
             htf_key = "1h"
-        df_htf = live_frames.get(htf_key) or live_frames.get("1h")
+        # Wave 51 (May 13, 2026): replace `or` with explicit None check.
+        # `or` evaluates truth on DataFrame which pandas refuses.
+        df_htf = live_frames.get(htf_key)
+        if df_htf is None:
+            df_htf = live_frames.get("1h")
         if df_entry is None:
             return {"action":"HOLD","new_conviction":None,"delta":0,"note":"no data"}
 
@@ -3265,7 +3269,10 @@ def market_trend_text(market: str = None) -> str:
                 df_htf = frames.get("4h")
             htf_bias = structure_bias(df_htf) if (df_htf is not None and not df_htf.empty) else "?"
 
-            df_entry = frames.get("15m") or frames.get("1h")
+            # Wave 51 (May 13, 2026): replace `or` with explicit None check.
+            df_entry = frames.get("15m")
+            if df_entry is None:
+                df_entry = frames.get("1h")
             if df_entry is not None and not df_entry.empty:
                 try:
                     adx_v = float(adx(df_entry).iloc[-1])

@@ -3775,6 +3775,10 @@ async def cmd_commands(u, c):
         "`/backtest`  — replay closed trades\n"
         "`/review [days]`  — strategy review\n"
         "`/analyze`  — strategy log patterns\n"
+        # Wave 51 (May 13, 2026): added /performance, /journey, /trend
+        "`/performance` — multi-dim WR analytics\n"
+        "`/journey`  — eval account history sparkline\n"
+        "`/trend [MKT]`  — live market trend (NQ/GC/BTC/SOL)\n"
         "\n"
         "📋 *REPORTS*\n"
         "`/report`  — full daily report\n"
