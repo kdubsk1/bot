@@ -2193,6 +2193,50 @@ async def watch_open_trades(app, frames_by_market):
         elif action == "WARN":
             header = f"⚠️ *{cfg.FULL_NAME} — Conviction Dropping*"
             detail = f"Conviction dropping (*{old_conv}* to *{new_c}*). Price showing rejection. Consider tightening your stop.\n"
+        # Wave 55 (May 13, 2026): SIM rotation on EXIT_SUGGEST.
+        # When the rescore says "exit this position", the SIM should
+        # actively close it at current price rather than holding to
+        # target/stop. outcomes.csv (parallel ledger) keeps tracking
+        # the original target/stop for analysis purposes.
+        if r["action"] == "EXIT_SUGGEST":
+            try:
+                _w55_sim_state = sim.load_state()
+                if _w55_sim_state.get("enabled"):
+                    _w55_aid = row.get("alert_id", "")
+                    _w55_open = _w55_sim_state.get("open_sim_trades", [])
+                    _w55_match = next(
+                        (t for t in _w55_open if t.get("alert_id") == _w55_aid),
+                        None
+                    )
+                    if _w55_match is not None:
+                        # Get current price from primary timeframe
+                        _w55_tf = row.get("tf", "15m") or "15m"
+                        _w55_df = frames.get(_w55_tf) or frames.get("15m")
+                        if _w55_df is not None and not _w55_df.empty:
+                            _w55_cur = float(_w55_df["Close"].iloc[-1])
+                            _w55_entry = float(_w55_match.get("entry", 0) or 0)
+                            # Sanity check: price within 50% of entry
+                            if (_w55_cur > 0 and _w55_entry > 0
+                                    and 0.5 * _w55_entry < _w55_cur < 1.5 * _w55_entry):
+                                _w55_dir = _w55_match.get("direction", "")
+                                if "LONG" in _w55_dir:
+                                    _w55_profit = _w55_cur > _w55_entry
+                                else:
+                                    _w55_profit = _w55_cur < _w55_entry
+                                _w55_result = "WIN" if _w55_profit else "LOSS"
+                                _w55_closed = sim.close_sim_trade(
+                                    _w55_aid, _w55_cur, _w55_result
+                                )
+                                if _w55_closed:
+                                    _w55_pnl = _w55_closed.get("pnl", 0.0)
+                                    log.info(
+                                        f"Wave 55: SIM rotated out {_w55_aid} "
+                                        f"at {_w55_cur:.2f} ({_w55_result}, "
+                                        f"P&L ${_w55_pnl:+.2f})"
+                                    )
+            except Exception as _w55_e:
+                log.warning(f"Wave 55 SIM rotation failed: {_w55_e}")
+
         elif action == "EXIT_SUGGEST":
             header = f"🛑 *{cfg.FULL_NAME} — Consider Exiting*"
             detail = f"{cfg.FULL_NAME} position weakening (*{new_c}/100*). Price may be reversing — consider exiting early.\n"
