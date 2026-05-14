@@ -163,11 +163,16 @@ def bot_brain_log(event_type: str, data: dict):
 
 def _load_scanner_state() -> dict:
     """Returns {'scanner_on': bool, 'last_changed': iso_str, 'hours_ago': float}."""
+    # Wave 57 (May 13, 2026): stale-OFF defaults to ON for autonomous mode.
+    # Background: Railway redeploys were leaving the bot off because the state
+    # file had a stale OFF from days ago. Cockroach autonomy requires bot to
+    # come back on after restart unless very recently toggled off.
     try:
         if os.path.exists(SCANNER_STATE_FILE):
             with open(SCANNER_STATE_FILE) as f:
                 data = json.load(f)
             last = data.get("last_changed", "")
+            scanner_on = bool(data.get("scanner_on", False))
             hours_ago = 0.0
             if last:
                 try:
@@ -175,14 +180,27 @@ def _load_scanner_state() -> dict:
                     hours_ago = (datetime.now(timezone.utc) - last_dt).total_seconds() / 3600.0
                 except Exception:
                     pass
+            # Wave 57 stale-OFF override: if OFF and last change >24h ago,
+            # default to ON. Recent OFF (within 24h) respected as manual.
+            if (not scanner_on) and hours_ago > 24.0:
+                log.info(
+                    f"Wave 57: scanner_state stale ({hours_ago:.1f}h old), "
+                    f"defaulting to ON for autonomous operation"
+                )
+                scanner_on = True
             return {
-                "scanner_on":   bool(data.get("scanner_on", False)),
+                "scanner_on":   scanner_on,
                 "last_changed": last,
                 "hours_ago":    round(hours_ago, 1),
             }
+        else:
+            # Wave 57: no state file = fresh boot. Default ON.
+            log.info("Wave 57: no scanner_state.json, defaulting to ON")
+            return {"scanner_on": True, "last_changed": "", "hours_ago": 0.0}
     except Exception as e:
         log.warning(f"_load_scanner_state: {e}")
-    return {"scanner_on": False, "last_changed": "", "hours_ago": 0.0}
+    # Wave 57: on error, also default ON (safer than leaving off forever)
+    return {"scanner_on": True, "last_changed": "", "hours_ago": 0.0}
 
 ALL_MARKETS  = get_all_markets()
 YF_MAP       = {"NQ": "NQ=F", "GC": "GC=F"}
