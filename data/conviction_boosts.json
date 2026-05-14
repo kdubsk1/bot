@@ -10,9 +10,9 @@
       "BREAK_RETEST_BULL": -2,
       "RSI_DIV_BEAR": -5,
       "STOCH_REVERSAL_BEAR": -5,
-      "BB_REVERSION_BULL": 3,
+      "BB_REVERSION_BULL": 6,
       "STOCH_REVERSAL_BULL": -5,
-      "APPROACH_SUPPORT": -14
+      "APPROACH_SUPPORT": -17
     },
     "_doc": "Per-setup conviction boost. Positive = trust more, negative = trust less. Applied AFTER base conviction calculation, BEFORE tier mapping. Layer 6 (Wave 9) auto-zeros these when a setup goes cold."
   },
@@ -102,10 +102,10 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-05-11T10:00:09.248541+00:00",
+    "last_run_at": "2026-05-14T10:03:45.510642+00:00",
     "last_run_summary": {
       "cycle_changes": 2,
-      "decay_actions": 2,
+      "decay_actions": 0,
       "n_setups_analyzed": 6
     },
     "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."

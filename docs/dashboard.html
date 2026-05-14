@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-14T08:23:47.112343+00:00",
+  "generated_at": "2026-05-14T14:23:49.984608+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -594,6 +594,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-14 14:04",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29585.25",
+      "stop": "29514.6344",
+      "target": "29693.0",
+      "rr": "1.53",
+      "conv": "94",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-05-13 16:12",
       "market": "SOL",
@@ -977,22 +993,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "89.7291"
-    },
-    {
-      "time": "2026-05-07 09:38",
-      "market": "SOL",
-      "setup": "EMA21_PULLBACK_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "89.47",
-      "stop": "89.09",
-      "target": "90.43",
-      "rr": "2.53",
-      "conv": "85",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "89.09"
     }
   ],
   "suspended_setups": [
@@ -1042,6 +1042,19 @@ const DATA = {
   },
   "open_trades": [
     {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "29585.25",
+      "target": "29693.0",
+      "stop": "29514.6344",
+      "conviction": 94,
+      "last_rescore_conviction": 80,
+      "tier": "HIGH",
+      "timestamp": "2026-05-14T14:04:25.890464+00:00"
+    },
+    {
       "market": "SOL",
       "setup": "STOCH_REVERSAL_BULL",
       "tf": "1h",
@@ -1050,7 +1063,7 @@ const DATA = {
       "target": "92.84",
       "stop": "89.8722",
       "conviction": 72,
-      "last_rescore_conviction": 13,
+      "last_rescore_conviction": 53,
       "tier": "MEDIUM",
       "timestamp": "2026-05-13T16:12:21.153801+00:00"
     },
@@ -1063,7 +1076,7 @@ const DATA = {
       "target": "80375.21",
       "stop": "78578.7362",
       "conviction": 74,
-      "last_rescore_conviction": 31,
+      "last_rescore_conviction": 56,
       "tier": "MEDIUM",
       "timestamp": "2026-05-13T16:01:17.302906+00:00"
     }

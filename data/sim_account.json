@@ -17,5 +17,20 @@
   "session_date": "2026-05-14",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "3c62f4d6ab",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29585.25,
+      "stop": 29514.634364211495,
+      "target": 29693.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "VWAP_BOUNCE_BULL",
+      "opened_at": "2026-05-14T14:04:25.965669",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
