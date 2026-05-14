@@ -4254,7 +4254,11 @@ def _on_session_close(event, now_et):
     global _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global DAILY_LOSS_GATE, DAILY_PROFIT_LOCKED, DAILY_TRADE_COUNT
     try:
-        sid = get_session_date(now_et)
+        # Wave 56 (May 13, 2026): use closing-session calendar date.
+        # get_session_date(now_et) returns NEXT day when hour>=16, but the
+        # session that just closed is today's date. Trades fired during the
+        # day were tagged with today's date via get_session_date() (no arg).
+        sid = now_et.date().strftime("%Y-%m-%d")
         summary = ot.build_session_summary(sid)
         sim_state = sim.load_state()
         sim_pnl = sim_state.get("today_pnl", 0.0)
@@ -4314,9 +4318,16 @@ def _on_session_close(event, now_et):
         log.error(f"_on_session_close error: {e}")
 
 def _on_crypto_day(event, now_et):
-    """Crypto day boundary — reset daily crypto stats."""
+    """Crypto day boundary — reset daily crypto stats and clear halts."""
     try:
-        log.info("Crypto day boundary fired at 4PM ET")
+        # Wave 56 (May 13, 2026): restore MARKET_HALTED + CONSECUTIVE_LOSSES
+        # clearing for BTC/SOL. The shadowed first definition at line 571
+        # had this; the active definition lost it. Without this clearing,
+        # crypto halts accumulate forever until a manual restart.
+        for m in ("BTC", "SOL"):
+            MARKET_HALTED.pop(m, None)
+            CONSECUTIVE_LOSSES.pop(m, None)
+        log.info("Crypto day boundary fired at 4PM ET - halts cleared for BTC/SOL")
     except Exception as e:
         log.error(f"_on_crypto_day error: {e}")
 
