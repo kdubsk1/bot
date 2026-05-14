@@ -14,11 +14,11 @@
     "last_updated": "2026-05-12T01:41:28.196538"
   },
   "BTC:STOCH_REVERSAL_BULL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 1,
-    "total": 1,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-07T04:14:17.537098"
+    "total": 2,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-14T14:45:52.789296"
   },
   "NQ:EMA21_PULLBACK_BULL": {
     "wins": 1,
@@ -91,11 +91,11 @@
     "last_updated": "2026-05-13T19:55:01.932211"
   },
   "NQ:VWAP_BOUNCE_BULL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 2,
-    "total": 2,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-13T14:11:27.398095"
+    "total": 3,
+    "win_rate": 33.3,
+    "last_updated": "2026-05-14T14:45:51.519528"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 0,
