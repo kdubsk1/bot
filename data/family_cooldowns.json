@@ -1,10 +1,10 @@
 {
   "NQ:mean_rev_long": {
-    "expiry": "2026-05-14T15:15:52.608642+00:00",
-    "reason": "WIN"
+    "expiry": "2026-05-15T14:07:53.480788+00:00",
+    "reason": "LOSS"
   },
   "SOL:mean_rev_long": {
-    "expiry": "2026-05-15T06:28:34.979289+00:00",
+    "expiry": "2026-05-15T13:38:54.651815+00:00",
     "reason": "LOSS"
   },
   "BTC:mean_rev_short": {

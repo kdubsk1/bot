@@ -2,7 +2,7 @@
   "layer_1_setup_boosts": {
     "enabled": true,
     "boosts": {
-      "VWAP_BOUNCE_BULL": -6,
+      "VWAP_BOUNCE_BULL": -9,
       "APPROACH_RESIST": -10,
       "VWAP_REJECT_BEAR": -15,
       "EMA21_PULLBACK_BULL": -1,
@@ -11,7 +11,7 @@
       "RSI_DIV_BEAR": -5,
       "STOCH_REVERSAL_BEAR": -5,
       "BB_REVERSION_BULL": 6,
-      "STOCH_REVERSAL_BULL": -5,
+      "STOCH_REVERSAL_BULL": -4,
       "APPROACH_SUPPORT": -17
     },
     "_doc": "Per-setup conviction boost. Positive = trust more, negative = trust less. Applied AFTER base conviction calculation, BEFORE tier mapping. Layer 6 (Wave 9) auto-zeros these when a setup goes cold."
@@ -74,22 +74,14 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-05-11T10:00:09.244252+00:00",
+    "last_decay_check_at": "2026-05-15T10:03:46.238257+00:00",
     "last_decay_actions": [
       {
-        "setup": "BREAK_RETEST_BULL",
+        "setup": "STOCH_REVERSAL_BULL",
         "action": "relaxed",
-        "reason": "2W/4L = 33.3% WR >= 30.0",
-        "boost_before": -3,
-        "boost_after": -2,
-        "window_days": 14
-      },
-      {
-        "setup": "EMA21_PULLBACK_BULL",
-        "action": "relaxed",
-        "reason": "1W/2L = 33.3% WR >= 30.0",
-        "boost_before": -2,
-        "boost_after": -1,
+        "reason": "2W/3L = 40.0% WR >= 30.0",
+        "boost_before": -5,
+        "boost_after": -4,
         "window_days": 14
       }
     ],
@@ -102,11 +94,11 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-05-14T10:03:45.510642+00:00",
+    "last_run_at": "2026-05-15T10:03:46.247034+00:00",
     "last_run_summary": {
-      "cycle_changes": 2,
-      "decay_actions": 0,
-      "n_setups_analyzed": 6
+      "cycle_changes": 1,
+      "decay_actions": 1,
+      "n_setups_analyzed": 7
     },
     "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."
   }

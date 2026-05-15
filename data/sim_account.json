@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50043.51,
+  "balance": 49507.17,
   "peak_balance": 50043.51,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -12,10 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 43.51,
+  "today_pnl": -492.83,
   "today_date": "2026-05-15",
   "session_date": "2026-05-15",
-  "total_pnl": 43.51,
+  "total_pnl": -492.83,
   "trades": [
     {
       "alert_id": "cb534b13dd",
@@ -67,9 +67,7 @@
       "exit_price": 29434.75,
       "result": "WIN",
       "closed_at": "2026-05-15T07:17:00.002902"
-    }
-  ],
-  "open_sim_trades": [
+    },
     {
       "alert_id": "888007dd6d",
       "market": "NQ",
@@ -81,8 +79,80 @@
       "tier": "HIGH",
       "setup_type": "RSI_DIV_BULL",
       "opened_at": "2026-05-15T07:41:41.390017",
-      "status": "OPEN",
-      "pnl": 0.0
+      "status": "CLOSED",
+      "pnl": -234.58,
+      "exit_price": 29274.9598,
+      "result": "LOSS",
+      "closed_at": "2026-05-15T08:31:33.969591"
+    },
+    {
+      "alert_id": "56af08c4fa",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29241.5,
+      "stop": 29199.03409450228,
+      "target": 29356.25,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-05-15T08:36:48.868571",
+      "status": "CLOSED",
+      "pnl": -84.93,
+      "exit_price": 29199.0341,
+      "result": "LOSS",
+      "closed_at": "2026-05-15T09:27:10.108627"
+    },
+    {
+      "alert_id": "52c99953f2",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29218.0,
+      "stop": 29150.765162740525,
+      "target": 29356.25,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "RSI_DIV_BULL",
+      "opened_at": "2026-05-15T09:58:45.153724",
+      "status": "CLOSED",
+      "pnl": 276.5,
+      "exit_price": 29356.25,
+      "result": "WIN",
+      "closed_at": "2026-05-15T10:53:40.451384"
+    },
+    {
+      "alert_id": "41bdbdbf2a",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29347.25,
+      "stop": 29149.922313958563,
+      "target": 29782.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "RSI_DIV_BULL",
+      "opened_at": "2026-05-15T10:55:56.877404",
+      "status": "CLOSED",
+      "pnl": -394.66,
+      "exit_price": 29149.9223,
+      "result": "LOSS",
+      "closed_at": "2026-05-15T12:37:53.492952"
+    },
+    {
+      "alert_id": "78d267921c",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29173.25,
+      "stop": 29123.91300742022,
+      "target": 29296.0,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-05-15T12:52:08.236575",
+      "status": "CLOSED",
+      "pnl": -98.67,
+      "exit_price": 29123.913,
+      "result": "LOSS",
+      "closed_at": "2026-05-15T13:46:24.825548"
     }
-  ]
+  ],
+  "open_sim_trades": []
 }
