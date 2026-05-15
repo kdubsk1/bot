@@ -1,12 +1,12 @@
 {
-  "total_sessions": 17,
-  "total_trades": 22,
-  "total_wins": 11,
-  "total_losses": 11,
-  "total_pnl_dollars": 2332.24,
+  "total_sessions": 18,
+  "total_trades": 30,
+  "total_wins": 13,
+  "total_losses": 17,
+  "total_pnl_dollars": 1839.41,
   "best_session_pnl": 1194.0,
-  "worst_session_pnl": -301.46,
-  "best_setup_overall": "NQ:BB_REVERSION_BULL",
+  "worst_session_pnl": -492.83,
+  "best_setup_overall": "NQ:MEDIUM",
   "per_setup_stats": {
     "NQ:MEDIUM": {
       "wins": 3,
@@ -29,9 +29,9 @@
       "pnl": 21.35
     },
     "NQ:STOCH_REVERSAL_BULL": {
-      "wins": 0,
+      "wins": 1,
       "losses": 2,
-      "pnl": -221.93
+      "pnl": 18.07
     },
     "NQ:MACD_CROSS_BULL": {
       "wins": 0,
@@ -50,8 +50,8 @@
     },
     "NQ:BB_REVERSION_BULL": {
       "wins": 3,
-      "losses": 0,
-      "pnl": 1122.0
+      "losses": 4,
+      "pnl": 741.91
     },
     "GC:BB_REVERSION_BULL": {
       "wins": 1,
@@ -62,11 +62,16 @@
       "wins": 1,
       "losses": 2,
       "pnl": -56.7
+    },
+    "NQ:RSI_DIV_BULL": {
+      "wins": 1,
+      "losses": 2,
+      "pnl": -352.74
     }
   },
-  "last_updated": "2026-05-14T20:00:02.938403+00:00",
+  "last_updated": "2026-05-15T20:00:26.680976+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 52332.24,
+  "lifetime_balance": 51839.41,
   "lifetime_peak_balance": 52332.24
 }

@@ -5,5 +5,12 @@
     "total_at_suspension": 6,
     "wr_at_suspension": 33.3,
     "bleed_at_suspension": -200.0
+  },
+  "SOL:BB_REVERSION_BULL": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-05-15T20:00:27.278340+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
   }
 }

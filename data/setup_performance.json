@@ -92,10 +92,10 @@
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 1,
-    "losses": 2,
-    "total": 3,
-    "win_rate": 33.3,
-    "last_updated": "2026-05-14T14:45:51.519528"
+    "losses": 3,
+    "total": 4,
+    "win_rate": 25.0,
+    "last_updated": "2026-05-15T19:55:13.196374"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 0,
@@ -131,5 +131,12 @@
     "total": 3,
     "win_rate": 33.3,
     "last_updated": "2026-05-15T12:37:51.942336"
+  },
+  "GC:BREAK_RETEST_BEAR": {
+    "wins": 1,
+    "losses": 0,
+    "total": 1,
+    "win_rate": 100.0,
+    "last_updated": "2026-05-15T19:55:14.454022"
   }
 }
