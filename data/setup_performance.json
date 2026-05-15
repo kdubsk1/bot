@@ -71,10 +71,10 @@
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 2,
+    "total": 2,
     "win_rate": 0.0,
-    "last_updated": "2026-05-07T22:37:39.440516"
+    "last_updated": "2026-05-15T01:56:51.097021"
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 0,
@@ -110,5 +110,19 @@
     "total": 1,
     "win_rate": 0.0,
     "last_updated": "2026-05-13T15:14:07.849915"
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-15T01:31:44.852071"
+  },
+  "BTC:RSI_DIV_BEAR": {
+    "wins": 1,
+    "losses": 0,
+    "total": 1,
+    "win_rate": 100.0,
+    "last_updated": "2026-05-15T02:11:38.574533"
   }
 }
