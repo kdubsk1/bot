@@ -15,10 +15,10 @@
   },
   "BTC:STOCH_REVERSAL_BULL": {
     "wins": 1,
-    "losses": 2,
-    "total": 3,
-    "win_rate": 33.3,
-    "last_updated": "2026-05-15T13:51:39.987494"
+    "losses": 3,
+    "total": 4,
+    "win_rate": 25.0,
+    "last_updated": "2026-05-16T07:11:32.923810"
   },
   "NQ:EMA21_PULLBACK_BULL": {
     "wins": 1,
@@ -29,10 +29,10 @@
   },
   "SOL:BB_REVERSION_BULL": {
     "wins": 0,
-    "losses": 5,
-    "total": 5,
+    "losses": 6,
+    "total": 6,
     "win_rate": 0.0,
-    "last_updated": "2026-05-15T02:36:05.015669"
+    "last_updated": "2026-05-16T04:36:59.505308"
   },
   "GC:BREAK_RETEST_BULL": {
     "wins": 0,
