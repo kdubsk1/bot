@@ -127,10 +127,10 @@
   },
   "NQ:RSI_DIV_BULL": {
     "wins": 1,
-    "losses": 2,
-    "total": 3,
-    "win_rate": 33.3,
-    "last_updated": "2026-05-15T12:37:51.942336"
+    "losses": 3,
+    "total": 4,
+    "win_rate": 25.0,
+    "last_updated": "2026-05-16T20:10:25.973086"
   },
   "GC:BREAK_RETEST_BEAR": {
     "wins": 1,

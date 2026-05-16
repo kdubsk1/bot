@@ -283,16 +283,16 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-16T14:24:52.970946+00:00",
+  "generated_at": "2026-05-16T20:25:12.174818+00:00",
   "topstep": {
-    "balance": 50000,
+    "balance": 50000.0,
     "starting_balance": 50000,
     "today_pnl": 0.0,
     "total_pnl": 0.0,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 1,
+    "open_count": 0,
     "equity_curve": [
       {
         "time": "Start",
@@ -369,6 +369,10 @@ const DATA = {
       {
         "time": "2026-05-15 15:18",
         "balance": 55392.92
+      },
+      {
+        "time": "2026-05-16 13:46",
+        "balance": 54562.03
       }
     ]
   },
@@ -563,15 +567,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 10,
-    "losses": 26,
-    "wr": 27.8,
-    "total_trades": 36
+    "losses": 27,
+    "wr": 27.0,
+    "total_trades": 37
   },
   "today": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "wr": 0.0,
-    "total_trades": 1
+    "total_trades": 2
   },
   "setup_stats": [
     {
@@ -583,6 +587,13 @@ const DATA = {
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
+      "fires": 4,
+      "wins": 1,
+      "losses": 3,
+      "wr": 25.0
+    },
+    {
+      "setup": "NQ:RSI_DIV_BULL",
       "fires": 4,
       "wins": 1,
       "losses": 3,
@@ -615,13 +626,6 @@ const DATA = {
       "wins": 0,
       "losses": 3,
       "wr": 0.0
-    },
-    {
-      "setup": "NQ:RSI_DIV_BULL",
-      "fires": 3,
-      "wins": 1,
-      "losses": 2,
-      "wr": 33.3
     },
     {
       "setup": "GC:BB_REVERSION_BULL",
@@ -693,9 +697,9 @@ const DATA = {
       "rr": "2.32",
       "conv": "74",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29173.0"
     },
     {
       "time": "2026-05-16 10:36",
@@ -1115,9 +1119,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 6,
-      "losses": 9,
-      "total_pnl_r": 3.6,
-      "wr": 40.0
+      "losses": 10,
+      "total_pnl_r": 2.6,
+      "wr": 37.5
     }
   },
   "by_tier": {
@@ -1128,8 +1132,8 @@ const DATA = {
     },
     "MEDIUM": {
       "wins": 5,
-      "losses": 9,
-      "wr": 35.7
+      "losses": 10,
+      "wr": 33.3
     },
     "LOW": {
       "wins": 0,
@@ -1139,19 +1143,6 @@ const DATA = {
   },
   "open_trades": [
     {
-      "market": "NQ",
-      "setup": "RSI_DIV_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "29173.0",
-      "target": "29447.0",
-      "stop": "29054.9288",
-      "conviction": 74,
-      "last_rescore_conviction": 46,
-      "tier": "MEDIUM",
-      "timestamp": "2026-05-16T13:46:09.001892+00:00"
-    },
-    {
       "market": "BTC",
       "setup": "BB_REVERSION_BULL",
       "tf": "15m",
@@ -1160,7 +1151,7 @@ const DATA = {
       "target": "79017.76",
       "stop": "77549.2606",
       "conviction": 89,
-      "last_rescore_conviction": 62,
+      "last_rescore_conviction": 40,
       "tier": "HIGH",
       "timestamp": "2026-05-16T10:36:44.192603+00:00"
     }

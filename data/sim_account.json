@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50000,
+  "balance": 50000.0,
   "peak_balance": 50000,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -16,8 +16,7 @@
   "today_date": "2026-05-18",
   "session_date": "2026-05-18",
   "total_pnl": 0.0,
-  "trades": [],
-  "open_sim_trades": [
+  "trades": [
     {
       "alert_id": "64003147ea",
       "market": "NQ",
@@ -29,8 +28,12 @@
       "tier": "MEDIUM",
       "setup_type": "RSI_DIV_BULL",
       "opened_at": "2026-05-16T13:46:09.030870",
-      "status": "OPEN",
-      "pnl": 0.0
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 29173.0,
+      "result": "LOSS",
+      "closed_at": "2026-05-16T20:10:27.486434"
     }
-  ]
+  ],
+  "open_sim_trades": []
 }
