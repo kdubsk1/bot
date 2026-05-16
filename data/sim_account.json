@@ -17,5 +17,20 @@
   "session_date": "2026-05-18",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "64003147ea",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29173.0,
+      "stop": 29054.928848325544,
+      "target": 29447.0,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "RSI_DIV_BULL",
+      "opened_at": "2026-05-16T13:46:09.030870",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
