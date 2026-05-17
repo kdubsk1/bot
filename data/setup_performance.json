@@ -71,10 +71,10 @@
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 0,
-    "losses": 3,
-    "total": 3,
+    "losses": 4,
+    "total": 4,
     "win_rate": 0.0,
-    "last_updated": "2026-05-15T13:51:41.449226"
+    "last_updated": "2026-05-17T15:21:01.987126"
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 0,
