@@ -48,10 +48,10 @@
     "total_loss_r": 5.0
   },
   "BREAK_RETEST_BEAR|||ALL": {
-    "wins": 2,
-    "losses": 7,
-    "total_win_r": 6.095843344091748,
-    "total_loss_r": 7.0
+    "wins": 3,
+    "losses": 9,
+    "total_win_r": 9.780496605200398,
+    "total_loss_r": 9.0
   },
   "VWAP_BOUNCE_BULL|||HH_HL": {
     "wins": 1,
@@ -78,10 +78,10 @@
     "total_loss_r": 7.0
   },
   "BREAK_RETEST_BEAR|||LH_LL": {
-    "wins": 2,
-    "losses": 2,
-    "total_win_r": 6.095843344091748,
-    "total_loss_r": 2.0
+    "wins": 3,
+    "losses": 4,
+    "total_win_r": 9.780496605200398,
+    "total_loss_r": 4.0
   },
   "BREAK_RETEST_BULL|||MIXED": {
     "wins": 0,
