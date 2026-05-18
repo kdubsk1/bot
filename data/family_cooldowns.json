@@ -10,5 +10,13 @@
   "BTC:mean_rev_short": {
     "expiry": "2026-05-15T02:41:39.794756+00:00",
     "reason": "WIN"
+  },
+  "SOL:mean_rev_short": {
+    "expiry": "2026-05-18T13:56:32.190018+00:00",
+    "reason": "LOSS"
+  },
+  "SOL:cont_short": {
+    "expiry": "2026-05-18T15:50:59.015546+00:00",
+    "reason": "LOSS"
   }
 }

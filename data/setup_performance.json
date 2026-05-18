@@ -138,5 +138,33 @@
     "total": 1,
     "win_rate": 100.0,
     "last_updated": "2026-05-15T19:55:14.454022"
+  },
+  "BTC:BB_REVERSION_BEAR": {
+    "wins": 1,
+    "losses": 1,
+    "total": 2,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-18T13:39:01.096715"
+  },
+  "SOL:VWAP_REJECT_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-18T12:26:30.241148"
+  },
+  "SOL:BB_REVERSION_BEAR": {
+    "wins": 1,
+    "losses": 0,
+    "total": 1,
+    "win_rate": 100.0,
+    "last_updated": "2026-05-18T14:18:12.750926"
+  },
+  "SOL:BREAK_RETEST_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-18T14:20:56.972054"
   }
 }

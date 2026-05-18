@@ -35,5 +35,20 @@
       "closed_at": "2026-05-16T20:10:27.486434"
     }
   ],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "7a78635f27",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4569.8,
+      "stop": 4589.00923809572,
+      "target": 4522.2,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "STOCH_REVERSAL_BEAR",
+      "opened_at": "2026-05-18T13:46:15.951455",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
