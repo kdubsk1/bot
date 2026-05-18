@@ -106,10 +106,10 @@
   },
   "BTC:BB_REVERSION_BULL": {
     "wins": 0,
-    "losses": 2,
-    "total": 2,
+    "losses": 3,
+    "total": 3,
     "win_rate": 0.0,
-    "last_updated": "2026-05-16T10:13:19.319919"
+    "last_updated": "2026-05-17T23:41:32.544742"
   },
   "SOL:VWAP_BOUNCE_BULL": {
     "wins": 0,

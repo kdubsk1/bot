@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-17T20:25:25.970724+00:00",
+  "generated_at": "2026-05-18T02:25:30.249302+00:00",
   "topstep": {
     "balance": 50000.0,
     "starting_balance": 50000,
@@ -377,11 +377,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 25.1,
+    "balance": 24.72,
     "starting_balance": 1000.0,
-    "total_pnl": -974.9,
+    "total_pnl": -975.28,
     "open_count": 1,
-    "closed_count": 45,
+    "closed_count": 46,
     "equity_curve": [
       {
         "time": "Start",
@@ -564,22 +564,26 @@ const DATA = {
         "balance": 25.48
       },
       {
-        "time": "2026-05-17 15:23",
+        "time": "2026-05-17 23:41",
         "balance": 25.1
+      },
+      {
+        "time": "2026-05-17 15:23",
+        "balance": 24.72
       }
     ]
   },
   "all_time": {
     "wins": 10,
-    "losses": 28,
-    "wr": 26.3,
-    "total_trades": 38
+    "losses": 29,
+    "wr": 25.6,
+    "total_trades": 39
   },
   "today": {
     "wins": 0,
-    "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -611,6 +615,13 @@ const DATA = {
       "wr": 25.0
     },
     {
+      "setup": "BTC:BB_REVERSION_BULL",
+      "fires": 3,
+      "wins": 0,
+      "losses": 3,
+      "wr": 0.0
+    },
+    {
       "setup": "SOL:BB_REVERSION_BULL",
       "fires": 3,
       "wins": 0,
@@ -637,13 +648,6 @@ const DATA = {
       "wins": 1,
       "losses": 1,
       "wr": 50.0
-    },
-    {
-      "setup": "BTC:BB_REVERSION_BULL",
-      "fires": 2,
-      "wins": 0,
-      "losses": 2,
-      "wr": 0.0
     },
     {
       "setup": "NQ:STOCH_REVERSAL_BULL",
@@ -690,6 +694,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-05-17 23:58",
+      "market": "BTC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "77459.35",
+      "stop": "76596.1938",
+      "target": "79533.91",
+      "rr": "2.4",
+      "conv": "79",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-05-17 14:26",
       "market": "SOL",
       "setup": "STOCH_REVERSAL_BULL",
@@ -733,9 +753,9 @@ const DATA = {
       "rr": "3.07",
       "conv": "89",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77549.2606"
     },
     {
       "time": "2026-05-16 09:41",
@@ -1072,22 +1092,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "91.9641"
-    },
-    {
-      "time": "2026-05-14 18:29",
-      "market": "BTC",
-      "setup": "RSI_DIV_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "81884.17",
-      "stop": "82119.8634",
-      "target": "80972.04",
-      "rr": "3.87",
-      "conv": "67",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "80972.04"
     }
   ],
   "suspended_setups": [
@@ -1111,9 +1115,9 @@ const DATA = {
     },
     "BTC": {
       "wins": 2,
-      "losses": 6,
-      "total_pnl_r": 1.43,
-      "wr": 25.0
+      "losses": 7,
+      "total_pnl_r": 0.43,
+      "wr": 22.2
     },
     "GC": {
       "wins": 2,
@@ -1131,8 +1135,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 5,
-      "losses": 16,
-      "wr": 23.8
+      "losses": 17,
+      "wr": 22.7
     },
     "MEDIUM": {
       "wins": 5,
@@ -1151,13 +1155,13 @@ const DATA = {
       "setup": "BB_REVERSION_BULL",
       "tf": "15m",
       "direction": "LONG",
-      "entry": "77910.42",
-      "target": "79017.76",
-      "stop": "77549.2606",
-      "conviction": 89,
-      "last_rescore_conviction": 64,
-      "tier": "HIGH",
-      "timestamp": "2026-05-16T10:36:44.192603+00:00"
+      "entry": "77459.35",
+      "target": "79533.91",
+      "stop": "76596.1938",
+      "conviction": 79,
+      "last_rescore_conviction": 29,
+      "tier": "MEDIUM",
+      "timestamp": "2026-05-17T23:58:35.910272+00:00"
     }
   ]
 };
