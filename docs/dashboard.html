@@ -283,104 +283,104 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-19T14:26:20.160409+00:00",
+  "generated_at": "2026-05-19T20:26:52.776557+00:00",
   "topstep": {
-    "balance": 50551.0,
+    "balance": 50000,
     "starting_balance": 50000,
-    "today_pnl": 551.0,
-    "total_pnl": 551.0,
+    "today_pnl": 0.0,
+    "total_pnl": 0.0,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 1,
+    "open_count": 0,
     "equity_curve": [
       {
         "time": "Start",
         "balance": 50000
       },
       {
-        "time": "2026-05-11 06:09",
-        "balance": 51635.0
-      },
-      {
         "time": "2026-05-12 02:56",
-        "balance": 50860.47
+        "balance": 49250.0
       },
       {
         "time": "2026-05-12 17:42",
-        "balance": 52836.4
+        "balance": 51163.36
       },
       {
         "time": "2026-05-13 13:12",
-        "balance": 52043.86
+        "balance": 50395.91
       },
       {
         "time": "2026-05-13 14:13",
-        "balance": 53784.73
+        "balance": 52081.66
       },
       {
         "time": "2026-05-13 15:14",
-        "balance": 52977.95
+        "balance": 51300.43
       },
       {
         "time": "2026-05-14 14:04",
-        "balance": 54193.8
+        "balance": 52477.78
       },
       {
         "time": "2026-05-15 02:25",
-        "balance": 53380.89
+        "balance": 51690.61
       },
       {
         "time": "2026-05-15 05:29",
-        "balance": 52580.18
+        "balance": 50915.25
       },
       {
         "time": "2026-05-15 06:06",
-        "balance": 54291.66
+        "balance": 52572.54
       },
       {
         "time": "2026-05-15 07:41",
-        "balance": 53477.29
+        "balance": 51783.95
       },
       {
         "time": "2026-05-15 08:36",
-        "balance": 52675.13
+        "balance": 51007.19
       },
       {
         "time": "2026-05-15 09:58",
-        "balance": 54302.79
+        "balance": 52583.32
       },
       {
         "time": "2026-05-15 10:55",
-        "balance": 53488.25
+        "balance": 51794.57
       },
       {
         "time": "2026-05-15 12:52",
-        "balance": 52685.92
+        "balance": 51017.65
       },
       {
         "time": "2026-05-15 13:49",
-        "balance": 54282.31
+        "balance": 52563.48
       },
       {
         "time": "2026-05-15 14:25",
-        "balance": 53468.07
+        "balance": 51775.03
       },
       {
         "time": "2026-05-15 15:18",
-        "balance": 55392.92
+        "balance": 53638.93
       },
       {
         "time": "2026-05-16 13:46",
-        "balance": 54562.03
+        "balance": 52834.35
       },
       {
         "time": "2026-05-18 13:46",
-        "balance": 56591.74
+        "balance": 54799.78
       },
       {
         "time": "2026-05-19 00:29",
-        "balance": 58696.95
+        "balance": 56838.34
+      },
+      {
+        "time": "2026-05-19 13:54",
+        "balance": 58620.22
       }
     ]
   },
@@ -628,10 +628,10 @@ const DATA = {
     "total_trades": 49
   },
   "today": {
-    "wins": 1,
+    "wins": 2,
     "losses": 0,
     "wr": 100.0,
-    "total_trades": 1
+    "total_trades": 2
   },
   "setup_stats": [
     {
@@ -698,13 +698,6 @@ const DATA = {
       "wr": 33.3
     },
     {
-      "setup": "GC:BB_REVERSION_BULL",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
-    },
-    {
       "setup": "NQ:STOCH_REVERSAL_BULL",
       "fires": 2,
       "wins": 2,
@@ -734,6 +727,13 @@ const DATA = {
     },
     {
       "setup": "BTC:VWAP_BOUNCE_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
+    },
+    {
+      "setup": "GC:BB_REVERSION_BULL",
       "fires": 1,
       "wins": 0,
       "losses": 1,
@@ -780,6 +780,13 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "GC:MACD_CROSS_BEAR",
+      "fires": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
     }
   ],
   "recent_alerts": [
@@ -795,9 +802,9 @@ const DATA = {
       "rr": "2.09",
       "conv": "100",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "4487.5"
     },
     {
       "time": "2026-05-19 00:29",
@@ -1186,23 +1193,17 @@ const DATA = {
   ],
   "suspended_setups": [
     {
-      "key": "SOL:BB_REVERSION_BULL",
-      "reason": "0W/5L (0.0% WR)",
-      "suspended_at": "2026-05-15T20:00:27.278340+00:00"
-    },
-    {
       "key": "SOL:BREAK_RETEST_BULL",
       "reason": "2W/4L (33.3% WR)",
       "suspended_at": "2026-05-18T20:00:10.769088+00:00"
+    },
+    {
+      "key": "SOL:BB_REVERSION_BULL",
+      "reason": "0W/6L (0.0% WR)",
+      "suspended_at": "2026-05-19T20:00:22.924665+00:00"
     }
   ],
   "by_market": {
-    "GC": {
-      "wins": 4,
-      "losses": 1,
-      "total_pnl_r": 8.54,
-      "wr": 80.0
-    },
     "SOL": {
       "wins": 1,
       "losses": 13,
@@ -1220,18 +1221,24 @@ const DATA = {
       "losses": 10,
       "total_pnl_r": 5.72,
       "wr": 28.6
+    },
+    "GC": {
+      "wins": 4,
+      "losses": 1,
+      "total_pnl_r": 8.45,
+      "wr": 80.0
     }
   },
   "by_tier": {
     "MEDIUM": {
-      "wins": 5,
+      "wins": 4,
       "losses": 17,
-      "wr": 22.7
+      "wr": 19.0
     },
     "HIGH": {
-      "wins": 8,
+      "wins": 9,
       "losses": 15,
-      "wr": 34.8
+      "wr": 37.5
     },
     "LOW": {
       "wins": 2,
@@ -1239,21 +1246,7 @@ const DATA = {
       "wr": 50.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "MACD_CROSS_BEAR",
-      "tf": "4h",
-      "direction": "SHORT",
-      "entry": "4504.7",
-      "target": "4380.4",
-      "stop": "4564.2582",
-      "conviction": 100,
-      "last_rescore_conviction": 80,
-      "tier": "HIGH",
-      "timestamp": "2026-05-19T13:54:52.994920+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
