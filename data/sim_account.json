@@ -2,8 +2,8 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50000,
-  "peak_balance": 50000,
+  "balance": 50551.0,
+  "peak_balance": 50551.0,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
   "max_drawdown": 2000,
@@ -12,12 +12,11 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 0.0,
+  "today_pnl": 551.0,
   "today_date": "2026-05-19",
   "session_date": "2026-05-19",
-  "total_pnl": 0.0,
-  "trades": [],
-  "open_sim_trades": [
+  "total_pnl": 551.0,
+  "trades": [
     {
       "alert_id": "23698cdf6d",
       "market": "GC",
@@ -29,6 +28,25 @@
       "tier": "HIGH",
       "setup_type": "BB_REVERSION_BEAR",
       "opened_at": "2026-05-19T00:29:58.246978",
+      "status": "CLOSED",
+      "pnl": 551.0,
+      "exit_price": 4522.2,
+      "result": "WIN",
+      "closed_at": "2026-05-19T13:08:57.431941"
+    }
+  ],
+  "open_sim_trades": [
+    {
+      "alert_id": "27fc24a5f0",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4504.7,
+      "stop": 4564.25824654131,
+      "target": 4380.4,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "MACD_CROSS_BEAR",
+      "opened_at": "2026-05-19T13:54:53.017705",
       "status": "OPEN",
       "pnl": 0.0
     }
