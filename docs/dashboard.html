@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-18T20:25:51.635023+00:00",
+  "generated_at": "2026-05-19T02:26:00.876379+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -381,11 +381,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 26.24,
+    "balance": 25.85,
     "starting_balance": 1000.0,
-    "total_pnl": -973.76,
+    "total_pnl": -974.15,
     "open_count": 0,
-    "closed_count": 55,
+    "closed_count": 56,
     "equity_curve": [
       {
         "time": "Start",
@@ -610,20 +610,24 @@ const DATA = {
       {
         "time": "2026-05-18 18:03",
         "balance": 26.24
+      },
+      {
+        "time": "2026-05-18 22:19",
+        "balance": 25.85
       }
     ]
   },
   "all_time": {
     "wins": 14,
-    "losses": 33,
-    "wr": 29.8,
-    "total_trades": 47
+    "losses": 34,
+    "wr": 29.2,
+    "total_trades": 48
   },
   "today": {
-    "wins": 4,
-    "losses": 5,
-    "wr": 44.4,
-    "total_trades": 9
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -683,6 +687,13 @@ const DATA = {
       "wr": 0.0
     },
     {
+      "setup": "BTC:BB_REVERSION_BEAR",
+      "fires": 3,
+      "wins": 1,
+      "losses": 2,
+      "wr": 33.3
+    },
+    {
       "setup": "GC:BB_REVERSION_BULL",
       "fires": 2,
       "wins": 1,
@@ -695,13 +706,6 @@ const DATA = {
       "wins": 2,
       "losses": 0,
       "wr": 100.0
-    },
-    {
-      "setup": "BTC:BB_REVERSION_BEAR",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
     },
     {
       "setup": "SOL:BREAK_RETEST_BEAR",
@@ -768,6 +772,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-19 00:29",
+      "market": "GC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4577.3",
+      "stop": "4599.5492",
+      "target": "4522.2",
+      "rr": "2.48",
+      "conv": "84",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-05-18 20:58",
+      "market": "BTC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76853.64",
+      "stop": "77195.4861",
+      "target": "76074.71",
+      "rr": "2.28",
+      "conv": "62",
+      "tier": "LOW",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77195.4861"
+    },
     {
       "time": "2026-05-18 17:51",
       "market": "BTC",
@@ -1135,38 +1171,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "29149.9223"
-    },
-    {
-      "time": "2026-05-15 10:53",
-      "market": "SOL",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "91.55",
-      "stop": "90.9211",
-      "target": "92.94",
-      "rr": "2.21",
-      "conv": "71",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "90.9211"
-    },
-    {
-      "time": "2026-05-15 09:58",
-      "market": "NQ",
-      "setup": "RSI_DIV_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29218.0",
-      "stop": "29150.7652",
-      "target": "29356.25",
-      "rr": "2.06",
-      "conv": "77",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29356.25"
     }
   ],
   "suspended_setups": [
@@ -1202,9 +1206,9 @@ const DATA = {
     },
     "BTC": {
       "wins": 4,
-      "losses": 9,
-      "total_pnl_r": 6.72,
-      "wr": 30.8
+      "losses": 10,
+      "total_pnl_r": 5.72,
+      "wr": 28.6
     }
   },
   "by_tier": {
@@ -1220,11 +1224,25 @@ const DATA = {
     },
     "LOW": {
       "wins": 2,
-      "losses": 1,
-      "wr": 66.7
+      "losses": 2,
+      "wr": 50.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "4577.3",
+      "target": "4522.2",
+      "stop": "4599.5492",
+      "conviction": 84,
+      "last_rescore_conviction": 60,
+      "tier": "HIGH",
+      "timestamp": "2026-05-19T00:29:58.229694+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

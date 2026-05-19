@@ -1,17 +1,17 @@
 STRATEGY LOG ANALYSIS
 ==================================================
-Total scan decisions: 13944
-  FIRED:    100
-  REJECTED: 8276
-  ALMOST:   59
+Total scan decisions: 31145
+  FIRED:    133
+  REJECTED: 14557
+  ALMOST:   182
 
 MISSED OPPORTUNITIES:
 ------------------------------
-Setups we rejected that WOULD HAVE WON:  576
-Setups we rejected that WOULD HAVE LOST: 971
+Setups we rejected that WOULD HAVE WON:  669
+Setups we rejected that WOULD HAVE LOST: 3124
 
 TOP MISSED WINNERS (setups to investigate):
-  SOL:VWAP_BOUNCE_BULL:1h: 87 missed wins
+  SOL:VWAP_BOUNCE_BULL:1h: 93 missed wins
     Avg conviction: 1 | Most filtered by: RR 1.7 < min 4.0
   GC:RSI_DIV_BEAR:1h: 81 missed wins
     Avg conviction: 0 | Most filtered by: RR 1.57 < min 2.5
@@ -25,34 +25,48 @@ TOP MISSED WINNERS (setups to investigate):
     Avg conviction: 32 | Most filtered by: Conv 41 < min 65
   BTC:APPROACH_RESIST:15m: 33 missed wins
     Avg conviction: 42 | Most filtered by: Conv 37 < min 62
+  BTC:STOCH_REVERSAL_BEAR:1h: 30 missed wins
+    Avg conviction: 31 | Most filtered by: Conviction 46 below 60 minimum (tier=REJECT); gap: 14 points
   NQ:VWAP_BOUNCE_BULL:1h: 27 missed wins
     Avg conviction: 2 | Most filtered by: RR 2.5 < min 4.0
   SOL:APPROACH_RESIST:15m: 26 missed wins
     Avg conviction: 0 | Most filtered by: RR 2.25 < min 2.5
+  BTC:STOCH_REVERSAL_BEAR:15m: 23 missed wins
+    Avg conviction: 45 | Most filtered by: Conviction 44 below 60 minimum (tier=REJECT); gap: 16 points
   BTC:APPROACH_RESIST:1h: 22 missed wins
     Avg conviction: 25 | Most filtered by: Conv 42 < min 62
-  BTC:STOCH_REVERSAL_BEAR:15m: 22 missed wins
-    Avg conviction: 44 | Most filtered by: Conviction 44 below 60 minimum (tier=REJECT); gap: 16 points
+  SOL:BB_REVERSION_BEAR:15m: 22 missed wins
+    Avg conviction: 43 | Most filtered by: Conviction 49 below 70 minimum (tier=REJECT); gap: 21 points
   SOL:VWAP_BOUNCE_BULL:15m: 16 missed wins
     Avg conviction: 2 | Most filtered by: ADX 16.6 < min 22
+  BTC:EMA21_PULLBACK_BEAR:15m: 12 missed wins
+    Avg conviction: 7 | Most filtered by: R:R 1.53 below minimum 2.5 (tier quick-conv 32, target 76529.01)
   SOL:RSI_DIV_BULL:15m: 11 missed wins
     Avg conviction: 0 | Most filtered by: RR 1.52 < min 2.5
-  BTC:EMA21_PULLBACK_BEAR:15m: 11 missed wins
-    Avg conviction: 5 | Most filtered by: R:R 1.53 below minimum 2.5 (tier quick-conv 32, target 76529.01)
   GC:VWAP_REJECT_BEAR:1h: 9 missed wins
     Avg conviction: 0 | Most filtered by: RR 1.5 < min 2.5
-  BTC:STOCH_REVERSAL_BEAR:1h: 9 missed wins
-    Avg conviction: 33 | Most filtered by: Conviction 46 below 60 minimum (tier=REJECT); gap: 14 points
   BTC:RSI_DIV_BULL:15m: 8 missed wins
     Avg conviction: 0 | Most filtered by: R:R 1.99 below minimum 2.5 (tier quick-conv 30, target 76236.65)
+  NQ:STOCH_REVERSAL_BEAR:1h: 8 missed wins
+    Avg conviction: 0 | Most filtered by: R:R 2.55 below minimum 3.0 (tier quick-conv 15, target 28926.0)
   GC:BREAK_RETEST_BEAR:1h: 7 missed wins
     Avg conviction: 33 | Most filtered by: Conviction 39 below 62 minimum (tier=REJECT); gap: 23 points
   SOL:APPROACH_RESIST:1h: 6 missed wins
     Avg conviction: 0 | Most filtered by: RR 2.5 < min 5.0
+  BTC:BB_REVERSION_BEAR:15m: 6 missed wins
+    Avg conviction: 37 | Most filtered by: Conviction 32 below 60 minimum (tier=REJECT); gap: 28 points
+  NQ:STOCH_REVERSAL_BEAR:15m: 6 missed wins
+    Avg conviction: 21 | Most filtered by: Conviction 25 below 70 minimum (tier=REJECT); gap: 45 points
   GC:VWAP_REJECT_BEAR:4h: 5 missed wins
     Avg conviction: 4 | Most filtered by: RR 2.34 < min 2.5
+  NQ:BB_REVERSION_BEAR:15m: 5 missed wins
+    Avg conviction: 16 | Most filtered by: Conviction 15 below 70 minimum (tier=REJECT); gap: 55 points
   NQ:APPROACH_RESIST:1h: 4 missed wins
     Avg conviction: 34 | Most filtered by: Conv 37 < min 65
+  SOL:STOCH_REVERSAL_BULL:1h: 4 missed wins
+    Avg conviction: 40 | Most filtered by: Conviction 40 below 70 minimum (tier=REJECT); gap: 30 points
+  NQ:BREAK_RETEST_BEAR:1h: 4 missed wins
+    Avg conviction: 21 | Most filtered by: Conviction 21 below 70 minimum (tier=REJECT); gap: 49 points
   BTC:VWAP_BOUNCE_BULL:15m: 3 missed wins
     Avg conviction: 28 | Most filtered by: Conviction 24 below 62 minimum (tier=REJECT); gap: 38 points
   SOL:EMA50_RECLAIM:15m: 3 missed wins
@@ -61,6 +75,8 @@ TOP MISSED WINNERS (setups to investigate):
     Avg conviction: 0 | Most filtered by: RR 1.58 < min 2.5
   NQ:BREAK_RETEST_BULL:1h: 3 missed wins
     Avg conviction: 0 | Most filtered by: R:R 1.74 below minimum 2.0 (tier quick-conv 66, target 664.51)
+  SOL:BREAK_RETEST_BEAR:15m: 3 missed wins
+    Avg conviction: 28 | Most filtered by: R:R 2.09 below minimum 2.5 (tier quick-conv 51, target 83.42)
   BTC:EMA21_PULLBACK_BULL:15m: 2 missed wins
     Avg conviction: 0 | Most filtered by: RR 1.51 < min 2.5
   NQ:EMA21_PULLBACK_BULL:15m: 2 missed wins
@@ -71,14 +87,16 @@ TOP MISSED WINNERS (setups to investigate):
     Avg conviction: 0 | Most filtered by: R:R 1.88 below minimum 2.5 (tier quick-conv 59, target 82.96)
   SOL:BB_REVERSION_BULL:15m: 2 missed wins
     Avg conviction: 2 | Most filtered by: Conviction 0 below 72 minimum (tier=REJECT); gap: 72 points
+  BTC:BB_REVERSION_BEAR:1h: 2 missed wins
+    Avg conviction: 35 | Most filtered by: Conviction 39 below 60 minimum (tier=REJECT); gap: 21 points
+  GC:BB_REVERSION_BEAR:1h: 2 missed wins
+    Avg conviction: 0 | Most filtered by: R:R 1.53 below minimum 3.5 (tier quick-conv 46, target 4556.1)
   BTC:EMA50_BREAKDOWN:15m: 1 missed wins
     Avg conviction: 0 | Most filtered by: RR 1.67 < min 2.0
   BTC:VWAP_REJECT_BEAR:1h: 1 missed wins
     Avg conviction: 0 | Most filtered by: RR 1.66 < min 2.0
   BTC:BREAK_RETEST_BEAR:15m: 1 missed wins
     Avg conviction: 0 | Most filtered by: R:R 1.72 below minimum 2.5 (tier quick-conv 28, target 76555.0)
-  SOL:BREAK_RETEST_BEAR:15m: 1 missed wins
-    Avg conviction: 0 | Most filtered by: R:R 2.09 below minimum 2.5 (tier quick-conv 51, target 83.42)
   SOL:BREAK_RETEST_BULL:15m: 1 missed wins
     Avg conviction: 0 | Most filtered by: R:R 1.95 below minimum 2.5 (tier quick-conv 30, target 83.98)
   BTC:BREAK_RETEST_BEAR:1h: 1 missed wins
@@ -89,48 +107,63 @@ TOP MISSED WINNERS (setups to investigate):
     Avg conviction: 0 | Most filtered by: R:R 1.21 below minimum 1.5 (tier quick-conv 88, target 27622.75)
   BTC:STOCH_REVERSAL_BULL:15m: 1 missed wins
     Avg conviction: 32 | Most filtered by: Conviction 32 below 62 minimum (tier=REJECT); gap: 30 points
-  SOL:BB_REVERSION_BEAR:15m: 1 missed wins
-    Avg conviction: 17 | Most filtered by: Conviction 17 below 72 minimum (tier=REJECT); gap: 55 points
   SOL:STOCH_REVERSAL_BEAR:15m: 1 missed wins
     Avg conviction: 17 | Most filtered by: Conviction 17 below 72 minimum (tier=REJECT); gap: 55 points
-  BTC:BB_REVERSION_BEAR:15m: 1 missed wins
-    Avg conviction: 40 | Most filtered by: Conviction 40 below 60 minimum (tier=REJECT); gap: 20 points
   BTC:RSI_DIV_BEAR:15m: 1 missed wins
     Avg conviction: 47 | Most filtered by: Conviction 47 below 60 minimum (tier=REJECT); gap: 13 points
+  SOL:BB_REVERSION_BEAR:1h: 1 missed wins
+    Avg conviction: 0 | Most filtered by: R:R 2.55 below minimum 4.0 (tier quick-conv 0, target 90.48)
+  SOL:STOCH_REVERSAL_BEAR:1h: 1 missed wins
+    Avg conviction: 0 | Most filtered by: R:R 2.34 below minimum 4.0 (tier quick-conv 0, target 90.48)
+  GC:BREAK_RETEST_BEAR:4h: 1 missed wins
+    Avg conviction: 0 | Most filtered by: R:R 1.75 below minimum 2.0 (tier quick-conv 37, target 4570.0)
+  NQ:VWAP_REJECT_BEAR:15m: 1 missed wins
+    Avg conviction: 28 | Most filtered by: Conviction 28 below 70 minimum (tier=REJECT); gap: 42 points
+  NQ:BREAK_RETEST_BEAR:15m: 1 missed wins
+    Avg conviction: 30 | Most filtered by: Conviction 30 below 70 minimum (tier=REJECT); gap: 40 points
 
 INDICATOR PATTERNS IN WINNING TRADES:
 ------------------------------
-  Winning trades avg ADX:   26.0  (losing: 23.8)
-  Winning trades avg RSI:   64.7  (losing: 48.9)
-  Winning trades avg Trend: 8.0
+  Winning trades avg ADX:   38.0  (losing: 30.5)
+  Winning trades avg RSI:   48.1  (losing: 43.2)
+  Winning trades avg Trend: 1.4
 
-  💡 INSIGHT: Strong trend correlation — trend filter is working
+  💡 INSIGHT: Wins have higher ADX — consider raising MIN_ADX
 
 STRATEGY CANDIDATES FOR REVIEW:
 ------------------------------
-  ⚡ SOL:VWAP_BOUNCE_BULL: appeared 103x as missed winner — consider loosening filter
+  ⚡ SOL:VWAP_BOUNCE_BULL: appeared 109x as missed winner — consider loosening filter
   ⚡ GC:VWAP_BOUNCE_BULL: appeared 83x as missed winner — consider loosening filter
   ⚡ GC:RSI_DIV_BEAR: appeared 81x as missed winner — consider loosening filter
   ⚡ BTC:APPROACH_RESIST: appeared 55x as missed winner — consider loosening filter
+  ⚡ BTC:STOCH_REVERSAL_BEAR: appeared 53x as missed winner — consider loosening filter
   ⚡ NQ:APPROACH_RESIST: appeared 41x as missed winner — consider loosening filter
   ⚡ BTC:VWAP_BOUNCE_BULL: appeared 40x as missed winner — consider loosening filter
   ⚡ SOL:APPROACH_RESIST: appeared 32x as missed winner — consider loosening filter
-  ⚡ BTC:STOCH_REVERSAL_BEAR: appeared 31x as missed winner — consider loosening filter
   ⚡ NQ:VWAP_BOUNCE_BULL: appeared 28x as missed winner — consider loosening filter
+  ⚡ SOL:BB_REVERSION_BEAR: appeared 23x as missed winner — consider loosening filter
   ⚡ GC:VWAP_REJECT_BEAR: appeared 14x as missed winner — consider loosening filter
+  ⚡ NQ:STOCH_REVERSAL_BEAR: appeared 14x as missed winner — consider loosening filter
+  ⚡ BTC:EMA21_PULLBACK_BEAR: appeared 12x as missed winner — consider loosening filter
   ⚡ SOL:RSI_DIV_BULL: appeared 11x as missed winner — consider loosening filter
-  ⚡ BTC:EMA21_PULLBACK_BEAR: appeared 11x as missed winner — consider loosening filter
   ⚡ BTC:RSI_DIV_BULL: appeared 8x as missed winner — consider loosening filter
-  ⚡ GC:BREAK_RETEST_BEAR: appeared 7x as missed winner — consider loosening filter
+  ⚡ BTC:BB_REVERSION_BEAR: appeared 8x as missed winner — consider loosening filter
+  ⚡ GC:BREAK_RETEST_BEAR: appeared 8x as missed winner — consider loosening filter
+  ⚡ NQ:BB_REVERSION_BEAR: appeared 5x as missed winner — consider loosening filter
+  ⚡ NQ:BREAK_RETEST_BEAR: appeared 5x as missed winner — consider loosening filter
+  ⚡ SOL:STOCH_REVERSAL_BULL: appeared 4x as missed winner — consider loosening filter
   ⚡ SOL:EMA50_RECLAIM: appeared 3x as missed winner — consider loosening filter
   ⚡ BTC:APPROACH_SUPPORT: appeared 3x as missed winner — consider loosening filter
   ⚡ NQ:BREAK_RETEST_BULL: appeared 3x as missed winner — consider loosening filter
+  ⚡ SOL:BREAK_RETEST_BEAR: appeared 3x as missed winner — consider loosening filter
   ⚡ BTC:EMA21_PULLBACK_BULL: appeared 2x as missed winner — consider loosening filter
   ⚡ NQ:EMA21_PULLBACK_BULL: appeared 2x as missed winner — consider loosening filter
   ⚡ SOL:VWAP_REJECT_BEAR: appeared 2x as missed winner — consider loosening filter
   ⚡ SOL:EMA21_PULLBACK_BEAR: appeared 2x as missed winner — consider loosening filter
   ⚡ BTC:BREAK_RETEST_BEAR: appeared 2x as missed winner — consider loosening filter
   ⚡ SOL:BB_REVERSION_BULL: appeared 2x as missed winner — consider loosening filter
+  ⚡ SOL:STOCH_REVERSAL_BEAR: appeared 2x as missed winner — consider loosening filter
+  ⚡ GC:BB_REVERSION_BEAR: appeared 2x as missed winner — consider loosening filter
 
 ==================================================
 END OF ANALYSIS
