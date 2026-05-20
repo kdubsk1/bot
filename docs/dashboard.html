@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-19T20:26:52.776557+00:00",
+  "generated_at": "2026-05-20T02:27:00.367054+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -388,7 +388,7 @@ const DATA = {
     "balance": 25.85,
     "starting_balance": 1000.0,
     "total_pnl": -974.15,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 56,
     "equity_curve": [
       {
@@ -628,10 +628,10 @@ const DATA = {
     "total_trades": 49
   },
   "today": {
-    "wins": 2,
+    "wins": 0,
     "losses": 0,
-    "wr": 100.0,
-    "total_trades": 2
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -790,6 +790,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-19 22:15",
+      "market": "BTC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "76714.93",
+      "stop": "77014.7199",
+      "target": "76074.71",
+      "rr": "2.14",
+      "conv": "76",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-05-19 13:54",
       "market": "GC",
@@ -1173,22 +1189,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "78953.3836"
-    },
-    {
-      "time": "2026-05-15 12:52",
-      "market": "NQ",
-      "setup": "BB_REVERSION_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29173.25",
-      "stop": "29123.913",
-      "target": "29296.0",
-      "rr": "2.49",
-      "conv": "75",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "29123.913"
     }
   ],
   "suspended_setups": [
@@ -1246,7 +1246,21 @@ const DATA = {
       "wr": 50.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "BTC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "15m",
+      "direction": "SHORT",
+      "entry": "76714.93",
+      "target": "76074.71",
+      "stop": "77014.7199",
+      "conviction": 76,
+      "last_rescore_conviction": 49,
+      "tier": "MEDIUM",
+      "timestamp": "2026-05-19T22:15:01.955962+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

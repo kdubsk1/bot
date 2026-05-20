@@ -6,7 +6,35 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "0538015404",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 76714.93,
+      "stop": 77014.7199355226,
+      "target": 76074.71,
+      "leverage": 10,
+      "position_size_usd": 99.22,
+      "notional_usd": 992.24,
+      "risk_dollars": 0.39,
+      "opened_at": "2026-05-19T22:15:01.974495+00:00",
+      "max_hold_until": "2026-05-26T22:15:01.974495+00:00",
+      "tier": "MEDIUM",
+      "conviction": 76,
+      "context": {
+        "trend_score": -5,
+        "rsi": 45.72,
+        "adx": 18.33,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Late US/Early Asia",
+        "news_flag": false,
+        "chart_read": "MACD bearish crossover (line 46.398 < signal 52.369, hist turning -5.97). Momentum shift down."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
