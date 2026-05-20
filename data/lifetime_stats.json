@@ -1,9 +1,9 @@
 {
-  "total_sessions": 20,
-  "total_trades": 34,
-  "total_wins": 16,
-  "total_losses": 18,
-  "total_pnl_dollars": 2605.41,
+  "total_sessions": 21,
+  "total_trades": 39,
+  "total_wins": 17,
+  "total_losses": 22,
+  "total_pnl_dollars": 2584.38,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -492.83,
   "best_setup_overall": "NQ:MEDIUM",
@@ -39,9 +39,9 @@
       "pnl": -87.76
     },
     "NQ:EMA21_PULLBACK_BULL": {
-      "wins": 0,
-      "losses": 1,
-      "pnl": -94.09
+      "wins": 1,
+      "losses": 2,
+      "pnl": 181.86
     },
     "GC:BREAK_RETEST_BULL": {
       "wins": 0,
@@ -82,11 +82,21 @@
       "wins": 1,
       "losses": 0,
       "pnl": 172.0
+    },
+    "GC:BREAK_RETEST_BEAR": {
+      "wins": 0,
+      "losses": 1,
+      "pnl": -16.94
+    },
+    "GC:EMA21_PULLBACK_BEAR": {
+      "wins": 0,
+      "losses": 2,
+      "pnl": -280.04
     }
   },
-  "last_updated": "2026-05-19T20:00:22.274204+00:00",
+  "last_updated": "2026-05-20T20:00:03.936924+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 52605.41,
+  "lifetime_balance": 52584.38,
   "lifetime_peak_balance": 52605.41
 }
