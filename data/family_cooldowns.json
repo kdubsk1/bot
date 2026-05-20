@@ -22,5 +22,9 @@
   "BTC:cont_short": {
     "expiry": "2026-05-18T18:33:42.308293+00:00",
     "reason": "WIN"
+  },
+  "GC:cont_short": {
+    "expiry": "2026-05-20T07:56:05.061623+00:00",
+    "reason": "LOSS"
   }
 }
