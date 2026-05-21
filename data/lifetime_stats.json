@@ -1,9 +1,9 @@
 {
-  "total_sessions": 21,
-  "total_trades": 39,
-  "total_wins": 17,
-  "total_losses": 22,
-  "total_pnl_dollars": 2584.38,
+  "total_sessions": 22,
+  "total_trades": 48,
+  "total_wins": 20,
+  "total_losses": 28,
+  "total_pnl_dollars": 2446.24,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -492.83,
   "best_setup_overall": "NQ:MEDIUM",
@@ -29,9 +29,9 @@
       "pnl": 21.35
     },
     "NQ:STOCH_REVERSAL_BULL": {
-      "wins": 1,
-      "losses": 2,
-      "pnl": 18.07
+      "wins": 2,
+      "losses": 3,
+      "pnl": 241.05
     },
     "NQ:MACD_CROSS_BULL": {
       "wins": 0,
@@ -40,8 +40,8 @@
     },
     "NQ:EMA21_PULLBACK_BULL": {
       "wins": 1,
-      "losses": 2,
-      "pnl": 181.86
+      "losses": 5,
+      "pnl": -278.75
     },
     "GC:BREAK_RETEST_BULL": {
       "wins": 0,
@@ -64,9 +64,9 @@
       "pnl": -56.7
     },
     "NQ:RSI_DIV_BULL": {
-      "wins": 1,
+      "wins": 2,
       "losses": 3,
-      "pnl": -352.74
+      "pnl": -8.24
     },
     "GC:STOCH_REVERSAL_BEAR": {
       "wins": 1,
@@ -92,11 +92,21 @@
       "wins": 0,
       "losses": 2,
       "pnl": -280.04
+    },
+    "NQ:BREAK_RETEST_BULL": {
+      "wins": 1,
+      "losses": 1,
+      "pnl": 0.25
+    },
+    "GC:VWAP_REJECT_BEAR": {
+      "wins": 0,
+      "losses": 1,
+      "pnl": -245.26
     }
   },
-  "last_updated": "2026-05-20T20:00:03.936924+00:00",
+  "last_updated": "2026-05-21T20:00:08.771738+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 52584.38,
+  "lifetime_balance": 52446.24,
   "lifetime_peak_balance": 52605.41
 }

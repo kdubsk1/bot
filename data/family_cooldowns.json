@@ -34,5 +34,9 @@
   "BTC:cont_long": {
     "expiry": "2026-05-21T07:22:30.108570+00:00",
     "reason": "LOSS"
+  },
+  "GC:mean_rev_short": {
+    "expiry": "2026-05-21T18:51:55.293470+00:00",
+    "reason": "LOSS"
   }
 }

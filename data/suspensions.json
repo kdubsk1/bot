@@ -23,5 +23,10 @@
     "reason": "Wave 47 auto: 0W/4L over last 30 days",
     "suspended_at": "2026-05-18T20:00:10.040327+00:00",
     "source": "wave47_auto"
+  },
+  "SOL:BREAK_RETEST_BEAR": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-05-21T20:00:08.776116+00:00",
+    "source": "wave47_auto"
   }
 }
