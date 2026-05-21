@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50103.73,
+  "balance": 49762.62,
   "peak_balance": 50103.73,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -12,10 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 103.73,
+  "today_pnl": -237.38,
   "today_date": "2026-05-21",
   "session_date": "2026-05-21",
-  "total_pnl": 103.73,
+  "total_pnl": -237.38,
   "trades": [
     {
       "alert_id": "08bfcda322",
@@ -101,6 +101,40 @@
       "exit_price": 29439.75,
       "result": "WIN",
       "closed_at": "2026-05-21T08:16:07.413075"
+    },
+    {
+      "alert_id": "33f4b996bd",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29399.0,
+      "stop": 29294.705024734078,
+      "target": 29640.75,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "EMA21_PULLBACK_BULL",
+      "opened_at": "2026-05-21T08:21:24.469794",
+      "status": "CLOSED",
+      "pnl": -208.59,
+      "exit_price": 29294.705,
+      "result": "LOSS",
+      "closed_at": "2026-05-21T10:28:27.283848"
+    },
+    {
+      "alert_id": "32f47878d8",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29229.5,
+      "stop": 29163.24015570276,
+      "target": 29375.5,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "STOCH_REVERSAL_BULL",
+      "opened_at": "2026-05-21T13:06:33.376883",
+      "status": "CLOSED",
+      "pnl": -132.52,
+      "exit_price": 29163.2402,
+      "result": "LOSS",
+      "closed_at": "2026-05-21T14:20:57.712282"
     }
   ],
   "open_sim_trades": [
@@ -115,20 +149,6 @@
       "tier": "MEDIUM",
       "setup_type": "VWAP_REJECT_BEAR",
       "opened_at": "2026-05-21T06:57:12.751510",
-      "status": "OPEN",
-      "pnl": 0.0
-    },
-    {
-      "alert_id": "33f4b996bd",
-      "market": "NQ",
-      "direction": "LONG",
-      "entry": 29399.0,
-      "stop": 29294.705024734078,
-      "target": 29640.75,
-      "contracts": 1,
-      "tier": "MEDIUM",
-      "setup_type": "EMA21_PULLBACK_BULL",
-      "opened_at": "2026-05-21T08:21:24.469794",
       "status": "OPEN",
       "pnl": 0.0
     }
