@@ -121,9 +121,9 @@
   },
   "STOCH_REVERSAL_BEAR|||ALL": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 0.0,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "BB_REVERSION_BULL|||UNKNOWN": {
     "wins": 0,
@@ -360,6 +360,12 @@
     "total_loss_r": 0.0
   },
   "EMA21_PULLBACK_BULL|||HH_HL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "STOCH_REVERSAL_BEAR|||HH_HL": {
     "wins": 0,
     "losses": 1,
     "total_win_r": 0.0,
