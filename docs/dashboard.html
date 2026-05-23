@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-22T20:28:57.774237+00:00",
+  "generated_at": "2026-05-23T02:29:06.997091+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -436,7 +436,7 @@ const DATA = {
     "balance": 23.33,
     "starting_balance": 1000.0,
     "total_pnl": -976.67,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 66,
     "equity_curve": [
       {
@@ -716,10 +716,10 @@ const DATA = {
     "total_trades": 65
   },
   "today": {
-    "wins": 1,
-    "losses": 3,
-    "wr": 25.0,
-    "total_trades": 4
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -906,6 +906,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-22 20:53",
+      "market": "SOL",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "84.96",
+      "stop": "83.5682",
+      "target": "87.77",
+      "rr": "2.02",
+      "conv": "73",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-05-22 18:16",
       "market": "NQ",
@@ -1289,22 +1305,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "29081.9763"
-    },
-    {
-      "time": "2026-05-20 09:57",
-      "market": "GC",
-      "setup": "EMA21_PULLBACK_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "4491.2",
-      "stop": "4500.391",
-      "target": "4467.1",
-      "rr": "2.62",
-      "conv": "83",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4500.391"
     }
   ],
   "suspended_setups": [
@@ -1377,7 +1377,21 @@ const DATA = {
       "wr": 40.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "SOL",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "84.96",
+      "target": "87.77",
+      "stop": "83.5682",
+      "conviction": 73,
+      "last_rescore_conviction": 0,
+      "tier": "MEDIUM",
+      "timestamp": "2026-05-22T20:53:25.840279+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

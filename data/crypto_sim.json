@@ -6,7 +6,35 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "bbfdb919f6",
+      "market": "SOL",
+      "direction": "LONG",
+      "entry": 84.96,
+      "stop": 83.5682118701108,
+      "target": 87.77,
+      "leverage": 10,
+      "position_size_usd": 21.36,
+      "notional_usd": 213.62,
+      "risk_dollars": 0.35,
+      "opened_at": "2026-05-22T20:53:25.854137+00:00",
+      "max_hold_until": "2026-05-29T20:53:25.854137+00:00",
+      "tier": "MEDIUM",
+      "conviction": 73,
+      "context": {
+        "trend_score": 2,
+        "rsi": 36.07,
+        "adx": 22.03,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed up through %D from oversold (14.4\u219227.9 vs D 22.8). Early reversal trigger."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
