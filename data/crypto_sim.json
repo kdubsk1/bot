@@ -6,7 +6,62 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "960934d06c",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 76355.57,
+      "stop": 77134.54886493161,
+      "target": 74197.11,
+      "leverage": 10,
+      "position_size_usd": 33.32,
+      "notional_usd": 333.17,
+      "risk_dollars": 0.34,
+      "opened_at": "2026-05-24T14:31:02.703755+00:00",
+      "max_hold_until": "2026-05-31T14:31:02.703755+00:00",
+      "tier": "HIGH",
+      "conviction": 92,
+      "context": {
+        "trend_score": -8,
+        "rsi": 47.15,
+        "adx": 36.93,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "MACD bearish crossover (line 226.147 < signal 266.245, hist turning -40.098). Momentum shift down."
+      },
+      "status": "OPEN"
+    },
+    {
+      "alert_id": "a2a3e25a38",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 85.02,
+      "stop": 85.38604045854596,
+      "target": 84.1,
+      "leverage": 10,
+      "position_size_usd": 78.95,
+      "notional_usd": 789.48,
+      "risk_dollars": 0.34,
+      "opened_at": "2026-05-24T20:11:47.914590+00:00",
+      "max_hold_until": "2026-05-31T20:11:47.914590+00:00",
+      "tier": "HIGH",
+      "conviction": 90,
+      "context": {
+        "trend_score": -10,
+        "rsi": 35.73,
+        "adx": 27.81,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "MACD bearish crossover (line -0.153 < signal -0.151, hist turning -0.002). Momentum shift down."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",

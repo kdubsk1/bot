@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-24T14:29:40.708620+00:00",
+  "generated_at": "2026-05-24T20:29:46.463696+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -436,7 +436,7 @@ const DATA = {
     "balance": 22.66,
     "starting_balance": 1000.0,
     "total_pnl": -977.34,
-    "open_count": 0,
+    "open_count": 2,
     "closed_count": 75,
     "equity_curve": [
       {
@@ -964,6 +964,38 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-05-24 20:11",
+      "market": "SOL",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "85.02",
+      "stop": "85.386",
+      "target": "84.1",
+      "rr": "2.51",
+      "conv": "90",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-05-24 14:31",
+      "market": "BTC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "76355.57",
+      "stop": "77134.5489",
+      "target": "74197.11",
+      "rr": "2.77",
+      "conv": "92",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-05-23 22:44",
       "market": "SOL",
       "setup": "MACD_CROSS_BEAR",
@@ -1330,38 +1362,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "29285.7869"
-    },
-    {
-      "time": "2026-05-21 05:42",
-      "market": "NQ",
-      "setup": "EMA21_PULLBACK_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29377.5",
-      "stop": "29340.2045",
-      "target": "29469.25",
-      "rr": "2.46",
-      "conv": "81",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "29340.2045"
-    },
-    {
-      "time": "2026-05-21 05:11",
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29412.5",
-      "stop": "29382.1264",
-      "target": "29486.75",
-      "rr": "2.44",
-      "conv": "77",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "29382.1264"
     }
   ],
   "suspended_setups": [
@@ -1434,7 +1434,34 @@ const DATA = {
       "wr": 40.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "SOL",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "15m",
+      "direction": "SHORT",
+      "entry": "85.02",
+      "target": "84.1",
+      "stop": "85.386",
+      "conviction": 90,
+      "last_rescore_conviction": 65,
+      "tier": "HIGH",
+      "timestamp": "2026-05-24T20:11:47.897932+00:00"
+    },
+    {
+      "market": "BTC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "76355.57",
+      "target": "74197.11",
+      "stop": "77134.5489",
+      "conviction": 92,
+      "last_rescore_conviction": 19,
+      "tier": "HIGH",
+      "timestamp": "2026-05-24T14:31:02.678903+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
