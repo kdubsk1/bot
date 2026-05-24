@@ -1,9 +1,9 @@
 [
   {
-    "market": "SOL",
+    "market": "BTC",
     "direction": "SHORT",
-    "zone_low": 85.6132,
-    "zone_high": 85.8668,
-    "expiry": "2026-05-24T08:57:01.308174+00:00"
+    "zone_low": 76793.3381,
+    "zone_high": 76930.6619,
+    "expiry": "2026-05-24T13:02:19.551852+00:00"
   }
 ]

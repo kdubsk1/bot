@@ -141,10 +141,10 @@
   },
   "BTC:BB_REVERSION_BEAR": {
     "wins": 1,
-    "losses": 5,
-    "total": 6,
-    "win_rate": 16.7,
-    "last_updated": "2026-05-23T20:32:32.706766"
+    "losses": 6,
+    "total": 7,
+    "win_rate": 14.3,
+    "last_updated": "2026-05-24T11:02:17.158864"
   },
   "SOL:VWAP_REJECT_BEAR": {
     "wins": 0,

@@ -5,15 +5,15 @@
       "VWAP_BOUNCE_BULL": -20,
       "APPROACH_RESIST": -10,
       "VWAP_REJECT_BEAR": -15,
-      "EMA21_PULLBACK_BULL": -7,
-      "EMA21_PULLBACK_BEAR": -4,
+      "EMA21_PULLBACK_BULL": -10,
+      "EMA21_PULLBACK_BEAR": -3,
       "BREAK_RETEST_BULL": -2,
       "RSI_DIV_BEAR": -5,
-      "STOCH_REVERSAL_BEAR": -3,
+      "STOCH_REVERSAL_BEAR": -2,
       "BB_REVERSION_BULL": -20,
-      "STOCH_REVERSAL_BULL": 9,
+      "STOCH_REVERSAL_BULL": 6,
       "APPROACH_SUPPORT": -17,
-      "RSI_DIV_BULL": -3,
+      "RSI_DIV_BULL": -2,
       "BREAK_RETEST_BEAR": 9,
       "BB_REVERSION_BEAR": 12
     },
@@ -81,30 +81,30 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-05-23T10:05:16.779407+00:00",
+    "last_decay_check_at": "2026-05-24T10:01:55.187554+00:00",
     "last_decay_actions": [
       {
         "setup": "RSI_DIV_BULL",
         "action": "relaxed",
         "reason": "2W/3L = 40.0% WR >= 30.0",
-        "boost_before": -4,
-        "boost_after": -3,
+        "boost_before": -3,
+        "boost_after": -2,
         "window_days": 14
       },
       {
         "setup": "STOCH_REVERSAL_BEAR",
         "action": "relaxed",
-        "reason": "1W/2L = 33.3% WR >= 30.0",
-        "boost_before": -4,
-        "boost_after": -3,
+        "reason": "2W/2L = 50.0% WR >= 30.0",
+        "boost_before": -3,
+        "boost_after": -2,
         "window_days": 14
       },
       {
         "setup": "EMA21_PULLBACK_BEAR",
         "action": "relaxed",
         "reason": "2W/2L = 50.0% WR >= 30.0",
-        "boost_before": -5,
-        "boost_after": -4,
+        "boost_before": -4,
+        "boost_after": -3,
         "window_days": 14
       }
     ],
@@ -117,9 +117,9 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-05-23T10:05:16.787456+00:00",
+    "last_run_at": "2026-05-24T10:01:55.204453+00:00",
     "last_run_summary": {
-      "cycle_changes": 3,
+      "cycle_changes": 2,
       "decay_actions": 3,
       "n_setups_analyzed": 13
     },

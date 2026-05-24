@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-24T08:29:30.774660+00:00",
+  "generated_at": "2026-05-24T14:29:40.708620+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -433,11 +433,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 23.0,
+    "balance": 22.66,
     "starting_balance": 1000.0,
-    "total_pnl": -977.0,
-    "open_count": 1,
-    "closed_count": 74,
+    "total_pnl": -977.34,
+    "open_count": 0,
+    "closed_count": 75,
     "equity_curve": [
       {
         "time": "Start",
@@ -732,20 +732,24 @@ const DATA = {
         "balance": 22.54
       },
       {
+        "time": "2026-05-24 11:02",
+        "balance": 22.2
+      },
+      {
         "time": "2026-05-23 22:37",
-        "balance": 23.35
+        "balance": 23.01
       },
       {
         "time": "2026-05-24 06:56",
-        "balance": 23.0
+        "balance": 22.66
       }
     ]
   },
   "all_time": {
     "wins": 18,
-    "losses": 55,
-    "wr": 24.7,
-    "total_trades": 73
+    "losses": 56,
+    "wr": 24.3,
+    "total_trades": 74
   },
   "today": {
     "wins": 0,
@@ -756,10 +760,10 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "BTC:BB_REVERSION_BEAR",
-      "fires": 6,
+      "fires": 7,
       "wins": 1,
-      "losses": 5,
-      "wr": 16.7
+      "losses": 6,
+      "wr": 14.3
     },
     {
       "setup": "NQ:RSI_DIV_BULL",
@@ -1003,9 +1007,9 @@ const DATA = {
       "rr": "3.16",
       "conv": "68",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "77275.2036"
     },
     {
       "time": "2026-05-23 20:27",
@@ -1402,9 +1406,9 @@ const DATA = {
     },
     "BTC": {
       "wins": 4,
-      "losses": 17,
-      "total_pnl_r": -3.66,
-      "wr": 19.0
+      "losses": 18,
+      "total_pnl_r": -4.66,
+      "wr": 18.2
     },
     "GC": {
       "wins": 5,
@@ -1416,8 +1420,8 @@ const DATA = {
   "by_tier": {
     "MEDIUM": {
       "wins": 7,
-      "losses": 27,
-      "wr": 20.6
+      "losses": 28,
+      "wr": 20.0
     },
     "HIGH": {
       "wins": 9,
@@ -1430,21 +1434,7 @@ const DATA = {
       "wr": 40.0
     }
   },
-  "open_trades": [
-    {
-      "market": "BTC",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "15m",
-      "direction": "SHORT",
-      "entry": "76862.0",
-      "target": "75557.4",
-      "stop": "77275.2036",
-      "conviction": 68,
-      "last_rescore_conviction": 48,
-      "tier": "MEDIUM",
-      "timestamp": "2026-05-23T21:04:11.387880+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
