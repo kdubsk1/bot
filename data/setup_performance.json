@@ -257,5 +257,12 @@
     "total": 1,
     "win_rate": 100.0,
     "last_updated": "2026-05-23T22:37:37.701750"
+  },
+  "SOL:MACD_CROSS_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-05-24T06:56:59.040692"
   }
 }

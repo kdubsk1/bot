@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-24T02:29:25.545470+00:00",
+  "generated_at": "2026-05-24T08:29:30.774660+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -433,11 +433,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 23.35,
+    "balance": 23.0,
     "starting_balance": 1000.0,
-    "total_pnl": -976.65,
-    "open_count": 2,
-    "closed_count": 73,
+    "total_pnl": -977.0,
+    "open_count": 1,
+    "closed_count": 74,
     "equity_curve": [
       {
         "time": "Start",
@@ -734,14 +734,18 @@ const DATA = {
       {
         "time": "2026-05-23 22:37",
         "balance": 23.35
+      },
+      {
+        "time": "2026-05-24 06:56",
+        "balance": 23.0
       }
     ]
   },
   "all_time": {
     "wins": 18,
-    "losses": 54,
-    "wr": 25.0,
-    "total_trades": 72
+    "losses": 55,
+    "wr": 24.7,
+    "total_trades": 73
   },
   "today": {
     "wins": 0,
@@ -945,6 +949,13 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "SOL:MACD_CROSS_BEAR",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
@@ -960,9 +971,9 @@ const DATA = {
       "rr": "2.68",
       "conv": "70",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "86.3517"
     },
     {
       "time": "2026-05-23 21:11",
@@ -1379,9 +1390,9 @@ const DATA = {
   "by_market": {
     "SOL": {
       "wins": 2,
-      "losses": 16,
-      "total_pnl_r": -11.59,
-      "wr": 11.1
+      "losses": 17,
+      "total_pnl_r": -12.59,
+      "wr": 10.5
     },
     "NQ": {
       "wins": 7,
@@ -1405,8 +1416,8 @@ const DATA = {
   "by_tier": {
     "MEDIUM": {
       "wins": 7,
-      "losses": 26,
-      "wr": 21.2
+      "losses": 27,
+      "wr": 20.6
     },
     "HIGH": {
       "wins": 9,
@@ -1421,19 +1432,6 @@ const DATA = {
   },
   "open_trades": [
     {
-      "market": "SOL",
-      "setup": "MACD_CROSS_BEAR",
-      "tf": "15m",
-      "direction": "SHORT",
-      "entry": "85.74",
-      "target": "84.1",
-      "stop": "86.3517",
-      "conviction": 70,
-      "last_rescore_conviction": 43,
-      "tier": "MEDIUM",
-      "timestamp": "2026-05-23T22:44:14.287376+00:00"
-    },
-    {
       "market": "BTC",
       "setup": "BB_REVERSION_BEAR",
       "tf": "15m",
@@ -1442,7 +1440,7 @@ const DATA = {
       "target": "75557.4",
       "stop": "77275.2036",
       "conviction": 68,
-      "last_rescore_conviction": 54,
+      "last_rescore_conviction": 48,
       "tier": "MEDIUM",
       "timestamp": "2026-05-23T21:04:11.387880+00:00"
     }

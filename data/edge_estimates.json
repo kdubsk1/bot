@@ -343,9 +343,9 @@
   },
   "MACD_CROSS_BEAR|||ALL": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 0.0,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "MACD_CROSS_BEAR|||MIXED": {
     "wins": 0,
@@ -378,6 +378,12 @@
     "total_loss_r": 0.0
   },
   "STOCH_REVERSAL_BULL|||LH_LL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "MACD_CROSS_BEAR|||LH_LL": {
     "wins": 0,
     "losses": 1,
     "total_win_r": 0.0,
