@@ -197,10 +197,10 @@
   },
   "BTC:MACD_CROSS_BEAR": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 2,
+    "total": 2,
     "win_rate": 0.0,
-    "last_updated": "2026-05-20T05:13:32.808405"
+    "last_updated": "2026-05-25T00:17:23.642253"
   },
   "GC:EMA21_PULLBACK_BEAR": {
     "wins": 1,
@@ -259,10 +259,17 @@
     "last_updated": "2026-05-23T22:37:37.701750"
   },
   "SOL:MACD_CROSS_BEAR": {
+    "wins": 1,
+    "losses": 1,
+    "total": 2,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-24T21:35:35.261774"
+  },
+  "SOL:EMA21_PULLBACK_BEAR": {
     "wins": 0,
     "losses": 1,
     "total": 1,
     "win_rate": 0.0,
-    "last_updated": "2026-05-24T06:56:59.040692"
+    "last_updated": "2026-05-24T23:44:08.847402"
   }
 }

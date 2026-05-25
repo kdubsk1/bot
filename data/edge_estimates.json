@@ -67,15 +67,15 @@
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 3,
-    "losses": 9,
+    "losses": 10,
     "total_win_r": 10.149039407448022,
-    "total_loss_r": 9.0
+    "total_loss_r": 10.0
   },
   "EMA21_PULLBACK_BEAR|||ALL": {
     "wins": 3,
-    "losses": 9,
+    "losses": 10,
     "total_win_r": 10.149039407448022,
-    "total_loss_r": 9.0
+    "total_loss_r": 10.0
   },
   "BREAK_RETEST_BEAR|||LH_LL": {
     "wins": 3,
@@ -342,10 +342,10 @@
     "total_loss_r": 0.0
   },
   "MACD_CROSS_BEAR|||ALL": {
-    "wins": 0,
-    "losses": 2,
-    "total_win_r": 0.0,
-    "total_loss_r": 2.0
+    "wins": 1,
+    "losses": 3,
+    "total_win_r": 2.513661202185799,
+    "total_loss_r": 3.0
   },
   "MACD_CROSS_BEAR|||MIXED": {
     "wins": 0,
@@ -384,6 +384,12 @@
     "total_loss_r": 1.0
   },
   "MACD_CROSS_BEAR|||LH_LL": {
+    "wins": 1,
+    "losses": 1,
+    "total_win_r": 2.513661202185799,
+    "total_loss_r": 1.0
+  },
+  "MACD_CROSS_BEAR|||HH_HL": {
     "wins": 0,
     "losses": 1,
     "total_win_r": 0.0,
