@@ -154,11 +154,11 @@
     "last_updated": "2026-05-18T12:26:30.241148"
   },
   "SOL:BB_REVERSION_BEAR": {
-    "wins": 1,
-    "losses": 1,
-    "total": 2,
+    "wins": 2,
+    "losses": 2,
+    "total": 4,
     "win_rate": 50.0,
-    "last_updated": "2026-05-23T18:35:52.514470"
+    "last_updated": "2026-05-25T19:02:54.998099"
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 0,
@@ -183,10 +183,10 @@
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 1,
-    "losses": 1,
-    "total": 2,
-    "win_rate": 50.0,
-    "last_updated": "2026-05-20T19:55:29.481568"
+    "losses": 2,
+    "total": 3,
+    "win_rate": 33.3,
+    "last_updated": "2026-05-25T19:55:16.105528"
   },
   "GC:MACD_CROSS_BEAR": {
     "wins": 1,
@@ -211,10 +211,10 @@
   },
   "BTC:BREAK_RETEST_BULL": {
     "wins": 0,
-    "losses": 2,
-    "total": 2,
+    "losses": 3,
+    "total": 3,
     "win_rate": 0.0,
-    "last_updated": "2026-05-21T05:52:28.229684"
+    "last_updated": "2026-05-25T17:16:58.485250"
   },
   "SOL:RSI_DIV_BEAR": {
     "wins": 0,
