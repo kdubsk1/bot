@@ -6,7 +6,35 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "3f7bb27fef",
+      "market": "BTC",
+      "direction": "LONG",
+      "entry": 77415.59,
+      "stop": 76385.46757834069,
+      "target": 79962.39,
+      "leverage": 10,
+      "position_size_usd": 25.85,
+      "notional_usd": 258.48,
+      "risk_dollars": 0.34,
+      "opened_at": "2026-05-26T10:44:22.764892+00:00",
+      "max_hold_until": "2026-06-02T10:44:22.764892+00:00",
+      "tier": "MEDIUM",
+      "conviction": 72,
+      "context": {
+        "trend_score": 8,
+        "rsi": 60.04,
+        "adx": 21.66,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "London Session",
+        "news_flag": false,
+        "chart_read": "MACD bullish crossover (line -71.188 > signal -71.894, hist turning 0.706). Momentum shift up."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
