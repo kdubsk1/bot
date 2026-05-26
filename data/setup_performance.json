@@ -78,10 +78,10 @@
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 2,
+    "total": 2,
     "win_rate": 0.0,
-    "last_updated": "2026-05-11T05:00:41.525970"
+    "last_updated": "2026-05-26T15:36:10.140708"
   },
   "GC:BB_REVERSION_BULL": {
     "wins": 1,

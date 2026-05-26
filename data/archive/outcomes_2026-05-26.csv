@@ -1,0 +1,2 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+3f7bb27fef,2026-05-26T10:44:22.748970+00:00,BTC,1h,MACD_CROSS_BULL,LONG,77415.59,76385.4676,79962.39,2.47,swing_level_sweet,8,72,MEDIUM,1,intraday (hours),60.04,341.8081,21.66,HH_HL,10,1.22,0,CLOSED,LOSS,0,76385.4676,52,,2026-05-26,0,0,
