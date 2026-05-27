@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "balance": 22.59,
+  "balance": 22.25,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
@@ -2713,12 +2713,45 @@
       "pnl_dollars": -0.34,
       "closed_at": "2026-05-26T15:36:09.625002+00:00",
       "held_hours": 4.86
+    },
+    {
+      "alert_id": "f1c509995c",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 83.55,
+      "stop": 83.77526008514268,
+      "target": 83.03,
+      "leverage": 10,
+      "position_size_usd": 125.68,
+      "notional_usd": 1256.81,
+      "risk_dollars": 0.34,
+      "opened_at": "2026-05-26T23:55:58.586991+00:00",
+      "max_hold_until": "2026-06-02T23:55:58.586991+00:00",
+      "tier": "HIGH",
+      "conviction": 87,
+      "context": {
+        "trend_score": -8,
+        "rsi": 44.03,
+        "adx": 29.7,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Late Night",
+        "news_flag": false,
+        "chart_read": "Rallied to EMA21 (83.695) in bearish stack and rejected. RSI 44.0, ADX 29.7. Trend continuation."
+      },
+      "status": "CLOSED",
+      "exit_price": 83.77526008514268,
+      "exit_reason": "stop_hit",
+      "result": "LOSS",
+      "pnl_dollars": -0.34,
+      "closed_at": "2026-05-27T00:06:21.788340+00:00",
+      "held_hours": 0.17
     }
   ],
-  "total_pnl": -977.41,
-  "total_trades": 82,
+  "total_pnl": -977.75,
+  "total_trades": 83,
   "wins": 13,
-  "losses": 69,
+  "losses": 70,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }
