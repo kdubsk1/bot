@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50000,
+  "balance": 49901.92,
   "peak_balance": 50000,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -12,10 +12,28 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 0.0,
+  "today_pnl": -98.08,
   "today_date": "2026-05-27",
   "session_date": "2026-05-27",
-  "total_pnl": 0.0,
-  "trades": [],
+  "total_pnl": -98.08,
+  "trades": [
+    {
+      "alert_id": "21a80dec3f",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29991.25,
+      "stop": 29942.208966513805,
+      "target": 30112.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "STOCH_REVERSAL_BULL",
+      "opened_at": "2026-05-27T13:49:23.069515",
+      "status": "CLOSED",
+      "pnl": -98.08,
+      "exit_price": 29942.209,
+      "result": "LOSS",
+      "closed_at": "2026-05-27T14:25:51.787101"
+    }
+  ],
   "open_sim_trades": []
 }

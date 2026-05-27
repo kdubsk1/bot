@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-27T08:31:13.590708+00:00",
+  "generated_at": "2026-05-27T14:31:29.734920+00:00",
   "topstep": {
-    "balance": 50000,
+    "balance": 49901.92,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 0.0,
+    "today_pnl": -98.08,
+    "total_pnl": -98.08,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -381,6 +381,10 @@ const DATA = {
       {
         "time": "2026-05-25 01:15",
         "balance": 53134.35
+      },
+      {
+        "time": "2026-05-27 13:49",
+        "balance": 52337.33
       }
     ]
   },
@@ -731,15 +735,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 12,
-    "losses": 37,
-    "wr": 24.5,
-    "total_trades": 49
+    "losses": 38,
+    "wr": 24.0,
+    "total_trades": 50
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -785,6 +789,13 @@ const DATA = {
       "wr": 33.3
     },
     {
+      "setup": "NQ:STOCH_REVERSAL_BULL",
+      "fires": 3,
+      "wins": 1,
+      "losses": 2,
+      "wr": 33.3
+    },
+    {
       "setup": "SOL:BB_REVERSION_BEAR",
       "fires": 3,
       "wins": 1,
@@ -797,13 +808,6 @@ const DATA = {
       "wins": 0,
       "losses": 2,
       "wr": 0.0
-    },
-    {
-      "setup": "NQ:STOCH_REVERSAL_BULL",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
     },
     {
       "setup": "BTC:STOCH_REVERSAL_BULL",
@@ -926,6 +930,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-27 13:49",
+      "market": "NQ",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29991.25",
+      "stop": "29942.209",
+      "target": "30112.0",
+      "rr": "2.46",
+      "conv": "94",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29942.209"
+    },
     {
       "time": "2026-05-26 23:55",
       "market": "SOL",
@@ -1309,22 +1329,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "76526.8868"
-    },
-    {
-      "time": "2026-05-21 15:27",
-      "market": "NQ",
-      "setup": "RSI_DIV_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29242.0",
-      "stop": "29097.8908",
-      "target": "29593.5",
-      "rr": "2.44",
-      "conv": "77",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29414.25"
     }
   ],
   "suspended_setups": [
@@ -1379,9 +1383,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 4,
-      "losses": 7,
-      "total_pnl_r": 4.06,
-      "wr": 36.4
+      "losses": 8,
+      "total_pnl_r": 3.06,
+      "wr": 33.3
     },
     "SOL": {
       "wins": 3,
@@ -1398,8 +1402,8 @@ const DATA = {
     },
     "HIGH": {
       "wins": 7,
-      "losses": 18,
-      "wr": 28.0
+      "losses": 19,
+      "wr": 26.9
     },
     "MEDIUM": {
       "wins": 5,

@@ -64,10 +64,10 @@
   },
   "NQ:STOCH_REVERSAL_BULL": {
     "wins": 3,
-    "losses": 2,
-    "total": 5,
-    "win_rate": 60.0,
-    "last_updated": "2026-05-21T14:20:55.355103"
+    "losses": 3,
+    "total": 6,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-27T14:25:48.369129"
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 0,
