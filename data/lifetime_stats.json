@@ -1,9 +1,9 @@
 {
-  "total_sessions": 25,
-  "total_trades": 51,
-  "total_wins": 21,
-  "total_losses": 30,
-  "total_pnl_dollars": 2436.89,
+  "total_sessions": 26,
+  "total_trades": 53,
+  "total_wins": 22,
+  "total_losses": 31,
+  "total_pnl_dollars": 2484.81,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -492.83,
   "best_setup_overall": "NQ:MEDIUM",
@@ -29,9 +29,9 @@
       "pnl": 21.35
     },
     "NQ:STOCH_REVERSAL_BULL": {
-      "wins": 2,
-      "losses": 3,
-      "pnl": 241.05
+      "wins": 3,
+      "losses": 4,
+      "pnl": 288.97
     },
     "NQ:MACD_CROSS_BULL": {
       "wins": 0,
@@ -104,9 +104,9 @@
       "pnl": -245.26
     }
   },
-  "last_updated": "2026-05-26T20:00:30.043024+00:00",
+  "last_updated": "2026-05-27T20:00:08.278912+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 52436.89,
+  "lifetime_balance": 52484.81,
   "lifetime_peak_balance": 52605.41
 }

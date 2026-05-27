@@ -63,11 +63,11 @@
     "last_updated": "2026-05-07T17:22:51.505063"
   },
   "NQ:STOCH_REVERSAL_BULL": {
-    "wins": 3,
+    "wins": 4,
     "losses": 3,
-    "total": 6,
-    "win_rate": 50.0,
-    "last_updated": "2026-05-27T14:25:48.369129"
+    "total": 7,
+    "win_rate": 57.1,
+    "last_updated": "2026-05-27T19:55:20.758599"
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 0,
