@@ -16,15 +16,15 @@
     "reason": "LOSS"
   },
   "SOL:cont_short": {
-    "expiry": "2026-05-27T01:36:25.402001+00:00",
-    "reason": "LOSS"
+    "expiry": "2026-05-28T14:42:40.825900+00:00",
+    "reason": "WIN"
   },
   "BTC:cont_short": {
-    "expiry": "2026-05-23T08:03:42.934843+00:00",
+    "expiry": "2026-05-28T14:15:56.238449+00:00",
     "reason": "WIN"
   },
   "GC:cont_short": {
-    "expiry": "2026-05-20T15:53:37.048658+00:00",
+    "expiry": "2026-05-28T14:19:35.146721+00:00",
     "reason": "LOSS"
   },
   "NQ:cont_long": {
