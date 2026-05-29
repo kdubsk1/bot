@@ -1,12 +1,40 @@
 {
   "enabled": true,
-  "balance": 24.2,
+  "balance": 23.84,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "9aa7c5218f",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 81.91,
+      "stop": 82.80746325884434,
+      "target": 79.89,
+      "leverage": 10,
+      "position_size_usd": 32.64,
+      "notional_usd": 326.38,
+      "risk_dollars": 0.36,
+      "opened_at": "2026-05-29T18:54:46.741812+00:00",
+      "max_hold_until": "2026-06-05T18:54:46.741812+00:00",
+      "tier": "HIGH",
+      "conviction": 96,
+      "context": {
+        "trend_score": -10,
+        "rsi": 44.61,
+        "adx": 25.27,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "MACD bearish crossover (line 0.196 < signal 0.234, hist turning -0.038). Momentum shift down."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
@@ -2977,12 +3005,45 @@
       "pnl_dollars": 0.74,
       "closed_at": "2026-05-29T14:27:37.051400+00:00",
       "held_hours": 0.66
+    },
+    {
+      "alert_id": "50ce16ce5b",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 82.46,
+      "stop": 82.74439510037395,
+      "target": 81.82,
+      "leverage": 10,
+      "position_size_usd": 105.25,
+      "notional_usd": 1052.51,
+      "risk_dollars": 0.36,
+      "opened_at": "2026-05-29T15:43:25.311952+00:00",
+      "max_hold_until": "2026-06-05T15:43:25.311952+00:00",
+      "tier": "HIGH",
+      "conviction": 88,
+      "context": {
+        "trend_score": -8,
+        "rsi": 62.47,
+        "adx": 29.82,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (97.4\u219277.6 vs D 89.4). Early reversal trigger."
+      },
+      "status": "CLOSED",
+      "exit_price": 82.7444,
+      "exit_reason": "outcomes_reconcile",
+      "result": "LOSS",
+      "pnl_dollars": -0.36,
+      "closed_at": "2026-05-29T16:15:04.693697+00:00",
+      "held_hours": 0.53
     }
   ],
-  "total_pnl": -975.8,
-  "total_trades": 90,
+  "total_pnl": -976.16,
+  "total_trades": 91,
   "wins": 17,
-  "losses": 73,
+  "losses": 74,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }

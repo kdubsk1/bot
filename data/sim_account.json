@@ -13,24 +13,9 @@
   "use_mnq": true,
   "account_risk_pct": 1.5,
   "today_pnl": 0.0,
-  "today_date": "2026-05-29",
-  "session_date": "2026-05-29",
+  "today_date": "2026-06-01",
+  "session_date": "2026-06-01",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": [
-    {
-      "alert_id": "7ebc8cefdd",
-      "market": "GC",
-      "direction": "SHORT",
-      "entry": 4566.1,
-      "stop": 4578.447040340773,
-      "target": 4519.5,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "STOCH_REVERSAL_BEAR",
-      "opened_at": "2026-05-29T14:23:19.923613",
-      "status": "OPEN",
-      "pnl": 0.0
-    }
-  ]
+  "open_sim_trades": []
 }

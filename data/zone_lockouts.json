@@ -1,9 +1,9 @@
 [
   {
-    "market": "SOL",
-    "direction": "SHORT",
-    "zone_low": 81.094,
-    "zone_high": 81.366,
-    "expiry": "2026-05-29T15:57:36.575568+00:00"
+    "market": "NQ",
+    "direction": "LONG",
+    "zone_low": 30312.3363,
+    "zone_high": 30370.1637,
+    "expiry": "2026-05-29T20:58:46.975664+00:00"
   }
 ]

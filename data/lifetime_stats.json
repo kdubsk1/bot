@@ -1,9 +1,9 @@
 {
-  "total_sessions": 27,
-  "total_trades": 55,
-  "total_wins": 23,
-  "total_losses": 32,
-  "total_pnl_dollars": 2377.65,
+  "total_sessions": 28,
+  "total_trades": 61,
+  "total_wins": 27,
+  "total_losses": 34,
+  "total_pnl_dollars": 2616.28,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -492.83,
   "best_setup_overall": "NQ:MEDIUM",
@@ -69,9 +69,9 @@
       "pnl": -8.24
     },
     "GC:STOCH_REVERSAL_BEAR": {
-      "wins": 1,
-      "losses": 0,
-      "pnl": 43.0
+      "wins": 2,
+      "losses": 1,
+      "pnl": 87.53
     },
     "GC:BB_REVERSION_BEAR": {
       "wins": 2,
@@ -94,9 +94,9 @@
       "pnl": -156.04
     },
     "NQ:BREAK_RETEST_BULL": {
-      "wins": 1,
-      "losses": 2,
-      "pnl": -70.1
+      "wins": 4,
+      "losses": 3,
+      "pnl": 124.0
     },
     "GC:VWAP_REJECT_BEAR": {
       "wins": 0,
@@ -104,9 +104,9 @@
       "pnl": -245.26
     }
   },
-  "last_updated": "2026-05-28T20:00:04.201922+00:00",
+  "last_updated": "2026-05-29T20:00:06.570268+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 52377.65,
-  "lifetime_peak_balance": 52605.41
+  "lifetime_balance": 52616.28,
+  "lifetime_peak_balance": 52616.28
 }

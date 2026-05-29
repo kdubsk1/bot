@@ -175,11 +175,11 @@
     "last_updated": "2026-05-18T18:03:40.269859"
   },
   "GC:STOCH_REVERSAL_BEAR": {
-    "wins": 1,
-    "losses": 1,
-    "total": 2,
+    "wins": 2,
+    "losses": 2,
+    "total": 4,
     "win_rate": 50.0,
-    "last_updated": "2026-05-21T19:55:17.195830"
+    "last_updated": "2026-05-29T19:55:10.276733"
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 2,
@@ -231,11 +231,11 @@
     "last_updated": "2026-05-21T00:51:10.237793"
   },
   "NQ:BREAK_RETEST_BULL": {
-    "wins": 1,
-    "losses": 2,
-    "total": 3,
-    "win_rate": 33.3,
-    "last_updated": "2026-05-22T18:39:41.797847"
+    "wins": 4,
+    "losses": 3,
+    "total": 7,
+    "win_rate": 57.1,
+    "last_updated": "2026-05-29T19:55:13.651702"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,
@@ -253,10 +253,10 @@
   },
   "SOL:STOCH_REVERSAL_BEAR": {
     "wins": 1,
-    "losses": 0,
-    "total": 1,
-    "win_rate": 100.0,
-    "last_updated": "2026-05-23T22:37:37.701750"
+    "losses": 1,
+    "total": 2,
+    "win_rate": 50.0,
+    "last_updated": "2026-05-29T16:12:40.677334"
   },
   "SOL:MACD_CROSS_BEAR": {
     "wins": 1,
