@@ -162,10 +162,10 @@
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 0,
-    "losses": 3,
-    "total": 3,
+    "losses": 4,
+    "total": 4,
     "win_rate": 0.0,
-    "last_updated": "2026-05-21T13:52:48.083554"
+    "last_updated": "2026-05-29T04:58:50.687166"
   },
   "BTC:BREAK_RETEST_BEAR": {
     "wins": 1,
