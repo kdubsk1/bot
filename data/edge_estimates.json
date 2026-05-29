@@ -43,15 +43,15 @@
   },
   "BREAK_RETEST_BEAR|||MIXED": {
     "wins": 0,
-    "losses": 7,
+    "losses": 8,
     "total_win_r": 0.0,
-    "total_loss_r": 7.0
+    "total_loss_r": 8.0
   },
   "BREAK_RETEST_BEAR|||ALL": {
     "wins": 3,
-    "losses": 13,
+    "losses": 14,
     "total_win_r": 9.780496605200398,
-    "total_loss_r": 13.0
+    "total_loss_r": 14.0
   },
   "VWAP_BOUNCE_BULL|||HH_HL": {
     "wins": 1,
@@ -72,9 +72,9 @@
     "total_loss_r": 11.0
   },
   "EMA21_PULLBACK_BEAR|||ALL": {
-    "wins": 6,
+    "wins": 7,
     "losses": 12,
-    "total_win_r": 16.878892587751714,
+    "total_win_r": 18.95281512343813,
     "total_loss_r": 12.0
   },
   "BREAK_RETEST_BEAR|||LH_LL": {
@@ -396,9 +396,9 @@
     "total_loss_r": 1.0
   },
   "EMA21_PULLBACK_BEAR|||MIXED": {
-    "wins": 1,
+    "wins": 2,
     "losses": 1,
-    "total_win_r": 2.0696142991533106,
+    "total_win_r": 4.1435368348397255,
     "total_loss_r": 1.0
   }
 }
