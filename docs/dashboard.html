@@ -283,16 +283,16 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-30T14:32:55.161163+00:00",
+  "generated_at": "2026-05-30T20:32:58.753998+00:00",
   "topstep": {
-    "balance": 50000,
+    "balance": 50000.0,
     "starting_balance": 50000,
     "today_pnl": 0.0,
     "total_pnl": 0.0,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 1,
+    "open_count": 0,
     "equity_curve": [
       {
         "time": "Start",
@@ -349,6 +349,10 @@ const DATA = {
       {
         "time": "2026-05-29 19:28",
         "balance": 64478.74
+      },
+      {
+        "time": "2026-05-29 22:00",
+        "balance": 63511.56
       }
     ]
   },
@@ -735,9 +739,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 15,
-    "losses": 26,
-    "wr": 36.6,
-    "total_trades": 41
+    "losses": 27,
+    "wr": 35.7,
+    "total_trades": 42
   },
   "today": {
     "wins": 0,
@@ -748,10 +752,10 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 5,
+      "fires": 6,
       "wins": 3,
-      "losses": 2,
-      "wr": 60.0
+      "losses": 3,
+      "wr": 50.0
     },
     {
       "setup": "BTC:EMA21_PULLBACK_BEAR",
@@ -893,9 +897,9 @@ const DATA = {
       "rr": "2.57",
       "conv": "88",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "30389.5"
     },
     {
       "time": "2026-05-29 19:28",
@@ -1345,16 +1349,16 @@ const DATA = {
     },
     "NQ": {
       "wins": 4,
-      "losses": 3,
-      "total_pnl_r": 9.33,
-      "wr": 57.1
+      "losses": 4,
+      "total_pnl_r": 8.33,
+      "wr": 50.0
     }
   },
   "by_tier": {
     "HIGH": {
       "wins": 10,
-      "losses": 15,
-      "wr": 40.0
+      "losses": 16,
+      "wr": 38.5
     },
     "MEDIUM": {
       "wins": 5,
@@ -1362,21 +1366,7 @@ const DATA = {
       "wr": 31.2
     }
   },
-  "open_trades": [
-    {
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "30389.5",
-      "target": "30536.0",
-      "stop": "30332.5235",
-      "conviction": 88,
-      "last_rescore_conviction": 80,
-      "tier": "HIGH",
-      "timestamp": "2026-05-29T22:00:25.306689+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
