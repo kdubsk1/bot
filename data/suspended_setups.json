@@ -1,11 +1,4 @@
 {
-  "BTC:STOCH_REVERSAL_BULL": {
-    "reason": "1W/5L (16.7% WR)",
-    "suspended_at": "2026-05-26T20:00:31.119239+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 16.7,
-    "bleed_at_suspension": -200.0
-  },
   "BTC:BB_REVERSION_BULL": {
     "reason": "1W/4L (20.0% WR)",
     "suspended_at": "2026-05-28T20:00:35.605137+00:00",
@@ -54,5 +47,12 @@
     "total_at_suspension": 5,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": -200.0
+  },
+  "BTC:STOCH_REVERSAL_BULL": {
+    "reason": "1W/5L (16.7% WR)",
+    "suspended_at": "2026-05-30T20:37:37.753108+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 16.7,
+    "bleed_at_suspension": 0.0
   }
 }
