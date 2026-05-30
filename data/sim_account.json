@@ -17,5 +17,20 @@
   "session_date": "2026-06-01",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "faa548c510",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 30389.5,
+      "stop": 30332.523506628644,
+      "target": 30536.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-05-29T22:00:25.334471",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
