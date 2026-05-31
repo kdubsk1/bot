@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-05-31T14:43:04.314200+00:00",
+  "generated_at": "2026-05-31T20:43:16.434723+00:00",
   "topstep": {
     "balance": 50000.0,
     "starting_balance": 50000,
@@ -345,6 +345,10 @@ const DATA = {
       {
         "time": "2026-05-29 22:00",
         "balance": 61781.96
+      },
+      {
+        "time": "2026-05-31 16:38",
+        "balance": 60855.23
       }
     ]
   },
@@ -731,23 +735,23 @@ const DATA = {
   },
   "all_time": {
     "wins": 14,
-    "losses": 24,
-    "wr": 36.8,
-    "total_trades": 38
+    "losses": 25,
+    "wr": 35.9,
+    "total_trades": 39
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
       "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 5,
+      "fires": 6,
       "wins": 3,
-      "losses": 2,
-      "wr": 60.0
+      "losses": 3,
+      "wr": 50.0
     },
     {
       "setup": "BTC:EMA21_PULLBACK_BEAR",
@@ -856,6 +860,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-05-31 16:38",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "30389.5",
+      "stop": "30332.5235",
+      "target": "30536.0",
+      "rr": "2.57",
+      "conv": "97",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "30389.5"
+    },
     {
       "time": "2026-05-29 22:00",
       "market": "NQ",
@@ -1239,22 +1259,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "85.68"
-    },
-    {
-      "time": "2026-05-25 14:42",
-      "market": "SOL",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "86.11",
-      "stop": "86.3643",
-      "target": "85.58",
-      "rr": "2.08",
-      "conv": "84",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "86.3643"
     }
   ],
   "suspended_setups": [
@@ -1320,9 +1324,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 4,
-      "losses": 3,
-      "total_pnl_r": 9.33,
-      "wr": 57.1
+      "losses": 4,
+      "total_pnl_r": 8.33,
+      "wr": 50.0
     }
   },
   "by_tier": {
@@ -1333,8 +1337,8 @@ const DATA = {
     },
     "HIGH": {
       "wins": 9,
-      "losses": 16,
-      "wr": 36.0
+      "losses": 17,
+      "wr": 34.6
     }
   },
   "open_trades": []

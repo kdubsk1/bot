@@ -33,6 +33,23 @@
       "exit_price": 30389.5,
       "result": "LOSS",
       "closed_at": "2026-05-30T20:10:33.647717"
+    },
+    {
+      "alert_id": "bf3f87d284",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 30389.5,
+      "stop": 30332.523506628644,
+      "target": 30536.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-05-31T16:38:47.598102",
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 30389.5,
+      "result": "LOSS",
+      "closed_at": "2026-05-31T20:10:07.494583"
     }
   ],
   "open_sim_trades": []
