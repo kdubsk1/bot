@@ -1,11 +1,4 @@
 {
-  "SOL:BREAK_RETEST_BEAR": {
-    "reason": "0W/5L (0.0% WR)",
-    "suspended_at": "2026-05-29T20:00:07.966732+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": -200.0
-  },
   "BTC:STOCH_REVERSAL_BULL": {
     "reason": "1W/5L (16.7% WR)",
     "suspended_at": "2026-05-30T20:37:37.753108+00:00",
@@ -54,5 +47,12 @@
     "total_at_suspension": 6,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:BREAK_RETEST_BEAR": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-06-01T20:01:16.517919+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": -200.0
   }
 }
