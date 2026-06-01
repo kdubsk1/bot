@@ -33,6 +33,33 @@
         "chart_read": "MACD bearish crossover (line 24.87 < signal 34.62, hist turning -9.749). Momentum shift down."
       },
       "status": "OPEN"
+    },
+    {
+      "alert_id": "5555e0593c",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 80.93,
+      "stop": 81.17936030781132,
+      "target": 80.36,
+      "leverage": 10,
+      "position_size_usd": 112.46,
+      "notional_usd": 1124.57,
+      "risk_dollars": 0.35,
+      "opened_at": "2026-06-01T11:06:56.820616+00:00",
+      "max_hold_until": "2026-06-08T11:06:56.820616+00:00",
+      "tier": "HIGH",
+      "conviction": 100,
+      "context": {
+        "trend_score": -4,
+        "rsi": 42.01,
+        "adx": 40.67,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "London Session",
+        "news_flag": false,
+        "chart_read": "Rallied to EMA21 (81.0987) in bearish stack and rejected. RSI 42.0, ADX 40.7. Trend continuation."
+      },
+      "status": "OPEN"
     }
   ],
   "closed_trades": [

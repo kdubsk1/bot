@@ -7,11 +7,11 @@
       "VWAP_REJECT_BEAR": -15,
       "EMA21_PULLBACK_BULL": -19,
       "EMA21_PULLBACK_BEAR": 15,
-      "BREAK_RETEST_BULL": 5,
+      "BREAK_RETEST_BULL": 8,
       "RSI_DIV_BEAR": -5,
-      "STOCH_REVERSAL_BEAR": 0,
+      "STOCH_REVERSAL_BEAR": 3,
       "BB_REVERSION_BULL": -20,
-      "STOCH_REVERSAL_BULL": -8,
+      "STOCH_REVERSAL_BULL": -7,
       "APPROACH_SUPPORT": -17,
       "RSI_DIV_BULL": -1,
       "BREAK_RETEST_BEAR": -5,
@@ -82,14 +82,14 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-05-31T10:03:12.658153+00:00",
+    "last_decay_check_at": "2026-06-01T10:00:28.690005+00:00",
     "last_decay_actions": [
       {
         "setup": "STOCH_REVERSAL_BULL",
         "action": "relaxed",
         "reason": "1W/2L = 33.3% WR >= 30.0",
-        "boost_before": -9,
-        "boost_after": -8,
+        "boost_before": -8,
+        "boost_after": -7,
         "window_days": 14
       }
     ],
@@ -102,11 +102,11 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-05-31T10:03:12.670015+00:00",
+    "last_run_at": "2026-06-01T10:00:28.698353+00:00",
     "last_run_summary": {
       "cycle_changes": 2,
       "decay_actions": 1,
-      "n_setups_analyzed": 8
+      "n_setups_analyzed": 9
     },
     "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."
   }
