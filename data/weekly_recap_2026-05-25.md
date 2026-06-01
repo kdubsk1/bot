@@ -1,7 +1,7 @@
 # 📅 NQ CALLS Weekly Recap
 ## May 25 — May 31, 2026
 
-**Generated:** 2026-06-01 12:03:08 ET
+**Generated:** 2026-06-01 15:41:14 ET
 
 This recap reviews 7 days of real trades AND shadow-tracked signals
 (signals where gates/suspension would have blocked — we track their
@@ -11,14 +11,14 @@ outcomes to decide which gates, if any, deserve to come back).
 
 ## 📊 Real Trades This Week
 
-- **Closed trades:** 31  |  **WR:** 41.9%
-- **Wins:** 13  **Losses:** 18
+- **Closed trades:** 32  |  **WR:** 43.8%
+- **Wins:** 14  **Losses:** 18
 
 ### By market
 
 | Market | Trades | Wins | Losses | WR% |
 |---|---|---|---|---|
-| BTC | 9 | 4 | 5 | 44.4% |
+| BTC | 10 | 5 | 5 | 50.0% |
 | GC | 4 | 2 | 2 | 50.0% |
 | NQ | 9 | 5 | 4 | 55.6% |
 | SOL | 9 | 2 | 7 | 22.2% |
@@ -80,5 +80,5 @@ For each removed gate: when it would have blocked, did the signal actually lose?
 
 ## 🎯 Weekly Conclusions
 
-- 😐 Real WR this week: 42% — needs 2.3:1+ R:R to be profitable.
+- 😐 Real WR this week: 44% — needs 2.3:1+ R:R to be profitable.
 - 📊 4651 shadow events this week — data forming for gate review.

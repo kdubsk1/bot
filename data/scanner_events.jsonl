@@ -22,3 +22,5 @@
 {"timestamp": "2026-05-30T20:37:33.022733+00:00", "scanner_on": false, "action": "TURNED_OFF"}
 {"timestamp": "2026-05-31T16:38:17.809686+00:00", "scanner_on": true, "action": "TURNED_ON"}
 {"timestamp": "2026-06-01T12:02:39.848930+00:00", "scanner_on": false, "action": "TURNED_OFF"}
+{"timestamp": "2026-06-01T14:10:26.078431+00:00", "scanner_on": true, "action": "TURNED_ON"}
+{"timestamp": "2026-06-01T15:40:48.842912+00:00", "scanner_on": false, "action": "TURNED_OFF"}
