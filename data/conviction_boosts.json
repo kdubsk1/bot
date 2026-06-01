@@ -67,11 +67,11 @@
     "rolling_window_days": 28,
     "max_adjustment_per_cycle": 5,
     "min_trades_to_adjust": 10,
-    "last_run_at": "2026-05-25T00:06:45.315069+00:00",
+    "last_run_at": "2026-06-01T00:08:55.216575+00:00",
     "last_run_summary": {
       "cycle_changes": 0,
-      "l3_changed": true,
-      "n_setups_analyzed": 13
+      "l3_changed": false,
+      "n_setups_analyzed": 9
     },
     "_doc": "Sunday 8 PM ET: auto-run backtest, post Telegram report, adjust layer_1_setup_boosts based on rolling 4-week edge. Adjustments capped at +/-5 per cycle."
   },
