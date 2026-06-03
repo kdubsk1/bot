@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-03T07:44:44.304479+00:00",
+  "generated_at": "2026-06-03T07:58:02.175628+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -763,9 +763,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 15,
-    "losses": 16,
-    "wr": 48.4,
-    "total_trades": 31
+    "losses": 15,
+    "wr": 50.0,
+    "total_trades": 30
   },
   "today": {
     "wins": 0,
@@ -829,13 +829,6 @@ const DATA = {
       "wins": 1,
       "losses": 1,
       "wr": 50.0
-    },
-    {
-      "setup": "BTC:MACD_CROSS_BULL",
-      "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
     },
     {
       "setup": "GC:BREAK_RETEST_BEAR",
@@ -1284,11 +1277,6 @@ const DATA = {
   ],
   "suspended_setups": [
     {
-      "key": "BTC:STOCH_REVERSAL_BULL",
-      "reason": "1W/5L (16.7% WR)",
-      "suspended_at": "2026-05-30T20:37:37.753108+00:00"
-    },
-    {
       "key": "BTC:BB_REVERSION_BULL",
       "reason": "1W/4L (20.0% WR)",
       "suspended_at": "2026-06-01T12:02:45.268219+00:00"
@@ -1322,15 +1310,14 @@ const DATA = {
       "key": "SOL:BREAK_RETEST_BEAR",
       "reason": "0W/5L (0.0% WR)",
       "suspended_at": "2026-06-01T20:01:16.517919+00:00"
+    },
+    {
+      "key": "BTC:STOCH_REVERSAL_BULL",
+      "reason": "1W/5L (16.7% WR)",
+      "suspended_at": "2026-06-03T07:52:42.162215+00:00"
     }
   ],
   "by_market": {
-    "BTC": {
-      "wins": 5,
-      "losses": 4,
-      "total_pnl_r": 7.1,
-      "wr": 55.6
-    },
     "SOL": {
       "wins": 2,
       "losses": 6,
@@ -1348,18 +1335,24 @@ const DATA = {
       "losses": 2,
       "total_pnl_r": 6.36,
       "wr": 50.0
+    },
+    "BTC": {
+      "wins": 5,
+      "losses": 3,
+      "total_pnl_r": 8.1,
+      "wr": 62.5
     }
   },
   "by_tier": {
-    "MEDIUM": {
-      "wins": 4,
-      "losses": 2,
-      "wr": 66.7
-    },
     "HIGH": {
       "wins": 11,
       "losses": 14,
       "wr": 44.0
+    },
+    "MEDIUM": {
+      "wins": 4,
+      "losses": 1,
+      "wr": 80.0
     }
   },
   "open_trades": []
