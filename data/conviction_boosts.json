@@ -7,9 +7,9 @@
       "VWAP_REJECT_BEAR": -15,
       "EMA21_PULLBACK_BULL": -19,
       "EMA21_PULLBACK_BEAR": 15,
-      "BREAK_RETEST_BULL": 14,
+      "BREAK_RETEST_BULL": 15,
       "RSI_DIV_BEAR": -5,
-      "STOCH_REVERSAL_BEAR": 9,
+      "STOCH_REVERSAL_BEAR": 12,
       "BB_REVERSION_BULL": -20,
       "STOCH_REVERSAL_BULL": -6,
       "APPROACH_SUPPORT": -17,
@@ -102,11 +102,11 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-06-03T10:03:02.316747+00:00",
+    "last_run_at": "2026-06-04T10:00:57.019239+00:00",
     "last_run_summary": {
       "cycle_changes": 2,
       "decay_actions": 0,
-      "n_setups_analyzed": 9
+      "n_setups_analyzed": 8
     },
     "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."
   }

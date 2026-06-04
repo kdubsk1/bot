@@ -17,5 +17,34 @@
   "session_date": "2026-06-04",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "cce3cdcad0",
+      "market": "NQ",
+      "direction": "SHORT",
+      "entry": 30268.75,
+      "stop": 30383.562463207454,
+      "target": 29920.25,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "EMA21_PULLBACK_BEAR",
+      "opened_at": "2026-06-04T13:51:39.119703",
+      "status": "OPEN",
+      "pnl": 0.0
+    },
+    {
+      "alert_id": "cc788946d4",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4529.0,
+      "stop": 4547.607632673612,
+      "target": 4490.5,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BB_REVERSION_BEAR",
+      "opened_at": "2026-06-04T13:54:25.513419",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
