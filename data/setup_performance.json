@@ -182,11 +182,11 @@
     "last_updated": "2026-05-29T19:55:10.276733"
   },
   "GC:BB_REVERSION_BEAR": {
-    "wins": 2,
+    "wins": 3,
     "losses": 2,
-    "total": 4,
-    "win_rate": 50.0,
-    "last_updated": "2026-05-28T19:55:33.143632"
+    "total": 5,
+    "win_rate": 60.0,
+    "last_updated": "2026-06-04T14:52:06.270249"
   },
   "GC:MACD_CROSS_BEAR": {
     "wins": 1,
@@ -278,5 +278,19 @@
     "total": 2,
     "win_rate": 0.0,
     "last_updated": "2026-06-01T00:36:55.263364"
+  },
+  "NQ:EMA21_PULLBACK_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-04T15:06:26.219784"
+  },
+  "GC:EMA50_BREAKDOWN": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-04T16:24:55.960056"
   }
 }
