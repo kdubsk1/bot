@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-05T11:04:15.551114+00:00",
+  "generated_at": "2026-06-05T14:10:56.524415+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -357,11 +357,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 26.2,
+    "balance": 27.47,
     "starting_balance": 1000.0,
-    "total_pnl": -973.8,
-    "open_count": 1,
-    "closed_count": 99,
+    "total_pnl": -972.53,
+    "open_count": 0,
+    "closed_count": 100,
     "equity_curve": [
       {
         "time": "Start",
@@ -762,14 +762,18 @@ const DATA = {
       {
         "time": "2026-06-03 23:10",
         "balance": 26.2
+      },
+      {
+        "time": "2026-06-05 14:04",
+        "balance": 27.47
       }
     ]
   },
   "all_time": {
-    "wins": 12,
+    "wins": 13,
     "losses": 14,
-    "wr": 46.2,
-    "total_trades": 26
+    "wr": 48.1,
+    "total_trades": 27
   },
   "today": {
     "wins": 0,
@@ -784,6 +788,13 @@ const DATA = {
       "wins": 4,
       "losses": 3,
       "wr": 57.1
+    },
+    {
+      "setup": "BTC:STOCH_REVERSAL_BEAR",
+      "fires": 3,
+      "wins": 2,
+      "losses": 1,
+      "wr": 66.7
     },
     {
       "setup": "SOL:BREAK_RETEST_BEAR",
@@ -805,13 +816,6 @@ const DATA = {
       "wins": 0,
       "losses": 2,
       "wr": 0.0
-    },
-    {
-      "setup": "BTC:STOCH_REVERSAL_BEAR",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
     },
     {
       "setup": "BTC:EMA21_PULLBACK_BEAR",
@@ -936,9 +940,9 @@ const DATA = {
       "rr": "3.24",
       "conv": "97",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "62132.43"
     },
     {
       "time": "2026-06-04 13:54",
@@ -1343,10 +1347,10 @@ const DATA = {
       "wr": 20.0
     },
     "BTC": {
-      "wins": 4,
+      "wins": 5,
       "losses": 3,
-      "total_pnl_r": 7.39,
-      "wr": 57.1
+      "total_pnl_r": 10.63,
+      "wr": 62.5
     },
     "GC": {
       "wins": 2,
@@ -1363,9 +1367,9 @@ const DATA = {
   },
   "by_tier": {
     "HIGH": {
-      "wins": 10,
+      "wins": 11,
       "losses": 14,
-      "wr": 41.7
+      "wr": 44.0
     },
     "MEDIUM": {
       "wins": 2,
@@ -1373,21 +1377,7 @@ const DATA = {
       "wr": 100.0
     }
   },
-  "open_trades": [
-    {
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "15m",
-      "direction": "SHORT",
-      "entry": "64050.05",
-      "target": "62132.43",
-      "stop": "64642.6559",
-      "conviction": 97,
-      "last_rescore_conviction": 29,
-      "tier": "HIGH",
-      "timestamp": "2026-06-04T14:24:38.745568+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
