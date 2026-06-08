@@ -939,13 +939,30 @@ def _fetch_databento(market: str, timeframe: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # ccxt crypto fetcher
 # ---------------------------------------------------------------------------
+_EXCHANGE_CACHE = {}  # name -> ccxt exchange instance (built + markets loaded once)
+
+
 def _create_exchange(name: str):
-    """Create a ccxt exchange instance by name."""
+    """Return a cached ccxt exchange instance, created only once per process.
+
+    Wave 58 (leak fix): a new exchange object was previously built and
+    load_markets() called on EVERY crypto fetch (BTC/SOL x every timeframe
+    x every scan cycle). Each object opened its own HTTP session that was
+    never closed, leaking memory steadily until Railway OOM-killed the bot.
+    We now build each exchange once and reuse it for the life of the
+    process; the caller's load_markets() becomes a cheap no-op on the
+    cached copy.
+    """
     import ccxt
+    cached = _EXCHANGE_CACHE.get(name)
+    if cached is not None:
+        return cached
     exchange_class = getattr(ccxt, name, None)
     if exchange_class is None:
         raise ValueError(f"Unknown ccxt exchange: {name}")
-    return exchange_class({"enableRateLimit": True})
+    exch = exchange_class({"enableRateLimit": True})
+    _EXCHANGE_CACHE[name] = exch
+    return exch
 
 
 def _fetch_crypto(market: str, timeframe: str) -> pd.DataFrame:
