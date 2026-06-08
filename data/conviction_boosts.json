@@ -68,7 +68,7 @@
     "rolling_window_days": 28,
     "max_adjustment_per_cycle": 5,
     "min_trades_to_adjust": 10,
-    "last_run_at": "2026-06-01T00:08:55.216575+00:00",
+    "last_run_at": "2026-06-08T01:05:14.112226+00:00",
     "last_run_summary": {
       "cycle_changes": 0,
       "l3_changed": false,
