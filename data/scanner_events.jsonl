@@ -44,3 +44,4 @@
 {"timestamp": "2026-06-08T01:30:42.576571+00:00", "scanner_on": false, "action": "TURNED_OFF"}
 {"timestamp": "2026-06-08T12:59:29.785716+00:00", "scanner_on": true, "action": "TURNED_ON"}
 {"timestamp": "2026-06-08T13:01:44.029036+00:00", "scanner_on": false, "action": "TURNED_OFF"}
+{"timestamp": "2026-06-09T02:51:37.698193+00:00", "scanner_on": true, "action": "TURNED_ON"}

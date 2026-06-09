@@ -17,5 +17,20 @@
   "session_date": "2026-06-09",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "71281a5d12",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4326.95894,
+      "stop": 4345.631959526166,
+      "target": 4268.19299,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "EMA21_PULLBACK_BEAR",
+      "opened_at": "2026-06-09T04:33:27.366730",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }

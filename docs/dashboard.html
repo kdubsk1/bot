@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-09T02:38:22.498349+00:00",
+  "generated_at": "2026-06-09T08:38:25.475289+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -838,6 +838,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-06-09 04:33",
+      "market": "GC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4326.9589",
+      "stop": "4345.632",
+      "target": "4268.193",
+      "rr": "3.15",
+      "conv": "89",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-06-04 18:37",
       "market": "GC",
       "setup": "VWAP_REJECT_BEAR",
@@ -1174,7 +1190,21 @@ const DATA = {
       "wr": 100.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "4326.9589",
+      "target": "4268.193",
+      "stop": "4345.632",
+      "conviction": 89,
+      "last_rescore_conviction": 54,
+      "tier": "HIGH",
+      "timestamp": "2026-06-09T04:33:27.351254+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
