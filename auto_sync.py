@@ -168,8 +168,8 @@ def _walk_sync_paths() -> List[Path]:
                 if "__pycache__" in child.parts:
                     continue
                 try:
-                    if child.stat().st_size > 5 * 1024 * 1024:
-                        log.warning(f"auto_sync: skipping large file {child} (>5MB)")
+                    if child.stat().st_size > 25 * 1024 * 1024:  # Wave 59: raised from 5MB so strategy_log keeps backing up to GitHub
+                        log.warning(f"auto_sync: skipping large file {child} (>25MB)")
                         continue
                 except OSError:
                     continue
