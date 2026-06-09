@@ -1,8 +1,8 @@
 {
-  "total_sessions": 34,
-  "total_trades": 67,
+  "total_sessions": 35,
+  "total_trades": 68,
   "total_wins": 29,
-  "total_losses": 38,
+  "total_losses": 39,
   "total_pnl_dollars": 2796.64,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -492.83,
@@ -90,7 +90,7 @@
     },
     "GC:EMA21_PULLBACK_BEAR": {
       "wins": 1,
-      "losses": 2,
+      "losses": 3,
       "pnl": -156.04
     },
     "NQ:BREAK_RETEST_BULL": {
@@ -114,7 +114,7 @@
       "pnl": -268.02
     }
   },
-  "last_updated": "2026-06-08T20:03:15.762812+00:00",
+  "last_updated": "2026-06-09T20:00:26.599709+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
   "lifetime_balance": 52796.64,
