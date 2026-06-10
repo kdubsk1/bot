@@ -1,12 +1,40 @@
 {
   "enabled": true,
-  "balance": 27.06,
+  "balance": 28.51,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "89fc88dc34",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 61677.02,
+      "stop": 61938.62785078975,
+      "target": 61146.42,
+      "leverage": 10,
+      "position_size_usd": 100.82,
+      "notional_usd": 1008.23,
+      "risk_dollars": 0.43,
+      "opened_at": "2026-06-09T21:57:27.946905+00:00",
+      "max_hold_until": "2026-06-16T21:57:27.946905+00:00",
+      "tier": "HIGH",
+      "conviction": 100,
+      "context": {
+        "trend_score": -10,
+        "rsi": 43.75,
+        "adx": 19.64,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Late US/Early Asia",
+        "news_flag": false,
+        "chart_read": "Rallied to EMA21 (61835.9513) in bearish stack and rejected. RSI 43.7, ADX 19.6. Trend continuation."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
@@ -3340,11 +3368,44 @@
       "pnl_dollars": -0.41,
       "closed_at": "2026-06-09T20:15:22.112672+00:00",
       "held_hours": 0.07
+    },
+    {
+      "alert_id": "f3bca8aeb5",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 62092.26,
+      "stop": 62218.78582828369,
+      "target": 61639.1,
+      "leverage": 10,
+      "position_size_usd": 199.19,
+      "notional_usd": 1991.94,
+      "risk_dollars": 0.41,
+      "opened_at": "2026-06-09T21:15:03.069682+00:00",
+      "max_hold_until": "2026-06-16T21:15:03.069682+00:00",
+      "tier": "HIGH",
+      "conviction": 87,
+      "context": {
+        "trend_score": -10,
+        "rsi": 57.87,
+        "adx": 22.69,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Late US/Early Asia",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (84.2\u219280.4 vs D 81.3). Early reversal trigger."
+      },
+      "status": "CLOSED",
+      "exit_price": 61639.1,
+      "exit_reason": "outcomes_reconcile",
+      "result": "WIN",
+      "pnl_dollars": 1.45,
+      "closed_at": "2026-06-09T21:56:25.489449+00:00",
+      "held_hours": 0.69
     }
   ],
-  "total_pnl": -972.94,
-  "total_trades": 101,
-  "wins": 22,
+  "total_pnl": -971.49,
+  "total_trades": 102,
+  "wins": 23,
   "losses": 79,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0

@@ -224,11 +224,11 @@
     "last_updated": "2026-05-20T14:31:42.439651"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
-    "wins": 2,
+    "wins": 3,
     "losses": 3,
-    "total": 5,
-    "win_rate": 40.0,
-    "last_updated": "2026-06-09T20:15:22.547126"
+    "total": 6,
+    "win_rate": 50.0,
+    "last_updated": "2026-06-09T21:56:24.843687"
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 5,
