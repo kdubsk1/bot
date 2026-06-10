@@ -246,10 +246,10 @@
   },
   "BTC:EMA21_PULLBACK_BEAR": {
     "wins": 5,
-    "losses": 0,
-    "total": 5,
-    "win_rate": 100.0,
-    "last_updated": "2026-06-10T04:41:42.098616"
+    "losses": 1,
+    "total": 6,
+    "win_rate": 83.3,
+    "last_updated": "2026-06-10T19:06:58.987835"
   },
   "SOL:STOCH_REVERSAL_BEAR": {
     "wins": 1,
