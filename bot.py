@@ -1714,14 +1714,14 @@ async def scan_market(app, market, frames):
             clean_path = abs(tgt-stp["entry"])/max(1e-9, atr_v)
             conv, tier, bd_core = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio, clean_path)
             extra         = cfg.extra_conviction_factors(df_e, df_h, stp, trend, adx_v, rsi_v)
-            conv          = max(0, min(100, conv+sum(extra.values())))
+            conv          = max(0, min(100, conv))  # Wave 60: heuristic extras logged only (proven non-predictive)
 
             # Wave 7 Iron Robot Layer 1+2: setup-specific boost + per-market direction multiplier.
             # Data-backed adjustments from May 3 backtest of 55 closed trades.
             # See conviction_boosts.py and data/conviction_boosts.json for the rules.
             try:
                 conv_pre_w7 = conv
-                conv, w7_breakdown = cb.adjust_conviction(conv, market, stp["type"], stp["direction"])
+                w7_breakdown = {"base": conv, "setup_boost": 0, "market_mult": 0, "final": conv, "applied_layers": []}  # Wave 60: W7 boost disabled (noise)
                 if w7_breakdown.get("applied_layers"):
                     log.info(f"[{market}] [{entry_tf}] W7 conv adj: {conv_pre_w7} -> {conv} "
                              f"({', '.join(w7_breakdown['applied_layers'])})")
@@ -1750,17 +1750,18 @@ async def scan_market(app, market, frames):
             except Exception:
                 pass
             bd_final["final_score"] = conv
-            if   conv>=80: tier="HIGH"
-            elif conv>=65: tier="MEDIUM"
-            elif conv>=50: tier="LOW"
+            if   conv>=60: tier="HIGH"   # Wave 60: tiers on the evidence (win-rate) scale
+            elif conv>=53: tier="MEDIUM"
+            elif conv>=48: tier="LOW"
             else:          tier="REJECT"
 
-            if tier=="REJECT" or conv < (cfg.MIN_CONVICTION + cb.get_min_conviction_adjustment()):
-                decision = sl.DECISION_ALMOST if conv >= cfg.MIN_CONVICTION-10 else sl.DECISION_REJECTED
+            _WAVE60_MIN_CONV = 48  # Wave 60: fire gate on the win-rate scale (LOW tier and up)
+            if tier=="REJECT" or conv < _WAVE60_MIN_CONV:
+                decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
                 _conv_reason = (
-                    f"Conviction {conv} below {cfg.MIN_CONVICTION} minimum (tier={tier}); gap: {cfg.MIN_CONVICTION - conv} points"
+                    f"Conviction {conv} below {_WAVE60_MIN_CONV} minimum (tier={tier}); gap: {_WAVE60_MIN_CONV - conv} points"
                     if decision == sl.DECISION_REJECTED else
-                    f"Conviction {conv} just short of {cfg.MIN_CONVICTION} minimum by {cfg.MIN_CONVICTION - conv} points — ALMOST"
+                    f"Conviction {conv} just short of {_WAVE60_MIN_CONV} minimum by {_WAVE60_MIN_CONV - conv} points — ALMOST"
                 )
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
@@ -1780,7 +1781,7 @@ async def scan_market(app, market, frames):
             # Apr 30 — the bot fired multiple shorts during news windows when
             # volatility spikes can fake out structural setups.
             if news_flag:
-                _news_floor = cfg.MIN_CONVICTION + 10
+                _news_floor = 58  # Wave 60: 48 + 10 on the win-rate scale
                 if conv < _news_floor:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                         cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,

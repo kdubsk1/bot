@@ -304,6 +304,31 @@ def check_missed_setups(live_frames: dict):
                     if period_low  <= target: hit_target = True
                     if period_high >= stop:   hit_stop   = True
 
+                if hit_target and hit_stop:
+                    # Wave 60: BOTH levels were touched since the alert.
+                    # The old code called this a WIN, which inflated
+                    # WOULD_WIN rates badly (e.g. 83W/1L buckets).
+                    # Resolve by FIRST touch, bar by bar; if the same
+                    # bar spans both levels, count it as a LOSS
+                    # (conservative -- never optimistic with money).
+                    try:
+                        _first = None
+                        for _ts, _bar in recent.iterrows():
+                            _hi = float(_bar["High"]); _lo = float(_bar["Low"])
+                            if direction == "LONG":
+                                _t_hit = _hi >= target; _s_hit = _lo <= stop
+                            else:
+                                _t_hit = _lo <= target; _s_hit = _hi >= stop
+                            if _s_hit:
+                                _first = "LOSS"; break
+                            if _t_hit:
+                                _first = "WIN"; break
+                        if _first == "WIN":
+                            hit_stop = False
+                        else:
+                            hit_target = False
+                    except Exception:
+                        hit_target = False  # cannot order the touches -> conservative
                 if hit_target:
                     row["result"]           = "WOULD_WIN"
                     row["result_checked_at"] = datetime.now(timezone.utc).isoformat()
@@ -338,6 +363,26 @@ def check_missed_setups(live_frames: dict):
         pass
 
     safe_io.safe_rewrite_csv(STRATEGY_LOG, COLS, _mutator)
+
+    # Wave 60: shadow outcomes feed the learning file. Every resolved
+    # WOULD_WIN/WOULD_LOSE updates the same market:setup stats that the
+    # evidence-based conviction score reads, so unproven buckets can
+    # earn (or lose) a track record without ever firing live.
+    if updated_log:
+        try:
+            import outcome_tracker as _ot
+            for _r in updated_log:
+                _res = _r.get("result", "")
+                _mkt = _r.get("market", "")
+                _stp = _r.get("setup_type", "")
+                if _mkt and _stp:
+                    if _res == "WOULD_WIN":
+                        _ot.record_trade_result(_mkt, _stp, "WIN")
+                    elif _res == "WOULD_LOSE":
+                        _ot.record_trade_result(_mkt, _stp, "LOSS")
+        except Exception:
+            pass  # learning feed is best-effort; never break the scan loop
+
     return updated_log
 
 
