@@ -169,10 +169,10 @@
   },
   "BTC:BREAK_RETEST_BEAR": {
     "wins": 2,
-    "losses": 1,
-    "total": 3,
-    "win_rate": 66.7,
-    "last_updated": "2026-06-03T23:10:54.450771"
+    "losses": 2,
+    "total": 4,
+    "win_rate": 50.0,
+    "last_updated": "2026-06-10T06:17:47.736430"
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 2,
@@ -245,11 +245,11 @@
     "last_updated": "2026-06-04T20:13:05.947695"
   },
   "BTC:EMA21_PULLBACK_BEAR": {
-    "wins": 4,
+    "wins": 5,
     "losses": 0,
-    "total": 4,
+    "total": 5,
     "win_rate": 100.0,
-    "last_updated": "2026-05-29T14:27:37.534313"
+    "last_updated": "2026-06-10T04:41:42.098616"
   },
   "SOL:STOCH_REVERSAL_BEAR": {
     "wins": 1,
