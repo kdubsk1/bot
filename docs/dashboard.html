@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-10T20:46:29.828324+00:00",
+  "generated_at": "2026-06-11T02:46:38.045353+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -321,11 +321,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 28.94,
+    "balance": 28.51,
     "starting_balance": 1000.0,
-    "total_pnl": -971.06,
+    "total_pnl": -971.49,
     "open_count": 0,
-    "closed_count": 104,
+    "closed_count": 105,
     "equity_curve": [
       {
         "time": "Start",
@@ -746,20 +746,24 @@ const DATA = {
       {
         "time": "2026-06-10 06:17",
         "balance": 28.94
+      },
+      {
+        "time": "2026-06-11 01:22",
+        "balance": 28.51
       }
     ]
   },
   "all_time": {
     "wins": 5,
-    "losses": 6,
-    "wr": 45.5,
-    "total_trades": 11
+    "losses": 7,
+    "wr": 41.7,
+    "total_trades": 12
   },
   "today": {
     "wins": 0,
-    "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -771,6 +775,13 @@ const DATA = {
     },
     {
       "setup": "BTC:BREAK_RETEST_BEAR",
+      "fires": 2,
+      "wins": 1,
+      "losses": 1,
+      "wr": 50.0
+    },
+    {
+      "setup": "BTC:EMA21_PULLBACK_BEAR",
       "fires": 2,
       "wins": 1,
       "losses": 1,
@@ -810,16 +821,25 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
-    },
-    {
-      "setup": "BTC:EMA21_PULLBACK_BEAR",
-      "fires": 1,
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-10 21:51",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "61245.21",
+      "stop": "62060.1587",
+      "target": "59448.45",
+      "rr": "2.2",
+      "conv": "70",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "62060.1587"
+    },
     {
       "time": "2026-06-10 04:56",
       "market": "BTC",
@@ -1042,9 +1062,9 @@ const DATA = {
   "by_market": {
     "BTC": {
       "wins": 4,
-      "losses": 2,
-      "total_pnl_r": 10.8,
-      "wr": 66.7
+      "losses": 3,
+      "total_pnl_r": 9.8,
+      "wr": 57.1
     },
     "NQ": {
       "wins": 0,
@@ -1062,8 +1082,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 5,
-      "losses": 6,
-      "wr": 45.5
+      "losses": 7,
+      "wr": 41.7
     }
   },
   "open_trades": []
