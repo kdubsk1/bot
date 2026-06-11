@@ -110,11 +110,18 @@ def _cache_key(market: str, timeframe: str) -> str:
 
 
 def _get_cached(market: str, timeframe: str) -> Optional[pd.DataFrame]:
+    # Wave 61 (_WAVE61_TTL): per-timeframe TTLs. Daily bars do not change
+    # every 60 seconds -- the old flat 60s TTL forced a full provider
+    # round-trip on every scan for every timeframe, which burned the
+    # TwelveData daily credit limit in hours and got yfinance rate-limited.
+    # The bot trades CLOSED bars, so these staleness windows are safe.
+    ttl_by_tf = {"15m": 180, "1h": 900, "4h": 3600, "1d": 14400}
     key = _cache_key(market, timeframe)
     entry = _cache.get(key)
     if entry is None:
         return None
-    if time.time() - entry["ts"] > CACHE_TTL:
+    ttl = ttl_by_tf.get(timeframe, CACHE_TTL)
+    if time.time() - entry["ts"] > ttl:
         return None
     logger.debug("Cache hit for %s %s", market, timeframe)
     return entry["df"].copy()
@@ -232,7 +239,12 @@ def _get_topstepx_token() -> Optional[str]:
     """
     Return a valid JWT session token, refreshing if needed.
     Tokens last 24h; we refresh when less than 5min remaining.
-    Returns None if credentials are missing or auth fails — caller falls back.
+    Returns None if credentials are missing or auth fails -- caller falls back.
+
+    Wave 61: a failed auth now sets a 10-minute cooldown. Before this, a
+    dead API key meant the bot re-attempted auth on EVERY fetch (8+ times
+    a minute), spamming the API and the logs while every futures scan
+    waited on a doomed network call.
     """
     global _TOPSTEPX_TOKEN, _TOPSTEPX_TOKEN_EXPIRY
     now = datetime.now(timezone.utc)
@@ -241,10 +253,18 @@ def _get_topstepx_token() -> Optional[str]:
         if now < _TOPSTEPX_TOKEN_EXPIRY - pd.Timedelta(minutes=5):
             return _TOPSTEPX_TOKEN
 
+    _fail_until = getattr(_get_topstepx_token, "_fail_until", None)
+    if _fail_until is not None and now < _fail_until:
+        return None  # cooling down after a failed auth -- fall back quietly
+
+    def _cooldown():
+        _get_topstepx_token._fail_until = now + pd.Timedelta(minutes=10)
+
     username = _os.environ.get("TOPSTEPX_USERNAME", "").strip()
-    api_key  = _os.environ.get("TOPSTEPX_API_KEY", "").strip()
+    api_key = _os.environ.get("TOPSTEPX_API_KEY", "").strip()
     if not username or not api_key:
-        logger.warning("TopstepX creds not set (TOPSTEPX_USERNAME / TOPSTEPX_API_KEY) — skipping TopstepX fetch")
+        logger.warning("TopstepX creds not set (TOPSTEPX_USERNAME / TOPSTEPX_API_KEY) -- skipping TopstepX fetch")
+        _cooldown()
         return None
 
     try:
@@ -256,22 +276,31 @@ def _get_topstepx_token() -> Optional[str]:
         )
     except Exception as exc:
         logger.error("TopstepX auth network error: %s", exc)
+        _cooldown()
         return None
 
     if resp.status_code != 200:
         logger.error("TopstepX auth HTTP %d: %s", resp.status_code, resp.text[:200])
+        _cooldown()
         return None
 
     try:
         data = resp.json()
     except Exception as exc:
         logger.error("TopstepX auth JSON parse: %s", exc)
+        _cooldown()
         return None
 
     if not data.get("success") or not data.get("token"):
-        logger.error("TopstepX auth failed: %s", data.get("errorMessage", "unknown"))
+        logger.error("TopstepX auth failed: %s -- if this persists, regenerate the "
+                     "API key in the ProjectX/TopstepX dashboard and update "
+                     "TOPSTEPX_API_KEY on Railway (Variables tab). "
+                     "Auth attempts paused for 10 minutes.",
+                     data.get("errorMessage", "unknown"))
+        _cooldown()
         return None
 
+    _get_topstepx_token._fail_until = None
     _TOPSTEPX_TOKEN = data["token"]
     _TOPSTEPX_TOKEN_EXPIRY = now + pd.Timedelta(hours=24)
     logger.info("TopstepX authenticated successfully (token expires %s)", _TOPSTEPX_TOKEN_EXPIRY.isoformat())
@@ -734,7 +763,17 @@ def probe_gc_symbol():
 
 
 def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
-    """Fetch OHLCV data via Twelve Data REST API for NQ or GC."""
+    """Fetch OHLCV data via Twelve Data REST API for NQ or GC.
+
+    Wave 61: circuit breaker. When TwelveData reports the daily credit
+    limit is exhausted, every further call that day is wasted latency in
+    the scan loop. We now pause TwelveData for 60 minutes when that
+    happens and fall straight through to the next source.
+    """
+    _blocked_until = getattr(_fetch_twelvedata, "_blocked_until", 0)
+    if time.time() < _blocked_until:
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
     symbol = _TD_SYMBOL_MAP.get(market)
     if symbol is None:
         logger.warning("No Twelve Data symbol for market %s", market)
@@ -753,19 +792,23 @@ def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
         resp = _requests.get(
             "https://api.twelvedata.com/time_series",
             params={
-                "symbol":     symbol,
-                "interval":   interval,
+                "symbol": symbol,
+                "interval": interval,
                 "outputsize": outputsize,
-                "apikey":     TWELVE_DATA_API_KEY,
-                "format":     "JSON",
+                "apikey": TWELVE_DATA_API_KEY,
+                "format": "JSON",
             },
             timeout=15,
         )
         data = resp.json()
 
         if data.get("status") == "error" or "values" not in data:
-            msg = data.get("message", "unknown error")
+            msg = str(data.get("message", "unknown error"))
             logger.warning("TwelveData error for %s %s: %s", market, timeframe, msg)
+            low = msg.lower()
+            if "credit" in low or "limit" in low:
+                _fetch_twelvedata._blocked_until = time.time() + 3600
+                logger.warning("TwelveData circuit OPEN for 60 min (daily credit/limit exhausted)")
             return pd.DataFrame(columns=_STANDARD_COLS)
 
         values = data["values"]
@@ -776,18 +819,18 @@ def _fetch_twelvedata(market: str, timeframe: str) -> pd.DataFrame:
         df = pd.DataFrame(values)
         df = df.rename(columns={
             "datetime": "timestamp",
-            "open":     "Open",
-            "high":     "High",
-            "low":      "Low",
-            "close":    "Close",
-            "volume":   "Volume",
+            "open": "Open",
+            "high": "High",
+            "low": "Low",
+            "close": "Close",
+            "volume": "Volume",
         })
         df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
         df = df.set_index("timestamp")
         df = _normalise_df(df)
 
         if len(df) >= MIN_BARS:
-            # Success — reset fallback counter
+            # Success -- reset fallback counter
             fb_key = f"{market}|{timeframe}"
             _td_fallback_count[fb_key] = 0
             _last_source[fb_key] = "twelve_data"
