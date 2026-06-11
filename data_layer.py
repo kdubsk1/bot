@@ -1104,9 +1104,20 @@ def _fetch_crypto(market: str, timeframe: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
     """
-    Dispatch to data source by market. Source priority:
-      NQ/GC:   TopstepX (primary) -> TwelveData -> yfinance
-      BTC/SOL: ccxt (unchanged)
+    Dispatch to data source by market. Source priority (Wave 62):
+      NQ/GC 15m/1h/4h: TopstepX (real CME) -> TwelveData -> yfinance
+      NQ/GC 1d:        yfinance (continuous, ~2y dailies) -> TopstepX -> TwelveData
+      BTC/SOL:         ccxt (unchanged)
+
+    Wave 62 (_WAVE62_DAILY): TopstepX serves bars for the FRONT contract
+    only (e.g. ENQ.M26), which carries just weeks-to-months of daily
+    history -- GC's contract returned 0 daily bars and NQ's only ~63,
+    starving the higher-timeframe bias and long EMAs. The continuous
+    contracts on yfinance (NQ=F / GC=F) carry ~2 years of dailies, and
+    with the Wave 61 four-hour cache TTL this costs only a handful of
+    calls per day. Intraday stays on TopstepX where CME precision
+    matters. A TopstepX success also resets the fallback-streak counter
+    so DATA ALERTs stop after recovery.
     """
     market_upper = market.upper()
 
@@ -1114,21 +1125,36 @@ def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
         return _fetch_crypto(market_upper, timeframe)
 
     if market_upper in _FUTURES_MARKETS:
+        fb_key = f"{market_upper}|{timeframe}"
+
+        # Wave 62: daily bars come from the continuous contract on yfinance
+        if timeframe == "1d":
+            df_yf = _fetch_yfinance(market_upper, timeframe)
+            if df_yf is not None and len(df_yf) >= MIN_BARS:
+                _td_fallback_count[fb_key] = 0
+                _last_source[fb_key] = "yfinance"
+                logger.info("Using yfinance continuous for %s 1d (%d bars)", market_upper, len(df_yf))
+                return df_yf
+            logger.info("yfinance 1d insufficient for %s -- trying TopstepX", market_upper)
+
         # PRIMARY: TopstepX (real CME futures data)
         df_tsx = _fetch_topstepx(market_upper, timeframe)
         if df_tsx is not None and len(df_tsx) >= MIN_BARS:
+            _td_fallback_count[fb_key] = 0  # Wave 62: healthy again -> clear streak
             logger.info("Using TopstepX for %s %s (%d bars)", market_upper, timeframe, len(df_tsx))
             return df_tsx
-        logger.info("TopstepX insufficient/unavailable for %s %s — trying TwelveData", market_upper, timeframe)
+        logger.info("TopstepX insufficient/unavailable for %s %s -- trying TwelveData", market_upper, timeframe)
 
-        # FALLBACK 1: TwelveData (unchanged logic)
+        # FALLBACK 1: TwelveData
         df_td = _fetch_twelvedata(market_upper, timeframe)
         if df_td is not None and len(df_td) >= MIN_BARS:
             logger.info("Using TwelveData for %s %s (%d bars)", market_upper, timeframe, len(df_td))
             return df_td
 
-        # FALLBACK 2: yfinance (last resort)
-        fb_key = f"{market_upper}|{timeframe}"
+        # FALLBACK 2: yfinance (last resort for intraday; already tried for 1d)
+        if timeframe == "1d":
+            return pd.DataFrame(columns=_STANDARD_COLS)
+
         _td_fallback_count[fb_key] = _td_fallback_count.get(fb_key, 0) + 1
         n = _td_fallback_count[fb_key]
         _last_source[fb_key] = "yfinance"
@@ -1138,7 +1164,7 @@ def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
         )
         if n >= 3:
             logger.error(
-                "DATA ALERT: %s %s using yfinance fallback %dx in a row — check TopstepX auth & symbols",
+                "DATA ALERT: %s %s using yfinance fallback %dx in a row -- check TopstepX auth & symbols",
                 market_upper, timeframe, n
             )
         return _fetch_yfinance(market_upper, timeframe)
