@@ -1476,29 +1476,45 @@ MIN_RISK_PCT_BY_MARKET = {
 }
 
 
-def get_rr_floor(setup_type: str) -> float:
-    """Return the minimum acceptable R:R for this setup type."""
-    return SETUP_RR_FLOORS.get(setup_type, SETUP_RR_FLOORS["_DEFAULT"])
+def get_rr_floor(setup_type: str, market: str = None) -> float:
+    """
+    Wave 63 (_WAVE63_RRFLOOR): evidence-based RR floor.
+
+    Breakeven RR for a bucket with win rate p is (1-p)/p. We require a
+    25% margin above breakeven and clamp to [0.8, 2.5], using the SAME
+    shrunk market:setup stats as the conviction score -- so the floor
+    learns continuously from real and shadow outcomes.
+
+    The old static SETUP_RR_FLOORS map was calibrated on inflated shadow
+    stats (e.g. VWAP_BOUNCE_BULL "83% WR" -> 1.0R floor; real record was
+    1W/20L). Cold-start buckets (n < 5 outcomes) get a neutral 1.5R --
+    they are shadow-only under Wave 60 anyway, and their rejected scans
+    still get logged and resolved, feeding the learning loop.
+    """
+    K = 4.0
+    PRIOR_WR = 0.50
+    MIN_HISTORY = 5
+
+    p = None
+    if market and setup_type:
+        try:
+            perf = _load_performance()
+            d = perf.get(f"{market}:{setup_type}", {})
+            wins = int(d.get("wins", 0) or 0)
+            losses = int(d.get("losses", 0) or 0)
+            n = wins + losses
+            if n >= MIN_HISTORY:
+                p = (wins + K * PRIOR_WR) / (n + K)
+        except Exception:
+            p = None
+
+    if p is None:
+        return 1.5  # cold start / unknown market: neutral floor
+
+    floor = ((1.0 - p) / max(p, 0.05)) * 1.25
+    return round(max(0.8, min(2.5, floor)), 2)
 
 
-# ===================================================================
-# Apr 30 LATE PM: Directional bias penalty. Fixes BTC/SOL over-shorting
-# in uptrending markets (lost $300 overnight Apr 29→30).
-#
-# Reasoning: when 1h trend score is bullish AND HTF structure is HH_HL,
-# firing SHORTs is a fool's errand — even "clean" setups bleed because
-# they're fighting the dominant flow. Same in reverse for LONGs in bear.
-#
-# Applied as a SCORE adjustment in conviction_score (not a hard gate),
-# so a truly exceptional setup can still fire — it just needs more edge
-# to clear the conviction threshold. Penalty range: -15 to +8.
-#
-# Why score-based instead of hard gate:
-#  - Hard gates kill ALL counter-trend setups, including good ones.
-#  - Score adjustment lets the strongest counter-trend setups still fire.
-#  - Auditable in strategy_log ("directional_bias" appears in score_breakdown).
-#  - Reversible if data shows it's too aggressive — just edit the table below.
-# ===================================================================
 def _directional_bias_penalty(setup: dict, trend: int,
                               df_htf: Optional[pd.DataFrame]) -> tuple[int, str]:
     """

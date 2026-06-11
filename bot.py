@@ -1693,11 +1693,13 @@ async def scan_market(app, market, frames):
                 stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio,
                 abs(tgt-stp["entry"])/max(1e-9, atr_v)
             )
-            # Apr 30: per-setup RR floor replaces tier-based logic.
-            # Each setup has its own "good enough" RR based on historical edge
-            # (high-WR setups like VWAP_BOUNCE_BULL = 1.0R, weaker setups = 2.0R).
-            # See ot.SETUP_RR_FLOORS for the full map.
-            setup_floor = ot.get_rr_floor(stp["type"])
+            # Wave 63: evidence-based RR floor per market:setup bucket.
+            # Breakeven RR for win-rate p is (1-p)/p; we require a 25% margin
+            # above breakeven, clamped to [0.8, 2.5], using the SAME shrunk
+            # bucket stats as the conviction score. The old static map was
+            # calibrated on inflated shadow stats (the "83% WR" setup's real
+            # record was 1W/20L).
+            setup_floor = ot.get_rr_floor(stp["type"], market)
             _global_min_rr = cfg.NEWS_MIN_RR if news_flag else SETTINGS["min_rr"]
             min_rr = max(setup_floor, _global_min_rr)
             if rr < min_rr:
