@@ -6,7 +6,35 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "7aa4ffa224",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 66.87,
+      "stop": 67.33811186896291,
+      "target": 65.27,
+      "leverage": 10,
+      "position_size_usd": 61.09,
+      "notional_usd": 610.9,
+      "risk_dollars": 0.43,
+      "opened_at": "2026-06-11T18:16:22.982482+00:00",
+      "max_hold_until": "2026-06-18T18:16:22.982482+00:00",
+      "tier": "HIGH",
+      "conviction": 83,
+      "context": {
+        "trend_score": -4,
+        "rsi": 66.09,
+        "adx": 28.54,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Tagged upper Bollinger (66.9414) and reversed. RSI 66.1 overbought. Mean reversion to middle band."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",

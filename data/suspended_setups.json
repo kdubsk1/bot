@@ -89,5 +89,19 @@
     "total_at_suspension": 6,
     "wr_at_suspension": 33.3,
     "bleed_at_suspension": 0.0
+  },
+  "GC:EMA21_PULLBACK_BEAR": {
+    "reason": "1W/88L (1.1% WR)",
+    "suspended_at": "2026-06-11T20:00:06.016604+00:00",
+    "total_at_suspension": 89,
+    "wr_at_suspension": 1.1,
+    "bleed_at_suspension": -100.0
+  },
+  "BTC:BREAK_RETEST_BULL": {
+    "reason": "1W/10L (9.1% WR)",
+    "suspended_at": "2026-06-11T20:00:06.017463+00:00",
+    "total_at_suspension": 11,
+    "wr_at_suspension": 9.1,
+    "bleed_at_suspension": 0.0
   }
 }

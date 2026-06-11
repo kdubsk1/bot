@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-11T14:43:23.620004+00:00",
+  "generated_at": "2026-06-11T20:43:26.451659+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -324,7 +324,7 @@ const DATA = {
     "balance": 28.51,
     "starting_balance": 1000.0,
     "total_pnl": -971.49,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 105,
     "equity_curve": [
       {
@@ -825,6 +825,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-06-11 18:16",
+      "market": "SOL",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "66.87",
+      "stop": "67.3381",
+      "target": "65.27",
+      "rr": "3.42",
+      "conv": "83",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-06-10 21:51",
       "market": "BTC",
       "setup": "EMA21_PULLBACK_BEAR",
@@ -1082,6 +1098,16 @@ const DATA = {
       "key": "SOL:BREAK_RETEST_BULL",
       "reason": "2W/4L (33.3% WR)",
       "suspended_at": "2026-06-11T13:43:38.356958+00:00"
+    },
+    {
+      "key": "GC:EMA21_PULLBACK_BEAR",
+      "reason": "1W/88L (1.1% WR)",
+      "suspended_at": "2026-06-11T20:00:06.016604+00:00"
+    },
+    {
+      "key": "BTC:BREAK_RETEST_BULL",
+      "reason": "1W/10L (9.1% WR)",
+      "suspended_at": "2026-06-11T20:00:06.017463+00:00"
     }
   ],
   "by_market": {
@@ -1111,7 +1137,21 @@ const DATA = {
       "wr": 41.7
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "SOL",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "66.87",
+      "target": "65.27",
+      "stop": "67.3381",
+      "conviction": 83,
+      "last_rescore_conviction": 83,
+      "tier": "HIGH",
+      "timestamp": "2026-06-11T18:16:22.978948+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
