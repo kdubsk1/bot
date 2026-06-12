@@ -1,10 +1,10 @@
 {
   "NQ:BB_REVERSION_BULL": {
-    "wins": 6,
-    "losses": 4,
-    "total": 10,
-    "win_rate": 60.0,
-    "last_updated": "2026-06-12T08:09:38.069107"
+    "wins": 7,
+    "losses": 5,
+    "total": 12,
+    "win_rate": 58.3,
+    "last_updated": "2026-06-12T14:09:18.066425"
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
@@ -92,10 +92,10 @@
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 1,
-    "losses": 10,
-    "total": 11,
-    "win_rate": 9.1,
-    "last_updated": "2026-06-12T08:29:53.529151"
+    "losses": 30,
+    "total": 31,
+    "win_rate": 3.2,
+    "last_updated": "2026-06-12T14:30:55.385811"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 0,
@@ -127,10 +127,10 @@
   },
   "NQ:RSI_DIV_BULL": {
     "wins": 2,
-    "losses": 3,
-    "total": 5,
-    "win_rate": 40.0,
-    "last_updated": "2026-05-21T19:55:14.446296"
+    "losses": 4,
+    "total": 6,
+    "win_rate": 33.3,
+    "last_updated": "2026-06-12T13:47:42.466375"
   },
   "GC:BREAK_RETEST_BEAR": {
     "wins": 1,
@@ -155,10 +155,10 @@
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 22,
-    "losses": 3,
-    "total": 25,
-    "win_rate": 88.0,
-    "last_updated": "2026-06-11T18:16:22.784820"
+    "losses": 4,
+    "total": 26,
+    "win_rate": 84.6,
+    "last_updated": "2026-06-12T09:36:11.315367"
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 0,
@@ -231,11 +231,11 @@
     "last_updated": "2026-06-09T21:56:24.843687"
   },
   "NQ:BREAK_RETEST_BULL": {
-    "wins": 5,
-    "losses": 5,
-    "total": 10,
-    "win_rate": 50.0,
-    "last_updated": "2026-06-01T00:36:51.329212"
+    "wins": 6,
+    "losses": 8,
+    "total": 14,
+    "win_rate": 42.9,
+    "last_updated": "2026-06-12T12:28:13.482081"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,
@@ -323,9 +323,16 @@
   },
   "NQ:MACD_CROSS_BULL": {
     "wins": 0,
-    "losses": 7,
-    "total": 7,
+    "losses": 8,
+    "total": 8,
     "win_rate": 0.0,
-    "last_updated": "2026-06-12T08:29:53.531037"
+    "last_updated": "2026-06-12T12:59:00.787125"
+  },
+  "NQ:EMA50_RECLAIM": {
+    "wins": 0,
+    "losses": 10,
+    "total": 10,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-12T14:14:58.172935"
   }
 }
