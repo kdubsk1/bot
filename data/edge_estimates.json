@@ -132,15 +132,15 @@
     "total_loss_r": 0.0
   },
   "BB_REVERSION_BULL|||ALL": {
-    "wins": 5,
+    "wins": 6,
     "losses": 17,
-    "total_win_r": 11.02595161979523,
+    "total_win_r": 14.17165294468004,
     "total_loss_r": 17.0
   },
   "BB_REVERSION_BULL|||HH_HL": {
-    "wins": 2,
+    "wins": 3,
     "losses": 14,
-    "total_win_r": 4.498031276978168,
+    "total_win_r": 7.643732601862979,
     "total_loss_r": 14.0
   },
   "RSI_DIV_BEAR|||MIXED": {

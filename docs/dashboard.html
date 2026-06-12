@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-12T02:43:35.635173+00:00",
+  "generated_at": "2026-06-12T08:43:41.888148+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -317,6 +317,10 @@ const DATA = {
       {
         "time": "2026-06-09 04:33",
         "balance": 48528.25
+      },
+      {
+        "time": "2026-06-12 07:22",
+        "balance": 50821.21
       }
     ]
   },
@@ -754,16 +758,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 5,
+    "wins": 6,
     "losses": 7,
-    "wr": 41.7,
-    "total_trades": 12
+    "wr": 46.2,
+    "total_trades": 13
   },
   "today": {
-    "wins": 0,
+    "wins": 1,
     "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "wr": 100.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -821,9 +825,32 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "NQ:BB_REVERSION_BULL",
+      "fires": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-12 07:22",
+      "market": "NQ",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29307.25",
+      "stop": "29251.698",
+      "target": "29482.0",
+      "rr": "3.15",
+      "conv": "54",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "29482.0"
+    },
     {
       "time": "2026-06-11 23:37",
       "market": "GC",
@@ -1134,10 +1161,10 @@ const DATA = {
       "wr": 57.1
     },
     "NQ": {
-      "wins": 0,
+      "wins": 1,
       "losses": 1,
-      "total_pnl_r": -1.0,
-      "wr": 0.0
+      "total_pnl_r": 2.15,
+      "wr": 50.0
     },
     "GC": {
       "wins": 1,
@@ -1151,6 +1178,11 @@ const DATA = {
       "wins": 5,
       "losses": 7,
       "wr": 41.7
+    },
+    "MEDIUM": {
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
     }
   },
   "open_trades": [
