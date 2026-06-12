@@ -91,18 +91,18 @@
     "last_updated": "2026-06-11T19:31:59.376641"
   },
   "NQ:VWAP_BOUNCE_BULL": {
-    "wins": 1,
-    "losses": 30,
-    "total": 31,
-    "win_rate": 3.2,
-    "last_updated": "2026-06-12T14:30:55.385811"
+    "wins": 2,
+    "losses": 36,
+    "total": 38,
+    "win_rate": 5.3,
+    "last_updated": "2026-06-12T17:06:07.697671"
   },
   "BTC:VWAP_BOUNCE_BULL": {
-    "wins": 0,
-    "losses": 1,
-    "total": 1,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-13T00:12:11.179873"
+    "wins": 3,
+    "losses": 31,
+    "total": 34,
+    "win_rate": 8.8,
+    "last_updated": "2026-06-12T20:28:15.417830"
   },
   "BTC:BB_REVERSION_BULL": {
     "wins": 1,
@@ -112,11 +112,11 @@
     "last_updated": "2026-05-21T15:52:27.138856"
   },
   "SOL:VWAP_BOUNCE_BULL": {
-    "wins": 0,
+    "wins": 5,
     "losses": 4,
-    "total": 4,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-22T14:05:23.380137"
+    "total": 9,
+    "win_rate": 55.6,
+    "last_updated": "2026-06-12T14:56:50.733812"
   },
   "BTC:RSI_DIV_BEAR": {
     "wins": 1,
@@ -182,11 +182,11 @@
     "last_updated": "2026-05-29T19:55:10.276733"
   },
   "GC:BB_REVERSION_BEAR": {
-    "wins": 3,
+    "wins": 4,
     "losses": 2,
-    "total": 5,
-    "win_rate": 60.0,
-    "last_updated": "2026-06-04T14:52:06.270249"
+    "total": 6,
+    "win_rate": 66.7,
+    "last_updated": "2026-06-12T19:55:04.509252"
   },
   "GC:MACD_CROSS_BEAR": {
     "wins": 1,
@@ -218,10 +218,10 @@
   },
   "SOL:RSI_DIV_BEAR": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 65,
+    "total": 65,
     "win_rate": 0.0,
-    "last_updated": "2026-05-20T14:31:42.439651"
+    "last_updated": "2026-06-12T14:57:52.291328"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
     "wins": 3,
@@ -232,10 +232,10 @@
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 6,
-    "losses": 8,
-    "total": 14,
-    "win_rate": 42.9,
-    "last_updated": "2026-06-12T12:28:13.482081"
+    "losses": 37,
+    "total": 43,
+    "win_rate": 14.0,
+    "last_updated": "2026-06-12T19:36:48.461417"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,
@@ -330,9 +330,9 @@
   },
   "NQ:EMA50_RECLAIM": {
     "wins": 0,
-    "losses": 10,
-    "total": 10,
+    "losses": 11,
+    "total": 11,
     "win_rate": 0.0,
-    "last_updated": "2026-06-12T14:14:58.172935"
+    "last_updated": "2026-06-12T14:46:44.046640"
   }
 }

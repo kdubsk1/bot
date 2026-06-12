@@ -6,7 +6,35 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "7297d839fd",
+      "market": "SOL",
+      "direction": "LONG",
+      "entry": 67.26,
+      "stop": 66.17413603789929,
+      "target": 70.56,
+      "leverage": 10,
+      "position_size_usd": 26.09,
+      "notional_usd": 260.9,
+      "risk_dollars": 0.42,
+      "opened_at": "2026-06-12T14:56:51.030586+00:00",
+      "max_hold_until": "2026-06-19T14:56:51.030586+00:00",
+      "tier": "MEDIUM",
+      "conviction": 54,
+      "context": {
+        "trend_score": -4,
+        "rsi": 60.69,
+        "adx": 22.62,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "VWAP bounce at 66.7537. Institutional support level."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
