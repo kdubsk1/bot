@@ -33,6 +33,33 @@
         "chart_read": "VWAP bounce at 66.7537. Institutional support level."
       },
       "status": "OPEN"
+    },
+    {
+      "alert_id": "bd023d09c3",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 64021.98,
+      "stop": 64411.50716393554,
+      "target": 62964.0,
+      "leverage": 10,
+      "position_size_usd": 69.23,
+      "notional_usd": 692.28,
+      "risk_dollars": 0.42,
+      "opened_at": "2026-06-13T16:26:36.564482+00:00",
+      "max_hold_until": "2026-06-20T16:26:36.564482+00:00",
+      "tier": "LOW",
+      "conviction": 50,
+      "context": {
+        "trend_score": -6,
+        "rsi": 57.6,
+        "adx": 25.09,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (94.3\u219268.3 vs D 86.4). Early reversal trigger."
+      },
+      "status": "OPEN"
     }
   ],
   "closed_trades": [
