@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-14T14:44:46.916485+00:00",
+  "generated_at": "2026-06-14T20:44:52.589494+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -325,11 +325,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 27.66,
+    "balance": 27.25,
     "starting_balance": 1000.0,
-    "total_pnl": -972.34,
+    "total_pnl": -972.75,
     "open_count": 1,
-    "closed_count": 107,
+    "closed_count": 108,
     "equity_curve": [
       {
         "time": "Start",
@@ -762,20 +762,24 @@ const DATA = {
       {
         "time": "2026-06-13 21:43",
         "balance": 27.66
+      },
+      {
+        "time": "2026-06-14 20:26",
+        "balance": 27.25
       }
     ]
   },
   "all_time": {
     "wins": 5,
-    "losses": 8,
-    "wr": 38.5,
-    "total_trades": 13
+    "losses": 9,
+    "wr": 35.7,
+    "total_trades": 14
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -791,6 +795,13 @@ const DATA = {
       "wins": 1,
       "losses": 1,
       "wr": 50.0
+    },
+    {
+      "setup": "BTC:BREAK_RETEST_BEAR",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
+      "wr": 0.0
     },
     {
       "setup": "NQ:BB_REVERSION_BULL",
@@ -814,13 +825,6 @@ const DATA = {
       "wr": 0.0
     },
     {
-      "setup": "BTC:BREAK_RETEST_BEAR",
-      "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
-    },
-    {
       "setup": "SOL:BB_REVERSION_BEAR",
       "fires": 1,
       "wins": 0,
@@ -836,6 +840,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-14 19:36",
+      "market": "BTC",
+      "setup": "BREAK_RETEST_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "63781.27",
+      "stop": "63874.9164",
+      "target": "63640.0",
+      "rr": "1.51",
+      "conv": "50",
+      "tier": "LOW",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "63874.9164"
+    },
     {
       "time": "2026-06-13 16:26",
       "market": "BTC",
@@ -1177,9 +1197,9 @@ const DATA = {
     },
     "BTC": {
       "wins": 2,
-      "losses": 4,
-      "total_pnl_r": 1.61,
-      "wr": 33.3
+      "losses": 5,
+      "total_pnl_r": 0.61,
+      "wr": 28.6
     },
     "SOL": {
       "wins": 0,
@@ -1207,7 +1227,7 @@ const DATA = {
     },
     "LOW": {
       "wins": 0,
-      "losses": 3,
+      "losses": 4,
       "wr": 0.0
     }
   },

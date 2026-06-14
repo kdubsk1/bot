@@ -43,15 +43,15 @@
   },
   "BREAK_RETEST_BEAR|||MIXED": {
     "wins": 0,
-    "losses": 8,
+    "losses": 9,
     "total_win_r": 0.0,
-    "total_loss_r": 8.0
+    "total_loss_r": 9.0
   },
   "BREAK_RETEST_BEAR|||ALL": {
     "wins": 4,
-    "losses": 15,
+    "losses": 16,
     "total_win_r": 13.734303228604338,
-    "total_loss_r": 15.0
+    "total_loss_r": 16.0
   },
   "VWAP_BOUNCE_BULL|||HH_HL": {
     "wins": 1,

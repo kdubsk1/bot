@@ -168,11 +168,11 @@
     "last_updated": "2026-05-29T13:57:33.201680"
   },
   "BTC:BREAK_RETEST_BEAR": {
-    "wins": 2,
-    "losses": 2,
-    "total": 4,
-    "win_rate": 50.0,
-    "last_updated": "2026-06-10T06:17:47.736430"
+    "wins": 3,
+    "losses": 4,
+    "total": 7,
+    "win_rate": 42.9,
+    "last_updated": "2026-06-14T20:26:21.442085"
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 2,
