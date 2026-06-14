@@ -341,5 +341,12 @@
     "total": 6,
     "win_rate": 0.0,
     "last_updated": "2026-06-12T22:58:28.418187"
+  },
+  "BTC:EMA21_PULLBACK_BULL": {
+    "wins": 0,
+    "losses": 4,
+    "total": 4,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-14T05:31:03.620629"
   }
 }
