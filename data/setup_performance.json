@@ -99,10 +99,10 @@
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,
-    "losses": 82,
-    "total": 86,
-    "win_rate": 4.7,
-    "last_updated": "2026-06-13T21:43:56.208104"
+    "losses": 83,
+    "total": 87,
+    "win_rate": 4.6,
+    "last_updated": "2026-06-14T09:03:15.277392"
   },
   "BTC:BB_REVERSION_BULL": {
     "wins": 1,
@@ -344,9 +344,9 @@
   },
   "BTC:EMA21_PULLBACK_BULL": {
     "wins": 0,
-    "losses": 4,
-    "total": 4,
+    "losses": 9,
+    "total": 9,
     "win_rate": 0.0,
-    "last_updated": "2026-06-14T05:31:03.620629"
+    "last_updated": "2026-06-14T14:30:19.054593"
   }
 }
