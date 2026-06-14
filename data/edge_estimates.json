@@ -121,9 +121,9 @@
   },
   "STOCH_REVERSAL_BEAR|||ALL": {
     "wins": 4,
-    "losses": 8,
+    "losses": 9,
     "total_win_r": 11.172831918045802,
-    "total_loss_r": 8.0
+    "total_loss_r": 9.0
   },
   "BB_REVERSION_BULL|||UNKNOWN": {
     "wins": 0,
@@ -367,9 +367,9 @@
   },
   "STOCH_REVERSAL_BEAR|||HH_HL": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 0.0,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "VWAP_REJECT_BEAR|||UNKNOWN": {
     "wins": 0,

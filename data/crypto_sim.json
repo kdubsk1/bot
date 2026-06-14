@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "balance": 28.08,
+  "balance": 27.66,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
@@ -31,33 +31,6 @@
         "session": "US Session",
         "news_flag": false,
         "chart_read": "VWAP bounce at 66.7537. Institutional support level."
-      },
-      "status": "OPEN"
-    },
-    {
-      "alert_id": "bd023d09c3",
-      "market": "BTC",
-      "direction": "SHORT",
-      "entry": 64021.98,
-      "stop": 64411.50716393554,
-      "target": 62964.0,
-      "leverage": 10,
-      "position_size_usd": 69.23,
-      "notional_usd": 692.28,
-      "risk_dollars": 0.42,
-      "opened_at": "2026-06-13T16:26:36.564482+00:00",
-      "max_hold_until": "2026-06-20T16:26:36.564482+00:00",
-      "tier": "LOW",
-      "conviction": 50,
-      "context": {
-        "trend_score": -6,
-        "rsi": 57.6,
-        "adx": 25.09,
-        "htf_bias": "UNKNOWN",
-        "regime": "UNKNOWN",
-        "session": "US Session",
-        "news_flag": false,
-        "chart_read": "Stochastic %K crossed down through %D from overbought (94.3\u219268.3 vs D 86.4). Early reversal trigger."
       },
       "status": "OPEN"
     }
@@ -3560,12 +3533,45 @@
       "pnl_dollars": -0.43,
       "closed_at": "2026-06-12T09:41:12.945800+00:00",
       "held_hours": 15.41
+    },
+    {
+      "alert_id": "bd023d09c3",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 64021.98,
+      "stop": 64411.50716393554,
+      "target": 62964.0,
+      "leverage": 10,
+      "position_size_usd": 69.23,
+      "notional_usd": 692.28,
+      "risk_dollars": 0.42,
+      "opened_at": "2026-06-13T16:26:36.564482+00:00",
+      "max_hold_until": "2026-06-20T16:26:36.564482+00:00",
+      "tier": "LOW",
+      "conviction": 50,
+      "context": {
+        "trend_score": -6,
+        "rsi": 57.6,
+        "adx": 25.09,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (94.3\u219268.3 vs D 86.4). Early reversal trigger."
+      },
+      "status": "CLOSED",
+      "exit_price": 64411.50716393554,
+      "exit_reason": "stop_hit",
+      "result": "LOSS",
+      "pnl_dollars": -0.42,
+      "closed_at": "2026-06-13T21:43:56.246824+00:00",
+      "held_hours": 5.29
     }
   ],
-  "total_pnl": -971.92,
-  "total_trades": 106,
+  "total_pnl": -972.34,
+  "total_trades": 107,
   "wins": 24,
-  "losses": 82,
+  "losses": 83,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }
