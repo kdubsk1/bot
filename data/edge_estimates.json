@@ -187,15 +187,15 @@
   },
   "BB_REVERSION_BEAR|||ALL": {
     "wins": 5,
-    "losses": 11,
+    "losses": 12,
     "total_win_r": 13.499576093156783,
-    "total_loss_r": 11.0
+    "total_loss_r": 12.0
   },
   "BB_REVERSION_BEAR|||LH_LL": {
     "wins": 4,
-    "losses": 11,
+    "losses": 12,
     "total_win_r": 11.430529037115196,
-    "total_loss_r": 11.0
+    "total_loss_r": 12.0
   },
   "BREAK_RETEST_BULL|||HH_HL": {
     "wins": 6,
