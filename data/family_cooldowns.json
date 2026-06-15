@@ -6,5 +6,9 @@
   "BTC:cont_short": {
     "expiry": "2026-06-14T21:56:22.446233+00:00",
     "reason": "LOSS"
+  },
+  "SOL:mean_rev_long": {
+    "expiry": "2026-06-14T23:15:26.865825+00:00",
+    "reason": "WIN"
   }
 }
