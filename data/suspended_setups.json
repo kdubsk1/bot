@@ -1,128 +1,9 @@
 {
-  "NQ:EMA21_PULLBACK_BULL": {
-    "reason": "2W/5L (28.6% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356693+00:00",
-    "total_at_suspension": 7,
-    "wr_at_suspension": 28.6,
-    "bleed_at_suspension": 0.0
-  },
-  "SOL:BREAK_RETEST_BEAR": {
-    "reason": "0W/5L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356727+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "SOL:BB_REVERSION_BULL": {
-    "reason": "0W/6L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356755+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "GC:VWAP_BOUNCE_BULL": {
-    "reason": "0W/51L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356774+00:00",
-    "total_at_suspension": 51,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "BTC:STOCH_REVERSAL_BULL": {
-    "reason": "1W/5L (16.7% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356798+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 16.7,
-    "bleed_at_suspension": 0.0
-  },
-  "GC:MACD_CROSS_BULL": {
-    "reason": "0W/10L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356819+00:00",
-    "total_at_suspension": 10,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "GC:VWAP_REJECT_BEAR": {
-    "reason": "0W/36L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356840+00:00",
-    "total_at_suspension": 36,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": -100.0
-  },
-  "BTC:BB_REVERSION_BULL": {
-    "reason": "1W/4L (20.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356861+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 20.0,
-    "bleed_at_suspension": 0.0
-  },
-  "GC:BREAK_RETEST_BEAR": {
-    "reason": "1W/5L (16.7% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356883+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 16.7,
-    "bleed_at_suspension": 0.0
-  },
-  "GC:RSI_DIV_BULL": {
-    "reason": "0W/103L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356901+00:00",
-    "total_at_suspension": 103,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "SOL:STOCH_REVERSAL_BULL": {
-    "reason": "0W/5L (0.0% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356921+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "BTC:BB_REVERSION_BEAR": {
-    "reason": "1W/6L (14.3% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356941+00:00",
-    "total_at_suspension": 7,
-    "wr_at_suspension": 14.3,
-    "bleed_at_suspension": 0.0
-  },
-  "SOL:BREAK_RETEST_BULL": {
-    "reason": "2W/4L (33.3% WR)",
-    "suspended_at": "2026-06-11T13:43:38.356958+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 33.3,
-    "bleed_at_suspension": 0.0
-  },
-  "GC:EMA21_PULLBACK_BEAR": {
-    "reason": "1W/88L (1.1% WR)",
-    "suspended_at": "2026-06-11T20:00:06.016604+00:00",
-    "total_at_suspension": 89,
-    "wr_at_suspension": 1.1,
-    "bleed_at_suspension": -100.0
-  },
-  "BTC:BREAK_RETEST_BULL": {
-    "reason": "1W/10L (9.1% WR)",
-    "suspended_at": "2026-06-11T20:00:06.017463+00:00",
-    "total_at_suspension": 11,
-    "wr_at_suspension": 9.1,
-    "bleed_at_suspension": 0.0
-  },
-  "NQ:BREAK_RETEST_BULL": {
-    "reason": "6W/37L (14.0% WR)",
-    "suspended_at": "2026-06-12T20:00:13.751351+00:00",
-    "total_at_suspension": 43,
-    "wr_at_suspension": 14.0,
-    "bleed_at_suspension": -200.0
-  },
   "SOL:RSI_DIV_BEAR": {
     "reason": "0W/65L (0.0% WR)",
     "suspended_at": "2026-06-12T20:00:13.751434+00:00",
     "total_at_suspension": 65,
     "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "NQ:VWAP_BOUNCE_BULL": {
-    "reason": "2W/36L (5.3% WR)",
-    "suspended_at": "2026-06-12T20:00:13.751523+00:00",
-    "total_at_suspension": 38,
-    "wr_at_suspension": 5.3,
     "bleed_at_suspension": 0.0
   },
   "NQ:MACD_CROSS_BULL": {
@@ -143,6 +24,181 @@
     "reason": "0W/11L (0.0% WR)",
     "suspended_at": "2026-06-12T20:00:13.751650+00:00",
     "total_at_suspension": 11,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:BB_REVERSION_BEAR": {
+    "reason": "0W/38L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553048+00:00",
+    "total_at_suspension": 38,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:BB_REVERSION_BULL": {
+    "reason": "1W/4L (20.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553120+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 20.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:EMA21_PULLBACK_BEAR": {
+    "reason": "1W/88L (1.1% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553146+00:00",
+    "total_at_suspension": 89,
+    "wr_at_suspension": 1.1,
+    "bleed_at_suspension": -100.0
+  },
+  "BTC:VWAP_REJECT_BEAR": {
+    "reason": "2W/13L (13.3% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553170+00:00",
+    "total_at_suspension": 15,
+    "wr_at_suspension": 13.3,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:BREAK_RETEST_BULL": {
+    "reason": "1W/10L (9.1% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553196+00:00",
+    "total_at_suspension": 11,
+    "wr_at_suspension": 9.1,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:BREAK_RETEST_BEAR": {
+    "reason": "1W/5L (16.7% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553221+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 16.7,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:BB_REVERSION_BULL": {
+    "reason": "0W/6L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553245+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:EMA21_PULLBACK_BULL": {
+    "reason": "2W/5L (28.6% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553291+00:00",
+    "total_at_suspension": 7,
+    "wr_at_suspension": 28.6,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:STOCH_REVERSAL_BEAR": {
+    "reason": "5W/11L (31.2% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553316+00:00",
+    "total_at_suspension": 16,
+    "wr_at_suspension": 31.2,
+    "bleed_at_suspension": 158.0
+  },
+  "GC:VWAP_BOUNCE_BULL": {
+    "reason": "19W/51L (27.1% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553343+00:00",
+    "total_at_suspension": 70,
+    "wr_at_suspension": 27.1,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:BREAK_RETEST_BULL": {
+    "reason": "2W/4L (33.3% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553370+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 33.3,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:BREAK_RETEST_BEAR": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553393+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:MACD_CROSS_BULL": {
+    "reason": "0W/10L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553417+00:00",
+    "total_at_suspension": 10,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:VWAP_BOUNCE_BULL": {
+    "reason": "4W/83L (4.6% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553439+00:00",
+    "total_at_suspension": 87,
+    "wr_at_suspension": 4.6,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:RSI_DIV_BEAR": {
+    "reason": "0W/6L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553462+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:RSI_DIV_BULL": {
+    "reason": "1W/103L (1.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553487+00:00",
+    "total_at_suspension": 104,
+    "wr_at_suspension": 1.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:EMA21_PULLBACK_BULL": {
+    "reason": "0W/13L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553511+00:00",
+    "total_at_suspension": 13,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:VWAP_REJECT_BEAR": {
+    "reason": "0W/36L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553534+00:00",
+    "total_at_suspension": 36,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:STOCH_REVERSAL_BEAR": {
+    "reason": "0W/19L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553557+00:00",
+    "total_at_suspension": 19,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:MACD_CROSS_BEAR": {
+    "reason": "1W/21L (4.5% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553581+00:00",
+    "total_at_suspension": 22,
+    "wr_at_suspension": 4.5,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:EMA21_PULLBACK_BULL": {
+    "reason": "0W/7L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553612+00:00",
+    "total_at_suspension": 7,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:RSI_DIV_BEAR": {
+    "reason": "1W/13L (7.1% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553631+00:00",
+    "total_at_suspension": 14,
+    "wr_at_suspension": 7.1,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:STOCH_REVERSAL_BULL": {
+    "reason": "1W/5L (16.7% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553647+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 16.7,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:BB_REVERSION_BEAR": {
+    "reason": "1W/6L (14.3% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553668+00:00",
+    "total_at_suspension": 7,
+    "wr_at_suspension": 14.3,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:STOCH_REVERSAL_BULL": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-06-15T20:00:02.553684+00:00",
+    "total_at_suspension": 5,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   }
