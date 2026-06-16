@@ -1664,6 +1664,25 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 continue
 
+            # Wave 64 (_WAVE64_CRYPTO_STOPS): crypto needs room to breathe.
+            # detect_setups pads stops by only 0.2-0.5 ATR -- fine for NQ/GC,
+            # but inside normal wick noise for BTC/SOL, so positions got
+            # chopped out by routine volatility (the crypto sim bled from
+            # stops, not direction). Enforce a minimum TOTAL stop distance
+            # of 1.2 ATR for crypto, BEFORE target/RR math -- so the Wave 63
+            # evidence-based RR floor then demands a target that pays for
+            # the wider risk. Crypto is shadow-only until proven (Wave 60),
+            # so this is validated on shadow outcomes before money moves.
+            if market in ("BTC", "SOL") and atr_v > 0:
+                try:
+                    _min_stop_dist = 1.2 * atr_v
+                    if abs(stp["entry"] - stp["raw_stop"]) < _min_stop_dist:
+                        if stp["direction"] == "LONG":
+                            stp["raw_stop"] = stp["entry"] - _min_stop_dist
+                        else:
+                            stp["raw_stop"] = stp["entry"] + _min_stop_dist
+                except Exception:
+                    pass
             tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
                                                    market=market, trend_score_val=trend)
 
