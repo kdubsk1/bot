@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-15T20:45:28.660178+00:00",
+  "generated_at": "2026-06-16T02:45:37.796071+00:00",
   "topstep": {
-    "balance": 50000,
+    "balance": 49939.21,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 0.0,
+    "today_pnl": -60.79,
+    "total_pnl": -60.79,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -329,6 +329,10 @@ const DATA = {
       {
         "time": "2026-06-15 08:39",
         "balance": 53553.73
+      },
+      {
+        "time": "2026-06-16 00:57",
+        "balance": 52750.42
       }
     ]
   },
@@ -783,15 +787,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 6,
-    "losses": 11,
-    "wr": 35.3,
-    "total_trades": 17
+    "losses": 12,
+    "wr": 33.3,
+    "total_trades": 18
   },
   "today": {
     "wins": 0,
-    "losses": 2,
+    "losses": 1,
     "wr": 0.0,
-    "total_trades": 2
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -807,6 +811,13 @@ const DATA = {
       "wins": 1,
       "losses": 2,
       "wr": 33.3
+    },
+    {
+      "setup": "NQ:BREAK_RETEST_BULL",
+      "fires": 3,
+      "wins": 0,
+      "losses": 3,
+      "wr": 0.0
     },
     {
       "setup": "BTC:EMA21_PULLBACK_BEAR",
@@ -828,13 +839,6 @@ const DATA = {
       "wins": 2,
       "losses": 0,
       "wr": 100.0
-    },
-    {
-      "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 2,
-      "wins": 0,
-      "losses": 2,
-      "wr": 0.0
     },
     {
       "setup": "GC:EMA21_PULLBACK_BEAR",
@@ -859,6 +863,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-16 00:57",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "30790.5",
+      "stop": "30760.1029",
+      "target": "30915.0",
+      "rr": "4.1",
+      "conv": "70",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "30760.1029"
+    },
     {
       "time": "2026-06-15 08:39",
       "market": "GC",
@@ -1300,16 +1320,16 @@ const DATA = {
     },
     "NQ": {
       "wins": 2,
-      "losses": 2,
-      "total_pnl_r": 3.34,
-      "wr": 50.0
+      "losses": 3,
+      "total_pnl_r": 2.34,
+      "wr": 40.0
     }
   },
   "by_tier": {
     "HIGH": {
       "wins": 2,
-      "losses": 6,
-      "wr": 25.0
+      "losses": 7,
+      "wr": 22.2
     },
     "MEDIUM": {
       "wins": 4,
