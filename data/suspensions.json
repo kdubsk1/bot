@@ -43,5 +43,15 @@
     "reason": "Wave 47 auto: 0W/3L over last 30 days",
     "suspended_at": "2026-05-25T20:00:07.192770+00:00",
     "source": "wave47_auto"
+  },
+  "BTC:BREAK_RETEST_BEAR": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-06-16T20:00:13.666189+00:00",
+    "source": "wave47_auto"
+  },
+  "NQ:BREAK_RETEST_BULL": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-06-16T20:00:13.682638+00:00",
+    "source": "wave47_auto"
   }
 }

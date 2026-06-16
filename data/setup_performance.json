@@ -1,10 +1,10 @@
 {
   "NQ:BB_REVERSION_BULL": {
     "wins": 7,
-    "losses": 5,
-    "total": 12,
-    "win_rate": 58.3,
-    "last_updated": "2026-06-12T14:09:18.066425"
+    "losses": 8,
+    "total": 15,
+    "win_rate": 46.7,
+    "last_updated": "2026-06-16T17:23:03.502118"
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
@@ -63,11 +63,11 @@
     "last_updated": "2026-05-07T17:22:51.505063"
   },
   "NQ:STOCH_REVERSAL_BULL": {
-    "wins": 5,
-    "losses": 3,
-    "total": 8,
-    "win_rate": 62.5,
-    "last_updated": "2026-06-12T08:09:38.045785"
+    "wins": 6,
+    "losses": 5,
+    "total": 11,
+    "win_rate": 54.5,
+    "last_updated": "2026-06-16T19:55:15.933096"
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 0,
@@ -113,17 +113,17 @@
   },
   "SOL:VWAP_BOUNCE_BULL": {
     "wins": 13,
-    "losses": 4,
-    "total": 17,
-    "win_rate": 76.5,
-    "last_updated": "2026-06-14T22:45:25.947532"
+    "losses": 5,
+    "total": 18,
+    "win_rate": 72.2,
+    "last_updated": "2026-06-16T18:16:52.076844"
   },
   "BTC:RSI_DIV_BEAR": {
-    "wins": 1,
+    "wins": 4,
     "losses": 13,
-    "total": 14,
-    "win_rate": 7.1,
-    "last_updated": "2026-06-15T15:47:42.123290"
+    "total": 17,
+    "win_rate": 23.5,
+    "last_updated": "2026-06-16T14:47:38.318892"
   },
   "NQ:RSI_DIV_BULL": {
     "wins": 2,
@@ -168,11 +168,11 @@
     "last_updated": "2026-05-29T13:57:33.201680"
   },
   "BTC:BREAK_RETEST_BEAR": {
-    "wins": 3,
-    "losses": 4,
-    "total": 7,
-    "win_rate": 42.9,
-    "last_updated": "2026-06-14T20:26:21.442085"
+    "wins": 4,
+    "losses": 5,
+    "total": 9,
+    "win_rate": 44.4,
+    "last_updated": "2026-06-16T18:04:48.474196"
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 2,
@@ -224,11 +224,11 @@
     "last_updated": "2026-06-12T14:57:52.291328"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
-    "wins": 7,
+    "wins": 39,
     "losses": 11,
-    "total": 18,
-    "win_rate": 38.9,
-    "last_updated": "2026-06-15T22:24:10.330645"
+    "total": 50,
+    "win_rate": 78.0,
+    "last_updated": "2026-06-16T14:47:38.485835"
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 87,

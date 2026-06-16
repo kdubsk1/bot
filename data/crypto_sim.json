@@ -1,12 +1,40 @@
 {
   "enabled": true,
-  "balance": 28.53,
+  "balance": 28.1,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "4d64592fe1",
+      "market": "SOL",
+      "direction": "LONG",
+      "entry": 74.0,
+      "stop": 73.10053600364252,
+      "target": 76.05,
+      "leverage": 10,
+      "position_size_usd": 34.68,
+      "notional_usd": 346.77,
+      "risk_dollars": 0.42,
+      "opened_at": "2026-06-16T18:16:19.438209+00:00",
+      "max_hold_until": "2026-06-23T18:16:19.438209+00:00",
+      "tier": "HIGH",
+      "conviction": 71,
+      "context": {
+        "trend_score": 3,
+        "rsi": 57.19,
+        "adx": 23.26,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "VWAP bounce at 73.8507. Institutional support level."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
@@ -3604,12 +3632,45 @@
       "pnl_dollars": 1.28,
       "closed_at": "2026-06-14T22:48:28.272193+00:00",
       "held_hours": 55.86
+    },
+    {
+      "alert_id": "2635844abd",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 65891.0,
+      "stop": 66182.68645064377,
+      "target": 65302.08,
+      "leverage": 10,
+      "position_size_usd": 96.67,
+      "notional_usd": 966.72,
+      "risk_dollars": 0.43,
+      "opened_at": "2026-06-16T15:55:53.121224+00:00",
+      "max_hold_until": "2026-06-23T15:55:53.121224+00:00",
+      "tier": "LOW",
+      "conviction": 50,
+      "context": {
+        "trend_score": -1,
+        "rsi": 43.77,
+        "adx": 23.34,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Broke below 65953.0, rallied back to retest as resistance. Rejected. Classic break-retest entry."
+      },
+      "status": "CLOSED",
+      "exit_price": 66182.6865,
+      "exit_reason": "outcomes_reconcile",
+      "result": "LOSS",
+      "pnl_dollars": -0.43,
+      "closed_at": "2026-06-16T18:04:50.323758+00:00",
+      "held_hours": 2.15
     }
   ],
-  "total_pnl": -971.47,
-  "total_trades": 109,
+  "total_pnl": -971.9,
+  "total_trades": 110,
   "wins": 25,
-  "losses": 84,
+  "losses": 85,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }
