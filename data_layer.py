@@ -127,7 +127,7 @@ def _get_cached(market: str, timeframe: str) -> Optional[pd.DataFrame]:
     return entry["df"].copy()
 
 
-_WAVE66_DAILY_DISK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "daily_cache")
+_WAVE66_DAILY_DISK_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "data", "daily_cache")  # _WAVE67_OS_HOTFIX
 
 
 def _daily_disk_path(market: str) -> str:
@@ -138,7 +138,7 @@ def _save_daily_disk(market: str, df: pd.DataFrame) -> None:
     # Wave 66 (_WAVE66_DAILY_DISK): persist a healthy daily frame so it
     # survives restarts and bridges yfinance throttle windows. Best-effort.
     try:
-        os.makedirs(_WAVE66_DAILY_DISK_DIR, exist_ok=True)
+        _os.makedirs(_WAVE66_DAILY_DISK_DIR, exist_ok=True)
         df.to_csv(_daily_disk_path(market))
     except Exception as exc:
         logger.debug("daily disk save failed for %s: %s", market, exc)
@@ -147,7 +147,7 @@ def _save_daily_disk(market: str, df: pd.DataFrame) -> None:
 def _load_daily_disk(market: str) -> Optional[pd.DataFrame]:
     try:
         p = _daily_disk_path(market)
-        if not os.path.exists(p):
+        if not _os.path.exists(p):
             return None
         df = pd.read_csv(p, index_col=0, parse_dates=True)
         if df is not None and len(df) >= MIN_BARS:
