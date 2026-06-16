@@ -127,9 +127,42 @@ def _get_cached(market: str, timeframe: str) -> Optional[pd.DataFrame]:
     return entry["df"].copy()
 
 
+_WAVE66_DAILY_DISK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "daily_cache")
+
+
+def _daily_disk_path(market: str) -> str:
+    return os.path.join(_WAVE66_DAILY_DISK_DIR, f"{market.upper()}_1d.csv")
+
+
+def _save_daily_disk(market: str, df: pd.DataFrame) -> None:
+    # Wave 66 (_WAVE66_DAILY_DISK): persist a healthy daily frame so it
+    # survives restarts and bridges yfinance throttle windows. Best-effort.
+    try:
+        os.makedirs(_WAVE66_DAILY_DISK_DIR, exist_ok=True)
+        df.to_csv(_daily_disk_path(market))
+    except Exception as exc:
+        logger.debug("daily disk save failed for %s: %s", market, exc)
+
+
+def _load_daily_disk(market: str) -> Optional[pd.DataFrame]:
+    try:
+        p = _daily_disk_path(market)
+        if not os.path.exists(p):
+            return None
+        df = pd.read_csv(p, index_col=0, parse_dates=True)
+        if df is not None and len(df) >= MIN_BARS:
+            return _normalise_df(df)
+    except Exception as exc:
+        logger.debug("daily disk load failed for %s: %s", market, exc)
+    return None
+
+
 def _set_cache(market: str, timeframe: str, df: pd.DataFrame) -> None:
     key = _cache_key(market, timeframe)
     _cache[key] = {"df": df.copy(), "ts": time.time()}
+    # Wave 66: also persist healthy daily frames to disk.
+    if timeframe == "1d" and df is not None and len(df) >= MIN_BARS:
+        _save_daily_disk(market, df)
 
 
 def _get_stale_cache(market: str, timeframe: str) -> Optional[pd.DataFrame]:
@@ -139,6 +172,14 @@ def _get_stale_cache(market: str, timeframe: str) -> Optional[pd.DataFrame]:
     if entry is not None:
         logger.warning("Returning stale cache for %s %s", market, timeframe)
         return entry["df"].copy()
+    # Wave 66 (_WAVE66_DAILY_DISK): in-memory cache is wiped on restart;
+    # for daily bars fall back to the last good frame saved on disk so
+    # 1d data survives restarts + yfinance throttle windows.
+    if timeframe == "1d":
+        disk = _load_daily_disk(market)
+        if disk is not None:
+            logger.warning("Returning DISK daily cache for %s (%d bars)", market, len(disk))
+            return disk
     return None
 
 
