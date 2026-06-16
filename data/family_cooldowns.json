@@ -1,18 +1,1 @@
-{
-  "NQ:cont_long": {
-    "expiry": "2026-06-16T02:41:18.001698+00:00",
-    "reason": "LOSS"
-  },
-  "BTC:cont_short": {
-    "expiry": "2026-06-14T21:56:22.446233+00:00",
-    "reason": "LOSS"
-  },
-  "SOL:mean_rev_long": {
-    "expiry": "2026-06-14T23:15:26.865825+00:00",
-    "reason": "WIN"
-  },
-  "NQ:mean_rev_long": {
-    "expiry": "2026-06-16T08:35:56.171695+00:00",
-    "reason": "WIN"
-  }
-}
+{}
