@@ -60,10 +60,23 @@ def classify_regime(df: pd.DataFrame, market: str = "") -> dict:
         atr_percentile    – ATR(14) percentile over last 100 bars
         ema50_slope_pct   – EMA50 slope as pct change per bar (last 5 bars)
     """
+    # --- Wave 65 (_WAVE65_REGIME_FIX): normalise column casing ---
+    # The bot feeds capitalised columns (Open/High/Low/Close); this
+    # module historically read the close column in lowercase and crashed
+    # every call (KeyError), so regime was "UNKNOWN" forever. Normalise
+    # to capitalised so the classifier tolerates either casing.
+    _rename = {}
+    for _c in df.columns:
+        _lc = str(_c).lower()
+        if _lc in ("open", "high", "low", "close", "volume") and _c != _lc.capitalize():
+            _rename[_c] = _lc.capitalize()
+    if _rename:
+        df = df.rename(columns=_rename)
+
     # --- Indicators ---
     adx_series = adx(df, 14)
     atr_series = atr(df, 14)
-    ema50_series = ema(df["close"], 50)
+    ema50_series = ema(df["Close"], 50)
 
     current_adx = float(adx_series.iloc[-1])
 
@@ -78,7 +91,7 @@ def classify_regime(df: pd.DataFrame, market: str = "") -> dict:
     ema50_5ago = float(ema50_series.iloc[-6])  # 5-bar span
     ema50_slope_pct = ((ema50_now / ema50_5ago) - 1) * 100 / 5  # per-bar pct
 
-    current_close = float(df["close"].iloc[-1])
+    current_close = float(df["Close"].iloc[-1])
 
     # --- Classification ---
     if atr_pct > 85:
