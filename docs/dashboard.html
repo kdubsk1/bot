@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-16T02:45:37.796071+00:00",
+  "generated_at": "2026-06-16T08:45:47.292210+00:00",
   "topstep": {
     "balance": 49939.21,
     "starting_balance": 50000,
@@ -333,6 +333,10 @@ const DATA = {
       {
         "time": "2026-06-16 00:57",
         "balance": 52750.42
+      },
+      {
+        "time": "2026-06-16 05:57",
+        "balance": 54499.1
       }
     ]
   },
@@ -786,16 +790,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 6,
+    "wins": 7,
     "losses": 12,
-    "wr": 33.3,
-    "total_trades": 18
+    "wr": 36.8,
+    "total_trades": 19
   },
   "today": {
-    "wins": 0,
+    "wins": 1,
     "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "wr": 50.0,
+    "total_trades": 2
   },
   "setup_stats": [
     {
@@ -860,9 +864,32 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "NQ:VWAP_BOUNCE_BULL",
+      "fires": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-16 05:57",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "30811.75",
+      "stop": "30789.8875",
+      "target": "30860.0",
+      "rr": "2.21",
+      "conv": "78",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "30860.0"
+    },
     {
       "time": "2026-06-16 00:57",
       "market": "NQ",
@@ -1319,17 +1346,17 @@ const DATA = {
       "wr": 50.0
     },
     "NQ": {
-      "wins": 2,
+      "wins": 3,
       "losses": 3,
-      "total_pnl_r": 2.34,
-      "wr": 40.0
+      "total_pnl_r": 4.55,
+      "wr": 50.0
     }
   },
   "by_tier": {
     "HIGH": {
-      "wins": 2,
+      "wins": 3,
       "losses": 7,
-      "wr": 22.2
+      "wr": 30.0
     },
     "MEDIUM": {
       "wins": 4,
