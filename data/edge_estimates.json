@@ -60,9 +60,9 @@
     "total_loss_r": 12.0
   },
   "VWAP_BOUNCE_BULL|||ALL": {
-    "wins": 3,
+    "wins": 4,
     "losses": 23,
-    "total_win_r": 6.771796083312609,
+    "total_win_r": 8.339784041165114,
     "total_loss_r": 23.0
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
@@ -115,15 +115,15 @@
   },
   "STOCH_REVERSAL_BEAR|||MIXED": {
     "wins": 1,
-    "losses": 4,
+    "losses": 5,
     "total_win_r": 1.9462207030585124,
-    "total_loss_r": 4.0
+    "total_loss_r": 5.0
   },
   "STOCH_REVERSAL_BEAR|||ALL": {
-    "wins": 4,
-    "losses": 9,
-    "total_win_r": 11.172831918045802,
-    "total_loss_r": 9.0
+    "wins": 5,
+    "losses": 10,
+    "total_win_r": 13.649063143925698,
+    "total_loss_r": 10.0
   },
   "BB_REVERSION_BULL|||UNKNOWN": {
     "wins": 0,
@@ -186,15 +186,15 @@
     "total_loss_r": 0.0
   },
   "BB_REVERSION_BEAR|||ALL": {
-    "wins": 5,
+    "wins": 6,
     "losses": 12,
-    "total_win_r": 13.499576093156783,
+    "total_win_r": 15.767209580302428,
     "total_loss_r": 12.0
   },
   "BB_REVERSION_BEAR|||LH_LL": {
-    "wins": 4,
+    "wins": 5,
     "losses": 12,
-    "total_win_r": 11.430529037115196,
+    "total_win_r": 13.698162524260841,
     "total_loss_r": 12.0
   },
   "BREAK_RETEST_BULL|||HH_HL": {
@@ -210,15 +210,15 @@
     "total_loss_r": 0.0
   },
   "STOCH_REVERSAL_BEAR|||LH_LL": {
-    "wins": 3,
+    "wins": 4,
     "losses": 3,
-    "total_win_r": 9.226611214987289,
+    "total_win_r": 11.702842440867183,
     "total_loss_r": 3.0
   },
   "VWAP_BOUNCE_BULL|||MIXED": {
-    "wins": 0,
+    "wins": 1,
     "losses": 9,
-    "total_win_r": 0.0,
+    "total_win_r": 1.5679879578525044,
     "total_loss_r": 9.0
   },
   "STOCH_REVERSAL_BULL|||UNKNOWN": {
@@ -325,15 +325,15 @@
   },
   "VWAP_REJECT_BEAR|||LH_LL": {
     "wins": 0,
-    "losses": 2,
+    "losses": 3,
     "total_win_r": 0.0,
-    "total_loss_r": 2.0
+    "total_loss_r": 3.0
   },
   "VWAP_REJECT_BEAR|||ALL": {
     "wins": 0,
-    "losses": 2,
+    "losses": 3,
     "total_win_r": 0.0,
-    "total_loss_r": 2.0
+    "total_loss_r": 3.0
   },
   "MACD_CROSS_BEAR|||UNKNOWN": {
     "wins": 0,

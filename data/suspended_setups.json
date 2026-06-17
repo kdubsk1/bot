@@ -194,5 +194,75 @@
     "total_at_suspension": 6,
     "wr_at_suspension": 33.3,
     "bleed_at_suspension": 0.0
+  },
+  "NQ:EMA50_BREAKDOWN": {
+    "reason": "0W/9L (0.0% WR)",
+    "suspended_at": "2026-06-17T20:00:09.364921+00:00",
+    "total_at_suspension": 9,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:EMA50_RECLAIM": {
+    "reason": "0W/17L (0.0% WR)",
+    "suspended_at": "2026-06-17T20:00:09.366491+00:00",
+    "total_at_suspension": 17,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:MACD_CROSS_BEAR": {
+    "reason": "1W/6L (14.3% WR)",
+    "suspended_at": "2026-06-17T20:00:09.366736+00:00",
+    "total_at_suspension": 7,
+    "wr_at_suspension": 14.3,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:BREAK_RETEST_BEAR": {
+    "reason": "4W/23L (14.8% WR)",
+    "suspended_at": "2026-06-17T20:00:09.366852+00:00",
+    "total_at_suspension": 27,
+    "wr_at_suspension": 14.8,
+    "bleed_at_suspension": -200.0
+  },
+  "SOL:EMA21_PULLBACK_BEAR": {
+    "reason": "2W/23L (8.0% WR)",
+    "suspended_at": "2026-06-17T20:00:09.366974+00:00",
+    "total_at_suspension": 25,
+    "wr_at_suspension": 8.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:EMA21_PULLBACK_BEAR": {
+    "reason": "0W/7L (0.0% WR)",
+    "suspended_at": "2026-06-17T20:00:09.367021+00:00",
+    "total_at_suspension": 7,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:BREAK_RETEST_BEAR": {
+    "reason": "0W/27L (0.0% WR)",
+    "suspended_at": "2026-06-17T20:00:09.367061+00:00",
+    "total_at_suspension": 27,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:RSI_DIV_BEAR": {
+    "reason": "0W/51L (0.0% WR)",
+    "suspended_at": "2026-06-17T20:00:09.367099+00:00",
+    "total_at_suspension": 51,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:STOCH_REVERSAL_BEAR": {
+    "reason": "1W/7L (12.5% WR)",
+    "suspended_at": "2026-06-17T20:00:09.367151+00:00",
+    "total_at_suspension": 8,
+    "wr_at_suspension": 12.5,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:BB_REVERSION_BEAR": {
+    "reason": "4W/8L (33.3% WR)",
+    "suspended_at": "2026-06-17T20:00:09.367216+00:00",
+    "total_at_suspension": 12,
+    "wr_at_suspension": 33.3,
+    "bleed_at_suspension": 253.0
   }
 }

@@ -4,8 +4,8 @@
     "reason": "LOSS"
   },
   "SOL:mean_rev_long": {
-    "expiry": "2026-06-17T08:11:45.962486+00:00",
-    "reason": "LOSS"
+    "expiry": "2026-06-17T17:01:47.251540+00:00",
+    "reason": "WIN"
   },
   "NQ:cont_long": {
     "expiry": "2026-06-17T10:02:02.425514+00:00",
@@ -13,6 +13,10 @@
   },
   "NQ:mean_rev_long": {
     "expiry": "2026-06-17T15:03:10.220594+00:00",
+    "reason": "LOSS"
+  },
+  "NQ:mean_rev_short": {
+    "expiry": "2026-06-17T20:16:25.967262+00:00",
     "reason": "LOSS"
   }
 }
