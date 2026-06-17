@@ -1,10 +1,10 @@
 {
   "NQ:BB_REVERSION_BULL": {
     "wins": 7,
-    "losses": 8,
-    "total": 15,
-    "win_rate": 46.7,
-    "last_updated": "2026-06-16T17:23:03.502118"
+    "losses": 11,
+    "total": 18,
+    "win_rate": 38.9,
+    "last_updated": "2026-06-17T11:58:04.300156"
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
@@ -92,10 +92,10 @@
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 136,
-    "losses": 36,
-    "total": 172,
-    "win_rate": 79.1,
-    "last_updated": "2026-06-16T08:05:55.155321"
+    "losses": 40,
+    "total": 176,
+    "win_rate": 77.3,
+    "last_updated": "2026-06-17T13:33:07.882163"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,
@@ -169,10 +169,10 @@
   },
   "BTC:BREAK_RETEST_BEAR": {
     "wins": 4,
-    "losses": 5,
-    "total": 9,
-    "win_rate": 44.4,
-    "last_updated": "2026-06-16T18:04:48.474196"
+    "losses": 18,
+    "total": 22,
+    "win_rate": 18.2,
+    "last_updated": "2026-06-17T12:51:47.461627"
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 2,
@@ -246,10 +246,10 @@
   },
   "BTC:EMA21_PULLBACK_BEAR": {
     "wins": 5,
-    "losses": 2,
-    "total": 7,
-    "win_rate": 71.4,
-    "last_updated": "2026-06-11T01:22:53.795303"
+    "losses": 4,
+    "total": 9,
+    "win_rate": 55.6,
+    "last_updated": "2026-06-17T13:39:47.926013"
   },
   "SOL:STOCH_REVERSAL_BEAR": {
     "wins": 1,
@@ -267,10 +267,10 @@
   },
   "SOL:EMA21_PULLBACK_BEAR": {
     "wins": 2,
-    "losses": 3,
-    "total": 5,
-    "win_rate": 40.0,
-    "last_updated": "2026-06-01T14:13:48.680621"
+    "losses": 11,
+    "total": 13,
+    "win_rate": 15.4,
+    "last_updated": "2026-06-17T14:29:57.797142"
   },
   "BTC:EMA50_BREAKDOWN": {
     "wins": 0,
@@ -383,5 +383,33 @@
     "total": 17,
     "win_rate": 0.0,
     "last_updated": "2026-06-17T07:51:04.589685"
+  },
+  "NQ:MACD_CROSS_BEAR": {
+    "wins": 0,
+    "losses": 6,
+    "total": 6,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-17T08:44:49.978550"
+  },
+  "NQ:BREAK_RETEST_BEAR": {
+    "wins": 0,
+    "losses": 13,
+    "total": 13,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-17T14:16:35.356518"
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "wins": 0,
+    "losses": 29,
+    "total": 29,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-17T14:13:48.836240"
+  },
+  "GC:RSI_DIV_BEAR": {
+    "wins": 0,
+    "losses": 51,
+    "total": 51,
+    "win_rate": 0.0,
+    "last_updated": "2026-06-17T14:33:19.878894"
   }
 }

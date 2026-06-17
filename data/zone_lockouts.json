@@ -1,16 +1,16 @@
 [
   {
-    "market": "SOL",
-    "direction": "LONG",
-    "zone_low": 73.8361,
-    "zone_high": 74.1639,
-    "expiry": "2026-06-17T08:41:45.959184+00:00"
-  },
-  {
     "market": "NQ",
     "direction": "LONG",
-    "zone_low": 30523.6161,
-    "zone_high": 30556.3839,
-    "expiry": "2026-06-17T10:32:02.416744+00:00"
+    "zone_low": 30469.7834,
+    "zone_high": 30513.7166,
+    "expiry": "2026-06-17T15:33:10.211406+00:00"
+  },
+  {
+    "market": "BTC",
+    "direction": "SHORT",
+    "zone_low": 64793.6439,
+    "zone_high": 64992.9161,
+    "expiry": "2026-06-17T15:39:50.365752+00:00"
   }
 ]

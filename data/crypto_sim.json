@@ -1,12 +1,40 @@
 {
   "enabled": true,
-  "balance": 27.68,
+  "balance": 27.26,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "8859b7bbba",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 65176.94,
+      "stop": 65426.54556384133,
+      "target": 64491.88,
+      "leverage": 10,
+      "position_size_usd": 106.77,
+      "notional_usd": 1067.72,
+      "risk_dollars": 0.41,
+      "opened_at": "2026-06-17T14:23:17.667510+00:00",
+      "max_hold_until": "2026-06-24T14:23:17.667510+00:00",
+      "tier": "HIGH",
+      "conviction": 76,
+      "context": {
+        "trend_score": -2,
+        "rsi": 54.15,
+        "adx": 34.82,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (97.0\u219274.7 vs D 86.6). Early reversal trigger."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
@@ -3670,12 +3698,45 @@
       "pnl_dollars": -0.42,
       "closed_at": "2026-06-17T06:42:18.558404+00:00",
       "held_hours": 12.43
+    },
+    {
+      "alert_id": "e1a0088f24",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 64893.28,
+      "stop": 65113.221580544494,
+      "target": 64491.88,
+      "leverage": 10,
+      "position_size_usd": 122.5,
+      "notional_usd": 1225.04,
+      "risk_dollars": 0.42,
+      "opened_at": "2026-06-17T12:55:04.101550+00:00",
+      "max_hold_until": "2026-06-24T12:55:04.101550+00:00",
+      "tier": "HIGH",
+      "conviction": 64,
+      "context": {
+        "trend_score": -4,
+        "rsi": 45.03,
+        "adx": 48.57,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "London Session",
+        "news_flag": false,
+        "chart_read": "Rallied to EMA21 (64932.0167) in bearish stack and rejected. RSI 45.0, ADX 48.6. Trend continuation."
+      },
+      "status": "CLOSED",
+      "exit_price": 65113.221580544494,
+      "exit_reason": "stop_hit",
+      "result": "LOSS",
+      "pnl_dollars": -0.42,
+      "closed_at": "2026-06-17T13:39:47.406453+00:00",
+      "held_hours": 0.75
     }
   ],
-  "total_pnl": -972.32,
-  "total_trades": 111,
+  "total_pnl": -972.74,
+  "total_trades": 112,
   "wins": 25,
-  "losses": 86,
+  "losses": 87,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }
