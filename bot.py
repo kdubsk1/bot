@@ -52,6 +52,7 @@ import strategy_review as sr
 from config import TELEGRAM_TOKEN, CHAT_ID
 from session_clock import SessionClock, SessionEvent, get_session_date
 import auto_sync  # Persistence: commits data/ + outcomes.csv to GitHub every 6h so Railway runtime data survives restarts
+import trend_memory  # Wave 68: self-grading trend-read memory  _WAVE68_TREND_MEM
 import conviction_boosts as cb  # Wave 7: Iron Robot conviction adjustment layer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -2785,6 +2786,10 @@ async def scan_loop(app):
                 try: await watch_open_trades(app, frames_by_market)
                 except Exception as e: log.error(f"watch: {e}")
 
+                # Wave 68: grade due trend reads against what price actually did.
+                try: trend_memory.grade_due_reads_from_frames(frames_by_market)
+                except Exception as e: log.debug(f"trend grade: {e}")
+
             if (datetime.now(timezone.utc)-last_hb).total_seconds()>=3600:
                 log.info(f"Heartbeat scanner={SETTINGS['scanner_on']} open={len(ot.load_open_trades())}")
                 last_hb=datetime.now(timezone.utc)
@@ -3622,6 +3627,25 @@ async def cmd_trend(u, c):
         text = ot.market_trend_text(market)
     except Exception as e:
         text = f"*MARKET TREND*\nError: `{e}`"
+    # Wave 68: log this read + append self-graded accuracy so the bot learns
+    # from its own directional opinions over time.
+    try:
+        _tm_markets = [market] if market else ["NQ", "GC", "BTC", "SOL"]
+        for _mkt in _tm_markets:
+            _frames = dl_get_frames(_mkt)
+            _score, _ = ot.trend_score(_frames, _mkt)
+            _px = None
+            for _tf in ("15m", "1h", "4h", "1d"):
+                _df = _frames.get(_tf) if _frames else None
+                if _df is not None and len(_df) > 0:
+                    _px = float(_df["Close"].iloc[-1]); break
+            trend_memory.log_trend_read(_mkt, _score, _px)
+        if market:
+            _acc = trend_memory.accuracy_summary(market)
+            if _acc:
+                text = text + "\n\n_" + _acc + "_"
+    except Exception as e:
+        log.debug(f"trend log: {e}")
     await u.message.reply_text(text, parse_mode="Markdown")
 
 async def cmd_journey(u, c):
