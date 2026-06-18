@@ -1,5 +1,11 @@
-{"ts": "2026-06-17T23:52:03.462001+00:00", "market": "NQ", "score": 2, "bias": "NEUTRAL", "price": 30285.5, "graded": false, "result": null}
-{"ts": "2026-06-17T23:52:07.168261+00:00", "market": "GC", "score": 2, "bias": "NEUTRAL", "price": 4292.0, "graded": false, "result": null}
-{"ts": "2026-06-17T23:52:07.175981+00:00", "market": "BTC", "score": -4, "bias": "SHORT", "price": 64430.92, "graded": false, "result": null}
-{"ts": "2026-06-17T23:52:07.183702+00:00", "market": "SOL", "score": -2, "bias": "NEUTRAL", "price": 71.94, "graded": false, "result": null}
-{"ts": "2026-06-17T23:52:15.444369+00:00", "market": "NQ", "score": 2, "bias": "NEUTRAL", "price": 30285.5, "graded": false, "result": null}
+{"ts": "2026-06-17T23:52:03.462001+00:00", "market": "NQ", "score": 2, "bias": "NEUTRAL", "price": 30285.5, "graded": true, "result": "MOVED", "move_pct": 0.289}
+{"ts": "2026-06-17T23:52:07.168261+00:00", "market": "GC", "score": 2, "bias": "NEUTRAL", "price": 4292.0, "graded": true, "result": "MOVED", "move_pct": 0.932}
+{"ts": "2026-06-17T23:52:07.175981+00:00", "market": "BTC", "score": -4, "bias": "SHORT", "price": 64430.92, "graded": true, "result": "FLAT", "move_pct": -0.023}
+{"ts": "2026-06-17T23:52:07.183702+00:00", "market": "SOL", "score": -2, "bias": "NEUTRAL", "price": 71.94, "graded": true, "result": "MOVED", "move_pct": 0.334}
+{"ts": "2026-06-17T23:52:15.444369+00:00", "market": "NQ", "score": 2, "bias": "NEUTRAL", "price": 30285.5, "graded": true, "result": "MOVED", "move_pct": 0.289}
+{"ts": "2026-06-18T04:22:09.235085+00:00", "market": "NQ", "score": 8, "bias": "LONG", "price": 30340.5, "graded": true, "result": "CORRECT", "move_pct": 0.052}
+{"ts": "2026-06-18T04:22:09.243344+00:00", "market": "GC", "score": -10, "bias": "SHORT", "price": 4333.9, "graded": true, "result": "WRONG", "move_pct": 0.118}
+{"ts": "2026-06-18T04:22:09.251000+00:00", "market": "BTC", "score": -4, "bias": "SHORT", "price": 63893.99, "graded": true, "result": "CORRECT", "move_pct": -0.066}
+{"ts": "2026-06-18T04:22:09.258516+00:00", "market": "SOL", "score": -2, "bias": "NEUTRAL", "price": 71.12, "graded": true, "result": "MOVED", "move_pct": -0.38}
+{"ts": "2026-06-18T04:22:24.504662+00:00", "market": "NQ", "score": 8, "bias": "LONG", "price": 30340.5, "graded": true, "result": "CORRECT", "move_pct": 0.052}
+{"ts": "2026-06-18T04:22:40.574173+00:00", "market": "GC", "score": -10, "bias": "SHORT", "price": 4333.9, "graded": true, "result": "WRONG", "move_pct": 0.118}

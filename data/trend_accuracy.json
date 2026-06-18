@@ -1,0 +1,21 @@
+{
+  "NQ": {
+    "correct": 2,
+    "wrong": 0,
+    "total": 2,
+    "accuracy_pct": 100.0
+  },
+  "GC": {
+    "correct": 0,
+    "wrong": 2,
+    "total": 2,
+    "accuracy_pct": 0.0
+  },
+  "BTC": {
+    "correct": 1,
+    "wrong": 0,
+    "total": 1,
+    "accuracy_pct": 100.0
+  },
+  "_updated": "2026-06-18T05:25:42.840377+00:00"
+}
