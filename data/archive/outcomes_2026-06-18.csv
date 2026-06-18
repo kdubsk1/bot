@@ -1,0 +1,4 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+ca6ceef031,2026-06-18T02:26:16.881663+00:00,SOL,15m,VWAP_BOUNCE_BULL,LONG,72.58,72.0841,73.88,2.62,swing_level_sweet,-2,64,HIGH,2,swing (1-3 days),56.84,0.3796,16.18,MIXED,2,0.9,0,CLOSED,LOSS,0,72.0841,64,,2026-06-18,0,0,
+c3c5cea581,2026-06-18T12:28:31.968861+00:00,GC,4h,BB_REVERSION_BULL,LONG,4275.0,4244.0722,4388.6,3.67,swing_level,-10,90,HIGH,,swing (1-3 days),44.88,46.0925,25.9,HH_HL,12,0.31,1,CLOSED,LOSS,0,4244.0722,90,,2026-06-18,0,0,
+a28c7cf5e2,2026-06-18T18:34:18.039087+00:00,BTC,15m,EMA21_PULLBACK_BEAR,SHORT,62688.13,63039.595,62159.76,1.5,swing_level,-10,54,MEDIUM,3,intraday (hours),38.17,282.168,42.43,LH_LL,18,0.92,0,OPEN,,,,54,,2026-06-18,0,0,
