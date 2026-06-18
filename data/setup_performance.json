@@ -78,17 +78,17 @@
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 0,
-    "losses": 2,
-    "total": 2,
+    "losses": 12,
+    "total": 12,
     "win_rate": 0.0,
-    "last_updated": "2026-05-26T15:36:10.140708"
+    "last_updated": "2026-06-18T15:37:30.607780"
   },
   "GC:BB_REVERSION_BULL": {
     "wins": 26,
-    "losses": 1,
-    "total": 27,
-    "win_rate": 96.3,
-    "last_updated": "2026-06-15T02:38:37.814722"
+    "losses": 2,
+    "total": 28,
+    "win_rate": 92.9,
+    "last_updated": "2026-06-18T15:42:33.075938"
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 136,
@@ -99,10 +99,10 @@
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,
-    "losses": 84,
-    "total": 88,
-    "win_rate": 4.5,
-    "last_updated": "2026-06-15T22:24:10.332896"
+    "losses": 92,
+    "total": 96,
+    "win_rate": 4.2,
+    "last_updated": "2026-06-18T15:37:30.615172"
   },
   "BTC:BB_REVERSION_BULL": {
     "wins": 1,
@@ -281,10 +281,10 @@
   },
   "NQ:EMA21_PULLBACK_BEAR": {
     "wins": 0,
-    "losses": 7,
-    "total": 7,
+    "losses": 20,
+    "total": 20,
     "win_rate": 0.0,
-    "last_updated": "2026-06-17T19:30:03.387687"
+    "last_updated": "2026-06-18T13:25:53.808549"
   },
   "GC:EMA50_BREAKDOWN": {
     "wins": 0,
@@ -386,10 +386,10 @@
   },
   "NQ:MACD_CROSS_BEAR": {
     "wins": 1,
-    "losses": 6,
-    "total": 7,
-    "win_rate": 14.3,
-    "last_updated": "2026-06-17T14:50:52.155051"
+    "losses": 8,
+    "total": 9,
+    "win_rate": 11.1,
+    "last_updated": "2026-06-18T12:58:47.102222"
   },
   "NQ:BREAK_RETEST_BEAR": {
     "wins": 0,
@@ -400,10 +400,10 @@
   },
   "NQ:VWAP_REJECT_BEAR": {
     "wins": 27,
-    "losses": 32,
-    "total": 59,
-    "win_rate": 45.8,
-    "last_updated": "2026-06-17T18:56:35.200590"
+    "losses": 50,
+    "total": 77,
+    "win_rate": 35.1,
+    "last_updated": "2026-06-18T13:25:53.794834"
   },
   "GC:RSI_DIV_BEAR": {
     "wins": 0,
