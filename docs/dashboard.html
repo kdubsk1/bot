@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-19T05:57:15.094596+00:00",
+  "generated_at": "2026-06-19T11:57:23.181263+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -964,6 +964,38 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-06-19 07:13",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "30576.0",
+      "stop": "30496.6077",
+      "target": "30736.75",
+      "rr": "2.02",
+      "conv": "77",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-06-19 06:16",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4158.5",
+      "stop": "4132.5296",
+      "target": "4245.5",
+      "rr": "3.35",
+      "conv": "88",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-06-18 18:34",
       "market": "BTC",
       "setup": "EMA21_PULLBACK_BEAR",
@@ -1330,38 +1362,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "63874.9164"
-    },
-    {
-      "time": "2026-06-13 16:26",
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "64021.98",
-      "stop": "64411.5072",
-      "target": "62964.0",
-      "rr": "2.72",
-      "conv": "50",
-      "tier": "LOW",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "64411.5072"
-    },
-    {
-      "time": "2026-06-12 14:56",
-      "market": "SOL",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "67.26",
-      "stop": "66.1741",
-      "target": "70.56",
-      "rr": "3.04",
-      "conv": "54",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "70.56"
     }
   ],
   "suspended_setups": [
@@ -1609,7 +1609,34 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "30576.0",
+      "target": "30736.75",
+      "stop": "30496.6077",
+      "conviction": 77,
+      "last_rescore_conviction": 77,
+      "tier": "HIGH",
+      "timestamp": "2026-06-19T07:13:27.810611+00:00"
+    },
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "4158.5",
+      "target": "4245.5",
+      "stop": "4132.5296",
+      "conviction": 88,
+      "last_rescore_conviction": 88,
+      "tier": "HIGH",
+      "timestamp": "2026-06-19T06:16:50.409487+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

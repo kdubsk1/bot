@@ -1,10 +1,10 @@
 {
   "NQ:BB_REVERSION_BULL": {
-    "wins": 7,
+    "wins": 8,
     "losses": 12,
-    "total": 19,
-    "win_rate": 36.8,
-    "last_updated": "2026-06-19T04:56:59.957392"
+    "total": 20,
+    "win_rate": 40.0,
+    "last_updated": "2026-06-19T07:33:37.015718"
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
