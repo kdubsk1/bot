@@ -1,32 +1,4 @@
 {
-  "SOL:RSI_DIV_BEAR": {
-    "reason": "0W/65L (0.0% WR)",
-    "suspended_at": "2026-06-16T13:04:30.711198+00:00",
-    "total_at_suspension": 65,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "NQ:MACD_CROSS_BULL": {
-    "reason": "0W/8L (0.0% WR)",
-    "suspended_at": "2026-06-16T13:04:30.711259+00:00",
-    "total_at_suspension": 8,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "NQ:EMA50_RECLAIM": {
-    "reason": "0W/11L (0.0% WR)",
-    "suspended_at": "2026-06-16T13:04:30.711295+00:00",
-    "total_at_suspension": 11,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
-  "NQ:RSI_DIV_BULL": {
-    "reason": "2W/4L (33.3% WR)",
-    "suspended_at": "2026-06-16T13:04:30.711321+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 33.3,
-    "bleed_at_suspension": 0.0
-  },
   "NQ:EMA50_BREAKDOWN": {
     "reason": "0W/9L (0.0% WR)",
     "suspended_at": "2026-06-17T20:00:09.364921+00:00",
@@ -277,6 +249,41 @@
     "suspended_at": "2026-06-18T20:00:18.205518+00:00",
     "total_at_suspension": 15,
     "wr_at_suspension": 13.3,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:MACD_CROSS_BULL": {
+    "reason": "0W/8L (0.0% WR)",
+    "suspended_at": "2026-06-19T20:00:04.244303+00:00",
+    "total_at_suspension": 8,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:RSI_DIV_BEAR": {
+    "reason": "0W/65L (0.0% WR)",
+    "suspended_at": "2026-06-19T20:00:04.244388+00:00",
+    "total_at_suspension": 65,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:EMA21_PULLBACK_BEAR": {
+    "reason": "5W/15L (25.0% WR)",
+    "suspended_at": "2026-06-19T20:00:04.244440+00:00",
+    "total_at_suspension": 20,
+    "wr_at_suspension": 25.0,
+    "bleed_at_suspension": -200.0
+  },
+  "NQ:EMA50_RECLAIM": {
+    "reason": "0W/11L (0.0% WR)",
+    "suspended_at": "2026-06-19T20:00:04.244508+00:00",
+    "total_at_suspension": 11,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:RSI_DIV_BULL": {
+    "reason": "2W/4L (33.3% WR)",
+    "suspended_at": "2026-06-19T20:00:04.244558+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 33.3,
     "bleed_at_suspension": 0.0
   }
 }

@@ -121,9 +121,9 @@
   },
   "STOCH_REVERSAL_BEAR|||ALL": {
     "wins": 5,
-    "losses": 10,
+    "losses": 11,
     "total_win_r": 13.649063143925698,
-    "total_loss_r": 10.0
+    "total_loss_r": 11.0
   },
   "BB_REVERSION_BULL|||UNKNOWN": {
     "wins": 0,
@@ -187,9 +187,9 @@
   },
   "BB_REVERSION_BEAR|||ALL": {
     "wins": 6,
-    "losses": 12,
+    "losses": 13,
     "total_win_r": 15.767209580302428,
-    "total_loss_r": 12.0
+    "total_loss_r": 13.0
   },
   "BB_REVERSION_BEAR|||LH_LL": {
     "wins": 5,
@@ -211,9 +211,9 @@
   },
   "STOCH_REVERSAL_BEAR|||LH_LL": {
     "wins": 4,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 11.702842440867183,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "VWAP_BOUNCE_BULL|||MIXED": {
     "wins": 1,
@@ -415,9 +415,9 @@
   },
   "BB_REVERSION_BEAR|||MIXED": {
     "wins": 1,
-    "losses": 0,
+    "losses": 1,
     "total_win_r": 2.069047056041587,
-    "total_loss_r": 0.0
+    "total_loss_r": 1.0
   },
   "EMA50_BREAKDOWN|||UNKNOWN": {
     "wins": 0,
