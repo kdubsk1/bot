@@ -33,6 +33,33 @@
         "chart_read": "Tagged upper Bollinger (71.4908) and reversed. RSI 70.3 overbought. Mean reversion to middle band."
       },
       "status": "OPEN"
+    },
+    {
+      "alert_id": "93aaf03b3b",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 63633.61,
+      "stop": 63772.695041672334,
+      "target": 63323.7,
+      "leverage": 10,
+      "position_size_usd": 184.33,
+      "notional_usd": 1843.33,
+      "risk_dollars": 0.4,
+      "opened_at": "2026-06-20T10:09:37.536461+00:00",
+      "max_hold_until": "2026-06-27T10:09:37.536461+00:00",
+      "tier": "HIGH",
+      "conviction": 70,
+      "context": {
+        "trend_score": -10,
+        "rsi": 56.44,
+        "adx": 24.35,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "London Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (82.8\u219274.8 vs D 77.8). Early reversal trigger."
+      },
+      "status": "OPEN"
     }
   ],
   "closed_trades": [
