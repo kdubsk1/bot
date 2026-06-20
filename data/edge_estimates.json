@@ -187,9 +187,9 @@
   },
   "BB_REVERSION_BEAR|||ALL": {
     "wins": 6,
-    "losses": 15,
+    "losses": 16,
     "total_win_r": 15.767209580302428,
-    "total_loss_r": 15.0
+    "total_loss_r": 16.0
   },
   "BB_REVERSION_BEAR|||LH_LL": {
     "wins": 5,
@@ -426,6 +426,12 @@
     "total_loss_r": 0.0
   },
   "EMA50_BREAKDOWN|||LH_LL": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "BB_REVERSION_BEAR|||HH_HL": {
     "wins": 0,
     "losses": 1,
     "total_win_r": 0.0,

@@ -155,10 +155,10 @@
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 24,
-    "losses": 9,
-    "total": 33,
-    "win_rate": 72.7,
-    "last_updated": "2026-06-20T15:20:57.232217"
+    "losses": 11,
+    "total": 35,
+    "win_rate": 68.6,
+    "last_updated": "2026-06-20T22:14:52.937953"
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 0,
