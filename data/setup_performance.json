@@ -155,10 +155,10 @@
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 24,
-    "losses": 7,
-    "total": 31,
-    "win_rate": 77.4,
-    "last_updated": "2026-06-20T04:21:48.972253"
+    "losses": 9,
+    "total": 33,
+    "win_rate": 72.7,
+    "last_updated": "2026-06-20T15:20:57.232217"
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 0,
@@ -224,11 +224,11 @@
     "last_updated": "2026-06-12T14:57:52.291328"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
-    "wins": 41,
+    "wins": 43,
     "losses": 16,
-    "total": 57,
-    "win_rate": 71.9,
-    "last_updated": "2026-06-20T05:12:55.838414"
+    "total": 59,
+    "win_rate": 72.9,
+    "last_updated": "2026-06-20T13:26:46.320005"
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 87,
@@ -274,10 +274,10 @@
   },
   "BTC:EMA50_BREAKDOWN": {
     "wins": 0,
-    "losses": 3,
-    "total": 3,
+    "losses": 61,
+    "total": 61,
     "win_rate": 0.0,
-    "last_updated": "2026-06-17T15:40:30.306894"
+    "last_updated": "2026-06-20T14:47:35.297905"
   },
   "NQ:EMA21_PULLBACK_BEAR": {
     "wins": 0,
