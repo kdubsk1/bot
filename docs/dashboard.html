@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-21T17:58:47.573454+00:00",
+  "generated_at": "2026-06-21T23:58:54.624197+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -377,15 +377,19 @@ const DATA = {
       {
         "time": "2026-06-19 07:13",
         "balance": 54913.82
+      },
+      {
+        "time": "2026-06-21 22:08",
+        "balance": 54090.11
       }
     ]
   },
   "crypto": {
-    "balance": 26.14,
+    "balance": 25.36,
     "starting_balance": 1000.0,
-    "total_pnl": -973.86,
-    "open_count": 1,
-    "closed_count": 127,
+    "total_pnl": -974.64,
+    "open_count": 0,
+    "closed_count": 129,
     "equity_curve": [
       {
         "time": "Start",
@@ -898,20 +902,28 @@ const DATA = {
       {
         "time": "2026-06-21 08:38",
         "balance": 26.14
+      },
+      {
+        "time": "2026-06-21 21:10",
+        "balance": 25.75
+      },
+      {
+        "time": "2026-06-21 23:36",
+        "balance": 25.36
       }
     ]
   },
   "all_time": {
     "wins": 12,
-    "losses": 29,
-    "wr": 29.3,
-    "total_trades": 41
+    "losses": 32,
+    "wr": 27.3,
+    "total_trades": 44
   },
   "today": {
     "wins": 0,
-    "losses": 1,
+    "losses": 4,
     "wr": 0.0,
-    "total_trades": 1
+    "total_trades": 4
   },
   "setup_stats": [
     {
@@ -923,6 +935,13 @@ const DATA = {
     },
     {
       "setup": "SOL:VWAP_BOUNCE_BULL",
+      "fires": 6,
+      "wins": 2,
+      "losses": 4,
+      "wr": 33.3
+    },
+    {
+      "setup": "NQ:VWAP_BOUNCE_BULL",
       "fires": 5,
       "wins": 2,
       "losses": 3,
@@ -948,13 +967,6 @@ const DATA = {
       "wins": 0,
       "losses": 4,
       "wr": 0.0
-    },
-    {
-      "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 4,
-      "wins": 2,
-      "losses": 2,
-      "wr": 50.0
     },
     {
       "setup": "GC:BB_REVERSION_BEAR",
@@ -1004,9 +1016,48 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "BTC:RSI_DIV_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-21 23:26",
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "63692.5",
+      "stop": "63434.0466",
+      "target": "64220.85",
+      "rr": "2.04",
+      "conv": "82",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "63434.0466"
+    },
+    {
+      "time": "2026-06-21 22:08",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "30576.25",
+      "stop": "30566.6478",
+      "target": "30622.75",
+      "rr": "4.84",
+      "conv": "77",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "30566.6478"
+    },
     {
       "time": "2026-06-21 12:58",
       "market": "SOL",
@@ -1019,9 +1070,9 @@ const DATA = {
       "rr": "2.61",
       "conv": "57",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "72.8239"
     },
     {
       "time": "2026-06-21 00:13",
@@ -1374,38 +1425,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "65113.2216"
-    },
-    {
-      "time": "2026-06-17 09:13",
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "30505.75",
-      "stop": "30457.5209",
-      "target": "30622.75",
-      "rr": "2.43",
-      "conv": "78",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "30457.5209"
-    },
-    {
-      "time": "2026-06-17 08:26",
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "30540.0",
-      "stop": "30513.7286",
-      "target": "30622.75",
-      "rr": "3.15",
-      "conv": "69",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "30513.7286"
     }
   ],
   "suspended_setups": [
@@ -1624,28 +1643,28 @@ const DATA = {
     },
     "NQ": {
       "wins": 4,
-      "losses": 10,
-      "total_pnl_r": -0.43,
-      "wr": 28.6
+      "losses": 11,
+      "total_pnl_r": -1.43,
+      "wr": 26.7
     },
     "SOL": {
       "wins": 3,
-      "losses": 7,
-      "total_pnl_r": -0.12,
-      "wr": 30.0
+      "losses": 8,
+      "total_pnl_r": -1.12,
+      "wr": 27.3
     },
     "BTC": {
       "wins": 2,
-      "losses": 9,
-      "total_pnl_r": -4.29,
-      "wr": 18.2
+      "losses": 10,
+      "total_pnl_r": -5.29,
+      "wr": 16.7
     }
   },
   "by_tier": {
     "MEDIUM": {
       "wins": 4,
-      "losses": 3,
-      "wr": 57.1
+      "losses": 4,
+      "wr": 50.0
     },
     "LOW": {
       "wins": 0,
@@ -1654,25 +1673,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 8,
-      "losses": 19,
-      "wr": 29.6
+      "losses": 21,
+      "wr": 27.6
     }
   },
-  "open_trades": [
-    {
-      "market": "SOL",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "73.59",
-      "target": "75.59",
-      "stop": "72.8239",
-      "conviction": 57,
-      "last_rescore_conviction": 57,
-      "tier": "MEDIUM",
-      "timestamp": "2026-06-21T12:58:42.754209+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
