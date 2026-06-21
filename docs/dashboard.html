@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-21T11:58:38.367901+00:00",
+  "generated_at": "2026-06-21T17:58:47.573454+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -384,7 +384,7 @@ const DATA = {
     "balance": 26.14,
     "starting_balance": 1000.0,
     "total_pnl": -973.86,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 127,
     "equity_curve": [
       {
@@ -1008,6 +1008,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-06-21 12:58",
+      "market": "SOL",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "73.59",
+      "stop": "72.8239",
+      "target": "75.59",
+      "rr": "2.61",
+      "conv": "57",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-06-21 00:13",
       "market": "SOL",
       "setup": "VWAP_BOUNCE_BULL",
@@ -1390,22 +1406,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "30513.7286"
-    },
-    {
-      "time": "2026-06-16 19:26",
-      "market": "NQ",
-      "setup": "STOCH_REVERSAL_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "30427.0",
-      "stop": "30361.4109",
-      "target": "30622.75",
-      "rr": "2.98",
-      "conv": "62",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "30360.75"
     }
   ],
   "suspended_setups": [
@@ -1658,7 +1658,21 @@ const DATA = {
       "wr": 29.6
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "SOL",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "73.59",
+      "target": "75.59",
+      "stop": "72.8239",
+      "conviction": 57,
+      "last_rescore_conviction": 57,
+      "tier": "MEDIUM",
+      "timestamp": "2026-06-21T12:58:42.754209+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
