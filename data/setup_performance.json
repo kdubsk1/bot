@@ -113,10 +113,10 @@
   },
   "SOL:VWAP_BOUNCE_BULL": {
     "wins": 14,
-    "losses": 8,
-    "total": 22,
-    "win_rate": 63.6,
-    "last_updated": "2026-06-18T03:30:38.083338"
+    "losses": 10,
+    "total": 24,
+    "win_rate": 58.3,
+    "last_updated": "2026-06-21T08:38:21.018902"
   },
   "BTC:RSI_DIV_BEAR": {
     "wins": 4,

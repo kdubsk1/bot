@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-21T05:58:28.639914+00:00",
+  "generated_at": "2026-06-21T11:58:38.367901+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -381,11 +381,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 26.54,
+    "balance": 26.14,
     "starting_balance": 1000.0,
-    "total_pnl": -973.46,
-    "open_count": 1,
-    "closed_count": 126,
+    "total_pnl": -973.86,
+    "open_count": 0,
+    "closed_count": 127,
     "equity_curve": [
       {
         "time": "Start",
@@ -894,20 +894,24 @@ const DATA = {
       {
         "time": "2026-06-21 04:28",
         "balance": 26.54
+      },
+      {
+        "time": "2026-06-21 08:38",
+        "balance": 26.14
       }
     ]
   },
   "all_time": {
     "wins": 12,
-    "losses": 28,
-    "wr": 30.0,
-    "total_trades": 40
+    "losses": 29,
+    "wr": 29.3,
+    "total_trades": 41
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -916,6 +920,13 @@ const DATA = {
       "wins": 2,
       "losses": 5,
       "wr": 28.6
+    },
+    {
+      "setup": "SOL:VWAP_BOUNCE_BULL",
+      "fires": 5,
+      "wins": 2,
+      "losses": 3,
+      "wr": 40.0
     },
     {
       "setup": "SOL:BB_REVERSION_BEAR",
@@ -937,13 +948,6 @@ const DATA = {
       "wins": 0,
       "losses": 4,
       "wr": 0.0
-    },
-    {
-      "setup": "SOL:VWAP_BOUNCE_BULL",
-      "fires": 4,
-      "wins": 2,
-      "losses": 2,
-      "wr": 50.0
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
@@ -1015,9 +1019,9 @@ const DATA = {
       "rr": "2.67",
       "conv": "62",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "72.7122"
     },
     {
       "time": "2026-06-20 16:27",
@@ -1626,9 +1630,9 @@ const DATA = {
     },
     "SOL": {
       "wins": 3,
-      "losses": 6,
-      "total_pnl_r": 0.88,
-      "wr": 33.3
+      "losses": 7,
+      "total_pnl_r": -0.12,
+      "wr": 30.0
     },
     "BTC": {
       "wins": 2,
@@ -1650,25 +1654,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 8,
-      "losses": 18,
-      "wr": 30.8
+      "losses": 19,
+      "wr": 29.6
     }
   },
-  "open_trades": [
-    {
-      "market": "SOL",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "direction": "LONG",
-      "entry": "73.12",
-      "target": "74.21",
-      "stop": "72.7122",
-      "conviction": 62,
-      "last_rescore_conviction": 62,
-      "tier": "HIGH",
-      "timestamp": "2026-06-21T00:13:50.981154+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
