@@ -1,0 +1,114 @@
+NQ CALLS DAILY REPORT
+Date: Sunday, June 21, 2026
+Generated: 00:06 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  4
+Closed today:        4
+Wins:                0
+Losses:              4
+Skipped:             0
+Still open:          0
+Today win rate:      0.0%
+
+TODAY'S ALERTS:
+------------------------------
+  ❌ SOL | VWAP_BOUNCE_BULL | LONG | Conv:62 | RR:2.67 | Tier:HIGH | Entry:73.12 Stop:72.7122 Target:74.21 | Exit:72.7122 | 2026-06-21 00:13
+  ❌ SOL | VWAP_BOUNCE_BULL | LONG | Conv:57 | RR:2.61 | Tier:MEDIUM | Entry:73.59 Stop:72.8239 Target:75.59 | Exit:72.8239 | 2026-06-21 12:58
+  ❌ NQ | VWAP_BOUNCE_BULL | LONG | Conv:77 | RR:4.84 | Tier:HIGH | Entry:30576.25 Stop:30566.6478 Target:30622.75 | Exit:30566.6478 | 2026-06-21 22:08
+  ❌ BTC | RSI_DIV_BULL | LONG | Conv:82 | RR:2.04 | Tier:HIGH | Entry:63692.5 Stop:63434.0466 Target:64220.85 | Exit:63434.0466 | 2026-06-21 23:26
+
+SETUP BREAKDOWN TODAY:
+------------------------------
+  BTC:RSI_DIV_BULL: 0W / 1L (0% WR)
+  NQ:VWAP_BOUNCE_BULL: 0W / 1L (0% WR)
+  SOL:VWAP_BOUNCE_BULL: 0W / 2L (0% WR)
+
+ALL-TIME STATS
+------------------------------
+Total closed: 44
+All-time W/L: 12W / 32L (27.3% WR)
+
+LEARNING UPDATES TODAY:
+------------------------------
+  BTC:RSI_DIV_BULL: 77.8% WR over 9 trades → Conv adj: 0
+  BTC:STOCH_REVERSAL_BEAR: 70.5% WR over 61 trades → Conv adj: +6
+  NQ:BB_REVERSION_BULL: 23.5% WR over 34 trades → Conv adj: -12
+  NQ:STOCH_REVERSAL_BULL: 26.1% WR over 23 trades → Conv adj: -12
+  NQ:VWAP_BOUNCE_BULL: 72.3% WR over 191 trades → Conv adj: +12
+  SOL:VWAP_BOUNCE_BULL: 53.8% WR over 26 trades → Conv adj: 0
+
+ALL-TIME LEARNING FILE:
+------------------------------
+  NQ:VWAP_BOUNCE_BULL: 138W/53L (72.3% WR) → Conv adj: +12
+  NQ:BREAK_RETEST_BULL: 87W/39L (69.0% WR) → Conv adj: +12
+  GC:RSI_DIV_BULL: 1W/103L (1.0% WR) → Conv adj: -12
+  BTC:VWAP_BOUNCE_BULL: 4W/92L (4.2% WR) → Conv adj: -12
+  GC:EMA21_PULLBACK_BEAR: 1W/88L (1.1% WR) → Conv adj: -12
+  NQ:VWAP_REJECT_BEAR: 27W/50L (35.1% WR) → Conv adj: -12
+  GC:VWAP_BOUNCE_BULL: 19W/51L (27.1% WR) → Conv adj: -12
+  SOL:RSI_DIV_BEAR: 0W/65L (0.0% WR) → Conv adj: -12
+  BTC:STOCH_REVERSAL_BEAR: 43W/18L (70.5% WR) → Conv adj: +6
+  BTC:EMA50_BREAKDOWN: 0W/61L (0.0% WR) → Conv adj: -12
+  GC:RSI_DIV_BEAR: 0W/51L (0.0% WR) → Conv adj: -12
+  NQ:BB_REVERSION_BEAR: 0W/38L (0.0% WR) → Conv adj: -12
+  GC:VWAP_REJECT_BEAR: 0W/36L (0.0% WR) → Conv adj: -12
+  SOL:BB_REVERSION_BEAR: 24W/11L (68.6% WR) → Conv adj: +6
+  BTC:EMA21_PULLBACK_BULL: 0W/35L (0.0% WR) → Conv adj: -12
+  NQ:BB_REVERSION_BULL: 8W/26L (23.5% WR) → Conv adj: -12
+  GC:BB_REVERSION_BULL: 27W/2L (93.1% WR) → Conv adj: +12
+  GC:STOCH_REVERSAL_BULL: 0W/29L (0.0% WR) → Conv adj: -12
+  BTC:BREAK_RETEST_BEAR: 4W/23L (14.8% WR) → Conv adj: -12
+  NQ:BREAK_RETEST_BEAR: 0W/27L (0.0% WR) → Conv adj: -12
+  SOL:VWAP_BOUNCE_BULL: 14W/12L (53.8% WR) → Conv adj: 0
+  SOL:EMA21_PULLBACK_BEAR: 2W/23L (8.0% WR) → Conv adj: -12
+  NQ:STOCH_REVERSAL_BULL: 6W/17L (26.1% WR) → Conv adj: -12
+  BTC:MACD_CROSS_BEAR: 2W/21L (8.7% WR) → Conv adj: -12
+  BTC:EMA21_PULLBACK_BEAR: 5W/15L (25.0% WR) → Conv adj: -12
+  NQ:EMA21_PULLBACK_BEAR: 0W/20L (0.0% WR) → Conv adj: -12
+  NQ:STOCH_REVERSAL_BEAR: 0W/19L (0.0% WR) → Conv adj: -12
+  BTC:RSI_DIV_BEAR: 4W/13L (23.5% WR) → Conv adj: -12
+  GC:MACD_CROSS_BEAR: 17W/0L (100.0% WR) → Conv adj: +12
+  BTC:EMA50_RECLAIM: 0W/17L (0.0% WR) → Conv adj: -12
+  BTC:VWAP_REJECT_BEAR: 2W/13L (13.3% WR) → Conv adj: -12
+  BTC:MACD_CROSS_BULL: 0W/12L (0.0% WR) → Conv adj: -12
+  GC:BB_REVERSION_BEAR: 4W/8L (33.3% WR) → Conv adj: -6
+  GC:BREAK_RETEST_BULL: 7W/4L (63.6% WR) → Conv adj: 0
+  BTC:BREAK_RETEST_BULL: 1W/10L (9.1% WR) → Conv adj: -12
+  NQ:EMA50_RECLAIM: 0W/11L (0.0% WR) → Conv adj: -12
+  NQ:OPENING_RANGE_BREAKOUT: 11W/0L (100.0% WR) → Conv adj: +6
+  GC:MACD_CROSS_BULL: 0W/10L (0.0% WR) → Conv adj: -12
+  NQ:MACD_CROSS_BEAR: 1W/8L (11.1% WR) → Conv adj: -12
+  BTC:RSI_DIV_BULL: 7W/2L (77.8% WR) → Conv adj: 0
+  NQ:EMA50_BREAKDOWN: 0W/9L (0.0% WR) → Conv adj: -12
+  SOL:STOCH_REVERSAL_BEAR: 1W/7L (12.5% WR) → Conv adj: -12
+  NQ:MACD_CROSS_BULL: 0W/8L (0.0% WR) → Conv adj: -12
+  NQ:EMA21_PULLBACK_BULL: 2W/5L (28.6% WR) → Conv adj: -6
+  SOL:EMA21_PULLBACK_BULL: 0W/7L (0.0% WR) → Conv adj: -12
+  BTC:BB_REVERSION_BEAR: 1W/6L (14.3% WR) → Conv adj: -12
+  SOL:BREAK_RETEST_BULL: 2W/4L (33.3% WR) → Conv adj: -6
+  BTC:STOCH_REVERSAL_BULL: 1W/5L (16.7% WR) → Conv adj: -6
+  SOL:BB_REVERSION_BULL: 0W/6L (0.0% WR) → Conv adj: -12
+  NQ:RSI_DIV_BULL: 2W/4L (33.3% WR) → Conv adj: -6
+  GC:BREAK_RETEST_BEAR: 1W/5L (16.7% WR) → Conv adj: -6
+  NQ:RSI_DIV_BEAR: 0W/6L (0.0% WR) → Conv adj: -12
+  SOL:STOCH_REVERSAL_BULL: 0W/5L (0.0% WR) → Conv adj: -12
+  BTC:BB_REVERSION_BULL: 1W/4L (20.0% WR) → Conv adj: -6
+  SOL:BREAK_RETEST_BEAR: 0W/5L (0.0% WR) → Conv adj: -12
+  GC:STOCH_REVERSAL_BEAR: 2W/2L (50.0% WR) → Conv adj: 0
+  SOL:APPROACH_SUPPORT: 0W/3L (0.0% WR) → Conv adj: -6
+  SOL:MACD_CROSS_BEAR: 1W/2L (33.3% WR) → Conv adj: -6
+  NQ:APPROACH_SUPPORT: 0W/2L (0.0% WR) → Conv adj: 0
+  SOL:MACD_CROSS_BULL: 2W/0L (100.0% WR) → Conv adj: 0
+  SOL:VWAP_REJECT_BEAR: 0W/1L (0.0% WR) → Conv adj: 0
+  GC:EMA50_BREAKDOWN: 0W/1L (0.0% WR) → Conv adj: 0
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  No open trades.
+
+==================================================
+END OF REPORT
+Paste this into Claude to review and update bot settings.
