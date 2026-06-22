@@ -33,6 +33,33 @@
         "chart_read": "Stochastic %K crossed down through %D from overbought (89.6\u219278.6 vs D 81.6). Early reversal trigger."
       },
       "status": "OPEN"
+    },
+    {
+      "alert_id": "b8b9a9270a",
+      "market": "SOL",
+      "direction": "LONG",
+      "entry": 73.78,
+      "stop": 72.97445611110057,
+      "target": 75.59,
+      "leverage": 10,
+      "position_size_usd": 34.87,
+      "notional_usd": 348.68,
+      "risk_dollars": 0.38,
+      "opened_at": "2026-06-22T11:21:12.471992+00:00",
+      "max_hold_until": "2026-06-29T11:21:12.471992+00:00",
+      "tier": "LOW",
+      "conviction": 50,
+      "context": {
+        "trend_score": -7,
+        "rsi": 53.55,
+        "adx": 18.84,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "London Session",
+        "news_flag": false,
+        "chart_read": "VWAP bounce at 73.7758. Institutional support level."
+      },
+      "status": "OPEN"
     }
   ],
   "closed_trades": [
