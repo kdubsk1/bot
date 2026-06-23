@@ -2120,7 +2120,9 @@ async def watch_open_trades(app, frames_by_market):
             entry_val = float(row.get("entry", 0))
             stop_val  = float(row.get("stop", 0))
             risk_dist = abs(entry_val - stop_val)
-            df_check  = frames.get(row.get("tf","15m")) or frames.get("15m")
+            df_check  = frames.get(row.get("tf","15m"))  # _WAVE69_WATCH_FIX
+            if df_check is None:
+                df_check = frames.get("15m")
             if df_check is not None and not df_check.empty and risk_dist > 0:
                 cur_p = float(df_check["Close"].iloc[-1])
                 direction_r = row.get("direction","")
@@ -2185,7 +2187,9 @@ async def watch_open_trades(app, frames_by_market):
         old_conv  = new_c - delta if new_c is not None else 0
 
         cur_price = None
-        df_tf = frames.get(row.get("tf","15m")) or frames.get("15m")
+        df_tf = frames.get(row.get("tf","15m"))  # _WAVE69_WATCH_FIX
+        if df_tf is None:
+            df_tf = frames.get("15m")
         if df_tf is not None and not df_tf.empty:
             cur_price = float(df_tf["Close"].iloc[-1])
 
@@ -2252,7 +2256,9 @@ async def watch_open_trades(app, frames_by_market):
                     if _w55_match is not None:
                         # Get current price from primary timeframe
                         _w55_tf = row.get("tf", "15m") or "15m"
-                        _w55_df = frames.get(_w55_tf) or frames.get("15m")
+                        _w55_df = frames.get(_w55_tf)  # _WAVE69_WATCH_FIX
+                        if _w55_df is None:
+                            _w55_df = frames.get("15m")
                         if _w55_df is not None and not _w55_df.empty:
                             _w55_cur = float(_w55_df["Close"].iloc[-1])
                             _w55_entry = float(_w55_match.get("entry", 0) or 0)
