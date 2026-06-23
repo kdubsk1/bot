@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-23T14:47:43.516023+00:00",
+  "generated_at": "2026-06-23T20:47:48.163496+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -357,6 +357,10 @@ const DATA = {
       {
         "time": "2026-06-22 00:06",
         "balance": 51257.96
+      },
+      {
+        "time": "2026-06-23 05:08",
+        "balance": 50489.09
       }
     ]
   },
@@ -919,15 +923,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 11,
-    "losses": 31,
-    "wr": 26.2,
-    "total_trades": 42
+    "losses": 32,
+    "wr": 25.6,
+    "total_trades": 43
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -959,6 +963,13 @@ const DATA = {
       "wr": 20.0
     },
     {
+      "setup": "GC:BB_REVERSION_BULL",
+      "fires": 3,
+      "wins": 1,
+      "losses": 2,
+      "wr": 33.3
+    },
+    {
       "setup": "NQ:BREAK_RETEST_BULL",
       "fires": 2,
       "wins": 0,
@@ -978,13 +989,6 @@ const DATA = {
       "wins": 0,
       "losses": 2,
       "wr": 0.0
-    },
-    {
-      "setup": "GC:BB_REVERSION_BULL",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
     },
     {
       "setup": "BTC:BREAK_RETEST_BEAR",
@@ -1035,9 +1039,9 @@ const DATA = {
       "rr": "2.33",
       "conv": "88",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4112.91964"
     },
     {
       "time": "2026-06-22 14:02",
@@ -1682,16 +1686,16 @@ const DATA = {
     },
     "GC": {
       "wins": 2,
-      "losses": 1,
-      "total_pnl_r": 4.69,
-      "wr": 66.7
+      "losses": 2,
+      "total_pnl_r": 3.69,
+      "wr": 50.0
     }
   },
   "by_tier": {
     "HIGH": {
       "wins": 9,
-      "losses": 23,
-      "wr": 28.1
+      "losses": 24,
+      "wr": 27.3
     },
     "MEDIUM": {
       "wins": 2,
@@ -1704,21 +1708,7 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "BB_REVERSION_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "4136.5848",
-      "target": "4183.381",
-      "stop": "4116.4726",
-      "conviction": 88,
-      "last_rescore_conviction": 88,
-      "tier": "HIGH",
-      "timestamp": "2026-06-23T05:08:28.276366+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {

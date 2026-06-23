@@ -85,10 +85,10 @@
   },
   "GC:BB_REVERSION_BULL": {
     "wins": 27,
-    "losses": 2,
-    "total": 29,
-    "win_rate": 93.1,
-    "last_updated": "2026-06-19T19:55:13.684097"
+    "losses": 3,
+    "total": 30,
+    "win_rate": 90.0,
+    "last_updated": "2026-06-23T20:12:46.659095"
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 140,
