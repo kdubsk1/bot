@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-22T23:59:39.980262+00:00",
+  "generated_at": "2026-06-23T05:59:48.255355+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -932,10 +932,10 @@ const DATA = {
     "total_trades": 46
   },
   "today": {
-    "wins": 3,
-    "losses": 5,
-    "wr": 37.5,
-    "total_trades": 8
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -1038,6 +1038,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-06-23 05:08",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4136.5848",
+      "stop": "4116.4726",
+      "target": "4183.381",
+      "rr": "2.33",
+      "conv": "88",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-06-22 14:02",
       "market": "BTC",
@@ -1421,22 +1437,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "4244.0722"
-    },
-    {
-      "time": "2026-06-18 02:26",
-      "market": "SOL",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "72.58",
-      "stop": "72.0841",
-      "target": "73.88",
-      "rr": "2.62",
-      "conv": "64",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "72.0841"
     }
   ],
   "suspended_setups": [
@@ -1709,7 +1709,21 @@ const DATA = {
       "wr": 28.6
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "4136.5848",
+      "target": "4183.381",
+      "stop": "4116.4726",
+      "conviction": 88,
+      "last_rescore_conviction": 88,
+      "tier": "HIGH",
+      "timestamp": "2026-06-23T05:08:28.276366+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
