@@ -176,10 +176,10 @@
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 16,
-    "losses": 7,
-    "total": 23,
-    "win_rate": 69.6,
-    "last_updated": "2026-06-26T14:25:55.226991"
+    "losses": 8,
+    "total": 24,
+    "win_rate": 66.7,
+    "last_updated": "2026-06-26T19:55:30.636903"
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 4,

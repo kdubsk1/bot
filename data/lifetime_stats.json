@@ -1,9 +1,9 @@
 {
-  "total_sessions": 47,
-  "total_trades": 81,
+  "total_sessions": 48,
+  "total_trades": 84,
   "total_wins": 31,
-  "total_losses": 50,
-  "total_pnl_dollars": 1548.28,
+  "total_losses": 53,
+  "total_pnl_dollars": 1144.84,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -511.95,
   "best_setup_overall": "NQ:MEDIUM",
@@ -70,8 +70,8 @@
     },
     "GC:STOCH_REVERSAL_BEAR": {
       "wins": 2,
-      "losses": 1,
-      "pnl": 87.53
+      "losses": 4,
+      "pnl": -315.91
     },
     "GC:BB_REVERSION_BEAR": {
       "wins": 4,
@@ -119,9 +119,9 @@
       "pnl": -405.95
     }
   },
-  "last_updated": "2026-06-25T20:03:45.145708+00:00",
+  "last_updated": "2026-06-26T20:00:04.474763+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 51548.28,
+  "lifetime_balance": 51144.84,
   "lifetime_peak_balance": 52909.28
 }
