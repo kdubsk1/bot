@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "market": "GC",
+    "direction": "SHORT",
+    "zone_low": 4046.2076,
+    "zone_high": 4055.151,
+    "expiry": "2026-06-26T15:02:19.164291+00:00"
+  },
+  {
+    "market": "GC",
+    "direction": "SHORT",
+    "zone_low": 4043.5891,
+    "zone_high": 4054.5263,
+    "expiry": "2026-06-26T15:53:29.448352+00:00"
+  },
+  {
+    "market": "GC",
+    "direction": "SHORT",
+    "zone_low": 4068.0507,
+    "zone_high": 4079.6907,
+    "expiry": "2026-06-26T16:20:32.951742+00:00"
+  }
+]
