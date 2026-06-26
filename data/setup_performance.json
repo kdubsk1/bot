@@ -78,10 +78,10 @@
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 0,
-    "losses": 12,
-    "total": 12,
+    "losses": 62,
+    "total": 62,
     "win_rate": 0.0,
-    "last_updated": "2026-06-18T15:37:30.607780"
+    "last_updated": "2026-06-26T09:55:57.730695"
   },
   "GC:BB_REVERSION_BULL": {
     "wins": 27,
@@ -147,11 +147,11 @@
     "last_updated": "2026-05-24T11:02:17.158864"
   },
   "SOL:VWAP_REJECT_BEAR": {
-    "wins": 0,
+    "wins": 5,
     "losses": 1,
-    "total": 1,
-    "win_rate": 0.0,
-    "last_updated": "2026-05-18T12:26:30.241148"
+    "total": 6,
+    "win_rate": 83.3,
+    "last_updated": "2026-06-26T09:55:57.741599"
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 24,
@@ -224,11 +224,11 @@
     "last_updated": "2026-06-12T14:57:52.291328"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
-    "wins": 45,
+    "wins": 46,
     "losses": 35,
-    "total": 80,
-    "win_rate": 56.2,
-    "last_updated": "2026-06-22T21:41:30.439260"
+    "total": 81,
+    "win_rate": 56.8,
+    "last_updated": "2026-06-26T09:55:57.743802"
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 87,
