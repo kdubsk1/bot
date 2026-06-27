@@ -5219,6 +5219,95 @@ async def cmd_suspended(u, c):
         await u.message.reply_text(f"❌ Suspended command failed: {e}")
 
 
+async def cmd_combine(u, c):
+    """
+    Wave 70 (Jun 26, 2026): Real continuous Topstep combine status.
+
+    The live per-session sim (sim_account.json) resets to the starting balance
+    every day and never models the trailing drawdown, so it could not answer
+    the one question that matters: would we pass or bust a real combine? This
+    runs a CONTINUOUS account through the real Topstep rules - cumulative
+    balance, trailing max drawdown (locks at start once up by the DD amount),
+    daily loss limit, and profit target - over the daily P&L history in
+    sim_history.json, starting from the real combine_started_at date.
+    Read-only. Obvious early broken-sizing days (|pnl| > 2x target) are
+    excluded so one corrupted day cannot fake a pass.
+    """
+    import json as _json
+    try:
+        with open(os.path.join(BASE_DIR, "data", "sim_history.json"), "r", encoding="utf-8") as f:
+            rows = _json.load(f)
+    except Exception as e:
+        await u.message.reply_text("Combine status unavailable: " + str(e)[:120])
+        return
+    start, target, trail_dd, daily_loss = 50000.0, 3000.0, 2000.0, 1000.0
+    try:
+        with open(os.path.join(BASE_DIR, "data", "sim_account.json"), "r", encoding="utf-8") as f:
+            acct = _json.load(f)
+        start = float(acct.get("starting_balance", start) or start)
+        target = float(acct.get("profit_target", target) or target)
+        trail_dd = float(acct.get("max_drawdown", trail_dd) or trail_dd)
+        daily_loss = float(acct.get("daily_loss_limit", daily_loss) or daily_loss)
+    except Exception:
+        pass
+    combine_start = ""
+    try:
+        with open(os.path.join(BASE_DIR, "data", "lifetime_stats.json"), "r", encoding="utf-8") as f:
+            _lt = _json.load(f)
+        combine_start = str(_lt.get("combine_started_at", ""))[:10]
+    except Exception:
+        combine_start = ""
+    daily = sorted([(str(r.get("date", "")), float(r.get("pnl", 0.0) or 0.0)) for r in rows],
+                   key=lambda x: x[0])
+    cap = max(5000.0, target * 2.0)
+    n_excluded = sum(1 for _, p in daily if abs(p) > cap)
+    daily = [(d, p) for (d, p) in daily if abs(p) <= cap]
+    if combine_start:
+        daily = [(d, p) for (d, p) in daily if d >= combine_start]
+    bal = peak = start
+    dd_line = start - trail_dd
+    status = "IN PROGRESS"
+    resolved_on = daily[-1][0] if daily else "n/a"
+    worst_day = 0.0
+    min_cushion = bal - dd_line
+    for d, pnl in daily:
+        if pnl < worst_day:
+            worst_day = pnl
+        if pnl <= -daily_loss:
+            status, resolved_on = "BUSTED (daily loss limit)", d
+            break
+        bal += pnl
+        if bal > peak:
+            peak = bal
+            dd_line = min(peak - trail_dd, start)
+        if (bal - dd_line) < min_cushion:
+            min_cushion = bal - dd_line
+        if bal <= dd_line:
+            status, resolved_on = "BUSTED (trailing drawdown)", d
+            break
+        if bal >= start + target:
+            status, resolved_on = "PASSED", d
+            break
+    pct = (100.0 * (bal - start) / target) if target else 0.0
+    days_traded = sum(1 for _, p in daily if p != 0.0)
+    lines = []
+    lines.append("*COMBINE STATUS* (real continuous account)")
+    lines.append("Status: *" + status + "*  (as of " + str(resolved_on) + ")")
+    lines.append("Balance: `$%.2f`  (`%.1f%%` to target)" % (bal, pct))
+    lines.append("Peak: `$%.2f`  (`+$%.0f`)" % (peak, peak - start))
+    lines.append("Target: `$%.0f`   Bust floor: `$%.2f`" % (start + target, dd_line))
+    lines.append("Closest to bust: `$%.0f` cushion" % min_cushion)
+    lines.append("Worst day: `$%.2f`  (limit `-$%.0f`)" % (worst_day, daily_loss))
+    lines.append("Days traded: `%d`  since `%s`" % (days_traded, combine_start or "start"))
+    if daily:
+        recent = [x for x in daily if x[1] != 0.0][-5:]
+        if recent:
+            lines.append("Recent: " + ", ".join(("%s `%+.0f`" % (d[5:], p)) for d, p in recent))
+    if n_excluded:
+        lines.append("_(excluded " + str(n_excluded) + " broken-sizing day(s))_")
+    await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
+
+
 def main():
     log.info("NQ CALLS Bot starting...")
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
@@ -5237,7 +5326,7 @@ def main():
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
                    ("journal",cmd_journal),
                    ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
-                   ("commands",cmd_commands)]:
+                   ("commands",cmd_commands),("combine",cmd_combine)]:
         app.add_handler(CommandHandler(cmd,fn))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
