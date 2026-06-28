@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-06-28T08:33:20.963210+00:00",
+  "generated_at": "2026-06-28T12:16:44.448422+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -965,9 +965,9 @@ const DATA = {
       "rr": "1.73",
       "conv": "64",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "SKIP",
+      "exit": "4080.8902"
     },
     {
       "time": "2026-06-26 18:56",
@@ -1589,6 +1589,11 @@ const DATA = {
       "key": "SOL:VWAP_BOUNCE_BULL",
       "reason": "15W/35L (30.0% WR)",
       "suspended_at": "2026-06-26T20:00:04.959643+00:00"
+    },
+    {
+      "key": "SOL:MACD_CROSS_BEAR",
+      "reason": "1W/6L (14.3% WR)",
+      "suspended_at": "2026-06-28T12:10:30.486075+00:00"
     }
   ],
   "by_market": {
@@ -1634,21 +1639,7 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "1h",
-      "direction": "SHORT",
-      "entry": "4080.8902",
-      "target": "4053.7925",
-      "stop": "4096.5381",
-      "conviction": 64,
-      "last_rescore_conviction": 64,
-      "tier": "HIGH",
-      "timestamp": "2026-06-26T22:00:19.935330+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
