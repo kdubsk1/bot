@@ -607,56 +607,89 @@ def run_auto_tune() -> dict:
 # ============================================================
 # LAYER 6 (Wave 9): Edge Decay Defense
 # ============================================================
+def _iter_closed_outcome_rows():
+    """
+    Wave 71a (Jun 26, 2026): yield every CLOSED win/loss outcome row from the
+    FULL history - the current outcomes.csv PLUS every data/archive/outcomes_*.csv
+    - deduplicated by alert_id.
+
+    Before this, every adaptive tuner read ONLY outcomes.csv (~6 rotated days),
+    so the 7/14/28-day rolling windows were starved: most setups never hit
+    their minimum-trades bar and the engine silently fell back to the stale
+    hardcoded May-3 boosts. Reading the 40+ archived days un-starves Layer 6
+    (edge decay) and Layer 7 (daily soft tune) so they actually adapt. Nothing
+    is ever deleted; the archive is the permanent record we tune against.
+
+    Yields raw csv.DictReader row dicts. The live file is read first so its
+    rows win on any alert_id collision.
+    """
+    import csv as _csv
+    seen = set()
+    paths = []
+    main_csv = os.path.join(_BASE_DIR, "outcomes.csv")
+    if os.path.exists(main_csv):
+        paths.append(main_csv)
+    arch_dir = os.path.join(_BASE_DIR, "data", "archive")
+    if os.path.isdir(arch_dir):
+        for fn in sorted(os.listdir(arch_dir), reverse=True):
+            if fn.startswith("outcomes_") and fn.endswith(".csv"):
+                paths.append(os.path.join(arch_dir, fn))
+    for p in paths:
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                for r in _csv.DictReader(f):
+                    if r.get("status") != "CLOSED":
+                        continue
+                    if r.get("result") not in ("WIN", "LOSS"):
+                        continue
+                    aid = (r.get("alert_id") or "").strip()
+                    if aid:
+                        if aid in seen:
+                            continue
+                        seen.add(aid)
+                    yield r
+        except Exception as e:
+            _log.warning(f"_iter_closed_outcome_rows {os.path.basename(p)}: {e}")
+
+
 def _read_setup_outcomes_in_window(window_days: int) -> dict:
     """
-    Walk outcomes.csv and return per-setup stats for closed trades within
-    the last `window_days` days. Returns dict[setup_type] = {w, l, dollar}.
+    Per-setup stats for closed trades within the last `window_days` days.
+    Returns dict[setup_type] = {w, l, dollar}.
 
-    Wave 9 (May 4): shared helper used by Layer 6 (edge decay) and
-    Layer 7 (daily soft tune) so both read the same source of truth.
+    Wave 9 (May 4): shared helper used by Layer 6 (edge decay) and Layer 7
+    (daily soft tune). Wave 71a (Jun 26, 2026): now reads the FULL history
+    (current + all archived outcomes) via _iter_closed_outcome_rows(), so the
+    rolling window is no longer starved by outcomes.csv rotation.
 
-    Note: groups by setup_type ALONE (not market:setup), matching how
-    Layer 1 boosts work. A boost on VWAP_BOUNCE_BULL applies across all
-    markets, so its decay should reflect cross-market WR.
+    Groups by setup_type ALONE (not market:setup), matching Layer 1 boosts.
     """
-    outcomes_path = os.path.join(_BASE_DIR, "outcomes.csv")
-    if not os.path.exists(outcomes_path):
-        return {}
-    import csv
     from datetime import timedelta
     cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
     stats = {}
-    try:
-        with open(outcomes_path, "r", encoding="utf-8") as f:
-            for r in csv.DictReader(f):
-                if r.get("status") != "CLOSED":
-                    continue
-                result = r.get("result")
-                if result not in ("WIN", "LOSS"):
-                    continue
-                try:
-                    ts = datetime.fromisoformat(r.get("timestamp", ""))
-                    if ts.tzinfo is None:
-                        ts = ts.replace(tzinfo=timezone.utc)
-                    if ts < cutoff:
-                        continue
-                except Exception:
-                    continue
-                setup = r.get("setup", "?")
-                try:
-                    rr = float(r.get("rr", 0))
-                except Exception:
-                    rr = 0.0
-                if setup not in stats:
-                    stats[setup] = {"w": 0, "l": 0, "dollar": 0.0}
-                if result == "WIN":
-                    stats[setup]["w"] += 1
-                    stats[setup]["dollar"] += rr * 100.0
-                else:
-                    stats[setup]["l"] += 1
-                    stats[setup]["dollar"] -= 100.0
-    except Exception as e:
-        _log.warning(f"_read_setup_outcomes_in_window: {e}")
+    for r in _iter_closed_outcome_rows():
+        result = r.get("result")
+        try:
+            ts = datetime.fromisoformat(r.get("timestamp", ""))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            if ts < cutoff:
+                continue
+        except Exception:
+            continue
+        setup = r.get("setup", "?")
+        try:
+            rr = float(r.get("rr", 0))
+        except Exception:
+            rr = 0.0
+        if setup not in stats:
+            stats[setup] = {"w": 0, "l": 0, "dollar": 0.0}
+        if result == "WIN":
+            stats[setup]["w"] += 1
+            stats[setup]["dollar"] += rr * 100.0
+        else:
+            stats[setup]["l"] += 1
+            stats[setup]["dollar"] -= 100.0
     return stats
 
 
