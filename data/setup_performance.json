@@ -260,10 +260,10 @@
   },
   "SOL:MACD_CROSS_BEAR": {
     "wins": 1,
-    "losses": 3,
-    "total": 4,
-    "win_rate": 25.0,
-    "last_updated": "2026-06-22T19:13:10.879352"
+    "losses": 6,
+    "total": 7,
+    "win_rate": 14.3,
+    "last_updated": "2026-06-28T05:32:46.124831"
   },
   "SOL:EMA21_PULLBACK_BEAR": {
     "wins": 2,
