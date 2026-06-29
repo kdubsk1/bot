@@ -903,6 +903,52 @@ def _build_confidence_factors(snapshot: dict, trend: int, adx_v: float,
 
 
 # ── Scan one market ───────────────────────────────────────────────
+def _log_confluence_stack(alert_id, market, tf, fired_stp, all_setups, snapshot, adx_v, rsi_v, vol_ratio):
+    """
+    Wave 72 (Jun 26, 2026): Confluence Memory foundation.
+
+    At each fired entry, record the FULL stack of signals that were aligned with
+    the entry's direction at that scan - not just the one we fired on - plus each
+    one's detection reason (the 'why'). Shadow/logging only; does NOT change
+    firing. Builds the permanent record (data/confluence_log.jsonl) that later
+    waves score, so the bot can learn which COMBINATIONS of setups win together
+    and begin composing its own strategy. Append-only; nothing is overwritten.
+    """
+    import json as _json
+    try:
+        direction = fired_stp.get("direction")
+        aligned = [s for s in (all_setups or []) if s.get("direction") == direction]
+        stack_types = sorted({s.get("type", "?") for s in aligned})
+        reasons = {}
+        for s in aligned:
+            t = s.get("type", "?")
+            if t in reasons:
+                continue
+            try:
+                reasons[t] = _build_detection_reason(s, snapshot, adx_v, rsi_v, vol_ratio)
+            except Exception:
+                reasons[t] = ""
+        rec = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "alert_id": alert_id,
+            "market": market,
+            "tf": tf,
+            "fired": fired_stp.get("type"),
+            "direction": direction,
+            "stack": stack_types,
+            "stack_size": len(stack_types),
+            "reasons": reasons,
+        }
+        path = os.path.join(BASE_DIR, "data", "confluence_log.jsonl")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(_json.dumps(rec) + "\n")
+    except Exception as _e:
+        try:
+            log.warning("confluence stack log failed: " + str(_e))
+        except Exception:
+            pass
+
+
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
     cfg        = get_market_config(market)
@@ -1896,6 +1942,15 @@ async def scan_market(app, market, frames):
                 "w7_market_mult": int(_w7_for_log.get("market_mult", 0)) if _w7_for_log else 0,
                 "w7_applied_layers": ",".join(_w7_for_log.get("applied_layers", [])) if _w7_for_log else "",
             })
+
+            # Wave 72: Confluence Memory - record the full aligned signal stack for this entry (shadow; no firing impact)
+            try:
+                _log_confluence_stack(alert_id, market, entry_tf, stp, setups, snapshot_context, adx_v, rsi_v, vol_ratio)
+            except Exception as _cm_e:
+                try:
+                    log.warning("confluence stack log failed: " + str(_cm_e))
+                except Exception:
+                    pass
 
             # Task 8: Increment daily trade counter
             DAILY_TRADE_COUNT += 1
