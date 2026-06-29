@@ -903,6 +903,59 @@ def _build_confidence_factors(snapshot: dict, trend: int, adx_v: float,
 
 
 # ── Scan one market ───────────────────────────────────────────────
+# Wave 76 (Jun 29, 2026): Confluence scoring engine, backfilled from history.
+# Trend-aligned per-setup and per-pair expectancy (R) from the full strategy_log.
+# Rates a live aligned stack by what has actually won TOGETHER. Shadow only in
+# W76 (score logged next to each stack); a later wave lets it drive sizing.
+_W76_SETUP_EDGE = {
+    "APPROACH_RESIST": 1.263, "BB_REVERSION_BULL": 1.036, "BREAK_RETEST_BULL": 0.828,
+    "VWAP_BOUNCE_BULL": 0.795, "STOCH_REVERSAL_BEAR": 0.685, "RSI_DIV_BEAR": 0.178,
+    "MACD_CROSS_BEAR": 0.126, "BB_REVERSION_BEAR": 0.064, "VWAP_REJECT_BEAR": -0.022,
+    "RSI_DIV_BULL": -0.096, "BREAK_RETEST_BEAR": -0.694, "STOCH_REVERSAL_BULL": -0.712,
+    "EMA21_PULLBACK_BEAR": -0.722, "EMA50_RECLAIM": -0.724, "EMA21_PULLBACK_BULL": -0.779,
+    "MACD_CROSS_BULL": -0.905, "EMA50_BREAKDOWN": -0.952,
+}
+_W76_PAIR_EDGE = {
+    "BB_REVERSION_BULL|VWAP_BOUNCE_BULL": 2.017,
+    "BREAK_RETEST_BULL|VWAP_BOUNCE_BULL": 1.650,
+    "EMA21_PULLBACK_BEAR|VWAP_BOUNCE_BULL": -0.899,
+    "RSI_DIV_BULL|VWAP_BOUNCE_BULL": -0.917,
+    "EMA21_PULLBACK_BEAR|RSI_DIV_BULL": -0.945,
+    "MACD_CROSS_BULL|VWAP_BOUNCE_BULL": -1.0,
+    "EMA21_PULLBACK_BEAR|VWAP_REJECT_BEAR": -1.0,
+    "RSI_DIV_BULL|VWAP_REJECT_BEAR": -1.0,
+}
+
+def _confluence_score(stack_types, market=""):
+    """Wave 76: rate an aligned stack by backfilled expectancy.
+    Returns (score_0_100, expected_R, basis). A known pair is the most specific
+    evidence and overrides; a BAD pair (conflict) dominates a good one. Else the
+    strongest known setup leads, dragged toward the stack mean."""
+    try:
+        st = [s for s in (stack_types or []) if s]
+        edges = [_W76_SETUP_EDGE[s] for s in st if s in _W76_SETUP_EDGE]
+        pairs = []
+        for i in range(len(st)):
+            for j in range(i + 1, len(st)):
+                key = "|".join(sorted([st[i], st[j]]))
+                if key in _W76_PAIR_EDGE:
+                    pairs.append(_W76_PAIR_EDGE[key])
+        if pairs:
+            worst, best = min(pairs), max(pairs)
+            exp_r = worst if worst <= -0.5 else best
+            basis = "pair"
+        elif edges:
+            mx = max(edges); mean = sum(edges) / len(edges)
+            exp_r = 0.7 * mx + 0.3 * mean
+            basis = "setup"
+        else:
+            exp_r = 0.0; basis = "unknown"
+        score = int(max(0, min(100, round((exp_r + 1.0) / 3.0 * 100))))
+        return score, round(float(exp_r), 3), basis
+    except Exception:
+        return 0, 0.0, "error"
+
+
 def _log_confluence_stack(alert_id, market, tf, fired_stp, all_setups, snapshot, adx_v, rsi_v, vol_ratio):
     """
     Wave 72 (Jun 26, 2026): Confluence Memory foundation.
@@ -919,6 +972,7 @@ def _log_confluence_stack(alert_id, market, tf, fired_stp, all_setups, snapshot,
         direction = fired_stp.get("direction")
         aligned = [s for s in (all_setups or []) if s.get("direction") == direction]
         stack_types = sorted({s.get("type", "?") for s in aligned})
+        _cscore, _cexp, _cbasis = _confluence_score(stack_types, market)
         reasons = {}
         for s in aligned:
             t = s.get("type", "?")
@@ -937,6 +991,9 @@ def _log_confluence_stack(alert_id, market, tf, fired_stp, all_setups, snapshot,
             "direction": direction,
             "stack": stack_types,
             "stack_size": len(stack_types),
+            "confluence_score": _cscore,
+            "expected_R": _cexp,
+            "score_basis": _cbasis,
             "reasons": reasons,
         }
         path = os.path.join(BASE_DIR, "data", "confluence_log.jsonl")
