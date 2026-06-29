@@ -1665,6 +1665,23 @@ async def scan_market(app, market, frames):
         for stp in setups:
             stp["market"] = market
 
+            # Wave 74: Trend-alignment guard - counter-trend entries went 0-for-465 in backtest.
+            # Skip setups whose direction opposes a CLEAR HTF trend (MIXED is allowed). Logged for audit.
+            _w74_dir = str(stp.get("direction", "")).replace("WATCH_", "")
+            _w74_counter = (htf_bias == "LH_LL" and _w74_dir == "LONG") or (htf_bias == "HH_HL" and _w74_dir == "SHORT")
+            if _w74_counter:
+                try:
+                    sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                        cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+                        trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                        sl.DECISION_REJECTED,
+                        "Wave 74 trend-alignment guard: counter-trend vs " + str(htf_bias) + " (0/465 historical)",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                except Exception:
+                    pass
+                continue
+
             # Setup suspension check — block negative EV setups
             # Task 4: Shadow-log so we can retroactively analyze if suspensions were correct
             if ot.is_setup_suspended(market, stp["type"]):
