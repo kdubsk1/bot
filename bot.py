@@ -956,6 +956,52 @@ def _confluence_score(stack_types, market=""):
         return 0, 0.0, "error"
 
 
+def _log_decision_journal(alert_id, market, tf, stp, all_setups, tgt, rr, method, conv, tier, trend, htf_bias, news_flag, snapshot, adx_v, rsi_v, vol_ratio, w7=None):
+    """Wave 78 (Jun 29, 2026): the bot's decision journal - its 'thoughts'.
+    For every fired trade, record the FULL reasoning in one place: the aligned
+    signal stack, the confluence score + expected edge (W76), trend context, the
+    R/target chosen, conviction, the adaptive layers in play, and a plain-English
+    summary of why it took the trade and what it expects. Append-only, saved
+    forever (data/decision_journal.jsonl). Substrate for /why, post-trade
+    reflection, and the hypothesis engine. Logging only; no firing impact."""
+    import json as _json
+    try:
+        direction = stp.get("direction")
+        aligned = sorted({s.get("type", "?") for s in (all_setups or []) if s.get("direction") == direction})
+        try:
+            cscore, cexp, cbasis = _confluence_score(aligned, market)
+        except Exception:
+            cscore, cexp, cbasis = 0, 0.0, "unavailable"
+        trend_word = {"HH_HL": "uptrend", "LH_LL": "downtrend", "MIXED": "mixed/no-trend"}.get(str(htf_bias), str(htf_bias))
+        thought = ("Took " + str(direction) + " " + str(market) + " " + str(tf) + " on " +
+                   str(stp.get("type")) + " in a " + trend_word + ". Stack: " +
+                   (", ".join(aligned) if aligned else "(single)") + " | confluence " +
+                   str(cscore) + "/100, expected " + ("%+.2fR" % cexp) + " (" + cbasis +
+                   "). Target " + ("%.2f" % rr) + "R, conviction " + str(conv) + " (" + str(tier) + ").")
+        rec = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "alert_id": alert_id, "market": market, "tf": tf,
+            "setup": stp.get("type"), "direction": direction,
+            "entry": round(stp.get("entry", 0), 4), "stop": round(stp.get("raw_stop", 0), 4),
+            "target": round(tgt, 4), "rr": round(rr, 2), "method": method,
+            "conviction": conv, "tier": tier, "trend_score": trend,
+            "htf_bias": htf_bias, "trend_word": trend_word,
+            "hour": datetime.now(timezone.utc).hour, "news_flag": int(news_flag),
+            "stack": aligned, "stack_size": len(aligned),
+            "confluence_score": cscore, "expected_R": cexp, "score_basis": cbasis,
+            "adaptive": (w7 or {}),
+            "thought": thought,
+        }
+        path = os.path.join(BASE_DIR, "data", "decision_journal.jsonl")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(_json.dumps(rec) + "\n")
+    except Exception as _e:
+        try:
+            log.warning("decision journal log failed: " + str(_e))
+        except Exception:
+            pass
+
+
 def _log_confluence_stack(alert_id, market, tf, fired_stp, all_setups, snapshot, adx_v, rsi_v, vol_ratio):
     """
     Wave 72 (Jun 26, 2026): Confluence Memory foundation.
@@ -2087,6 +2133,15 @@ async def scan_market(app, market, frames):
             except Exception as _cm_e:
                 try:
                     log.warning("confluence stack log failed: " + str(_cm_e))
+                except Exception:
+                    pass
+
+            # Wave 78: Decision journal - full reasoning for this trade
+            try:
+                _log_decision_journal(alert_id, market, entry_tf, stp, setups, tgt, rr, method, conv, tier, trend, htf_bias, news_flag, snapshot_context, adx_v, rsi_v, vol_ratio, _w7_for_log)
+            except Exception as _dj_e:
+                try:
+                    log.warning("decision journal log failed: " + str(_dj_e))
                 except Exception:
                     pass
 
