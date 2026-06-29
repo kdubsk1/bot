@@ -310,8 +310,8 @@ def recalibrate_bucket_floors(force: bool = False) -> dict:
     buckets = {"HIGH (80+)": {"w": 0, "l": 0}, "UPPER-MID (70-79)": {"w": 0, "l": 0},
                "MID (65-69)": {"w": 0, "l": 0}, "LOW (50-64)": {"w": 0, "l": 0}}
     try:
-        with open(outcomes_path, "r", encoding="utf-8") as f:
-            for r in csv.DictReader(f):
+        if True:  # Wave 71a-2 (Jun 26, 2026): full history (live + archive), not just outcomes.csv
+            for r in _iter_closed_outcome_rows():
                 if r.get("status") != "CLOSED":
                     continue
                 result = r.get("result")
@@ -516,8 +516,8 @@ def run_auto_tune() -> dict:
     cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
     setup_stats = {}
     try:
-        with open(outcomes_path, "r", encoding="utf-8") as f:
-            for r in csv.DictReader(f):
+        if True:  # Wave 71a-2 (Jun 26, 2026): full history (live + archive), not just outcomes.csv
+            for r in _iter_closed_outcome_rows():
                 if r.get("status") != "CLOSED":
                     continue
                 result = r.get("result")
