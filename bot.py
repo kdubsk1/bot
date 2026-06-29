@@ -949,6 +949,64 @@ def _log_confluence_stack(alert_id, market, tf, fired_stp, all_setups, snapshot,
             pass
 
 
+_W73_LAST_STACK = {}
+
+
+def _log_scan_stack(market, tf, all_setups, snapshot, adx_v, rsi_v, vol_ratio, htf_bias):
+    """
+    Wave 73 (Jun 29, 2026): Confluence Memory - capture the NON-FIRED stacks too.
+
+    W72 records the stack at FIRED entries. This records the FULL set of setups
+    DETECTED on a market each scan - including ones the bot never fires - so we
+    can later learn which COMBINATIONS the bot is wrongly skipping (combos that
+    would have won). Shadow/logging only; does not change firing. Deduped per
+    market:tf - only logs when the present stack changes or 10+ minutes pass - so
+    it does not spam a line every scan. Append-only to data/scan_stacks.jsonl.
+    """
+    import json as _json
+    try:
+        if not all_setups:
+            return
+        items = []
+        seen = set()
+        for s in all_setups:
+            t = s.get("type", "?")
+            d = s.get("direction", "?")
+            if (t, d) in seen:
+                continue
+            seen.add((t, d))
+            try:
+                reason = _build_detection_reason(s, snapshot, adx_v, rsi_v, vol_ratio)
+            except Exception:
+                reason = ""
+            items.append({"type": t, "direction": d, "reason": reason})
+        if not items:
+            return
+        fingerprint = tuple(sorted((i["type"], i["direction"]) for i in items))
+        cache_key = market + ":" + str(tf)
+        now = datetime.now(timezone.utc)
+        last = _W73_LAST_STACK.get(cache_key)
+        if last and last[0] == fingerprint and (now - last[1]).total_seconds() < 600:
+            return
+        _W73_LAST_STACK[cache_key] = (fingerprint, now)
+        rec = {
+            "ts": now.isoformat(),
+            "market": market,
+            "tf": tf,
+            "htf_bias": htf_bias,
+            "n": len(items),
+            "signals": items,
+        }
+        path = os.path.join(BASE_DIR, "data", "scan_stacks.jsonl")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(_json.dumps(rec) + "\n")
+    except Exception as _e:
+        try:
+            log.warning("scan stack log failed: " + str(_e))
+        except Exception:
+            pass
+
+
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
     cfg        = get_market_config(market)
@@ -1570,6 +1628,12 @@ async def scan_market(app, market, frames):
             log.info(f"[{market}] [{entry_tf}] All setups rejected on volume gate (vol_ratio={vol_ratio:.2f})")
             continue
         setups = _filtered_setups
+
+        # Wave 73: Confluence Memory - record the FULL detected stack this scan (fired or not) so non-fired combos are learnable
+        try:
+            _log_scan_stack(market, entry_tf, setups, snapshot_context, adx_v, rsi_v, vol_ratio, htf_bias)
+        except Exception:
+            pass
 
         session_name = session.get("session","")
         is_prime_session = any(s in session_name for s in ("US Regular","London","Pre-Market","London/NY"))
