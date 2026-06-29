@@ -1,1 +1,1 @@
-{"newly_suspended": [{"market": "SOL", "setup": "BB_REVERSION_BEAR", "losses": 4, "reason": "Wave 47 auto: 0W/4L over last 30 days"}, {"market": "GC", "setup": "STOCH_REVERSAL_BEAR", "losses": 4, "reason": "Wave 47 auto: 0W/4L over last 30 days"}], "ts": "2026-06-26T20:00:04.487086+00:00"}
+{"newly_suspended": [{"market": "SOL", "setup": "BB_REVERSION_BEAR", "losses": 3, "reason": "Wave 47 auto: 0W/3L over last 30 days"}, {"market": "GC", "setup": "STOCH_REVERSAL_BEAR", "losses": 4, "reason": "Wave 47 auto: 0W/4L over last 30 days"}], "ts": "2026-06-29T20:00:01.349428+00:00"}

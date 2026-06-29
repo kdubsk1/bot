@@ -92,10 +92,10 @@
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 141,
-    "losses": 55,
-    "total": 196,
-    "win_rate": 71.9,
-    "last_updated": "2026-06-28T18:22:57.139146"
+    "losses": 56,
+    "total": 197,
+    "win_rate": 71.6,
+    "last_updated": "2026-06-29T15:33:58.359020"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,
@@ -189,11 +189,11 @@
     "last_updated": "2026-06-17T17:36:46.922938"
   },
   "GC:MACD_CROSS_BEAR": {
-    "wins": 20,
+    "wins": 22,
     "losses": 0,
-    "total": 20,
+    "total": 22,
     "win_rate": 100.0,
-    "last_updated": "2026-06-28T18:22:57.134044"
+    "last_updated": "2026-06-29T15:33:58.534071"
   },
   "BTC:MACD_CROSS_BEAR": {
     "wins": 2,

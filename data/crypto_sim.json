@@ -6,7 +6,62 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "dce84e15d5",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 60331.51,
+      "stop": 60707.986512778865,
+      "target": 59490.79,
+      "leverage": 10,
+      "position_size_usd": 62.23,
+      "notional_usd": 622.34,
+      "risk_dollars": 0.39,
+      "opened_at": "2026-06-29T18:26:34.427241+00:00",
+      "max_hold_until": "2026-07-06T18:26:34.427241+00:00",
+      "tier": "MEDIUM",
+      "conviction": 56,
+      "context": {
+        "trend_score": -10,
+        "rsi": 58.35,
+        "adx": 16.87,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (90.8\u219284.5 vs D 86.3). Early reversal trigger."
+      },
+      "status": "OPEN"
+    },
+    {
+      "alert_id": "988cf0b3b8",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 75.58,
+      "stop": 76.93358931762457,
+      "target": 72.65,
+      "leverage": 10,
+      "position_size_usd": 21.68,
+      "notional_usd": 216.84,
+      "risk_dollars": 0.39,
+      "opened_at": "2026-06-29T20:34:27.063891+00:00",
+      "max_hold_until": "2026-07-06T20:34:27.063891+00:00",
+      "tier": "HIGH",
+      "conviction": 67,
+      "context": {
+        "trend_score": -3,
+        "rsi": 72.78,
+        "adx": 22.73,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Tagged upper Bollinger (75.9746) and reversed. RSI 72.8 overbought. Mean reversion to middle band."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",

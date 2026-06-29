@@ -1,18 +1,4 @@
 {
-  "SOL:RSI_DIV_BULL": {
-    "reason": "3W/30L (9.1% WR)",
-    "suspended_at": "2026-06-26T20:00:04.959574+00:00",
-    "total_at_suspension": 33,
-    "wr_at_suspension": 9.1,
-    "bleed_at_suspension": 0.0
-  },
-  "SOL:VWAP_BOUNCE_BULL": {
-    "reason": "15W/35L (30.0% WR)",
-    "suspended_at": "2026-06-26T20:00:04.959643+00:00",
-    "total_at_suspension": 50,
-    "wr_at_suspension": 30.0,
-    "bleed_at_suspension": -193.0
-  },
   "SOL:MACD_CROSS_BEAR": {
     "reason": "1W/6L (14.3% WR)",
     "suspended_at": "2026-06-28T12:10:30.486075+00:00",
@@ -333,6 +319,20 @@
     "suspended_at": "2026-06-29T04:53:16.166328+00:00",
     "total_at_suspension": 23,
     "wr_at_suspension": 8.7,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "reason": "15W/35L (30.0% WR)",
+    "suspended_at": "2026-06-29T20:00:32.658321+00:00",
+    "total_at_suspension": 50,
+    "wr_at_suspension": 30.0,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:RSI_DIV_BULL": {
+    "reason": "3W/30L (9.1% WR)",
+    "suspended_at": "2026-06-29T20:00:32.658410+00:00",
+    "total_at_suspension": 33,
+    "wr_at_suspension": 9.1,
     "bleed_at_suspension": 0.0
   }
 }

@@ -448,5 +448,14 @@
     "losses": 3,
     "balance": 49596.56,
     "preset": "50k"
+  },
+  {
+    "date": "2026-06-29",
+    "pnl": 531.74,
+    "trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "balance": 50531.74,
+    "preset": "50k"
   }
 ]
