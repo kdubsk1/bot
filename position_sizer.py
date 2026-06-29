@@ -47,13 +47,31 @@ def _check_validation_lock() -> Tuple[bool, float, int]:
                 _VALIDATION_LOCK_CACHE["wr"],
                 _VALIDATION_LOCK_CACHE["n"])
     try:
-        import pandas as _pd
-        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcomes.csv")
-        if not os.path.exists(csv_path):
+        import pandas as _pd, glob as _glob
+        # Wave 77 (Jun 29, 2026): un-starve the validation lock. It used to read
+        # only the recently-rotated outcomes.csv (often < 20 rows) -> locked=True
+        # -> forced 1-contract sizing even with a healthy real record. Now reads
+        # live + ALL data/archive/outcomes_*.csv (deduped by alert_id), so the
+        # rolling-20 WR reflects the true most-recent closed trades.
+        _base = os.path.dirname(os.path.abspath(__file__))
+        _paths = [p for p in (os.path.join(_base, "outcomes.csv"),
+                              os.path.join(_base, "data", "outcomes.csv")) if os.path.exists(p)]
+        _paths += sorted(_glob.glob(os.path.join(_base, "data", "archive", "outcomes_*.csv")))
+        _frames = []
+        for _p in _paths:
+            try:
+                _frames.append(_pd.read_csv(_p))
+            except Exception:
+                pass
+        if not _frames:
             locked, wr, n = True, 0.0, 0
         else:
-            df = _pd.read_csv(csv_path)
+            df = _pd.concat(_frames, ignore_index=True)
+            if "alert_id" in df.columns:
+                df = df.drop_duplicates(subset=["alert_id"], keep="last")
             closed = df[df.get("result", "").astype(str).str.upper().isin(["WIN", "LOSS"])]
+            if "timestamp" in closed.columns:
+                closed = closed.sort_values("timestamp")
             n = len(closed)
             if n < _VALIDATION_LOCK_WINDOW:
                 locked, wr = True, 0.0
