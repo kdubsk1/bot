@@ -1646,7 +1646,11 @@ def structure_target(df: pd.DataFrame, direction: str,
 
     # Apr 30: dynamic upper bound. Old MAX_RR=4.0 was too tight; sweet spot is 2-3R
     # but we should accept up to 5R when no closer level exists.
-    MAX_RR = 5.0
+    # Wave 75 (Jun 29, 2026): per-market R cap. Backtest showed 4R+ targets bleed
+    # (3.8% WR over 702 trades, NQ worst). Each market has its own sweet spot -
+    # GC tight, NQ medium, crypto (esp. SOL) higher. Replaces the global 5.0.
+    _W75_MAX_RR_BY_MARKET = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}
+    MAX_RR = _W75_MAX_RR_BY_MARKET.get(market, 3.5)
     SWEET_LO, SWEET_HI = 2.0, 3.0
 
     a = atr(df).iloc[-1]
