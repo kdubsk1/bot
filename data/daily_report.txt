@@ -1,36 +1,36 @@
 NQ CALLS DAILY REPORT
-Date: Sunday, June 28, 2026
-Generated: 00:00 EST
+Date: Monday, June 29, 2026
+Generated: 00:03 EST
 ==================================================
 
 TODAY'S PERFORMANCE
 ------------------------------
-Alerts fired today:  1
+Alerts fired today:  2
 Closed today:        0
 Wins:                0
 Losses:              0
 Skipped:             0
-Still open:          1
+Still open:          2
 Today win rate:      0.0%
 
 TODAY'S ALERTS:
 ------------------------------
-  🔄 GC | MACD_CROSS_BEAR | SHORT | Conv:92 | RR:1.61 | Tier:HIGH | Entry:4076.6372 Stop:4092.8001 Target:4050.5614 | Exit:open | 2026-06-28 22:12
+  🔄 BTC | STOCH_REVERSAL_BEAR | SHORT | Conv:56 | RR:2.23 | Tier:MEDIUM | Entry:60331.51 Stop:60707.9865 Target:59490.79 | Exit:open | 2026-06-29 18:26
+  🔄 SOL | BB_REVERSION_BEAR | SHORT | Conv:67 | RR:2.16 | Tier:HIGH | Entry:75.58 Stop:76.9336 Target:72.65 | Exit:open | 2026-06-29 20:34
 
 ALL-TIME STATS
 ------------------------------
-Total closed: 25
-All-time W/L: 4W / 19L (17.4% WR)
+Total closed: 26
+All-time W/L: 5W / 19L (20.8% WR)
 
 LEARNING UPDATES TODAY:
 ------------------------------
-  GC:MACD_CROSS_BEAR: 100.0% WR over 20 trades → Conv adj: +12
-  NQ:VWAP_BOUNCE_BULL: 71.9% WR over 196 trades → Conv adj: +12
-  SOL:MACD_CROSS_BEAR: 14.3% WR over 7 trades → Conv adj: -12
+  GC:MACD_CROSS_BEAR: 100.0% WR over 22 trades → Conv adj: +12
+  NQ:VWAP_BOUNCE_BULL: 71.6% WR over 197 trades → Conv adj: +12
 
 ALL-TIME LEARNING FILE:
 ------------------------------
-  NQ:VWAP_BOUNCE_BULL: 141W/55L (71.9% WR) → Conv adj: +12
+  NQ:VWAP_BOUNCE_BULL: 141W/56L (71.6% WR) → Conv adj: +12
   NQ:BREAK_RETEST_BULL: 87W/39L (69.0% WR) → Conv adj: +12
   GC:RSI_DIV_BULL: 1W/103L (1.0% WR) → Conv adj: -12
   BTC:VWAP_BOUNCE_BULL: 4W/92L (4.2% WR) → Conv adj: -12
@@ -57,7 +57,7 @@ ALL-TIME LEARNING FILE:
   GC:STOCH_REVERSAL_BEAR: 16W/8L (66.7% WR) → Conv adj: 0
   NQ:STOCH_REVERSAL_BULL: 6W/17L (26.1% WR) → Conv adj: -12
   BTC:MACD_CROSS_BEAR: 2W/21L (8.7% WR) → Conv adj: -12
-  GC:MACD_CROSS_BEAR: 20W/0L (100.0% WR) → Conv adj: +12
+  GC:MACD_CROSS_BEAR: 22W/0L (100.0% WR) → Conv adj: +12
   BTC:EMA21_PULLBACK_BEAR: 5W/15L (25.0% WR) → Conv adj: -12
   NQ:EMA21_PULLBACK_BEAR: 0W/20L (0.0% WR) → Conv adj: -12
   NQ:STOCH_REVERSAL_BEAR: 0W/19L (0.0% WR) → Conv adj: -12
@@ -96,7 +96,8 @@ ALL-TIME LEARNING FILE:
 
 STILL OPEN AT END OF DAY:
 ------------------------------
-  🔄 GC | MACD_CROSS_BEAR | Entry:4076.6372 Target:4050.5614 | ID:f2c5388edd | 2026-06-28 22:12
+  🔄 BTC | STOCH_REVERSAL_BEAR | Entry:60331.51 Target:59490.79 | ID:dce84e15d5 | 2026-06-29 18:26
+  🔄 SOL | BB_REVERSION_BEAR | Entry:75.58 Target:72.65 | ID:988cf0b3b8 | 2026-06-29 20:34
 
 ==================================================
 END OF REPORT

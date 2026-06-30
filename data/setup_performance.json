@@ -189,11 +189,11 @@
     "last_updated": "2026-06-17T17:36:46.922938"
   },
   "GC:MACD_CROSS_BEAR": {
-    "wins": 22,
+    "wins": 23,
     "losses": 0,
-    "total": 22,
+    "total": 23,
     "win_rate": 100.0,
-    "last_updated": "2026-06-29T15:33:58.534071"
+    "last_updated": "2026-06-30T00:29:59.140991"
   },
   "BTC:MACD_CROSS_BEAR": {
     "wins": 2,
@@ -224,11 +224,11 @@
     "last_updated": "2026-06-12T14:57:52.291328"
   },
   "BTC:STOCH_REVERSAL_BEAR": {
-    "wins": 46,
+    "wins": 47,
     "losses": 35,
-    "total": 81,
-    "win_rate": 56.8,
-    "last_updated": "2026-06-26T09:55:57.743802"
+    "total": 82,
+    "win_rate": 57.3,
+    "last_updated": "2026-06-30T04:06:08.860360"
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 87,
