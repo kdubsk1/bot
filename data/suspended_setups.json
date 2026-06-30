@@ -334,5 +334,19 @@
     "total_at_suspension": 33,
     "wr_at_suspension": 9.1,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:MACD_CROSS_BULL": {
+    "reason": "2W/13L (13.3% WR)",
+    "suspended_at": "2026-06-30T20:00:44.169211+00:00",
+    "total_at_suspension": 15,
+    "wr_at_suspension": 13.3,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:STOCH_REVERSAL_BEAR": {
+    "reason": "bled $500 in 7d",
+    "suspended_at": "2026-06-30T20:00:44.170009+00:00",
+    "total_at_suspension": 25,
+    "wr_at_suspension": 64.0,
+    "bleed_at_suspension": -500.0
   }
 }
