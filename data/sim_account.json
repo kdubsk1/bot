@@ -17,5 +17,20 @@
   "session_date": "2026-06-30",
   "total_pnl": 0.0,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "d8d53f8765",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4024.51288,
+      "stop": 4041.556513598831,
+      "target": 3984.06375,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "STOCH_REVERSAL_BEAR",
+      "opened_at": "2026-06-30T08:25:01.882518",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
