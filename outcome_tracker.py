@@ -2080,6 +2080,68 @@ def format_journal_text(limit: int = 10) -> str:
     return "\n".join(lines)
 
 
+def _first_touch_verdict(frames, alert_dt, direction, stop, target):
+    """Wave 81 (Jul 1, 2026): sequential first-touch resolution (SHADOW).
+    Walks the most granular post-alert frame bar-by-bar in time order and returns
+    the FIRST of target/stop to be touched: 'WIN', 'LOSS', or 'OPEN'. Same-bar
+    both-touch -> 'LOSS' (stop-wins, conservative), matching the live rule. More
+    accurate than the union-of-window method for trades that touch target early
+    then reverse to stop later. Shadow only in W81."""
+    try:
+        if not isinstance(frames, dict) or stop <= 0 or target <= 0:
+            return "OPEN"
+        order = ["1m", "2m", "3m", "5m", "10m", "15m", "30m", "1h", "2h", "4h", "1d"]
+        df = None
+        for tf in order:
+            d = frames.get(tf)
+            if d is not None and not getattr(d, "empty", True):
+                df = d
+                break
+        if df is None:
+            for d in frames.values():
+                if d is not None and not getattr(d, "empty", True):
+                    df = d
+                    break
+        if df is None:
+            return "OPEN"
+        post = df[df.index > alert_dt] if alert_dt is not None else df.iloc[-5:]
+        if getattr(post, "empty", True):
+            return "OPEN"
+        for _, bar in post.iterrows():
+            hi = float(bar["High"]); lo = float(bar["Low"])
+            if direction == "LONG":
+                t_hit = hi >= target; s_hit = lo <= stop
+            else:
+                t_hit = lo <= target; s_hit = hi >= stop
+            if t_hit and s_hit:
+                return "LOSS"
+            if t_hit:
+                return "WIN"
+            if s_hit:
+                return "LOSS"
+        return "OPEN"
+    except Exception:
+        return "OPEN"
+
+
+def _log_resolution_audit(alert_id, market, setup, direction, union_res, ft_res, entry, stop, target, ts_str):
+    """Wave 81 (Jul 1, 2026): log where sequential first-touch DIFFERS from the
+    live union verdict (shadow). Quantifies how often the union method mislabels
+    'target-first-then-reversed' trades so we can switch with confidence."""
+    import json as _json
+    try:
+        rec = {"ts": datetime.now(timezone.utc).isoformat(), "alert_id": alert_id,
+               "market": market, "setup": setup, "direction": direction,
+               "recorded": union_res, "first_touch": ft_res,
+               "entry": float(entry), "stop": float(stop), "target": float(target),
+               "alert_ts": ts_str}
+        path = os.path.join(_BASE_DIR, "data", "resolution_audit.jsonl")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(_json.dumps(rec) + "\n")
+    except Exception:
+        pass
+
+
 def auto_check_outcomes(live_frames: dict):
     """
     Checks every open trade against candle HIGH/LOW range since alert timestamp.
@@ -2293,6 +2355,15 @@ def auto_check_outcomes(live_frames: dict):
                     # fall through to original close logic.
                     _log.warning(f"phantom guard error on {alert_id}: {_pe}")
 
+            # Wave 81: shadow audit - sequential first-touch vs the union verdict
+            try:
+                if hit_target or hit_stop:
+                    _union_res = "WIN" if hit_target else "LOSS"
+                    _ft_res = _first_touch_verdict(frames, alert_dt, direction, stop, target)
+                    if _ft_res in ("WIN", "LOSS") and _ft_res != _union_res:
+                        _log_resolution_audit(alert_id, market, setup_type, direction, _union_res, _ft_res, entry, stop, target, ts_str)
+            except Exception:
+                pass
             if hit_target:
                 update_result(alert_id, "WIN", 0, target)
                 record_trade_result(market, setup_type, "WIN")
