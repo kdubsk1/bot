@@ -956,6 +956,54 @@ def _confluence_score(stack_types, market=""):
         return 0, 0.0, "error"
 
 
+_W80_HOUR_EDGE = {0: -0.269, 1: 0.135, 2: 0.265, 3: 0.226, 4: 0.444, 5: 0.081,
+                  6: -0.054, 7: -0.538, 8: -0.597, 11: -0.19, 12: 1.264, 13: 0.632,
+                  14: 0.527, 15: 0.539, 16: 0.048, 17: 0.413, 18: 0.393, 19: -0.214,
+                  20: 1.388, 21: -0.798, 22: 0.084, 23: 0.38}
+
+def _time_edge(hour):
+    """Wave 80 (Jun 29, 2026): time-of-day edge, backfilled (trend-aligned).
+    Returns (score_0_100, expected_R, label). 12-15 + 17-18 + 20 UTC are prime;
+    7-8, 19, 21 bleed. Thin/unknown hours -> neutral. Shadow only in W80."""
+    try:
+        er = _W80_HOUR_EDGE.get(int(hour))
+        if er is None:
+            return 50, 0.0, "neutral"
+        score = int(max(0, min(100, round((er + 1.0) / 3.0 * 100))))
+        if er >= 0.5:
+            label = "prime"
+        elif er >= 0.1:
+            label = "good"
+        elif er > -0.1:
+            label = "neutral"
+        else:
+            label = "dead"
+        return score, round(float(er), 3), label
+    except Exception:
+        return 50, 0.0, "neutral"
+
+def _log_time_context(alert_id, market, tf, hour=None):
+    """Wave 80 (Jun 29, 2026): log this entry time-of-day edge (shadow).
+    Time-of-day is one of the strongest edges in the data. Recorded per fired trade
+    (by alert_id) so we can confirm it holds on fresh data before it drives anything."""
+    import json as _json
+    try:
+        if hour is None:
+            hour = datetime.now(timezone.utc).hour
+        tscore, texp, tlabel = _time_edge(hour)
+        rec = {"ts": datetime.now(timezone.utc).isoformat(), "alert_id": alert_id,
+               "market": market, "tf": tf, "hour": int(hour),
+               "time_edge_score": tscore, "time_expected_R": texp, "time_label": tlabel}
+        path = os.path.join(BASE_DIR, "data", "time_context.jsonl")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(_json.dumps(rec) + "\n")
+    except Exception as _e:
+        try:
+            log.warning("time context log failed: " + str(_e))
+        except Exception:
+            pass
+
+
 def _log_decision_journal(alert_id, market, tf, stp, all_setups, tgt, rr, method, conv, tier, trend, htf_bias, news_flag, snapshot, adx_v, rsi_v, vol_ratio, w7=None):
     """Wave 78 (Jun 29, 2026): the bot's decision journal - its 'thoughts'.
     For every fired trade, record the FULL reasoning in one place: the aligned
@@ -2142,6 +2190,15 @@ async def scan_market(app, market, frames):
             except Exception as _dj_e:
                 try:
                     log.warning("decision journal log failed: " + str(_dj_e))
+                except Exception:
+                    pass
+
+            # Wave 80: Time-of-day edge (shadow) - log the hour edge for this entry
+            try:
+                _log_time_context(alert_id, market, entry_tf)
+            except Exception as _tc_e:
+                try:
+                    log.warning("time context log failed: " + str(_tc_e))
                 except Exception:
                     pass
 
