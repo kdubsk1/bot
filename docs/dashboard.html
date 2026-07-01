@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-01T13:26:02.242773+00:00",
+  "generated_at": "2026-07-01T18:58:36.236942+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -990,9 +990,9 @@ const DATA = {
       "rr": "2.36",
       "conv": "75",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "SKIP",
+      "exit": "58301.28"
     },
     {
       "time": "2026-06-30 14:52",
@@ -1188,11 +1188,6 @@ const DATA = {
     }
   ],
   "suspended_setups": [
-    {
-      "key": "SOL:MACD_CROSS_BEAR",
-      "reason": "1W/6L (14.3% WR)",
-      "suspended_at": "2026-06-28T12:10:30.486075+00:00"
-    },
     {
       "key": "GC:MACD_CROSS_BULL",
       "reason": "0W/10L (0.0% WR)",
@@ -1437,6 +1432,11 @@ const DATA = {
       "key": "GC:STOCH_REVERSAL_BEAR",
       "reason": "bled $500 in 7d",
       "suspended_at": "2026-06-30T20:00:44.170009+00:00"
+    },
+    {
+      "key": "SOL:MACD_CROSS_BEAR",
+      "reason": "1W/6L (14.3% WR)",
+      "suspended_at": "2026-07-01T18:52:20.251152+00:00"
     }
   ],
   "by_market": {
@@ -1476,21 +1476,7 @@ const DATA = {
       "wr": 28.6
     }
   },
-  "open_trades": [
-    {
-      "market": "BTC",
-      "setup": "RSI_DIV_BULL",
-      "tf": "15m",
-      "direction": "LONG",
-      "entry": "58301.28",
-      "target": "59159.15",
-      "stop": "57937.2584",
-      "conviction": 75,
-      "last_rescore_conviction": 75,
-      "tier": "HIGH",
-      "timestamp": "2026-06-30T15:24:03.552378+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
