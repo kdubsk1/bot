@@ -1,1 +1,6 @@
-{}
+{
+  "SOL:mean_rev_short": {
+    "expiry": "2026-07-01T13:16:39.181547+00:00",
+    "reason": "LOSS"
+  }
+}

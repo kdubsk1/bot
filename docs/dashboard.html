@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-01T07:25:59.556266+00:00",
+  "generated_at": "2026-07-01T13:26:02.242773+00:00",
   "topstep": {
     "balance": 50000,
     "starting_balance": 50000,
@@ -325,11 +325,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 26.32,
+    "balance": 25.93,
     "starting_balance": 1000.0,
-    "total_pnl": -973.68,
-    "open_count": 2,
-    "closed_count": 141,
+    "total_pnl": -974.07,
+    "open_count": 1,
+    "closed_count": 142,
     "equity_curve": [
       {
         "time": "Start",
@@ -898,14 +898,18 @@ const DATA = {
       {
         "time": "2026-06-30 15:07",
         "balance": 26.32
+      },
+      {
+        "time": "2026-07-01 11:46",
+        "balance": 25.93
       }
     ]
   },
   "all_time": {
     "wins": 3,
-    "losses": 7,
-    "wr": 30.0,
-    "total_trades": 10
+    "losses": 8,
+    "wr": 27.3,
+    "total_trades": 11
   },
   "today": {
     "wins": 0,
@@ -919,6 +923,13 @@ const DATA = {
       "fires": 5,
       "wins": 0,
       "losses": 5,
+      "wr": 0.0
+    },
+    {
+      "setup": "SOL:VWAP_REJECT_BEAR",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
       "wr": 0.0
     },
     {
@@ -943,13 +954,6 @@ const DATA = {
       "wr": 100.0
     },
     {
-      "setup": "SOL:VWAP_REJECT_BEAR",
-      "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
-    },
-    {
       "setup": "BTC:RSI_DIV_BULL",
       "fires": 1,
       "wins": 0,
@@ -970,9 +974,9 @@ const DATA = {
       "rr": "2.62",
       "conv": "64",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "74.0711"
     },
     {
       "time": "2026-06-30 15:24",
@@ -1450,9 +1454,9 @@ const DATA = {
     },
     "SOL": {
       "wins": 1,
-      "losses": 1,
-      "total_pnl_r": 1.16,
-      "wr": 50.0
+      "losses": 2,
+      "total_pnl_r": 0.16,
+      "wr": 33.3
     }
   },
   "by_tier": {
@@ -1468,24 +1472,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 2,
-      "losses": 4,
-      "wr": 33.3
+      "losses": 5,
+      "wr": 28.6
     }
   },
   "open_trades": [
-    {
-      "market": "SOL",
-      "setup": "VWAP_REJECT_BEAR",
-      "tf": "15m",
-      "direction": "SHORT",
-      "entry": "73.29",
-      "target": "71.24",
-      "stop": "74.0711",
-      "conviction": 64,
-      "last_rescore_conviction": 64,
-      "tier": "HIGH",
-      "timestamp": "2026-06-30T16:11:24.270096+00:00"
-    },
     {
       "market": "BTC",
       "setup": "RSI_DIV_BULL",

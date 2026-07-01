@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "balance": 26.32,
+  "balance": 25.93,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
@@ -31,33 +31,6 @@
         "session": "US Session",
         "news_flag": false,
         "chart_read": "Bullish RSI divergence: price lower low (58056.0) but RSI higher low (32.0 vs 15.7). Sellers exhausted. Reversal likely."
-      },
-      "status": "OPEN"
-    },
-    {
-      "alert_id": "b9971d6323",
-      "market": "SOL",
-      "direction": "SHORT",
-      "entry": 73.29,
-      "stop": 74.0710869621987,
-      "target": 71.24,
-      "leverage": 10,
-      "position_size_usd": 37.04,
-      "notional_usd": 370.44,
-      "risk_dollars": 0.39,
-      "opened_at": "2026-06-30T16:11:24.274812+00:00",
-      "max_hold_until": "2026-07-07T16:11:24.274812+00:00",
-      "tier": "HIGH",
-      "conviction": 64,
-      "context": {
-        "trend_score": 2,
-        "rsi": 52.19,
-        "adx": 34.86,
-        "htf_bias": "UNKNOWN",
-        "regime": "UNKNOWN",
-        "session": "US Session",
-        "news_flag": false,
-        "chart_read": "Pushed above VWAP 73.3266, rejected. Institutions selling."
       },
       "status": "OPEN"
     }
@@ -4715,12 +4688,45 @@
       "pnl_dollars": -0.41,
       "closed_at": "2026-06-30T15:46:32.405252+00:00",
       "held_hours": 1.12
+    },
+    {
+      "alert_id": "b9971d6323",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 73.29,
+      "stop": 74.0710869621987,
+      "target": 71.24,
+      "leverage": 10,
+      "position_size_usd": 37.04,
+      "notional_usd": 370.44,
+      "risk_dollars": 0.39,
+      "opened_at": "2026-06-30T16:11:24.274812+00:00",
+      "max_hold_until": "2026-07-07T16:11:24.274812+00:00",
+      "tier": "HIGH",
+      "conviction": 64,
+      "context": {
+        "trend_score": 2,
+        "rsi": 52.19,
+        "adx": 34.86,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Pushed above VWAP 73.3266, rejected. Institutions selling."
+      },
+      "status": "CLOSED",
+      "exit_price": 74.0710869621987,
+      "exit_reason": "stop_hit",
+      "result": "LOSS",
+      "pnl_dollars": -0.39,
+      "closed_at": "2026-07-01T11:46:29.079576+00:00",
+      "held_hours": 19.58
     }
   ],
-  "total_pnl": -973.68,
-  "total_trades": 141,
+  "total_pnl": -974.07,
+  "total_trades": 142,
   "wins": 33,
-  "losses": 108,
+  "losses": 109,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }

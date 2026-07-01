@@ -148,10 +148,10 @@
   },
   "SOL:VWAP_REJECT_BEAR": {
     "wins": 5,
-    "losses": 2,
-    "total": 7,
-    "win_rate": 71.4,
-    "last_updated": "2026-06-30T15:46:32.898617"
+    "losses": 3,
+    "total": 8,
+    "win_rate": 62.5,
+    "last_updated": "2026-07-01T11:46:29.532442"
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 25,
