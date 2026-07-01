@@ -697,11 +697,26 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
     except Exception:
         pass
 
+    # Wave 79: The Read - one-glance quality read (grade + confluence + hour edge)
+    read_line = ""
+    try:
+        rd = setup.get("_read") or {}
+        if rd:
+            _rcs = int(rd.get("cscore", 0)); _rce = float(rd.get("cexp", 0.0))
+            _grade = "A+" if _rcs >= 85 else "A" if _rcs >= 70 else "B" if _rcs >= 50 else "C"
+            _rht = ""
+            if "tlabel" in rd:
+                _rht = f"  |  *{rd.get('tlabel')} hour* ({float(rd.get('texp', 0.0)):+.2f}R)"
+            read_line = f"\U0001f9e0 *Read:* {_grade}  |  Confluence {_rcs}/100 ({_rce:+.2f}R){_rht}\n"
+    except Exception:
+        pass
+
     msg = (
         f"{header}{nw}\n"
         f"{cfg.EMOJI} {dir_icon} {arrow}  |  *{_md(cfg.FULL_NAME)}*  |  [{tf}]\n"
         f"{te} Tier: *{tier}*  |  Conviction: *{conv}/100*\n"
         f"{w7_line}"
+        f"{read_line}"
         f"🔭 Trend: `{trend:+d}`  |  ADX: `{round(adx_v,1)}`  |  RSI: `{round(rsi_v,1)}`\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"📍 *Entry:*  `{round(setup['entry'],4)}`\n"
@@ -2248,6 +2263,19 @@ async def scan_market(app, market, frames):
             if stp["type"] in ("APPROACH_SUPPORT","APPROACH_RESIST"):
                 _mark_approach_active(market, stp["type"], stp["entry"])
 
+            # Wave 79: The Read - compute this setup quality read for the alert
+            try:
+                _rd_al = sorted({s.get("type") for s in setups if s.get("direction") == stp.get("direction")})
+                _rcs, _rce, _rcb = _confluence_score(_rd_al, market)
+                _read = {"cscore": _rcs, "cexp": _rce}
+                try:
+                    _rts, _rte, _rtl = _time_edge(datetime.now(timezone.utc).hour)
+                    _read["tlabel"] = _rtl; _read["texp"] = _rte
+                except Exception:
+                    pass
+                stp["_read"] = _read
+            except Exception:
+                pass
             footer = cfg.alert_footer(stp, session)
             await tg_send(app, format_alert(market, entry_tf, stp, conv, tier, trend,
                                              tgt, rr, method, adx_v, rsi_v, lev, risk_pct, hold,
