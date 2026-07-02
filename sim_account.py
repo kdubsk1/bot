@@ -258,9 +258,12 @@ def check_eval_outcome(state: dict) -> str:
         if (balance - starting) >= profit_target:
             return "PASSED_TARGET"
 
-        # Daily loss check: today_pnl negative beyond daily_loss_limit
-        if today_pnl <= -daily_limit:
-            return "BUSTED_DAILY_LOSS"
+        # Wave 82 (Jul 1, 2026): daily loss limit is a per-DAY trading gate, NOT an
+        # eval-ending event. In a real combine, hitting the daily limit only stops
+        # trading for that day - the account carries to the next session with balance
+        # intact. This branch used to flag the day as a busted eval, which made
+        # _handle_session_end wipe the whole account to a fresh 50k on ANY losing day
+        # (the daily 50k reset). Removed so a daily-loss day falls through to ACTIVE.
 
         # Max drawdown check: drawdown from peak
         drawdown = peak - balance
