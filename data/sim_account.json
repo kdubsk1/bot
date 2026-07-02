@@ -1,8 +1,8 @@
 {
-  "enabled": true,
+  "enabled": false,
   "mode": "eval",
   "preset": "50k",
-  "balance": 49791.1,
+  "balance": 50000,
   "peak_balance": 50000,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -12,60 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": -208.9,
-  "today_date": "2026-07-02",
-  "session_date": "2026-07-02",
-  "total_pnl": -208.9,
-  "trades": [
-    {
-      "alert_id": "0693b7e7fe",
-      "market": "GC",
-      "direction": "LONG",
-      "entry": 4136.5,
-      "stop": 4121.9743331426425,
-      "target": 4163.5,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "BREAK_RETEST_BULL",
-      "opened_at": "2026-07-02T14:21:42.219044",
-      "status": "CLOSED",
-      "pnl": -145.26,
-      "exit_price": 4121.9743,
-      "result": "LOSS",
-      "closed_at": "2026-07-02T16:33:24.896544"
-    },
-    {
-      "alert_id": "ccfa028ed3",
-      "market": "GC",
-      "direction": "LONG",
-      "entry": 4128.1,
-      "stop": 4121.736454889028,
-      "target": 4138.5,
-      "contracts": 1,
-      "tier": "MEDIUM",
-      "setup_type": "BREAK_RETEST_BULL",
-      "opened_at": "2026-07-02T16:43:32.926122",
-      "status": "CLOSED",
-      "pnl": -63.64,
-      "exit_price": 4121.7365,
-      "result": "LOSS",
-      "closed_at": "2026-07-02T17:38:57.134094"
-    }
-  ],
-  "open_sim_trades": [
-    {
-      "alert_id": "f3e78747ae",
-      "market": "NQ",
-      "direction": "SHORT",
-      "entry": 29947.75,
-      "stop": 30284.995959561187,
-      "target": 29255.0,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "OPENING_RANGE_BREAKOUT",
-      "opened_at": "2026-07-02T14:29:04.806777",
-      "status": "OPEN",
-      "pnl": 0.0
-    }
-  ]
+  "today_pnl": 0.0,
+  "today_date": "2026-07-03",
+  "session_date": "2026-07-03",
+  "total_pnl": 0.0,
+  "trades": [],
+  "open_sim_trades": []
 }
