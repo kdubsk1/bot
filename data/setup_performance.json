@@ -36,10 +36,10 @@
   },
   "GC:BREAK_RETEST_BULL": {
     "wins": 7,
-    "losses": 4,
-    "total": 11,
-    "win_rate": 63.6,
-    "last_updated": "2026-06-17T17:36:46.914512"
+    "losses": 7,
+    "total": 14,
+    "win_rate": 50.0,
+    "last_updated": "2026-07-02T18:36:20.230755"
   },
   "SOL:EMA21_PULLBACK_BULL": {
     "wins": 0,
@@ -92,10 +92,10 @@
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 141,
-    "losses": 56,
-    "total": 197,
-    "win_rate": 71.6,
-    "last_updated": "2026-06-29T15:33:58.359020"
+    "losses": 57,
+    "total": 198,
+    "win_rate": 71.2,
+    "last_updated": "2026-07-02T13:51:10.908290"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,

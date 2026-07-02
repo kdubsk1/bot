@@ -1,9 +1,16 @@
 [
   {
-    "market": "SOL",
-    "direction": "SHORT",
-    "zone_low": 73.1042,
-    "zone_high": 73.4758,
-    "expiry": "2026-07-01T13:46:39.176658+00:00"
+    "market": "GC",
+    "direction": "LONG",
+    "zone_low": 4129.9393,
+    "zone_high": 4143.0607,
+    "expiry": "2026-07-02T18:33:24.893819+00:00"
+  },
+  {
+    "market": "GC",
+    "direction": "LONG",
+    "zone_low": 4122.2127,
+    "zone_high": 4133.9873,
+    "expiry": "2026-07-02T19:38:57.127640+00:00"
   }
 ]

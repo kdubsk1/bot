@@ -283,16 +283,16 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-02T12:41:02.673091+00:00",
+  "generated_at": "2026-07-02T18:41:05.781461+00:00",
   "topstep": {
-    "balance": 50000,
+    "balance": 49791.1,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 0.0,
+    "today_pnl": -208.9,
+    "total_pnl": -208.9,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -321,6 +321,14 @@ const DATA = {
       {
         "time": "2026-06-30 08:25",
         "balance": 47480.44
+      },
+      {
+        "time": "2026-07-02 14:21",
+        "balance": 46768.23
+      },
+      {
+        "time": "2026-07-02 16:43",
+        "balance": 46066.71
       }
     ]
   },
@@ -911,15 +919,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 3,
-    "losses": 8,
-    "wr": 27.3,
-    "total_trades": 11
+    "losses": 10,
+    "wr": 23.1,
+    "total_trades": 13
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 2,
+    "wr": 0.0,
+    "total_trades": 2
   },
   "setup_stats": [
     {
@@ -931,6 +939,13 @@ const DATA = {
     },
     {
       "setup": "SOL:VWAP_REJECT_BEAR",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
+      "wr": 0.0
+    },
+    {
+      "setup": "GC:BREAK_RETEST_BULL",
       "fires": 2,
       "wins": 0,
       "losses": 2,
@@ -966,6 +981,70 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-02 18:31",
+      "market": "GC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4137.9",
+      "stop": "4122.037",
+      "target": "4163.5",
+      "rr": "1.61",
+      "conv": "53",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-07-02 16:43",
+      "market": "GC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4128.1",
+      "stop": "4121.7365",
+      "target": "4138.5",
+      "rr": "1.63",
+      "conv": "56",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4121.7365"
+    },
+    {
+      "time": "2026-07-02 14:29",
+      "market": "NQ",
+      "setup": "OPENING_RANGE_BREAKOUT",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "29947.75",
+      "stop": "30284.996",
+      "target": "29255.0",
+      "rr": "2.05",
+      "conv": "87",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-07-02 14:21",
+      "market": "GC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4136.5",
+      "stop": "4121.9743",
+      "target": "4163.5",
+      "rr": "1.86",
+      "conv": "60",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4121.9743"
+    },
     {
       "time": "2026-06-30 16:11",
       "market": "SOL",
@@ -1446,9 +1525,9 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 1,
-      "losses": 5,
-      "total_pnl_r": -3.39,
-      "wr": 16.7
+      "losses": 7,
+      "total_pnl_r": -5.39,
+      "wr": 12.5
     },
     "BTC": {
       "wins": 1,
@@ -1466,8 +1545,8 @@ const DATA = {
   "by_tier": {
     "MEDIUM": {
       "wins": 1,
-      "losses": 1,
-      "wr": 50.0
+      "losses": 2,
+      "wr": 33.3
     },
     "LOW": {
       "wins": 0,
@@ -1476,11 +1555,38 @@ const DATA = {
     },
     "HIGH": {
       "wins": 2,
-      "losses": 5,
-      "wr": 28.6
+      "losses": 6,
+      "wr": 25.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "4137.9",
+      "target": "4163.5",
+      "stop": "4122.037",
+      "conviction": 53,
+      "last_rescore_conviction": 50,
+      "tier": "MEDIUM",
+      "timestamp": "2026-07-02T18:31:17.951893+00:00"
+    },
+    {
+      "market": "NQ",
+      "setup": "OPENING_RANGE_BREAKOUT",
+      "tf": "15m",
+      "direction": "SHORT",
+      "entry": "29947.75",
+      "target": "29255.0",
+      "stop": "30284.996",
+      "conviction": 87,
+      "last_rescore_conviction": 87,
+      "tier": "HIGH",
+      "timestamp": "2026-07-02T14:29:04.759674+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
