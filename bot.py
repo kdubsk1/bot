@@ -4745,6 +4745,76 @@ SESSION_CLOCK.on(SessionEvent.FUTURES_PRE_FLATTEN, _on_pre_flatten)
 SESSION_CLOCK.on(SessionEvent.CRYPTO_DAY_BOUNDARY, _on_crypto_day)
 
 # ── Entry ─────────────────────────────────────────────────────────
+def _build_boot_banner(tsx_result, open_carried, expired_count, suspended_count,
+                       mkt_status, short_sha, time_str):
+    """Wave 83 (Jul 2, 2026): the ONE smart boot message. Replaces the 3-5 message
+    startup spam with a single compact banner where every line EARNS its spot -
+    healthy systems stay quiet, problems announce themselves. Design language:
+    B3 'smart lines' (Wayne, Jul 2). Every section is try/except-wrapped so a
+    bad stat can never break the boot message."""
+    L = []
+    L.append("\U0001f916 *NQ CALLS \u2014 ONLINE*")
+    L.append("\u2501" * 18)
+    try:
+        if tsx_result.get("auth"):
+            nq_b = tsx_result.get("nq_bars_15m", 0)
+            gc_b = tsx_result.get("gc_bars_15m", 0)
+            L.append("\U0001f4e1 TopstepX \u2705 \u00b7 NQ `" + str(nq_b) + "` \u00b7 GC `" + str(gc_b) + "` bars")
+        else:
+            L.append("\U0001f4e1 \u26a0\ufe0f Fallback data (TwelveData/yfinance)")
+    except Exception:
+        pass
+    try:
+        bad = {m: s for m, s in (mkt_status or {}).items() if s != "\u2705"}
+        if not bad:
+            L.append("\U0001f50d Hunting: NQ \u00b7 GC \u00b7 BTC \u00b7 SOL")
+        else:
+            L.append("\U0001f50d " + " \u00b7 ".join(m + " " + s for m, s in mkt_status.items()))
+    except Exception:
+        pass
+    try:
+        st = sim.load_state()
+        if st.get("enabled"):
+            bal   = float(st.get("balance", 0))
+            start = float(st.get("starting_balance", 50000.0))
+            tgt   = start + float(st.get("profit_target", 3000.0))
+            prog  = 0.0 if tgt <= start else max(0.0, min(1.0, (bal - start) / (tgt - start)))
+            n     = int(round(prog * 10))
+            bar   = "\u25b0" * n + "\u25b1" * (10 - n)
+            L.append("\U0001f4bc *Topstep* `$" + format(bal, ",.0f") + " / $" + format(tgt, ",.0f") + "` " + bar)
+    except Exception:
+        pass
+    try:
+        cb = float(crypto_sim.load_crypto_state().get("balance", 0))
+        L.append("\U0001fa99 *Crypto* `$" + format(cb, ",.2f") + "`")
+    except Exception:
+        pass
+    try:
+        today_str = _now_et().strftime("%Y-%m-%d")
+        rows = ot._read_all()
+        w = sum(1 for r in rows if r.get("status") == "CLOSED" and r.get("result") == "WIN"
+                and today_str in r.get("timestamp", ""))
+        l = sum(1 for r in rows if r.get("status") == "CLOSED" and r.get("result") == "LOSS"
+                and today_str in r.get("timestamp", ""))
+        if w or l:
+            L.append("\U0001f4c5 Today: `" + str(w) + "W / " + str(l) + "L`")
+    except Exception:
+        pass
+    try:
+        if not SETTINGS.get("scanner_on"):
+            L.append("\u26a0\ufe0f Scanner *OFF* \u2014 tap Scanner to hunt")
+        if open_carried:
+            L.append("\U0001f4c8 `" + str(open_carried) + "` open trade(s) carried")
+        if suspended_count:
+            L.append("\u26d4 `" + str(suspended_count) + "` benched (/suspended)")
+        if expired_count:
+            L.append("\U0001f9f9 Expired `" + str(expired_count) + "` stale trade(s)")
+    except Exception:
+        pass
+    L.append("`v" + str(short_sha) + " \u00b7 " + str(time_str) + " ET`")
+    return "\n".join(L)
+
+
 async def _post_init(app):
     log.info("Running startup...")
 
@@ -4992,13 +5062,9 @@ async def _post_init(app):
     try:
         changes = ot.check_and_update_suspensions()
         if changes:
-            lines = ["🔬 *Startup — Setup Suspension Update*", "━━━━━━━━━━━━━━━━━━"]
-            for c in changes:
-                icon = "⛔" if c.startswith("SUSPENDED") else "✅"
-                lines.append(f"  {icon} {c}")
-            await tg_send(app, "\n".join(lines))
-        report = ot.get_suspension_report()
-        await tg_send(app, report)
+            # Wave 83 (Jul 2, 2026): suspension chatter folded into the one boot
+            # banner; full detail any time via /suspended.
+            log.info("W83: %d suspension change(s) at startup - see /suspended", len(changes))
         suspended_count = len(ot.get_suspended_setups())
         log.info(f"Suspension check at startup: {len(changes)} changes, {suspended_count} currently suspended")
     except Exception as e:
@@ -5007,8 +5073,9 @@ async def _post_init(app):
     log.info("Running startup market scan...")
     try:
         state = build_startup_state()
-        await tg_send(app, state)
-        log.info("Startup market state sent.")
+        # Wave 83 (Jul 2, 2026): market state goes to logs, not Telegram - the
+        # boot banner is the single startup message.
+        log.info("W83 startup market state (log-only):\n%s", state)
     except Exception as e:
         log.error(f"Startup market state failed: {e}")
 
@@ -5130,9 +5197,13 @@ async def _post_init(app):
         except Exception as e:
             log.error(f"Pre-Batch startup banner: {e}")
 
-        if not SETTINGS["scanner_on"]:
-            lines.append("⚠️ Tap the Scanner button to start scanning.")
-        await tg_send(app, "\n".join(lines))
+        # Wave 83 (Jul 2, 2026): retire the wall-of-text restart message. Everything
+        # above still computes (and is in Railway logs); Telegram gets ONE smart
+        # banner where every line earns its spot.
+        log.info("W83: legacy verification text suppressed (%d lines) - boot banner sent instead", len(lines))
+        _w83_mkt = {"NQ": nq_s, "GC": gc_s, "BTC": btc_s, "SOL": sol_s}
+        await tg_send(app, _build_boot_banner(tsx_result, open_carried, expired_count,
+                                              suspended_count, _w83_mkt, short_sha, time_str))
     except Exception as e:
         log.error(f"Startup verification message: {e}")
 
