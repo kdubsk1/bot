@@ -1239,6 +1239,12 @@ async def scan_market(app, market, frames):
         _check_target_map_shadows(market, frames)
     except Exception:
         pass
+    # Wave 88: bench retrial - collect + score suspended-setup signals (silent)
+    try:
+        _collect_bench_shadows(market)
+        _check_bench_shadows(market, frames)
+    except Exception:
+        pass
     # Auto-check outcomes
     # Wave 21 (May 9, 2026): capture closures so we can trigger dashboard regen
     _closed_now = list(ot.auto_check_outcomes({market: frames}))
@@ -2382,6 +2388,155 @@ def _crypto_session_ok(market: str) -> bool:
         return True
     hm = _now_et().hour * 60 + _now_et().minute
     return not (120 <= hm < 300)  # 2:00 to 5:00 AM ET
+
+# ---- Wave 88 (Jul 3, 2026): BENCH RETRIAL - score suspended setups in shadow ----
+BENCH_SHADOW_PATH = os.path.join(BASE_DIR, "data", "bench_shadow.jsonl")
+_W88_SL_CACHE = {"mtime": None, "rows": []}
+
+def _w88_recent_bench_rows():
+    """Wave 88: read REJECTED_SUSPENDED rows (Task-4 shadow logs) from
+    data/strategy_log.csv, last 5 days only (bar coverage). Cached by file
+    mtime so the 26MB log is parsed at most once per change."""
+    path = os.path.join(BASE_DIR, "data", "strategy_log.csv")
+    try:
+        mt = os.path.getmtime(path)
+    except Exception:
+        return []
+    if _W88_SL_CACHE["mtime"] == mt:
+        return _W88_SL_CACHE["rows"]
+    rows = []
+    try:
+        import csv as _csv
+        cutoff = datetime.now(timezone.utc) - timedelta(days=5)
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for r in _csv.DictReader(f):
+                if r.get("decision") != "REJECTED_SUSPENDED":
+                    continue
+                try:
+                    ts = datetime.fromisoformat(str(r.get("timestamp", "")).replace("Z", "+00:00"))
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                    if ts < cutoff:
+                        continue
+                except Exception:
+                    continue
+                rows.append(r)
+    except Exception as e:
+        log.warning(f"W88 bench-row read failed (non-fatal): {e}")
+    _W88_SL_CACHE["mtime"] = mt
+    _W88_SL_CACHE["rows"] = rows
+    return rows
+
+def _collect_bench_shadows(market):
+    """Wave 88: turn recent benched detections into pending shadow trials.
+    Uniform yardstick: target = entry +/- 2R (judges SIGNAL quality, not
+    target luck). Dedupe key = timestamp|setup|tf. Data-only, never raises."""
+    try:
+        rows = [r for r in _w88_recent_bench_rows() if r.get("market") == market]
+        if not rows:
+            return
+        seen = set()
+        if os.path.exists(BENCH_SHADOW_PATH):
+            with open(BENCH_SHADOW_PATH, encoding="utf-8") as f:
+                for ln in f:
+                    try:
+                        seen.add(json.loads(ln).get("bench_id"))
+                    except Exception:
+                        continue
+        out = []
+        for r in rows:
+            bid = f"{r.get('timestamp')}|{r.get('setup_type')}|{r.get('tf')}"
+            if bid in seen:
+                continue
+            try:
+                entry = float(r.get("entry")); stp_ = float(r.get("stop"))
+                risk = abs(entry - stp_)
+                if risk <= 0:
+                    continue
+                is_long = "LONG" in str(r.get("direction", ""))
+                tgt = entry + 2 * risk if is_long else entry - 2 * risk
+                out.append({"kind": "pending", "bench_id": bid, "market": market,
+                            "setup": r.get("setup_type"), "tf": r.get("tf"),
+                            "direction": r.get("direction"), "entry": entry,
+                            "stop": stp_, "target_2r": round(tgt, 4),
+                            "ts": r.get("timestamp")})
+            except Exception:
+                continue
+        if out:
+            os.makedirs(os.path.dirname(BENCH_SHADOW_PATH), exist_ok=True)
+            with open(BENCH_SHADOW_PATH, "a", encoding="utf-8") as f:
+                for rec in out:
+                    f.write(json.dumps(rec) + "\n")
+            log.info(f"W88 bench: {len(out)} new shadow trial(s) for {market}")
+    except Exception as e:
+        log.warning(f"W88 bench collect failed (non-fatal): {e}")
+
+def _check_bench_shadows(market, frames):
+    """Wave 88: walk 15m bars since each benched signal - did 2R or the stop
+    come first? Verdicts BENCH_2R_FIRST / BENCH_STOP_FIRST / BENCH_NEITHER_36H
+    with bar counts. Suspensions UNCHANGED - evidence only, for the parole
+    review. Data-only, never sends Telegram."""
+    try:
+        if not os.path.exists(BENCH_SHADOW_PATH):
+            return
+        df = frames.get("15m")
+        if df is None or len(df) == 0:
+            return
+        pend, done = [], set()
+        with open(BENCH_SHADOW_PATH, encoding="utf-8") as f:
+            for ln in f:
+                try:
+                    r = json.loads(ln)
+                except Exception:
+                    continue
+                if r.get("kind") == "resolved":
+                    done.add(r.get("bench_id"))
+                elif r.get("kind") == "pending":
+                    pend.append(r)
+        out = []
+        for r in pend:
+            if r.get("market") != market or r.get("bench_id") in done:
+                continue
+            try:
+                t0 = datetime.fromisoformat(str(r["ts"]).replace("Z", "+00:00"))
+                if t0.tzinfo is None:
+                    t0 = t0.replace(tzinfo=timezone.utc)
+                is_long = "LONG" in str(r.get("direction", ""))
+                tgt = float(r["target_2r"]); stp_ = float(r["stop"])
+                try:
+                    sub = df[df.index > t0]
+                except Exception:
+                    sub = df[df.index > t0.replace(tzinfo=None)]
+                verdict, bars = None, 0
+                for i in range(len(sub)):
+                    hi = float(sub["High"].iloc[i]); lo = float(sub["Low"].iloc[i])
+                    bars = i + 1
+                    if is_long:
+                        if hi >= tgt: verdict = "BENCH_2R_FIRST"; break
+                        if lo <= stp_: verdict = "BENCH_STOP_FIRST"; break
+                    else:
+                        if lo <= tgt: verdict = "BENCH_2R_FIRST"; break
+                        if hi >= stp_: verdict = "BENCH_STOP_FIRST"; break
+                if verdict is None:
+                    age_h = (datetime.now(timezone.utc) - t0).total_seconds() / 3600.0
+                    if age_h >= 36:
+                        verdict = "BENCH_NEITHER_36H"
+                if verdict:
+                    out.append({"kind": "resolved", "bench_id": r.get("bench_id"),
+                                "market": market, "setup": r.get("setup"),
+                                "direction": r.get("direction"), "verdict": verdict,
+                                "bars_15m": bars,
+                                "ts": datetime.now(timezone.utc).isoformat()})
+            except Exception:
+                continue
+        if out:
+            with open(BENCH_SHADOW_PATH, "a", encoding="utf-8") as f:
+                for r in out:
+                    f.write(json.dumps(r) + "\n")
+                    log.info(f"W88 bench resolved: {r['market']} {r['setup']} -> {r['verdict']} ({r['bars_15m']} bars)")
+    except Exception as e:
+        log.warning(f"W88 bench check failed (non-fatal): {e}")
+
 
 # ---- Wave 87 (Jul 3, 2026): THE MAP (shadow) - level-aware targets ----
 TARGET_MAP_SHADOW_PATH = os.path.join(BASE_DIR, "data", "target_map_shadow.jsonl")
