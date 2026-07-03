@@ -231,11 +231,11 @@
     "last_updated": "2026-06-30T04:06:08.860360"
   },
   "NQ:BREAK_RETEST_BULL": {
-    "wins": 87,
-    "losses": 39,
-    "total": 126,
-    "win_rate": 69.0,
-    "last_updated": "2026-06-17T08:32:00.542154"
+    "wins": 88,
+    "losses": 40,
+    "total": 128,
+    "win_rate": 68.8,
+    "last_updated": "2026-07-03T15:02:14.221350"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,

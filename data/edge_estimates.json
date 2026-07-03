@@ -84,16 +84,16 @@
     "total_loss_r": 7.0
   },
   "BREAK_RETEST_BULL|||MIXED": {
-    "wins": 0,
-    "losses": 11,
-    "total_win_r": 0.0,
-    "total_loss_r": 11.0
+    "wins": 1,
+    "losses": 12,
+    "total_win_r": 1.96448617205856,
+    "total_loss_r": 12.0
   },
   "BREAK_RETEST_BULL|||ALL": {
-    "wins": 6,
-    "losses": 21,
-    "total_win_r": 17.849422038197478,
-    "total_loss_r": 21.0
+    "wins": 7,
+    "losses": 22,
+    "total_win_r": 19.813908210256038,
+    "total_loss_r": 22.0
   },
   "RSI_DIV_BEAR|||LH_LL": {
     "wins": 0,
