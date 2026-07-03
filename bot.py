@@ -3076,7 +3076,7 @@ async def scan_loop(app):
                         f"{icon} *{sm['wins']}W / {sm['losses']}L* ({sm['win_rate']}% WR)\n"
                         f"Sim P&L: `{pnl_str}`\n"
                         f"━━━━━━━━━━━━━━━━━━\n"
-                        f"Session archived. Sim reset to fresh ${sim.load_state()['balance']:,.0f}.\n"
+                        f"\U0001f4bc Balance carries: `${sim.load_state()['balance']:,.2f}`\n"
                         f"Futures reopen at 6PM ET."
                     )
                 except Exception as e:
@@ -4666,7 +4666,7 @@ def _on_pre_flatten(event, now_et):
     log.info("Pre-flatten event fired — will flatten futures on next scan tick")
 
 def _on_session_close(event, now_et):
-    """Session close handler — archives session, resets sim, resets daily gates."""
+    """Session close handler - archives session, rolls sim (eval-aware carry, Wave 85), resets daily gates."""
     global _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global DAILY_LOSS_GATE, DAILY_PROFIT_LOCKED, DAILY_TRADE_COUNT
     try:
@@ -4716,7 +4716,18 @@ def _on_session_close(event, now_et):
             _RECAP_PENDING = None
 
         ot.archive_session(sid)
-        sim.reset_sim(sim_state.get("preset", "50k"))
+        # Wave 85 (Jul 2, 2026): THE REAL DAILY-RESET KILLER. The hard
+        # sim.reset_sim() here predated the Wave-30 carry logic and wiped the
+        # whole eval account (balance AND trades) to a fresh $50k at EVERY 6PM
+        # roll, bypassing check_eval_outcome entirely. W82 fixed the other
+        # path; this was the second one. A real Topstep combine only ends on
+        # PASSED_TARGET or BUSTED_MAX_DD - sim_account's own W82-corrected
+        # session roll handles those and CARRIES the balance otherwise.
+        try:
+            _w85_state = sim.load_state()  # session roll runs inside load_state
+            log.info("W85 session roll: balance carries at $%.2f" % float(_w85_state.get("balance", 0)))
+        except Exception as _w85e:
+            log.error(f"W85 session roll failed (non-fatal): {_w85e}")
         changes = ot.check_and_update_suspensions()
         _SESSION_CLOSE_SUMMARY = {"sid": sid, "summary": summary, "sim_pnl": sim_pnl, "rolled": rolled}
         _SUSPENSION_CHANGES = changes
@@ -4729,7 +4740,7 @@ def _on_session_close(event, now_et):
             MARKET_HALTED.pop(m, None)
             CONSECUTIVE_LOSSES.pop(m, None)
 
-        log.info(f"Session close: archived {sid}, sim reset, gates cleared, {len(changes)} suspension changes")
+        log.info(f"Session close: archived {sid}, sim rolled (carry), gates cleared, {len(changes)} suspension changes")
     except Exception as e:
         log.error(f"_on_session_close error: {e}")
 
