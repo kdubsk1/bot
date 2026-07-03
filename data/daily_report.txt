@@ -1,30 +1,42 @@
 NQ CALLS DAILY REPORT
-Date: Wednesday, July 01, 2026
-Generated: 00:03 EST
+Date: Thursday, July 02, 2026
+Generated: 00:21 EST
 ==================================================
 
 TODAY'S PERFORMANCE
 ------------------------------
-Alerts fired today:  0
-Closed today:        0
+Alerts fired today:  4
+Closed today:        2
 Wins:                0
-Losses:              0
+Losses:              2
 Skipped:             0
-Still open:          0
+Still open:          2
 Today win rate:      0.0%
+
+TODAY'S ALERTS:
+------------------------------
+  ❌ GC | BREAK_RETEST_BULL | LONG | Conv:60 | RR:1.86 | Tier:HIGH | Entry:4136.5 Stop:4121.9743 Target:4163.5 | Exit:4121.9743 | 2026-07-02 14:21
+  🔄 NQ | OPENING_RANGE_BREAKOUT | SHORT | Conv:87 | RR:2.05 | Tier:HIGH | Entry:29947.75 Stop:30284.996 Target:29255.0 | Exit:open | 2026-07-02 14:29
+  ❌ GC | BREAK_RETEST_BULL | LONG | Conv:56 | RR:1.63 | Tier:MEDIUM | Entry:4128.1 Stop:4121.7365 Target:4138.5 | Exit:4121.7365 | 2026-07-02 16:43
+  🔄 GC | BREAK_RETEST_BULL | LONG | Conv:53 | RR:1.61 | Tier:MEDIUM | Entry:4137.9 Stop:4122.037 Target:4163.5 | Exit:open | 2026-07-02 18:31
+
+SETUP BREAKDOWN TODAY:
+------------------------------
+  GC:BREAK_RETEST_BULL: 0W / 2L (0% WR)
 
 ALL-TIME STATS
 ------------------------------
-Total closed: 14
-All-time W/L: 3W / 8L (27.3% WR)
+Total closed: 16
+All-time W/L: 3W / 10L (23.1% WR)
 
 LEARNING UPDATES TODAY:
 ------------------------------
-  SOL:VWAP_REJECT_BEAR: 62.5% WR over 8 trades → Conv adj: 0
+  GC:BREAK_RETEST_BULL: 50.0% WR over 14 trades → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 71.2% WR over 198 trades → Conv adj: +12
 
 ALL-TIME LEARNING FILE:
 ------------------------------
-  NQ:VWAP_BOUNCE_BULL: 141W/56L (71.6% WR) → Conv adj: +12
+  NQ:VWAP_BOUNCE_BULL: 141W/57L (71.2% WR) → Conv adj: +12
   NQ:BREAK_RETEST_BULL: 87W/39L (69.0% WR) → Conv adj: +12
   GC:RSI_DIV_BULL: 1W/103L (1.0% WR) → Conv adj: -12
   BTC:VWAP_BOUNCE_BULL: 4W/92L (4.2% WR) → Conv adj: -12
@@ -60,8 +72,8 @@ ALL-TIME LEARNING FILE:
   BTC:RSI_DIV_BULL: 13W/3L (81.2% WR) → Conv adj: +6
   SOL:MACD_CROSS_BULL: 2W/13L (13.3% WR) → Conv adj: -12
   BTC:VWAP_REJECT_BEAR: 2W/13L (13.3% WR) → Conv adj: -12
+  GC:BREAK_RETEST_BULL: 7W/7L (50.0% WR) → Conv adj: 0
   GC:BB_REVERSION_BEAR: 4W/8L (33.3% WR) → Conv adj: -6
-  GC:BREAK_RETEST_BULL: 7W/4L (63.6% WR) → Conv adj: 0
   BTC:BREAK_RETEST_BULL: 1W/10L (9.1% WR) → Conv adj: -12
   NQ:EMA50_RECLAIM: 0W/11L (0.0% WR) → Conv adj: -12
   NQ:OPENING_RANGE_BREAKOUT: 11W/0L (100.0% WR) → Conv adj: +6
@@ -90,7 +102,8 @@ ALL-TIME LEARNING FILE:
 
 STILL OPEN AT END OF DAY:
 ------------------------------
-  No open trades.
+  🔄 NQ | OPENING_RANGE_BREAKOUT | Entry:29947.75 Target:29255.0 | ID:f3e78747ae | 2026-07-02 14:29
+  🔄 GC | BREAK_RETEST_BULL | Entry:4137.9 Target:4163.5 | ID:7d506e3e7e | 2026-07-02 18:31
 
 ==================================================
 END OF REPORT

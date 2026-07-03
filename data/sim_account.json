@@ -1,5 +1,5 @@
 {
-  "enabled": false,
+  "enabled": true,
   "mode": "eval",
   "preset": "50k",
   "balance": 50000,
