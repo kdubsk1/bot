@@ -1258,32 +1258,45 @@ async def scan_market(app, market, frames):
         day_w = sum(1 for r in today_closed if r["result"]=="WIN")
         day_l = sum(1 for r in today_closed if r["result"]=="LOSS")
 
+        # Wave 84 (Jul 2, 2026): the Sim P&L section is the ONE part of this alert
+        # that can raise (sim math / risk-dict access / state read). Wrap it so a
+        # sim error can NEVER drop the whole WIN/LOSS alert - the trade result must
+        # always reach Telegram. On any failure, fall back to a short honest note.
         sim_line = ""
-        sim_state = sim.load_state()
-        if sim_state.get("enabled"):
-            risk = sim.check_risk_limits(sim_state)
-            sim_trades = sim_state.get("trades", [])
-            sim_match = next((t for t in reversed(sim_trades)
-                              if t.get("alert_id")==c.get("alert_id")), None)
-            if sim_match:
-                spnl = sim_match.get("pnl", 0)
-                spnl_str = f"+${spnl:,.2f}" if spnl>=0 else f"-${abs(spnl):,.2f}"
-                contr = sim_match.get("contracts", 1)
-                sim_line = (
-                    f"━━━━━━━━━━━━━━━━━━\n"
-                    f"💰 *Sim P&L*\n"
-                    f"  Trade: `{spnl_str}` ({contr} contracts)\n"
-                    f"  Today: `${risk['daily_pnl']:+,.2f}`\n"
-                    f"  Balance: `${risk['balance']:,.2f}`\n"
-                    f"  Daily limit left: `${risk['daily_left']:,.2f}`\n"
-                )
-            else:
-                sim_line = (
-                    f"━━━━━━━━━━━━━━━━━━\n"
-                    f"💰 *Sim Account*\n"
-                    f"  Today: `${risk['daily_pnl']:+,.2f}`\n"
-                    f"  Balance: `${risk['balance']:,.2f}`\n"
-                )
+        try:
+            sim_state = sim.load_state()
+            if sim_state.get("enabled"):
+                risk = sim.check_risk_limits(sim_state)
+                sim_trades = sim_state.get("trades", [])
+                sim_match = next((t for t in reversed(sim_trades)
+                                  if t.get("alert_id")==c.get("alert_id")), None)
+                if sim_match:
+                    spnl = sim_match.get("pnl", 0)
+                    spnl_str = f"+${spnl:,.2f}" if spnl>=0 else f"-${abs(spnl):,.2f}"
+                    contr = sim_match.get("contracts", 1)
+                    sim_line = (
+                        f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                        f"\U0001f4b0 *Sim P&L*\n"
+                        f"  Trade: `{spnl_str}` ({contr} contracts)\n"
+                        f"  Today: `${risk['daily_pnl']:+,.2f}`\n"
+                        f"  Balance: `${risk['balance']:,.2f}`\n"
+                        f"  Daily limit left: `${risk['daily_left']:,.2f}`\n"
+                    )
+                else:
+                    # Smart line: no sim fill matched this alert - say so honestly
+                    # instead of a silent generic block, but still show the account.
+                    sim_line = (
+                        f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                        f"\U0001f4b0 *Sim Account* (this trade not tracked)\n"
+                        f"  Today: `${risk['daily_pnl']:+,.2f}`\n"
+                        f"  Balance: `${risk['balance']:,.2f}`\n"
+                    )
+        except Exception as _sim_e:
+            log.warning(f"[{market}] W84: sim P&L section failed, alert still sending: {_sim_e}")
+            sim_line = (
+                "\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                "\U0001f4b0 *Sim:* not tracked for this alert\n"
+            )
 
         msg = (
             f"{icon} *Trade {result}* — {cfg.EMOJI} *{_md(cfg.FULL_NAME)}*\n"
