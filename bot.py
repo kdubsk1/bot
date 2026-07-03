@@ -1229,6 +1229,11 @@ async def scan_market(app, market, frames):
         except Exception as _ce:
             log.warning(f"[{market}] crypto_sim auto_check: {_ce}")
 
+    # Wave 86: resolve after-close shadows (data-only, never sends Telegram)
+    try:
+        _check_afterclose_shadows(market, frames)
+    except Exception:
+        pass
     # Auto-check outcomes
     # Wave 21 (May 9, 2026): capture closures so we can trigger dashboard regen
     _closed_now = list(ot.auto_check_outcomes({market: frames}))
@@ -2359,9 +2364,125 @@ def _crypto_session_ok(market: str) -> bool:
     hm = _now_et().hour * 60 + _now_et().minute
     return not (120 <= hm < 300)  # 2:00 to 5:00 AM ET
 
+# ---- Wave 86 (Jul 2, 2026): reliable 4:10 settle + after-close shadow ----
+AFTERCLOSE_SHADOW_PATH = os.path.join(BASE_DIR, "data", "afterclose_shadow.jsonl")
+
+def _futures_pre_cutoff(trades, now_et):
+    """Wave 86: open NQ/GC trades opened BEFORE today's 16:10 ET cutoff.
+    Evening-session entries (after the cutoff) belong to the NEW session and
+    are NOT settle candidates until the next day's 4:10."""
+    try:
+        cut = now_et.replace(hour=16, minute=10, second=0, microsecond=0)
+    except Exception:
+        return [t for t in trades if t.get("market") in ("NQ", "GC")]
+    out = []
+    for t in trades:
+        if t.get("market") not in ("NQ", "GC"):
+            continue
+        try:
+            ts = datetime.fromisoformat(str(t.get("timestamp", "")).replace("Z", "+00:00"))
+            if ts.astimezone(cut.tzinfo) < cut:
+                out.append(t)
+        except Exception:
+            out.append(t)  # unparseable timestamp -> settle it (safe default)
+    return out
+
+def _shadow_log_settle(row, settle_price, settle_result):
+    """Wave 86: after a 4:10 settle the official P&L is OVER (Wayne: combine
+    rules), but we keep watching the idea 24/7 in shadow so no data is lost.
+    Appends a pending entry; _check_afterclose_shadows() resolves it later.
+    Data-only: never raises, never sends Telegram."""
+    try:
+        rec = {
+            "kind": "pending",
+            "alert_id": row.get("alert_id"),
+            "market": row.get("market"),
+            "direction": row.get("direction"),
+            "setup": row.get("setup"),
+            "entry": row.get("entry"),
+            "stop": row.get("stop"),
+            "target": row.get("target"),
+            "settle_price": settle_price,
+            "settle_result": settle_result,
+            "settle_ts": datetime.now(timezone.utc).isoformat(),
+        }
+        os.makedirs(os.path.dirname(AFTERCLOSE_SHADOW_PATH), exist_ok=True)
+        with open(AFTERCLOSE_SHADOW_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec) + "\n")
+        log.info(f"W86 shadow: tracking {rec['market']} {rec['alert_id']} after close")
+    except Exception as e:
+        log.warning(f"W86 shadow log failed (non-fatal): {e}")
+
+def _check_afterclose_shadows(market, frames):
+    """Wave 86: resolve pending after-close shadows for this market by walking
+    15m bars in ORDER since the settle: which came FIRST, target or stop?
+    36h horizon. Recorded outcomes are UNCHANGED - shadow data only."""
+    try:
+        if not os.path.exists(AFTERCLOSE_SHADOW_PATH):
+            return
+        df = frames.get("15m")
+        if df is None or len(df) == 0:
+            return
+        pend, resolved_ids = [], set()
+        with open(AFTERCLOSE_SHADOW_PATH, encoding="utf-8") as f:
+            for ln in f:
+                try:
+                    r = json.loads(ln)
+                except Exception:
+                    continue
+                if r.get("kind") == "resolved":
+                    resolved_ids.add(r.get("alert_id"))
+                elif r.get("kind") == "pending":
+                    pend.append(r)
+        out = []
+        for r in pend:
+            if r.get("market") != market or r.get("alert_id") in resolved_ids:
+                continue
+            try:
+                t0 = datetime.fromisoformat(r["settle_ts"])
+                tgt = float(r["target"]); stp = float(r["stop"])
+                direction = str(r.get("direction", ""))
+                try:
+                    sub = df[df.index > t0]
+                except Exception:
+                    sub = df[df.index > t0.replace(tzinfo=None)]
+                verdict, bars = None, 0
+                for i in range(len(sub)):
+                    hi = float(sub["High"].iloc[i]); lo = float(sub["Low"].iloc[i])
+                    bars = i + 1
+                    if "LONG" in direction:
+                        if hi >= tgt: verdict = "SHADOW_TARGET_FIRST"; break
+                        if lo <= stp: verdict = "SHADOW_STOP_FIRST"; break
+                    else:
+                        if lo <= tgt: verdict = "SHADOW_TARGET_FIRST"; break
+                        if hi >= stp: verdict = "SHADOW_STOP_FIRST"; break
+                if verdict is None:
+                    age_h = (datetime.now(timezone.utc) - t0).total_seconds() / 3600.0
+                    if age_h >= 36:
+                        verdict = "SHADOW_NEITHER_36H"
+                if verdict:
+                    out.append({"kind": "resolved", "alert_id": r.get("alert_id"),
+                                "market": market, "verdict": verdict,
+                                "bars_15m_after_close": bars,
+                                "settle_result": r.get("settle_result"),
+                                "ts": datetime.now(timezone.utc).isoformat()})
+            except Exception:
+                continue
+        if out:
+            with open(AFTERCLOSE_SHADOW_PATH, "a", encoding="utf-8") as f:
+                for r in out:
+                    f.write(json.dumps(r) + "\n")
+                    log.info(f"W86 shadow resolved: {r['market']} {r['alert_id']} -> {r['verdict']} ({r['bars_15m_after_close']} bars)")
+    except Exception as e:
+        log.warning(f"W86 shadow check failed (non-fatal): {e}")
+
+
 async def force_flatten_futures(app):
     trades = ot.load_open_trades()
-    futures_trades = [t for t in trades if t.get("market") in FUTURES_MARKETS]
+    # Wave 86: settle only trades opened BEFORE today's 16:10 ET cutoff -
+    # evening-session entries carry to the NEXT day's 4:10. Enables safe
+    # catch-up settles after restarts without touching new-session trades.
+    futures_trades = _futures_pre_cutoff(trades, _now_et())
     if not futures_trades:
         return
 
@@ -2396,6 +2517,7 @@ async def force_flatten_futures(app):
         result = "WIN" if (pts > 0 if isinstance(pts, float) else False) else "LOSS"
         ot.update_result(row["alert_id"], result, 0, cur)
         ot.record_trade_result(market, row.get("setup",""), result)
+        _shadow_log_settle(row, cur, result)  # Wave 86: keep watching in shadow
         # Batch 2A: Log outcome to strategy_log.csv
         try:
             ot._log_trade_outcome(row, result, cur)
@@ -3046,11 +3168,16 @@ async def scan_loop(app):
             try:
                 _now_flat = _now_et()
                 _hm_flat = _now_flat.hour * 60 + _now_flat.minute
-                if 970 <= _hm_flat < 980:
-                    open_fut = [t for t in ot.load_open_trades() if t.get("market") in ("NQ", "GC")]
+                # Wave 86: the old 16:10-16:20 window could be skipped entirely by a
+                # coarse scan interval (proven Jul 2: NQ + GC carried overnight because
+                # no tick landed inside the window). Now ANY tick from 16:10 onward
+                # settles pre-cutoff leftovers, once per day - including after a
+                # restart. Evening-session trades are exempt via _futures_pre_cutoff.
+                if _hm_flat >= 970:
+                    open_fut = _futures_pre_cutoff(ot.load_open_trades(), _now_flat)
                     today_key = _now_flat.date().isoformat()
                     if open_fut and getattr(scan_loop, "_last_410_flatten", None) != today_key:
-                        log.info(f"Pre-Batch Part A: 4:10 PM safety-net flatten for {len(open_fut)} open futures")
+                        log.info(f"W86 4:10 settle: {len(open_fut)} leftover futures (catch-up capable)")
                         await force_flatten_futures(app)
                         scan_loop._last_410_flatten = today_key
             except Exception as e:
