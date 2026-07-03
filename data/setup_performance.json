@@ -92,10 +92,10 @@
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 141,
-    "losses": 57,
-    "total": 198,
-    "win_rate": 71.2,
-    "last_updated": "2026-07-02T13:51:10.908290"
+    "losses": 58,
+    "total": 199,
+    "win_rate": 70.9,
+    "last_updated": "2026-07-03T00:26:52.336824"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,
