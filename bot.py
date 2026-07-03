@@ -1234,6 +1234,11 @@ async def scan_market(app, market, frames):
         _check_afterclose_shadows(market, frames)
     except Exception:
         pass
+    # Wave 87: score map-vs-live targets (data-only, never sends Telegram)
+    try:
+        _check_target_map_shadows(market, frames)
+    except Exception:
+        pass
     # Auto-check outcomes
     # Wave 21 (May 9, 2026): capture closures so we can trigger dashboard regen
     _closed_now = list(ot.auto_check_outcomes({market: frames}))
@@ -2235,6 +2240,20 @@ async def scan_market(app, market, frames):
                 except Exception:
                     pass
 
+            # Wave 87 (Jul 3, 2026): THE MAP (shadow) - log the level-aware
+            # target next to the live one; a silent checker scores which one
+            # price actually reaches. Live targeting is UNCHANGED.
+            try:
+                _w87_lm = _build_level_map(market, frames, _now_et())
+                _w87_mt, _w87_reason = _map_target(stp["direction"], stp["entry"],
+                                                   stp["raw_stop"], tgt, _w87_lm)
+                _log_target_map_shadow(alert_id, market, stp["direction"],
+                                       round(stp["entry"], 4), round(stp["raw_stop"], 4),
+                                       round(tgt, 4), _w87_mt, _w87_reason,
+                                       {k: round(v, 4) for k, v in _w87_lm.items()})
+            except Exception as _w87e:
+                log.warning(f"W87 map shadow (non-fatal): {_w87e}")
+
             # Task 8: Increment daily trade counter
             DAILY_TRADE_COUNT += 1
 
@@ -2363,6 +2382,180 @@ def _crypto_session_ok(market: str) -> bool:
         return True
     hm = _now_et().hour * 60 + _now_et().minute
     return not (120 <= hm < 300)  # 2:00 to 5:00 AM ET
+
+# ---- Wave 87 (Jul 3, 2026): THE MAP (shadow) - level-aware targets ----
+TARGET_MAP_SHADOW_PATH = os.path.join(BASE_DIR, "data", "target_map_shadow.jsonl")
+
+def _build_level_map(market, frames, now_et):
+    """Wave 87: structural level map at scan time - session high/low,
+    prior-day high/low, prior-week high/low, and a daily-ATR reachability
+    budget. Wayne rule: scalp-realistic targets (hourly moves, not multi-day
+    dreams). Every value best-effort; missing frames just mean fewer levels."""
+    lm = {}
+    try:
+        d1 = frames.get("1d")
+        if d1 is not None and len(d1) >= 2:
+            lm["prior_day_high"] = float(d1["High"].iloc[-2])
+            lm["prior_day_low"] = float(d1["Low"].iloc[-2])
+            rng = (d1["High"] - d1["Low"]).tail(14)
+            if len(rng) > 0:
+                lm["daily_atr"] = float(rng.mean())
+            if len(d1) >= 6:
+                lm["prior_week_high"] = float(d1["High"].iloc[-6:-1].max())
+                lm["prior_week_low"] = float(d1["Low"].iloc[-6:-1].min())
+    except Exception:
+        pass
+    try:
+        m15 = frames.get("15m")
+        if m15 is not None and len(m15) > 0:
+            ses_start_et = now_et.replace(hour=18, minute=0, second=0, microsecond=0)
+            if now_et.hour < 18:
+                ses_start_et = ses_start_et - timedelta(days=1)
+            t0 = ses_start_et.astimezone(timezone.utc)
+            try:
+                sub = m15[m15.index >= t0]
+            except Exception:
+                sub = m15[m15.index >= t0.replace(tzinfo=None)]
+            if len(sub) > 0:
+                lm["session_high"] = float(sub["High"].max())
+                lm["session_low"] = float(sub["Low"].min())
+    except Exception:
+        pass
+    return lm
+
+def _map_target(direction, entry, stop, live_target, level_map):
+    """Wave 87: what THE MAP would aim at. (a) First obstacle: if a structural
+    level sits between entry and the live swing target (and is at least 1R
+    away), take the level - price has to fight through it anyway. (b)
+    Reachability clip: if the pick is farther than 1x daily ATR, clip to the
+    farthest in-reach level (or the ATR budget itself). Returns (target, reason)."""
+    try:
+        entry = float(entry); live_target = float(live_target)
+        is_long = "LONG" in str(direction)
+        names = ("session_high", "session_low", "prior_day_high", "prior_day_low",
+                 "prior_week_high", "prior_week_low")
+        lvls = [(k, float(level_map[k])) for k in names if k in level_map]
+        risk = abs(entry - float(stop)) or 1e-9
+        if is_long:
+            between = sorted([(k, v) for k, v in lvls
+                              if entry < v < live_target and (v - entry) >= risk],
+                             key=lambda x: x[1])
+        else:
+            between = sorted([(k, v) for k, v in lvls
+                              if live_target < v < entry and (entry - v) >= risk],
+                             key=lambda x: -x[1])
+        tgt, reason = live_target, "no_obstacle_keep_live"
+        if between:
+            tgt, reason = between[0][1], "first_obstacle:" + between[0][0]
+        datr = float(level_map.get("daily_atr", 0) or 0)
+        if datr > 0 and abs(tgt - entry) > datr:
+            budget = entry + datr if is_long else entry - datr
+            if is_long:
+                inreach = sorted([(k, v) for k, v in lvls
+                                  if entry < v <= budget and (v - entry) >= risk],
+                                 key=lambda x: -x[1])
+            else:
+                inreach = sorted([(k, v) for k, v in lvls
+                                  if budget <= v < entry and (entry - v) >= risk],
+                                 key=lambda x: x[1])
+            if inreach:
+                tgt, reason = inreach[0][1], "atr_clip_to:" + inreach[0][0]
+            else:
+                tgt, reason = budget, "atr_clip_budget"
+        return round(float(tgt), 4), reason
+    except Exception as e:
+        return None, f"map_error:{e}"
+
+def _log_target_map_shadow(alert_id, market, direction, entry, stop,
+                           live_target, map_target, reason, level_map):
+    """Wave 87: pending shadow record at alert time. Data-only, never raises."""
+    try:
+        rec = {"kind": "pending", "alert_id": alert_id, "market": market,
+               "direction": direction, "entry": entry, "stop": stop,
+               "live_target": live_target, "map_target": map_target,
+               "map_reason": reason, "levels": level_map,
+               "ts": datetime.now(timezone.utc).isoformat()}
+        os.makedirs(os.path.dirname(TARGET_MAP_SHADOW_PATH), exist_ok=True)
+        with open(TARGET_MAP_SHADOW_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec) + "\n")
+        log.info(f"W87 map shadow: {market} {alert_id} live={live_target} map={map_target} ({reason})")
+    except Exception as e:
+        log.warning(f"W87 map shadow log failed (non-fatal): {e}")
+
+def _check_target_map_shadows(market, frames):
+    """Wave 87: walk 15m bars since the alert - first-touch bar counts for
+    map target / live target / stop. Resolve on stop hit, live-target hit,
+    or 36h. Verdicts: MAP_HIT / LIVE_HIT / STOP_FIRST / NEITHER_36H.
+    Recorded outcomes UNCHANGED - shadow data only."""
+    try:
+        if not os.path.exists(TARGET_MAP_SHADOW_PATH):
+            return
+        df = frames.get("15m")
+        if df is None or len(df) == 0:
+            return
+        pend, done = [], set()
+        with open(TARGET_MAP_SHADOW_PATH, encoding="utf-8") as f:
+            for ln in f:
+                try:
+                    r = json.loads(ln)
+                except Exception:
+                    continue
+                if r.get("kind") == "resolved":
+                    done.add(r.get("alert_id"))
+                elif r.get("kind") == "pending":
+                    pend.append(r)
+        out = []
+        for r in pend:
+            if r.get("market") != market or r.get("alert_id") in done:
+                continue
+            try:
+                t0 = datetime.fromisoformat(r["ts"])
+                is_long = "LONG" in str(r.get("direction", ""))
+                mt = r.get("map_target")
+                lt = float(r["live_target"]); stp_ = float(r["stop"])
+                try:
+                    sub = df[df.index > t0]
+                except Exception:
+                    sub = df[df.index > t0.replace(tzinfo=None)]
+                b_map = b_live = b_stop = None
+                for i in range(len(sub)):
+                    hi = float(sub["High"].iloc[i]); lo = float(sub["Low"].iloc[i]); n = i + 1
+                    if is_long:
+                        if mt is not None and b_map is None and hi >= float(mt): b_map = n
+                        if b_live is None and hi >= lt: b_live = n
+                        if b_stop is None and lo <= stp_: b_stop = n
+                    else:
+                        if mt is not None and b_map is None and lo <= float(mt): b_map = n
+                        if b_live is None and lo <= lt: b_live = n
+                        if b_stop is None and hi >= stp_: b_stop = n
+                    if b_stop is not None or b_live is not None:
+                        break
+                age_h = (datetime.now(timezone.utc) - t0).total_seconds() / 3600.0
+                if b_stop is None and b_live is None and age_h < 36:
+                    continue
+                if b_map is not None and (b_stop is None or b_map < b_stop):
+                    verdict = "MAP_HIT"
+                elif b_live is not None and (b_stop is None or b_live < b_stop):
+                    verdict = "LIVE_HIT"
+                elif b_stop is not None:
+                    verdict = "STOP_FIRST"
+                else:
+                    verdict = "NEITHER_36H"
+                out.append({"kind": "resolved", "alert_id": r.get("alert_id"),
+                            "market": market, "verdict": verdict,
+                            "bars_to_map": b_map, "bars_to_live": b_live,
+                            "bars_to_stop": b_stop, "map_reason": r.get("map_reason"),
+                            "ts": datetime.now(timezone.utc).isoformat()})
+            except Exception:
+                continue
+        if out:
+            with open(TARGET_MAP_SHADOW_PATH, "a", encoding="utf-8") as f:
+                for r in out:
+                    f.write(json.dumps(r) + "\n")
+                    log.info(f"W87 map resolved: {r['market']} {r['alert_id']} -> {r['verdict']} (map:{r['bars_to_map']} live:{r['bars_to_live']} stop:{r['bars_to_stop']})")
+    except Exception as e:
+        log.warning(f"W87 map shadow check failed (non-fatal): {e}")
+
 
 # ---- Wave 86 (Jul 2, 2026): reliable 4:10 settle + after-close shadow ----
 AFTERCLOSE_SHADOW_PATH = os.path.join(BASE_DIR, "data", "afterclose_shadow.jsonl")
