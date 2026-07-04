@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-04T01:02:11.502679+00:00",
+  "generated_at": "2026-07-04T07:02:21.649943+00:00",
   "topstep": {
     "balance": 49978.25,
     "starting_balance": 50000,
@@ -353,11 +353,11 @@ const DATA = {
     ]
   },
   "crypto": {
-    "balance": 25.54,
+    "balance": 25.16,
     "starting_balance": 1000.0,
-    "total_pnl": -974.46,
-    "open_count": 1,
-    "closed_count": 144,
+    "total_pnl": -974.84,
+    "open_count": 0,
+    "closed_count": 145,
     "equity_curve": [
       {
         "time": "Start",
@@ -938,14 +938,18 @@ const DATA = {
       {
         "time": "2026-07-03 19:42",
         "balance": 25.54
+      },
+      {
+        "time": "2026-07-04 04:38",
+        "balance": 25.16
       }
     ]
   },
   "all_time": {
     "wins": 6,
-    "losses": 13,
-    "wr": 31.6,
-    "total_trades": 19
+    "losses": 14,
+    "wr": 30.0,
+    "total_trades": 20
   },
   "today": {
     "wins": 0,
@@ -962,18 +966,18 @@ const DATA = {
       "wr": 0.0
     },
     {
-      "setup": "GC:BREAK_RETEST_BULL",
+      "setup": "SOL:BB_REVERSION_BEAR",
       "fires": 3,
       "wins": 1,
       "losses": 2,
       "wr": 33.3
     },
     {
-      "setup": "SOL:BB_REVERSION_BEAR",
-      "fires": 2,
+      "setup": "GC:BREAK_RETEST_BULL",
+      "fires": 3,
       "wins": 1,
-      "losses": 1,
-      "wr": 50.0
+      "losses": 2,
+      "wr": 33.3
     },
     {
       "setup": "SOL:VWAP_REJECT_BEAR",
@@ -1031,9 +1035,9 @@ const DATA = {
       "rr": "2.15",
       "conv": "66",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "83.3566"
     },
     {
       "time": "2026-07-03 19:37",
@@ -1650,9 +1654,9 @@ const DATA = {
     },
     "SOL": {
       "wins": 1,
-      "losses": 3,
-      "total_pnl_r": -0.84,
-      "wr": 25.0
+      "losses": 4,
+      "total_pnl_r": -1.84,
+      "wr": 20.0
     },
     "NQ": {
       "wins": 2,
@@ -1674,25 +1678,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 4,
-      "losses": 9,
-      "wr": 30.8
+      "losses": 10,
+      "wr": 28.6
     }
   },
-  "open_trades": [
-    {
-      "market": "SOL",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "1h",
-      "direction": "SHORT",
-      "entry": "82.37",
-      "target": "80.25",
-      "stop": "83.3566",
-      "conviction": 66,
-      "last_rescore_conviction": 66,
-      "tier": "HIGH",
-      "timestamp": "2026-07-03T20:12:34.022377+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
