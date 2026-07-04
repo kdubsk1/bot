@@ -1,0 +1,1 @@
+{"kind": "pending", "alert_id": "c1b6a3b00a", "market": "GC", "direction": "SHORT", "setup": "STOCH_REVERSAL_BEAR", "entry": "4186.1", "stop": "4205.2157", "target": "4138.7", "settle_price": 4187.3, "settle_result": "LOSS", "settle_ts": "2026-07-03T19:55:02.609875+00:00"}

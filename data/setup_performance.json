@@ -155,10 +155,10 @@
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 25,
-    "losses": 11,
-    "total": 36,
-    "win_rate": 69.4,
-    "last_updated": "2026-06-30T12:26:52.957955"
+    "losses": 12,
+    "total": 37,
+    "win_rate": 67.6,
+    "last_updated": "2026-07-03T19:42:04.990254"
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 0,
@@ -176,10 +176,10 @@
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 16,
-    "losses": 9,
-    "total": 25,
-    "win_rate": 64.0,
-    "last_updated": "2026-06-30T19:55:08.689260"
+    "losses": 10,
+    "total": 26,
+    "win_rate": 61.5,
+    "last_updated": "2026-07-03T19:55:02.605060"
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 4,

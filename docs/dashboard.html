@@ -283,11 +283,11 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-03T19:02:03.135194+00:00",
+  "generated_at": "2026-07-04T01:02:11.502679+00:00",
   "topstep": {
     "balance": 49978.25,
     "starting_balance": 50000,
-    "today_pnl": -21.75,
+    "today_pnl": 0.0,
     "total_pnl": -21.75,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
@@ -339,21 +339,25 @@ const DATA = {
         "balance": 48629.98
       },
       {
+        "time": "2026-07-03 13:07",
+        "balance": 47900.53
+      },
+      {
         "time": "2026-07-03 14:19",
-        "balance": 50059.7
+        "balance": 49308.81
       },
       {
         "time": "2026-07-03 14:53",
-        "balance": 49308.81
+        "balance": 48569.17
       }
     ]
   },
   "crypto": {
-    "balance": 25.93,
+    "balance": 25.54,
     "starting_balance": 1000.0,
-    "total_pnl": -974.07,
-    "open_count": 0,
-    "closed_count": 143,
+    "total_pnl": -974.46,
+    "open_count": 1,
+    "closed_count": 144,
     "equity_curve": [
       {
         "time": "Start",
@@ -930,27 +934,31 @@ const DATA = {
       {
         "time": "2026-07-01 11:46",
         "balance": 25.93
+      },
+      {
+        "time": "2026-07-03 19:42",
+        "balance": 25.54
       }
     ]
   },
   "all_time": {
     "wins": 6,
-    "losses": 11,
-    "wr": 35.3,
-    "total_trades": 17
+    "losses": 13,
+    "wr": 31.6,
+    "total_trades": 19
   },
   "today": {
-    "wins": 1,
-    "losses": 1,
-    "wr": 50.0,
-    "total_trades": 2
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
       "setup": "GC:STOCH_REVERSAL_BEAR",
-      "fires": 5,
+      "fires": 6,
       "wins": 0,
-      "losses": 5,
+      "losses": 6,
       "wr": 0.0
     },
     {
@@ -959,6 +967,13 @@ const DATA = {
       "wins": 1,
       "losses": 2,
       "wr": 33.3
+    },
+    {
+      "setup": "SOL:BB_REVERSION_BEAR",
+      "fires": 2,
+      "wins": 1,
+      "losses": 1,
+      "wr": 50.0
     },
     {
       "setup": "SOL:VWAP_REJECT_BEAR",
@@ -989,13 +1004,6 @@ const DATA = {
       "wr": 100.0
     },
     {
-      "setup": "SOL:BB_REVERSION_BEAR",
-      "fires": 1,
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
-    },
-    {
       "setup": "BTC:RSI_DIV_BULL",
       "fires": 1,
       "wins": 0,
@@ -1011,6 +1019,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-03 20:12",
+      "market": "SOL",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "82.37",
+      "stop": "83.3566",
+      "target": "80.25",
+      "rr": "2.15",
+      "conv": "66",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-07-03 19:37",
+      "market": "SOL",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "82.17",
+      "stop": "82.5236",
+      "target": "81.12",
+      "rr": "2.97",
+      "conv": "68",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "82.5236"
+    },
     {
       "time": "2026-07-03 14:53",
       "market": "NQ",
@@ -1055,9 +1095,9 @@ const DATA = {
       "rr": "2.48",
       "conv": "62",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4187.3"
     },
     {
       "time": "2026-07-02 18:31",
@@ -1598,9 +1638,9 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 2,
-      "losses": 7,
-      "total_pnl_r": -3.78,
-      "wr": 22.2
+      "losses": 8,
+      "total_pnl_r": -4.78,
+      "wr": 20.0
     },
     "BTC": {
       "wins": 1,
@@ -1610,9 +1650,9 @@ const DATA = {
     },
     "SOL": {
       "wins": 1,
-      "losses": 2,
-      "total_pnl_r": 0.16,
-      "wr": 33.3
+      "losses": 3,
+      "total_pnl_r": -0.84,
+      "wr": 25.0
     },
     "NQ": {
       "wins": 2,
@@ -1634,23 +1674,23 @@ const DATA = {
     },
     "HIGH": {
       "wins": 4,
-      "losses": 7,
-      "wr": 36.4
+      "losses": 9,
+      "wr": 30.8
     }
   },
   "open_trades": [
     {
-      "market": "GC",
-      "setup": "STOCH_REVERSAL_BEAR",
+      "market": "SOL",
+      "setup": "BB_REVERSION_BEAR",
       "tf": "1h",
       "direction": "SHORT",
-      "entry": "4186.1",
-      "target": "4138.7",
-      "stop": "4205.2157",
-      "conviction": 62,
-      "last_rescore_conviction": 62,
+      "entry": "82.37",
+      "target": "80.25",
+      "stop": "83.3566",
+      "conviction": 66,
+      "last_rescore_conviction": 66,
       "tier": "HIGH",
-      "timestamp": "2026-07-03T13:07:26.735851+00:00"
+      "timestamp": "2026-07-03T20:12:34.022377+00:00"
     }
   ]
 };

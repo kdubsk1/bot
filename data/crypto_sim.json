@@ -1,12 +1,40 @@
 {
   "enabled": true,
-  "balance": 25.93,
+  "balance": 25.54,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "a910f5e31f",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 82.37,
+      "stop": 83.35656154573998,
+      "target": 80.25,
+      "leverage": 10,
+      "position_size_usd": 31.99,
+      "notional_usd": 319.86,
+      "risk_dollars": 0.38,
+      "opened_at": "2026-07-03T20:12:34.035260+00:00",
+      "max_hold_until": "2026-07-10T20:12:34.035260+00:00",
+      "tier": "HIGH",
+      "conviction": 66,
+      "context": {
+        "trend_score": 10,
+        "rsi": 67.24,
+        "adx": 41.53,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Tagged upper Bollinger (82.4039) and reversed. RSI 67.2 overbought. Mean reversion to middle band."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
@@ -4726,12 +4754,45 @@
       "pnl_dollars": 0.0,
       "closed_at": "2026-07-02T12:03:19.101952+00:00",
       "held_hours": 44.65
+    },
+    {
+      "alert_id": "7f1d338f0f",
+      "market": "SOL",
+      "direction": "SHORT",
+      "entry": 82.17,
+      "stop": 82.52357256195305,
+      "target": 81.12,
+      "leverage": 10,
+      "position_size_usd": 90.39,
+      "notional_usd": 903.92,
+      "risk_dollars": 0.39,
+      "opened_at": "2026-07-03T19:37:01.134354+00:00",
+      "max_hold_until": "2026-07-10T19:37:01.134354+00:00",
+      "tier": "HIGH",
+      "conviction": 68,
+      "context": {
+        "trend_score": 10,
+        "rsi": 67.07,
+        "adx": 27.99,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Tagged upper Bollinger (82.2978) and reversed. RSI 67.1 overbought. Mean reversion to middle band."
+      },
+      "status": "CLOSED",
+      "exit_price": 82.52357256195305,
+      "exit_reason": "stop_hit",
+      "result": "LOSS",
+      "pnl_dollars": -0.39,
+      "closed_at": "2026-07-03T19:42:04.224482+00:00",
+      "held_hours": 0.08
     }
   ],
-  "total_pnl": -974.07,
-  "total_trades": 143,
+  "total_pnl": -974.46,
+  "total_trades": 144,
   "wins": 33,
-  "losses": 110,
+  "losses": 111,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }
