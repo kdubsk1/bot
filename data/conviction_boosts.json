@@ -2,12 +2,12 @@
   "layer_1_setup_boosts": {
     "enabled": true,
     "boosts": {
-      "VWAP_BOUNCE_BULL": -1,
+      "VWAP_BOUNCE_BULL": 0,
       "APPROACH_RESIST": -10,
       "VWAP_REJECT_BEAR": -15,
       "EMA21_PULLBACK_BULL": -19,
       "EMA21_PULLBACK_BEAR": 0,
-      "BREAK_RETEST_BULL": -4,
+      "BREAK_RETEST_BULL": -3,
       "RSI_DIV_BEAR": -5,
       "STOCH_REVERSAL_BEAR": -7,
       "BB_REVERSION_BULL": -13,
@@ -15,7 +15,7 @@
       "APPROACH_SUPPORT": -17,
       "RSI_DIV_BULL": -1,
       "BREAK_RETEST_BEAR": -4,
-      "BB_REVERSION_BEAR": -11,
+      "BB_REVERSION_BEAR": -10,
       "MACD_CROSS_BEAR": 6,
       "EMA50_BREAKDOWN": -5
     },
@@ -83,14 +83,30 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-07-04T10:00:52.983334+00:00",
+    "last_decay_check_at": "2026-07-05T10:01:32.399214+00:00",
     "last_decay_actions": [
+      {
+        "setup": "BB_REVERSION_BEAR",
+        "action": "relaxed",
+        "reason": "1W/2L = 33.3% WR >= 30.0",
+        "boost_before": -11,
+        "boost_after": -10,
+        "window_days": 14
+      },
       {
         "setup": "BREAK_RETEST_BULL",
         "action": "relaxed",
         "reason": "2W/3L = 40.0% WR >= 30.0",
-        "boost_before": -5,
-        "boost_after": -4,
+        "boost_before": -4,
+        "boost_after": -3,
+        "window_days": 14
+      },
+      {
+        "setup": "VWAP_BOUNCE_BULL",
+        "action": "relaxed",
+        "reason": "2W/4L = 33.3% WR >= 30.0",
+        "boost_before": -1,
+        "boost_after": 0,
         "window_days": 14
       }
     ],
@@ -103,10 +119,10 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-07-04T10:00:52.991696+00:00",
+    "last_run_at": "2026-07-05T10:01:32.407116+00:00",
     "last_run_summary": {
       "cycle_changes": 0,
-      "decay_actions": 1,
+      "decay_actions": 3,
       "n_setups_analyzed": 7
     },
     "_doc": "Wave 9 (May 4): Daily soft auto-tune at 6 AM ET. Smaller caps than Layer 5 (Sunday weekly): 7-day window, +/-3 caps, $30 threshold. Calls Layer 6 first, then tunes. Compounds with Layer 5."
