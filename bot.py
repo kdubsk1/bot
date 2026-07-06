@@ -2609,6 +2609,59 @@ def _check_bench_shadows(market, frames):
         log.warning(f"W88 bench check failed (non-fatal): {e}")
 
 
+# ---- Wave 93 (Jul 6, 2026): DATA LIFEBOAT - rotate strategy_log so it always syncs ----
+# Root cause (Jul 6 audit): auto_sync silently skips any file over 25 MiB, and
+# Railway wipes its filesystem to the repo copy on every deploy - so once
+# data/strategy_log.csv passed 25 MiB (Jul 3) every row written between deploys
+# was lost (scan decisions, benched-signal rows, the parole ledger). This
+# rotates the live log into dated archive PARTS (each well under the 25 MiB
+# sync cap) and starts a fresh header-only live file, so the live log never
+# exceeds the cap again and auto_sync - which rglobs data/ including
+# data/archive/ - preserves everything. Cheap size check each scan cycle;
+# only acts when the file crosses the threshold. Never raises.
+STRATEGY_LOG_ROTATE_MB = 15      # rotate once the live log passes this
+STRATEGY_LOG_PART_MB = 18        # keep each archive part under the 25 MiB sync cap
+
+def _rotate_strategy_log():
+    try:
+        path = os.path.join(BASE_DIR, "data", "strategy_log.csv")
+        if not os.path.exists(path):
+            return
+        size = os.path.getsize(path)
+        if size <= STRATEGY_LOG_ROTATE_MB * 1024 * 1024:
+            return
+        archive_dir = os.path.join(BASE_DIR, "data", "archive")
+        os.makedirs(archive_dir, exist_ok=True)
+        limit = STRATEGY_LOG_PART_MB * 1024 * 1024
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            header = f.readline()
+            if not header:
+                return
+            part = 1
+            ppath = os.path.join(archive_dir, "strategy_log_" + stamp + "_part%02d.csv" % part)
+            out = open(ppath, "w", encoding="utf-8")
+            out.write(header)
+            written = len(header.encode("utf-8"))
+            for line in f:
+                lb = len(line.encode("utf-8"))
+                if written + lb > limit:
+                    out.close()
+                    part += 1
+                    ppath = os.path.join(archive_dir, "strategy_log_" + stamp + "_part%02d.csv" % part)
+                    out = open(ppath, "w", encoding="utf-8")
+                    out.write(header)
+                    written = len(header.encode("utf-8"))
+                out.write(line)
+                written += lb
+            out.close()
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(header)
+        log.info("W93 rotated strategy_log.csv (%d bytes) into %d archive part(s) [%s]" % (size, part, stamp))
+    except Exception as _w93e:
+        log.warning("W93 strategy_log rotation failed (non-fatal): %s" % _w93e)
+
+
 # ---- Wave 89 (Jul 3, 2026): PAROLE - the earned way back for benched setups ----
 # Evidence: Jul 3 crypto bench back-trial (3,048 benched signals replayed vs
 # Coinbase 15m history, uniform 2R yardstick, breakeven 33.4%). Parole class =
@@ -3492,6 +3545,7 @@ async def scan_loop(app):
         try:
             now_utc = datetime.now(timezone.utc)
             now_et = _now_et()
+            _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
 
             # Wave 7 Layer 5: Sunday 8 PM ET auto-tune. Wrapped in try/except
             # so a tune failure can never take down the scan loop.
