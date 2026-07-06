@@ -627,6 +627,29 @@ def get_frames(market):
 
 # ── Telegram ──────────────────────────────────────────────────────
 async def tg_send(app, text):
+    # Wave 90 (M1 fix): Telegram hard limit is 4096 chars. Oversized messages
+    # used to fail with "message is too long" (not a parse error), retry the
+    # same oversized text 3x, and get silently dropped. Now: split at line
+    # boundaries (hard-slice any single monster line) and send the parts.
+    if text and len(text) > 4000:
+        try:
+            parts, cur = [], ""
+            for ln in str(text).split("\n"):
+                while len(ln) > 4000:
+                    if cur:
+                        parts.append(cur); cur = ""
+                    parts.append(ln[:4000]); ln = ln[4000:]
+                if len(cur) + len(ln) + 1 > 4000:
+                    parts.append(cur); cur = ln
+                else:
+                    cur = cur + "\n" + ln if cur else ln
+            if cur:
+                parts.append(cur)
+            for p in parts:
+                await tg_send(app, p)
+            return
+        except Exception as e:
+            log.warning(f"W90 long-message split failed, sending as-is: {e}")
     for attempt in range(3):
         try:
             mode = "Markdown" if attempt < 2 else None
@@ -2324,6 +2347,10 @@ async def scan_market(app, market, frames):
             except Exception:
                 pass
             footer = cfg.alert_footer(stp, session)
+            # Wave 90: parole fires say so on their face - honest UI
+            if stp.get("_w89_partner"):
+                _w90_badge = "\U0001f393 Probation fire \u2014 partner: " + str(stp["_w89_partner"]).replace("_", " ")
+                footer = (footer + "\n" + _w90_badge) if footer else _w90_badge
             await tg_send(app, format_alert(market, entry_tf, stp, conv, tier, trend,
                                              tgt, rr, method, adx_v, rsi_v, lev, risk_pct, hold,
                                              extra_footer=footer, alert_id=alert_id))
@@ -2595,6 +2622,7 @@ def _parole_pass(market, stp, setups):
             partner = o.get("type")
             break
         if partner:
+            stp["_w89_partner"] = partner  # Wave 90: probation badge on the alert
             log.info(f"[{market}] W89 PAROLE fire: {stp.get('type')} (partner: {partner})")
             _parole_event({"event": "granted", "market": market,
                            "setup": stp.get("type"), "partner": partner,
@@ -2905,9 +2933,9 @@ async def force_flatten_futures(app):
         return
 
     await tg_send(app,
-        "🔔 *Market Close in 5 minutes*\n"
-        "━━━━━━━━━━━━━━━━━━\n"
-        "All NQ and Gold positions will be closed.\n"
+        "\U0001f514 *4:10 PM Rule \u2014 Settling Futures*\n"
+        "\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+        "Closing all NQ and Gold positions now.\n"
         "Topstep rule: flat by 4:10 PM ET."
     )
 
@@ -5324,6 +5352,13 @@ def _build_boot_banner(tsx_result, open_carried, expired_count, suspended_count,
     L = []
     L.append("\U0001f916 *NQ CALLS \u2014 ONLINE*")
     L.append("\u2501" * 18)
+    # Wave 90: honest version stamp - show the real deploy build, or nothing
+    try:
+        _w90_sha = os.environ.get("RAILWAY_GIT_COMMIT_SHA", "")[:7]
+        if _w90_sha:
+            L.append("\u2699\ufe0f build `" + _w90_sha + "`")
+    except Exception:
+        pass
     try:
         if tsx_result.get("auth"):
             nq_b = tsx_result.get("nq_bars_15m", 0)
