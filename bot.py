@@ -3528,6 +3528,7 @@ def build_asia_brief():
 
 # ── Session boundary safety + daily report state (Task 3B/3C) ────
 _LAST_SESSION_CLOSE_FIRED = None   # session_date string that was already closed
+_W94_WATCH_FAILS = [0]   # Wave 94: consecutive watch_open_trades failures (list to avoid a global decl)
 _LAST_DAILY_REPORT_DATE   = None   # date string for which report was sent
 # Pre-Batch Follow-up Part B 2026-04-21: weekly recap deduplication
 _LAST_WEEKLY_RECAP_DATE   = None   # Monday isoformat for which weekly recap was sent
@@ -3802,8 +3803,17 @@ async def scan_loop(app):
                     try: await scan_market(app, m, frames_by_market[m])
                     except Exception as e: log.error(f"scan {m}: {e}\n{traceback.format_exc()}")
 
-                try: await watch_open_trades(app, frames_by_market)
-                except Exception as e: log.error(f"watch: {e}")
+                try:
+                    await watch_open_trades(app, frames_by_market)
+                    _W94_WATCH_FAILS[0] = 0  # Wave 94: success clears the streak
+                except Exception as e:
+                    _W94_WATCH_FAILS[0] += 1
+                    log.error(f"watch: {e}\n{traceback.format_exc()}")  # Wave 94: full stack pinpoints the fault
+                    if _W94_WATCH_FAILS[0] in (3, 12):  # ~15 min and ~1 hr at 5-min cadence
+                        try:
+                            await tg_send(app, f"\u26a0\ufe0f *Open-trade watch failing* \u2014 {_W94_WATCH_FAILS[0]} cycles in a row. Check logs.")
+                        except Exception:
+                            pass
 
                 # Wave 68: grade due trend reads against what price actually did.
                 try: trend_memory.grade_due_reads_from_frames(frames_by_market)
