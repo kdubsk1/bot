@@ -680,6 +680,46 @@ def _md(text):
         text = text.replace(ch, "")
     return text
 
+# ---- Wave 91 (Jul 5, 2026): M2+M3+M4 - every reply_text made entity-safe ----
+# The Jul 5 message audit found ~114 reply_text sites (menu commands, buttons)
+# sending parse_mode="Markdown" with NO fallback: one Markdown-breaking char in
+# dynamic content and the button silently fails. Instead of editing 114 sites,
+# wrap the ONE choke point: telegram.Message.reply_text itself. On a parse /
+# entity / too-long error the reply is resent as sanitized plain text (M2),
+# clamped under the 4096 limit (M3), with "[" stripped too (M4). Any other
+# error re-raises unchanged - old behavior preserved. Alerts already use
+# tg_send (Wave 90 splitter); this covers the interactive surface.
+try:
+    from telegram import Message as _W91Message
+    _w91_orig_reply_text = _W91Message.reply_text
+
+    async def _w91_safe_reply_text(self, text, *args, **kwargs):
+        try:
+            return await _w91_orig_reply_text(self, text, *args, **kwargs)
+        except Exception as e:
+            _msg = str(e).lower()
+            if ("parse" in _msg) or ("entities" in _msg) or ("too long" in _msg):
+                try:
+                    clean = str(text)
+                    for ch in ("*", "`", "["):
+                        clean = clean.replace(ch, "")
+                    clean = clean.replace("_", " ")
+                    if len(clean) > 4000:
+                        clean = clean[:3990] + "\n[...]"
+                    kwargs.pop("parse_mode", None)
+                    log.warning(f"W91 safe-reply fallback engaged: {e}")
+                    return await _w91_orig_reply_text(self, clean, *args,
+                                                      parse_mode=None, **kwargs)
+                except Exception as e2:
+                    log.error(f"W91 safe-reply fallback failed: {e2}")
+                    raise
+            raise
+
+    _W91Message.reply_text = _w91_safe_reply_text
+    log.info("W91: reply_text choke-point guard installed")
+except Exception as _w91e:
+    log.warning(f"W91 reply guard not installed (non-fatal): {_w91e}")
+
 # ── Alert formatter ───────────────────────────────────────────────
 def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
                  adx_v, rsi_v, lev=None, risk_at_stop=None, hold=None,
