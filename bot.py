@@ -6415,11 +6415,14 @@ def main():
     os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
     _load_cooldowns()
     app=Application.builder().token(TELEGRAM_TOKEN).post_init(_post_init).build()
+    # Wave 92 (Jul 6, 2026): retired dead/duplicate commands - wave7 backtest
+    # tune recalibrate pulldata (dead/superseded) + simweekly (weekly button covers
+    # it). Handlers left as harmless dead code; unregistered so they leave the menu.
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("backtest",cmd_backtest),("wave7",cmd_wave7),("tune",cmd_tune),("recalibrate",cmd_recalibrate),("pulldata",cmd_pulldata),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
-                   ("mnq",cmd_mnq),("simweekly",cmd_simweekly),("help",cmd_help),
+                   ("mnq",cmd_mnq),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
                    ("status",cmd_status),  # Wave 19: was missing - slash did nothing
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),("journey",cmd_journey),("performance",cmd_performance),
