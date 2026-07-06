@@ -1879,7 +1879,11 @@ async def scan_market(app, market, frames):
 
             # Setup suspension check — block negative EV setups
             # Task 4: Shadow-log so we can retroactively analyze if suspensions were correct
-            if ot.is_setup_suspended(market, stp["type"]):
+            # Wave 89: paroled setups (bench-retrial-cleared, PAROLE_SETUPS)
+            # may pass IF a non-suspended same-direction partner fired this
+            # scan - Wayne's "earn the way back by combining" rule. A parole
+            # pass still faces every modern gate below (trend, conviction).
+            if ot.is_setup_suspended(market, stp["type"]) and not _parole_pass(market, stp, setups):
                 log.info(f"[{market}] [{entry_tf}] Shadow-log {stp['type']} — suspended (would-have-fired)")
                 suspended_info = ot.get_suspended_setups().get(f"{market}:{stp['type']}", {})
                 reason_text = suspended_info.get("reason", "unknown")
@@ -2536,6 +2540,72 @@ def _check_bench_shadows(market, frames):
                     log.info(f"W88 bench resolved: {r['market']} {r['setup']} -> {r['verdict']} ({r['bars_15m']} bars)")
     except Exception as e:
         log.warning(f"W88 bench check failed (non-fatal): {e}")
+
+
+# ---- Wave 89 (Jul 3, 2026): PAROLE - the earned way back for benched setups ----
+# Evidence: Jul 3 crypto bench back-trial (3,048 benched signals replayed vs
+# Coinbase 15m history, uniform 2R yardstick, breakeven 33.4%). Parole class =
+# ONLY candidates with n>=100 decided trials and positive 2R expectancy:
+#   BTC:BREAK_RETEST_BULL   40.5% @454   BTC:VWAP_REJECT_BEAR  36.2% @398
+#   BTC:BB_REVERSION_BULL   41.7% @228   BTC:APPROACH_RESIST   69.9% @166
+#   SOL:APPROACH_RESIST     87.9% @124   BTC:STOCH_REVERSAL_BULL 40.3% @124
+#   BTC:BREAK_RETEST_BEAR   35.8% @106
+# Small-n candidates (RSI_DIV_BEAR 100% @17 etc.) stay benched until W88's
+# fresh shadow record confirms them. Futures setups wait for W88 evidence.
+PAROLE_SETUPS = {
+    "BTC:BREAK_RETEST_BULL", "BTC:VWAP_REJECT_BEAR", "BTC:BB_REVERSION_BULL",
+    "BTC:APPROACH_RESIST", "SOL:APPROACH_RESIST", "BTC:STOCH_REVERSAL_BULL",
+    "BTC:BREAK_RETEST_BEAR",
+}
+PAROLE_LEDGER_PATH = os.path.join(BASE_DIR, "data", "parole_ledger.jsonl")
+
+def _parole_event(ev):
+    try:
+        os.makedirs(os.path.dirname(PAROLE_LEDGER_PATH), exist_ok=True)
+        ev["ts"] = datetime.now(timezone.utc).isoformat()
+        with open(PAROLE_LEDGER_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(ev) + "\n")
+    except Exception:
+        pass
+
+def _parole_pass(market, stp, setups):
+    """Wave 89: a paroled (back-trial-cleared) setup may fire DESPITE its
+    suspension - but only with a CONFLUENCE PARTNER: another non-suspended
+    setup in the same scan, same direction, different type (Wayne's rule:
+    a benched setup earns its way back by combining with another strat).
+    A parole pass still runs the FULL modern gauntlet afterwards (trend
+    guard, conviction floors, cooldowns). Every decision is ledgered.
+    Fails safe: any error -> False -> behaves exactly like before W89."""
+    try:
+        key = f"{market}:{stp.get('type')}"
+        if key not in PAROLE_SETUPS:
+            return False
+        if not ot.is_setup_suspended(market, stp.get("type")):
+            return False
+        want = "SHORT" if "SHORT" in str(stp.get("direction", "")) else "LONG"
+        partner = None
+        for o in (setups or []):
+            if o is stp or o.get("type") == stp.get("type"):
+                continue
+            odir = "SHORT" if "SHORT" in str(o.get("direction", "")) else "LONG"
+            if odir != want:
+                continue
+            if ot.is_setup_suspended(market, o.get("type")):
+                continue
+            partner = o.get("type")
+            break
+        if partner:
+            log.info(f"[{market}] W89 PAROLE fire: {stp.get('type')} (partner: {partner})")
+            _parole_event({"event": "granted", "market": market,
+                           "setup": stp.get("type"), "partner": partner,
+                           "direction": want})
+            return True
+        _parole_event({"event": "denied_no_partner", "market": market,
+                       "setup": stp.get("type"), "direction": want})
+        return False
+    except Exception as _w89e:
+        log.warning(f"W89 parole gate failed safe (non-fatal): {_w89e}")
+        return False
 
 
 # ---- Wave 87 (Jul 3, 2026): THE MAP (shadow) - level-aware targets ----
