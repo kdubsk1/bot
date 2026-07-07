@@ -3304,7 +3304,7 @@ async def watch_open_trades(app, frames_by_market):
         # last_rescore_conviction column). This patch only stops Telegram noise.
         # Full event detail logged to bot_brain.jsonl for Claude analysis.
         bot_brain_log("rescore", {
-            "market":           market,
+            "market":           row.get("market"),  # Wave 96: was bare `market` (undefined) - NameError crashed watch_open_trades every rescore
             "alert_id":         row.get("alert_id"),
             "setup":            row.get("setup"),
             "direction":        direction,
