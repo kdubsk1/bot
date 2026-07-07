@@ -4007,6 +4007,35 @@ async def cmd_cryptostatus(u, c):
         log.error(f"/cryptostatus failed: {e}")
         await u.message.reply_text(f"Crypto status command failed: {e}")
 
+async def cmd_leverage(u, c):
+    """Wave 98: /leverage [N] - view or set the crypto sim leverage (BTC/SOL)."""
+    try:
+        _cst = crypto_sim.load_crypto_state()
+        cur = int(_cst.get("leverage", 10))
+        if not c.args:
+            await u.message.reply_text(
+                f"\u26a1 *Crypto leverage:* `{cur}x`\n"
+                f"Change it with `/leverage N` (1-20), e.g. `/leverage 5`.",
+                parse_mode="Markdown")
+            return
+        try:
+            n = int(str(c.args[0]).strip().lower().rstrip("x"))
+        except Exception:
+            await u.message.reply_text("Usage: `/leverage N` where N is 1-20, e.g. `/leverage 5`.", parse_mode="Markdown")
+            return
+        if n < 1 or n > 20:
+            await u.message.reply_text(f"Leverage must be 1-20 (got `{n}`).", parse_mode="Markdown")
+            return
+        _cst["leverage"] = n
+        crypto_sim.save_crypto_state(_cst)
+        await u.message.reply_text(
+            f"\u2705 Crypto sim leverage set: `{cur}x` \u2192 `{n}x`\n"
+            f"Applies to NEW BTC/SOL sim trades (open trades keep their entry leverage).",
+            parse_mode="Markdown")
+    except Exception as e:
+        log.error(f"/leverage failed: {e}")
+        await u.message.reply_text(f"Leverage command failed: {e}")
+
 async def cmd_wave7(u, c):
     """
     Wave 7: /wave7 shows the Iron Robot conviction adjustment status.
@@ -6473,7 +6502,7 @@ def main():
     # it). Handlers left as harmless dead code; unregistered so they leave the menu.
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("leverage",cmd_leverage),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
