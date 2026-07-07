@@ -1622,11 +1622,11 @@ def sim_daily_section() -> str:
     pnl    = sum(t.get("pnl", 0) for t in today_trades)
     lines  = [
         "",
-        "SIM ACCOUNT \u2014 TODAY",
+        "TOPSTEP FUTURES \u2014 TODAY (NQ/GC)",
         "-" * 30,
         f"Balance:        ${risk['balance']:,.2f}",
         f"Today P&L:      ${pnl:+,.2f}",
-        f"Today trades:   {len(today_trades)} ({wins}W / {losses}L)",
+        f"Futures trades:  {len(today_trades)} ({wins}W / {losses}L)",
         f"Daily limit used: {risk['daily_used_pct']}%",
         f"Drawdown used:    {risk['dd_used_pct']}%",
         f"Total P&L:      ${risk['total_profit']:+,.2f}",
