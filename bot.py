@@ -4502,8 +4502,8 @@ async def cmd_session(u,c):
     if sim_state.get("enabled"):
         risk = sim.check_risk_limits(sim_state)
         sim_line = (
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"💰 *Sim This Session*\n"
+            f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+            f"\U0001f3e6 *Topstep Futures Sim (NQ/GC)*\n"
             f"  Balance: `${risk['balance']:,.2f}`\n"
             f"  Session P&L: `${risk['daily_pnl']:+,.2f}`\n"
             f"  Daily limit left: `${risk['daily_left']:,.2f}`\n"
@@ -4538,8 +4538,30 @@ async def cmd_session(u,c):
         lines.append(f"*Setups fired:* {', '.join(setups_fired[:8])}")
     if summary.get("best_setup") != "N/A":
         lines.append(f"*Best:* `{summary['best_setup']}` | *Worst:* `{summary['worst_setup']}`")
+    # Wave 97: crypto sim gets its own clearly-labeled block (BTC/SOL, leveraged)
+    crypto_line = ""
+    try:
+        _cst = crypto_sim.load_crypto_state()
+        if _cst.get("enabled"):
+            _ctoday = datetime.now().strftime("%Y-%m-%d")
+            _ctr = [t for t in _cst.get("closed_trades", []) if _ctoday in str(t.get("closed_at", ""))]
+            _cw = sum(1 for t in _ctr if t.get("result") == "WIN")
+            _cl = sum(1 for t in _ctr if t.get("result") == "LOSS")
+            _cpnl = sum(float(t.get("pnl_dollars", 0) or 0) for t in _ctr)
+            _copen = len(_cst.get("open_trades", []))
+            crypto_line = (
+                f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                f"\u26a1 *Crypto Sim (BTC/SOL, {int(_cst.get('leverage', 10))}x lev)*\n"
+                f"  Balance: `${float(_cst.get('balance', 0)):,.2f}`\n"
+                f"  Today: `{len(_ctr)}` closed ({_cw}W/{_cl}L) | P&L: `${_cpnl:+,.2f}`\n"
+                f"  Open: `{_copen}`\n"
+            )
+    except Exception as _w97e:
+        log.debug(f"W97 crypto session block: {_w97e}")
     if sim_line:
         lines.append(sim_line)
+    if crypto_line:
+        lines.append(crypto_line)
 
     await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
@@ -5171,8 +5193,8 @@ async def on_button(u, c):
         if sim_state.get("enabled"):
             risk = sim.check_risk_limits(sim_state)
             sim_line = (
-                f"━━━━━━━━━━━━━━━━━━\n"
-                f"💰 *Sim This Session*\n"
+                f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                f"\U0001f3e6 *Topstep Futures Sim (NQ/GC)*\n"
                 f"  Balance: `${risk['balance']:,.2f}`\n"
                 f"  Session P&L: `${risk['daily_pnl']:+,.2f}`\n"
                 f"  Daily limit left: `${risk['daily_left']:,.2f}`\n"
@@ -5203,7 +5225,28 @@ async def on_button(u, c):
                 msg_lines.append("*Per-market today:*")
                 msg_lines.extend(_mkt_lines)
         if setups_fired: msg_lines.append(f"*Setups:* {', '.join(setups_fired[:8])}")
+        # Wave 97: crypto block (button view mirrors /session)
+        crypto_line = ""
+        try:
+            _cst = crypto_sim.load_crypto_state()
+            if _cst.get("enabled"):
+                _ctoday = datetime.now().strftime("%Y-%m-%d")
+                _ctr = [t for t in _cst.get("closed_trades", []) if _ctoday in str(t.get("closed_at", ""))]
+                _cw = sum(1 for t in _ctr if t.get("result") == "WIN")
+                _cl = sum(1 for t in _ctr if t.get("result") == "LOSS")
+                _cpnl = sum(float(t.get("pnl_dollars", 0) or 0) for t in _ctr)
+                _copen = len(_cst.get("open_trades", []))
+                crypto_line = (
+                    f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                    f"\u26a1 *Crypto Sim (BTC/SOL, {int(_cst.get('leverage', 10))}x lev)*\n"
+                    f"  Balance: `${float(_cst.get('balance', 0)):,.2f}`\n"
+                    f"  Today: `{len(_ctr)}` closed ({_cw}W/{_cl}L) | P&L: `${_cpnl:+,.2f}`\n"
+                    f"  Open: `{_copen}`\n"
+                )
+        except Exception as _w97e:
+            log.debug(f"W97 crypto session block: {_w97e}")
         if sim_line: msg_lines.append(sim_line)
+        if crypto_line: msg_lines.append(crypto_line)
         await q.message.reply_text("\n".join(msg_lines), parse_mode="Markdown"); return
     elif d=="history_list":
         dates = ot.list_archived_sessions()
