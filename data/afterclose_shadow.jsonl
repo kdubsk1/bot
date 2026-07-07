@@ -1,3 +1,4 @@
 {"kind": "pending", "alert_id": "c1b6a3b00a", "market": "GC", "direction": "SHORT", "setup": "STOCH_REVERSAL_BEAR", "entry": "4186.1", "stop": "4205.2157", "target": "4138.7", "settle_price": 4187.3, "settle_result": "LOSS", "settle_ts": "2026-07-03T19:55:02.609875+00:00"}
 {"kind": "resolved", "alert_id": "c1b6a3b00a", "market": "GC", "verdict": "SHADOW_NEITHER_36H", "bars_15m_after_close": 0, "settle_result": "LOSS", "ts": "2026-07-05T07:55:18.710674+00:00"}
 {"kind": "pending", "alert_id": "ab8a9048f5", "market": "GC", "direction": "LONG", "setup": "BB_REVERSION_BULL", "entry": "4152.0", "stop": "4135.6717", "target": "4199.6", "settle_price": 4174.4, "settle_result": "WIN", "settle_ts": "2026-07-06T19:55:23.325620+00:00"}
+{"kind": "resolved", "alert_id": "ab8a9048f5", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 28, "settle_result": "WIN", "ts": "2026-07-07T03:53:43.082445+00:00"}
