@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-07T07:52:22.420463+00:00",
+  "generated_at": "2026-07-07T13:52:30.811712+00:00",
   "topstep": {
     "balance": 50047.25,
     "starting_balance": 50000,
@@ -349,6 +349,14 @@ const DATA = {
       {
         "time": "2026-07-07 02:39",
         "balance": 54047.18
+      },
+      {
+        "time": "2026-07-07 06:27",
+        "balance": 56033.42
+      },
+      {
+        "time": "2026-07-07 12:10",
+        "balance": 55192.92
       }
     ]
   },
@@ -966,16 +974,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 9,
-    "losses": 16,
-    "wr": 36.0,
-    "total_trades": 25
+    "wins": 10,
+    "losses": 17,
+    "wr": 37.0,
+    "total_trades": 27
   },
   "today": {
-    "wins": 0,
-    "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "wins": 1,
+    "losses": 2,
+    "wr": 33.3,
+    "total_trades": 3
   },
   "setup_stats": [
     {
@@ -998,6 +1006,13 @@ const DATA = {
       "wins": 1,
       "losses": 2,
       "wr": 33.3
+    },
+    {
+      "setup": "GC:BB_REVERSION_BULL",
+      "fires": 3,
+      "wins": 2,
+      "losses": 1,
+      "wr": 66.7
     },
     {
       "setup": "BTC:STOCH_REVERSAL_BEAR",
@@ -1028,13 +1043,6 @@ const DATA = {
       "wr": 50.0
     },
     {
-      "setup": "GC:BB_REVERSION_BULL",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
-    },
-    {
       "setup": "GC:MACD_CROSS_BEAR",
       "fires": 1,
       "wins": 1,
@@ -1047,9 +1055,32 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "NQ:VWAP_BOUNCE_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-07 12:10",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29708.25",
+      "stop": "29591.9795",
+      "target": "29955.25",
+      "rr": "2.12",
+      "conv": "70",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29591.9795"
+    },
     {
       "time": "2026-07-07 06:27",
       "market": "GC",
@@ -1062,9 +1093,9 @@ const DATA = {
       "rr": "2.45",
       "conv": "81",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "4179.6"
     },
     {
       "time": "2026-07-07 02:39",
@@ -1433,22 +1464,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "4030.49136"
-    },
-    {
-      "time": "2026-06-29 20:34",
-      "market": "SOL",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "75.58",
-      "stop": "76.9336",
-      "target": "72.65",
-      "rr": "2.16",
-      "conv": "67",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "72.65"
     }
   ],
   "suspended_setups": [
@@ -1700,10 +1715,10 @@ const DATA = {
   ],
   "by_market": {
     "GC": {
-      "wins": 3,
+      "wins": 4,
       "losses": 5,
-      "total_pnl_r": 1.14,
-      "wr": 37.5
+      "total_pnl_r": 3.59,
+      "wr": 44.4
     },
     "BTC": {
       "wins": 2,
@@ -1719,16 +1734,16 @@ const DATA = {
     },
     "NQ": {
       "wins": 3,
-      "losses": 2,
-      "total_pnl_r": 4.3,
-      "wr": 60.0
+      "losses": 3,
+      "total_pnl_r": 3.3,
+      "wr": 50.0
     }
   },
   "by_tier": {
     "HIGH": {
-      "wins": 7,
-      "losses": 11,
-      "wr": 38.9
+      "wins": 8,
+      "losses": 12,
+      "wr": 40.0
     },
     "MEDIUM": {
       "wins": 2,
@@ -1741,21 +1756,7 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "BB_REVERSION_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "4139.7",
-      "target": "4179.6",
-      "stop": "4123.4266",
-      "conviction": 81,
-      "last_rescore_conviction": 81,
-      "tier": "HIGH",
-      "timestamp": "2026-07-07T06:27:21.186251+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
