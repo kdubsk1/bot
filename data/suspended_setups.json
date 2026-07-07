@@ -348,5 +348,12 @@
     "total_at_suspension": 57,
     "wr_at_suspension": 45.6,
     "bleed_at_suspension": -500.0
+  },
+  "GC:EMA21_PULLBACK_BULL": {
+    "reason": "0W/115L (0.0% WR)",
+    "suspended_at": "2026-07-07T20:00:08.943467+00:00",
+    "total_at_suspension": 115,
+    "wr_at_suspension": 0.0,
+    "bleed_at_suspension": 0.0
   }
 }
