@@ -103,6 +103,7 @@ MIN_BARS = 20
 # Cache
 # ---------------------------------------------------------------------------
 _cache: Dict[str, dict] = {}
+_neg_fetch: Dict[str, float] = {}   # Wave 95: {market|tf: last-insufficient ts} for fetch backoff
 
 
 def _cache_key(market: str, timeframe: str) -> str:
@@ -1223,6 +1224,19 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
     if cached is not None:
         return cached
 
+    # Wave 95: negative-fetch backoff. A frame that just came back
+    # insufficient is NOT re-hammered every cycle (the NQ 1d Sept-contract
+    # case was spamming yfinance/TwelveData rate limits ~every 30s). Serve
+    # stale cache if we have it, else empty, until the cooldown elapses.
+    _neg_cd = {"1d": 1800, "4h": 600, "1h": 300, "15m": 120}.get(timeframe, 300)
+    _nkey = _cache_key(market_upper, timeframe)
+    _nts = _neg_fetch.get(_nkey)
+    if _nts is not None and (time.time() - _nts) < _neg_cd:
+        _stale = _get_stale_cache(market_upper, timeframe)
+        if _stale is not None:
+            return _stale
+        return pd.DataFrame(columns=_STANDARD_COLS)
+
     # Fetch fresh data
     try:
         df = _fetch_raw(market_upper, timeframe)
@@ -1233,7 +1247,11 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
     # Validate
     if df is not None and len(df) >= MIN_BARS:
         _set_cache(market_upper, timeframe, df)
+        _neg_fetch.pop(_cache_key(market_upper, timeframe), None)  # Wave 95: success clears backoff
         return df.copy()
+
+    # Wave 95: record the insufficient result so we back off next cycle
+    _neg_fetch[_cache_key(market_upper, timeframe)] = time.time()
 
     # Not enough data -- try stale cache
     logger.warning("Insufficient data for %s %s (%d bars, need %d)",
