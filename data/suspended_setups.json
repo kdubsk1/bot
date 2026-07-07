@@ -341,5 +341,12 @@
     "total_at_suspension": 9,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:BB_REVERSION_BEAR": {
+    "reason": "bled $500 in 7d",
+    "suspended_at": "2026-07-07T14:08:23.240590+00:00",
+    "total_at_suspension": 57,
+    "wr_at_suspension": 45.6,
+    "bleed_at_suspension": -500.0
   }
 }

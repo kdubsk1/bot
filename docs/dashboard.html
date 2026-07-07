@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-07T13:52:30.811712+00:00",
+  "generated_at": "2026-07-07T14:13:31.161597+00:00",
   "topstep": {
     "balance": 50047.25,
     "starting_balance": 50000,
@@ -299,64 +299,60 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-06-28 22:12",
-        "balance": 51207.5
-      },
-      {
         "time": "2026-06-30 08:25",
-        "balance": 50439.39
+        "balance": 49250.0
       },
       {
         "time": "2026-07-02 14:21",
-        "balance": 49682.8
+        "balance": 48511.25
       },
       {
         "time": "2026-07-02 14:29",
-        "balance": 51210.54
+        "balance": 50002.97
       },
       {
         "time": "2026-07-02 16:43",
-        "balance": 50442.38
+        "balance": 49252.93
       },
       {
         "time": "2026-07-02 18:31",
-        "balance": 51660.57
+        "balance": 50442.38
       },
       {
         "time": "2026-07-03 13:07",
-        "balance": 50885.66
+        "balance": 49685.75
       },
       {
         "time": "2026-07-03 14:19",
-        "balance": 52381.7
+        "balance": 51146.51
       },
       {
         "time": "2026-07-03 14:53",
-        "balance": 51595.97
+        "balance": 50379.31
       },
       {
         "time": "2026-07-06 15:17",
-        "balance": 53855.88
+        "balance": 52585.93
       },
       {
         "time": "2026-07-06 15:18",
-        "balance": 55705.83
+        "balance": 54392.25
       },
       {
         "time": "2026-07-06 16:25",
-        "balance": 54870.24
+        "balance": 53576.37
       },
       {
         "time": "2026-07-07 02:39",
-        "balance": 54047.18
+        "balance": 52772.72
       },
       {
         "time": "2026-07-07 06:27",
-        "balance": 56033.42
+        "balance": 54712.12
       },
       {
         "time": "2026-07-07 12:10",
-        "balance": 55192.92
+        "balance": 53891.44
       }
     ]
   },
@@ -974,10 +970,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 10,
+    "wins": 8,
     "losses": 17,
-    "wr": 37.0,
-    "total_trades": 27
+    "wr": 32.0,
+    "total_trades": 25
   },
   "today": {
     "wins": 1,
@@ -1015,13 +1011,6 @@ const DATA = {
       "wr": 66.7
     },
     {
-      "setup": "BTC:STOCH_REVERSAL_BEAR",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
-    },
-    {
       "setup": "GC:STOCH_REVERSAL_BEAR",
       "fires": 2,
       "wins": 0,
@@ -1043,18 +1032,18 @@ const DATA = {
       "wr": 50.0
     },
     {
-      "setup": "GC:MACD_CROSS_BEAR",
+      "setup": "NQ:OPENING_RANGE_BREAKOUT",
       "fires": 1,
       "wins": 1,
       "losses": 0,
       "wr": 100.0
     },
     {
-      "setup": "NQ:OPENING_RANGE_BREAKOUT",
+      "setup": "BTC:STOCH_REVERSAL_BEAR",
       "fires": 1,
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
@@ -1711,26 +1700,31 @@ const DATA = {
       "key": "NQ:EMA50_BREAKDOWN",
       "reason": "0W/9L (0.0% WR)",
       "suspended_at": "2026-07-06T00:12:29.811172+00:00"
+    },
+    {
+      "key": "SOL:BB_REVERSION_BEAR",
+      "reason": "bled $500 in 7d",
+      "suspended_at": "2026-07-07T14:08:23.240590+00:00"
     }
   ],
   "by_market": {
-    "GC": {
-      "wins": 4,
-      "losses": 5,
-      "total_pnl_r": 3.59,
-      "wr": 44.4
-    },
-    "BTC": {
-      "wins": 2,
-      "losses": 2,
-      "total_pnl_r": 2.8,
-      "wr": 50.0
-    },
     "SOL": {
       "wins": 1,
       "losses": 7,
       "total_pnl_r": -4.84,
       "wr": 12.5
+    },
+    "GC": {
+      "wins": 3,
+      "losses": 5,
+      "total_pnl_r": 1.98,
+      "wr": 37.5
+    },
+    "BTC": {
+      "wins": 1,
+      "losses": 2,
+      "total_pnl_r": 0.57,
+      "wr": 33.3
     },
     "NQ": {
       "wins": 3,
@@ -1741,14 +1735,14 @@ const DATA = {
   },
   "by_tier": {
     "HIGH": {
-      "wins": 8,
+      "wins": 7,
       "losses": 12,
-      "wr": 40.0
+      "wr": 36.8
     },
     "MEDIUM": {
-      "wins": 2,
+      "wins": 1,
       "losses": 2,
-      "wr": 50.0
+      "wr": 33.3
     },
     "LOW": {
       "wins": 0,
