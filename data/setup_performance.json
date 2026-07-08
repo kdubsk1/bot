@@ -84,18 +84,18 @@
     "last_updated": "2026-06-26T09:55:57.730695"
   },
   "GC:BB_REVERSION_BULL": {
-    "wins": 31,
-    "losses": 5,
-    "total": 36,
-    "win_rate": 86.1,
-    "last_updated": "2026-07-08T00:40:17.032116"
+    "wins": 32,
+    "losses": 6,
+    "total": 38,
+    "win_rate": 84.2,
+    "last_updated": "2026-07-08T19:55:29.778331"
   },
   "NQ:VWAP_BOUNCE_BULL": {
-    "wins": 141,
+    "wins": 142,
     "losses": 62,
-    "total": 203,
-    "win_rate": 69.5,
-    "last_updated": "2026-07-07T19:05:43.659417"
+    "total": 204,
+    "win_rate": 69.6,
+    "last_updated": "2026-07-08T19:55:29.163092"
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 4,

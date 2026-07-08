@@ -12,28 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 212.0,
-  "today_date": "2026-07-08",
-  "session_date": "2026-07-08",
+  "today_pnl": 0.0,
+  "today_date": "2026-07-09",
+  "session_date": "2026-07-09",
   "total_pnl": 259.25,
-  "trades": [
-    {
-      "alert_id": "565f1d244a",
-      "market": "GC",
-      "direction": "LONG",
-      "entry": 4112.4,
-      "stop": 4099.098027966899,
-      "target": 4133.6,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "BB_REVERSION_BULL",
-      "opened_at": "2026-07-07T23:35:51.850713",
-      "status": "CLOSED",
-      "pnl": 212.0,
-      "exit_price": 4133.6,
-      "result": "WIN",
-      "closed_at": "2026-07-08T00:40:17.717601"
-    }
-  ],
+  "trades": [],
   "open_sim_trades": []
 }
