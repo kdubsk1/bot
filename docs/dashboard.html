@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-07T20:13:48.173538+00:00",
+  "generated_at": "2026-07-08T02:14:02.365752+00:00",
   "topstep": {
-    "balance": 50047.25,
+    "balance": 50259.25,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 47.25,
+    "today_pnl": 212.0,
+    "total_pnl": 259.25,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -357,6 +357,10 @@ const DATA = {
       {
         "time": "2026-07-07 16:27",
         "balance": 53083.07
+      },
+      {
+        "time": "2026-07-07 23:35",
+        "balance": 54349.1
       }
     ]
   },
@@ -974,16 +978,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 8,
+    "wins": 9,
     "losses": 18,
-    "wr": 30.8,
-    "total_trades": 26
+    "wr": 33.3,
+    "total_trades": 27
   },
   "today": {
-    "wins": 1,
-    "losses": 3,
-    "wr": 25.0,
-    "total_trades": 4
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -1001,18 +1005,18 @@ const DATA = {
       "wr": 50.0
     },
     {
+      "setup": "GC:BB_REVERSION_BULL",
+      "fires": 4,
+      "wins": 3,
+      "losses": 1,
+      "wr": 75.0
+    },
+    {
       "setup": "GC:BREAK_RETEST_BULL",
       "fires": 3,
       "wins": 1,
       "losses": 2,
       "wr": 33.3
-    },
-    {
-      "setup": "GC:BB_REVERSION_BULL",
-      "fires": 3,
-      "wins": 2,
-      "losses": 1,
-      "wr": 66.7
     },
     {
       "setup": "GC:STOCH_REVERSAL_BEAR",
@@ -1058,6 +1062,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-07 23:35",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4112.4",
+      "stop": "4099.098",
+      "target": "4133.6",
+      "rr": "1.59",
+      "conv": "82",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "4133.6"
+    },
     {
       "time": "2026-07-07 16:27",
       "market": "NQ",
@@ -1441,22 +1461,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "58164.7733"
-    },
-    {
-      "time": "2026-06-30 14:39",
-      "market": "SOL",
-      "setup": "VWAP_REJECT_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "73.1",
-      "stop": "73.7735",
-      "target": "71.24",
-      "rr": "2.76",
-      "conv": "70",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "73.7735"
     }
   ],
   "suspended_setups": [
@@ -1724,10 +1728,10 @@ const DATA = {
       "wr": 12.5
     },
     "GC": {
-      "wins": 3,
+      "wins": 4,
       "losses": 5,
-      "total_pnl_r": 1.98,
-      "wr": 37.5
+      "total_pnl_r": 3.57,
+      "wr": 44.4
     },
     "BTC": {
       "wins": 1,
@@ -1744,9 +1748,9 @@ const DATA = {
   },
   "by_tier": {
     "HIGH": {
-      "wins": 7,
+      "wins": 8,
       "losses": 13,
-      "wr": 35.0
+      "wr": 38.1
     },
     "MEDIUM": {
       "wins": 1,
