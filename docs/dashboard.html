@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-09T14:15:03.693302+00:00",
+  "generated_at": "2026-07-09T20:15:15.388494+00:00",
   "topstep": {
-    "balance": 50259.25,
+    "balance": 50091.56,
     "starting_balance": 50000,
     "today_pnl": 0.0,
-    "total_pnl": 259.25,
+    "total_pnl": 91.56,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -369,15 +369,23 @@ const DATA = {
       {
         "time": "2026-07-08 16:17",
         "balance": 58205.49
+      },
+      {
+        "time": "2026-07-09 14:17",
+        "balance": 57332.4
+      },
+      {
+        "time": "2026-07-09 14:22",
+        "balance": 56472.42
       }
     ]
   },
   "crypto": {
-    "balance": 24.24,
+    "balance": 23.88,
     "starting_balance": 1000.0,
-    "total_pnl": -975.76,
+    "total_pnl": -976.12,
     "open_count": 1,
-    "closed_count": 151,
+    "closed_count": 152,
     "equity_curve": [
       {
         "time": "Start",
@@ -986,20 +994,24 @@ const DATA = {
       {
         "time": "2026-07-09 01:12",
         "balance": 24.24
+      },
+      {
+        "time": "2026-07-09 18:01",
+        "balance": 23.88
       }
     ]
   },
   "all_time": {
     "wins": 10,
-    "losses": 16,
-    "wr": 38.5,
-    "total_trades": 26
+    "losses": 19,
+    "wr": 34.5,
+    "total_trades": 29
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 3,
+    "wr": 0.0,
+    "total_trades": 3
   },
   "setup_stats": [
     {
@@ -1031,6 +1043,13 @@ const DATA = {
       "wr": 33.3
     },
     {
+      "setup": "BTC:STOCH_REVERSAL_BEAR",
+      "fires": 3,
+      "wins": 0,
+      "losses": 3,
+      "wr": 0.0
+    },
+    {
       "setup": "NQ:VWAP_BOUNCE_BULL",
       "fires": 3,
       "wins": 1,
@@ -1038,24 +1057,17 @@ const DATA = {
       "wr": 33.3
     },
     {
-      "setup": "BTC:STOCH_REVERSAL_BEAR",
-      "fires": 2,
-      "wins": 0,
-      "losses": 2,
-      "wr": 0.0
-    },
-    {
       "setup": "NQ:OPENING_RANGE_BREAKOUT",
-      "fires": 1,
+      "fires": 2,
       "wins": 1,
-      "losses": 0,
-      "wr": 100.0
+      "losses": 1,
+      "wr": 50.0
     },
     {
       "setup": "GC:STOCH_REVERSAL_BEAR",
-      "fires": 1,
+      "fires": 2,
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "wr": 0.0
     },
     {
@@ -1068,6 +1080,54 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-07-09 18:26",
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BEAR",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "63200.72",
+      "stop": "63542.8",
+      "target": "62500.0",
+      "rr": "2.05",
+      "conv": "54",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-07-09 14:22",
+      "market": "NQ",
+      "setup": "OPENING_RANGE_BREAKOUT",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "29651.75",
+      "stop": "29946.2818",
+      "target": "29034.0",
+      "rr": "2.1",
+      "conv": "88",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29946.2818"
+    },
+    {
+      "time": "2026-07-09 14:17",
+      "market": "GC",
+      "setup": "STOCH_REVERSAL_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4129.9",
+      "stop": "4146.6694",
+      "target": "4102.7",
+      "rr": "1.62",
+      "conv": "60",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4146.6694"
+    },
+    {
       "time": "2026-07-09 13:57",
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BEAR",
@@ -1079,9 +1139,9 @@ const DATA = {
       "rr": "1.59",
       "conv": "55",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "63192.5418"
     },
     {
       "time": "2026-07-08 17:43",
@@ -1418,302 +1478,9 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "29924.25"
-    },
-    {
-      "time": "2026-07-03 13:07",
-      "market": "GC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "4186.1",
-      "stop": "4205.2157",
-      "target": "4138.7",
-      "rr": "2.48",
-      "conv": "62",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4187.3"
-    },
-    {
-      "time": "2026-07-02 18:31",
-      "market": "GC",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "4137.9",
-      "stop": "4122.037",
-      "target": "4163.5",
-      "rr": "1.61",
-      "conv": "53",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "4163.5"
-    },
-    {
-      "time": "2026-07-02 16:43",
-      "market": "GC",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "4128.1",
-      "stop": "4121.7365",
-      "target": "4138.5",
-      "rr": "1.63",
-      "conv": "56",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4121.7365"
     }
   ],
   "suspended_setups": [
-    {
-      "key": "BTC:EMA21_PULLBACK_BULL",
-      "reason": "0W/35L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809160+00:00"
-    },
-    {
-      "key": "NQ:STOCH_REVERSAL_BEAR",
-      "reason": "0W/19L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809218+00:00"
-    },
-    {
-      "key": "BTC:VWAP_REJECT_BEAR",
-      "reason": "2W/13L (13.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809264+00:00"
-    },
-    {
-      "key": "GC:BB_REVERSION_BEAR",
-      "reason": "4W/8L (33.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809357+00:00"
-    },
-    {
-      "key": "BTC:EMA50_BREAKDOWN",
-      "reason": "0W/61L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809404+00:00"
-    },
-    {
-      "key": "BTC:BREAK_RETEST_BEAR",
-      "reason": "4W/23L (14.8% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809450+00:00"
-    },
-    {
-      "key": "GC:RSI_DIV_BEAR",
-      "reason": "0W/51L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809493+00:00"
-    },
-    {
-      "key": "NQ:BB_REVERSION_BULL",
-      "reason": "8W/26L (23.5% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809542+00:00"
-    },
-    {
-      "key": "GC:VWAP_REJECT_BEAR",
-      "reason": "0W/36L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809584+00:00"
-    },
-    {
-      "key": "NQ:BB_REVERSION_BEAR",
-      "reason": "0W/38L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809626+00:00"
-    },
-    {
-      "key": "SOL:VWAP_BOUNCE_BULL",
-      "reason": "15W/35L (30.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809669+00:00"
-    },
-    {
-      "key": "NQ:EMA21_PULLBACK_BULL",
-      "reason": "2W/5L (28.6% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809710+00:00"
-    },
-    {
-      "key": "SOL:RSI_DIV_BULL",
-      "reason": "3W/30L (9.1% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809755+00:00"
-    },
-    {
-      "key": "GC:STOCH_REVERSAL_BULL",
-      "reason": "0W/29L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809797+00:00"
-    },
-    {
-      "key": "SOL:BREAK_RETEST_BEAR",
-      "reason": "0W/5L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809849+00:00"
-    },
-    {
-      "key": "NQ:VWAP_REJECT_BEAR",
-      "reason": "27W/67L (28.7% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809894+00:00"
-    },
-    {
-      "key": "BTC:VWAP_BOUNCE_BULL",
-      "reason": "4W/92L (4.2% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809944+00:00"
-    },
-    {
-      "key": "BTC:RSI_DIV_BEAR",
-      "reason": "4W/13L (23.5% WR)",
-      "suspended_at": "2026-07-06T00:12:29.809989+00:00"
-    },
-    {
-      "key": "GC:RSI_DIV_BULL",
-      "reason": "1W/103L (1.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810032+00:00"
-    },
-    {
-      "key": "SOL:STOCH_REVERSAL_BEAR",
-      "reason": "1W/7L (12.5% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810071+00:00"
-    },
-    {
-      "key": "SOL:MACD_CROSS_BULL",
-      "reason": "2W/13L (13.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810107+00:00"
-    },
-    {
-      "key": "GC:BREAK_RETEST_BEAR",
-      "reason": "1W/5L (16.7% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810143+00:00"
-    },
-    {
-      "key": "SOL:MACD_CROSS_BEAR",
-      "reason": "1W/6L (14.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810182+00:00"
-    },
-    {
-      "key": "NQ:STOCH_REVERSAL_BULL",
-      "reason": "6W/17L (26.1% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810225+00:00"
-    },
-    {
-      "key": "SOL:BREAK_RETEST_BULL",
-      "reason": "2W/4L (33.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810265+00:00"
-    },
-    {
-      "key": "BTC:BREAK_RETEST_BULL",
-      "reason": "1W/10L (9.1% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810304+00:00"
-    },
-    {
-      "key": "NQ:MACD_CROSS_BULL",
-      "reason": "0W/8L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810344+00:00"
-    },
-    {
-      "key": "NQ:EMA50_RECLAIM",
-      "reason": "0W/11L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810437+00:00"
-    },
-    {
-      "key": "GC:EMA21_PULLBACK_BEAR",
-      "reason": "1W/88L (1.1% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810575+00:00"
-    },
-    {
-      "key": "NQ:RSI_DIV_BEAR",
-      "reason": "0W/6L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810613+00:00"
-    },
-    {
-      "key": "BTC:EMA50_RECLAIM",
-      "reason": "0W/17L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810649+00:00"
-    },
-    {
-      "key": "GC:VWAP_BOUNCE_BULL",
-      "reason": "19W/51L (27.1% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810679+00:00"
-    },
-    {
-      "key": "SOL:EMA21_PULLBACK_BULL",
-      "reason": "0W/7L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810713+00:00"
-    },
-    {
-      "key": "BTC:MACD_CROSS_BULL",
-      "reason": "0W/62L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810741+00:00"
-    },
-    {
-      "key": "SOL:STOCH_REVERSAL_BULL",
-      "reason": "0W/5L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810769+00:00"
-    },
-    {
-      "key": "NQ:RSI_DIV_BULL",
-      "reason": "2W/4L (33.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810797+00:00"
-    },
-    {
-      "key": "NQ:EMA21_PULLBACK_BEAR",
-      "reason": "0W/20L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810827+00:00"
-    },
-    {
-      "key": "GC:MACD_CROSS_BULL",
-      "reason": "0W/10L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810857+00:00"
-    },
-    {
-      "key": "NQ:MACD_CROSS_BEAR",
-      "reason": "1W/8L (11.1% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810884+00:00"
-    },
-    {
-      "key": "BTC:EMA21_PULLBACK_BEAR",
-      "reason": "5W/15L (25.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810915+00:00"
-    },
-    {
-      "key": "SOL:RSI_DIV_BEAR",
-      "reason": "0W/65L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810942+00:00"
-    },
-    {
-      "key": "BTC:STOCH_REVERSAL_BULL",
-      "reason": "1W/5L (16.7% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810970+00:00"
-    },
-    {
-      "key": "SOL:EMA21_PULLBACK_BEAR",
-      "reason": "2W/23L (8.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.810998+00:00"
-    },
-    {
-      "key": "BTC:BB_REVERSION_BULL",
-      "reason": "1W/4L (20.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.811027+00:00"
-    },
-    {
-      "key": "NQ:BREAK_RETEST_BEAR",
-      "reason": "0W/27L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.811057+00:00"
-    },
-    {
-      "key": "SOL:BB_REVERSION_BULL",
-      "reason": "0W/6L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.811087+00:00"
-    },
-    {
-      "key": "BTC:MACD_CROSS_BEAR",
-      "reason": "2W/21L (8.7% WR)",
-      "suspended_at": "2026-07-06T00:12:29.811118+00:00"
-    },
-    {
-      "key": "BTC:BB_REVERSION_BEAR",
-      "reason": "1W/6L (14.3% WR)",
-      "suspended_at": "2026-07-06T00:12:29.811145+00:00"
-    },
-    {
-      "key": "NQ:EMA50_BREAKDOWN",
-      "reason": "0W/9L (0.0% WR)",
-      "suspended_at": "2026-07-06T00:12:29.811172+00:00"
-    },
     {
       "key": "SOL:BB_REVERSION_BEAR",
       "reason": "bled $500 in 7d",
@@ -1723,20 +1490,265 @@ const DATA = {
       "key": "GC:EMA21_PULLBACK_BULL",
       "reason": "0W/115L (0.0% WR)",
       "suspended_at": "2026-07-07T20:00:08.943467+00:00"
+    },
+    {
+      "key": "BTC:EMA21_PULLBACK_BEAR",
+      "reason": "5W/15L (25.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.120770+00:00"
+    },
+    {
+      "key": "BTC:EMA50_BREAKDOWN",
+      "reason": "0W/61L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.120820+00:00"
+    },
+    {
+      "key": "GC:STOCH_REVERSAL_BULL",
+      "reason": "0W/29L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.120879+00:00"
+    },
+    {
+      "key": "BTC:MACD_CROSS_BULL",
+      "reason": "0W/62L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.120921+00:00"
+    },
+    {
+      "key": "BTC:MACD_CROSS_BEAR",
+      "reason": "2W/21L (8.7% WR)",
+      "suspended_at": "2026-07-09T20:00:20.120962+00:00"
+    },
+    {
+      "key": "GC:BREAK_RETEST_BEAR",
+      "reason": "1W/5L (16.7% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121004+00:00"
+    },
+    {
+      "key": "BTC:VWAP_BOUNCE_BULL",
+      "reason": "4W/92L (4.2% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121075+00:00"
+    },
+    {
+      "key": "SOL:VWAP_BOUNCE_BULL",
+      "reason": "15W/35L (30.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121130+00:00"
+    },
+    {
+      "key": "NQ:BREAK_RETEST_BEAR",
+      "reason": "0W/27L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121170+00:00"
+    },
+    {
+      "key": "NQ:RSI_DIV_BEAR",
+      "reason": "0W/6L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121208+00:00"
+    },
+    {
+      "key": "BTC:STOCH_REVERSAL_BULL",
+      "reason": "1W/5L (16.7% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121256+00:00"
+    },
+    {
+      "key": "NQ:BB_REVERSION_BULL",
+      "reason": "8W/26L (23.5% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121302+00:00"
+    },
+    {
+      "key": "NQ:EMA50_RECLAIM",
+      "reason": "0W/11L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121362+00:00"
+    },
+    {
+      "key": "NQ:BB_REVERSION_BEAR",
+      "reason": "0W/38L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121399+00:00"
+    },
+    {
+      "key": "GC:BB_REVERSION_BEAR",
+      "reason": "4W/8L (33.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121437+00:00"
+    },
+    {
+      "key": "BTC:BREAK_RETEST_BEAR",
+      "reason": "4W/23L (14.8% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121484+00:00"
+    },
+    {
+      "key": "BTC:RSI_DIV_BEAR",
+      "reason": "4W/13L (23.5% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121530+00:00"
+    },
+    {
+      "key": "SOL:STOCH_REVERSAL_BEAR",
+      "reason": "1W/7L (12.5% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121585+00:00"
+    },
+    {
+      "key": "SOL:EMA21_PULLBACK_BEAR",
+      "reason": "2W/23L (8.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121626+00:00"
+    },
+    {
+      "key": "NQ:MACD_CROSS_BULL",
+      "reason": "0W/8L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121688+00:00"
+    },
+    {
+      "key": "NQ:STOCH_REVERSAL_BEAR",
+      "reason": "0W/19L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121723+00:00"
+    },
+    {
+      "key": "SOL:MACD_CROSS_BEAR",
+      "reason": "1W/6L (14.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121764+00:00"
+    },
+    {
+      "key": "GC:MACD_CROSS_BULL",
+      "reason": "0W/10L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121809+00:00"
+    },
+    {
+      "key": "NQ:RSI_DIV_BULL",
+      "reason": "2W/4L (33.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121854+00:00"
+    },
+    {
+      "key": "SOL:MACD_CROSS_BULL",
+      "reason": "2W/13L (13.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121910+00:00"
+    },
+    {
+      "key": "BTC:VWAP_REJECT_BEAR",
+      "reason": "2W/13L (13.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.121952+00:00"
+    },
+    {
+      "key": "BTC:EMA50_RECLAIM",
+      "reason": "0W/17L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122018+00:00"
+    },
+    {
+      "key": "GC:VWAP_REJECT_BEAR",
+      "reason": "0W/36L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122061+00:00"
+    },
+    {
+      "key": "NQ:VWAP_REJECT_BEAR",
+      "reason": "27W/67L (28.7% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122103+00:00"
+    },
+    {
+      "key": "NQ:EMA50_BREAKDOWN",
+      "reason": "0W/9L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122144+00:00"
+    },
+    {
+      "key": "SOL:BB_REVERSION_BULL",
+      "reason": "0W/6L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122189+00:00"
+    },
+    {
+      "key": "SOL:EMA21_PULLBACK_BULL",
+      "reason": "0W/7L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122227+00:00"
+    },
+    {
+      "key": "SOL:BREAK_RETEST_BULL",
+      "reason": "2W/4L (33.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122281+00:00"
+    },
+    {
+      "key": "SOL:STOCH_REVERSAL_BULL",
+      "reason": "0W/5L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122317+00:00"
+    },
+    {
+      "key": "NQ:STOCH_REVERSAL_BULL",
+      "reason": "6W/17L (26.1% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122357+00:00"
+    },
+    {
+      "key": "BTC:EMA21_PULLBACK_BULL",
+      "reason": "0W/35L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122400+00:00"
+    },
+    {
+      "key": "SOL:RSI_DIV_BULL",
+      "reason": "3W/30L (9.1% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122440+00:00"
+    },
+    {
+      "key": "GC:RSI_DIV_BEAR",
+      "reason": "0W/51L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122500+00:00"
+    },
+    {
+      "key": "GC:RSI_DIV_BULL",
+      "reason": "1W/103L (1.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122542+00:00"
+    },
+    {
+      "key": "GC:VWAP_BOUNCE_BULL",
+      "reason": "19W/51L (27.1% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122580+00:00"
+    },
+    {
+      "key": "GC:EMA21_PULLBACK_BEAR",
+      "reason": "1W/88L (1.1% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122618+00:00"
+    },
+    {
+      "key": "SOL:RSI_DIV_BEAR",
+      "reason": "0W/65L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122670+00:00"
+    },
+    {
+      "key": "SOL:BREAK_RETEST_BEAR",
+      "reason": "0W/5L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122716+00:00"
+    },
+    {
+      "key": "BTC:BREAK_RETEST_BULL",
+      "reason": "1W/10L (9.1% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122752+00:00"
+    },
+    {
+      "key": "BTC:BB_REVERSION_BEAR",
+      "reason": "1W/6L (14.3% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122796+00:00"
+    },
+    {
+      "key": "NQ:MACD_CROSS_BEAR",
+      "reason": "1W/8L (11.1% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122834+00:00"
+    },
+    {
+      "key": "NQ:EMA21_PULLBACK_BULL",
+      "reason": "2W/5L (28.6% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122872+00:00"
+    },
+    {
+      "key": "NQ:EMA21_PULLBACK_BEAR",
+      "reason": "0W/20L (0.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122936+00:00"
+    },
+    {
+      "key": "BTC:BB_REVERSION_BULL",
+      "reason": "1W/4L (20.0% WR)",
+      "suspended_at": "2026-07-09T20:00:20.122986+00:00"
     }
   ],
   "by_market": {
     "GC": {
       "wins": 5,
-      "losses": 5,
-      "total_pnl_r": 6.11,
-      "wr": 50.0
+      "losses": 6,
+      "total_pnl_r": 5.11,
+      "wr": 45.5
     },
     "NQ": {
       "wins": 4,
-      "losses": 4,
-      "total_pnl_r": 4.41,
-      "wr": 50.0
+      "losses": 5,
+      "total_pnl_r": 3.41,
+      "wr": 44.4
     },
     "SOL": {
       "wins": 0,
@@ -1746,21 +1758,21 @@ const DATA = {
     },
     "BTC": {
       "wins": 1,
-      "losses": 2,
-      "total_pnl_r": 0.57,
-      "wr": 33.3
+      "losses": 3,
+      "total_pnl_r": -0.43,
+      "wr": 25.0
     }
   },
   "by_tier": {
     "HIGH": {
       "wins": 9,
-      "losses": 10,
-      "wr": 47.4
+      "losses": 12,
+      "wr": 42.9
     },
     "MEDIUM": {
       "wins": 1,
-      "losses": 3,
-      "wr": 25.0
+      "losses": 4,
+      "wr": 20.0
     },
     "LOW": {
       "wins": 0,
@@ -1774,13 +1786,13 @@ const DATA = {
       "setup": "STOCH_REVERSAL_BEAR",
       "tf": "15m",
       "direction": "SHORT",
-      "entry": "62904.74",
-      "target": "62447.04",
-      "stop": "63192.5418",
-      "conviction": 55,
-      "last_rescore_conviction": 55,
+      "entry": "63200.72",
+      "target": "62500.0",
+      "stop": "63542.8",
+      "conviction": 54,
+      "last_rescore_conviction": 54,
       "tier": "MEDIUM",
-      "timestamp": "2026-07-09T13:57:24.436971+00:00"
+      "timestamp": "2026-07-09T18:26:29.834275+00:00"
     }
   ]
 };
