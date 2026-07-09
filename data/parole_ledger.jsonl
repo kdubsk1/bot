@@ -283,3 +283,7 @@
 {"event": "denied_no_partner", "market": "BTC", "setup": "VWAP_REJECT_BEAR", "direction": "SHORT", "ts": "2026-07-09T02:00:52.708439+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "VWAP_REJECT_BEAR", "direction": "SHORT", "ts": "2026-07-09T02:10:54.746066+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "VWAP_REJECT_BEAR", "direction": "SHORT", "ts": "2026-07-09T02:12:56.470303+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-09T02:39:13.962900+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-09T02:41:15.525256+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-09T03:41:37.717474+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-09T04:11:44.013917+00:00"}
