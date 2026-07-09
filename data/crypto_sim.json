@@ -1,40 +1,12 @@
 {
   "enabled": true,
-  "balance": 24.61,
+  "balance": 24.24,
   "starting_balance": 1000.0,
   "peak_balance": 1000.0,
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [
-    {
-      "alert_id": "884ad4a202",
-      "market": "BTC",
-      "direction": "SHORT",
-      "entry": 62222.85,
-      "stop": 62485.314378112365,
-      "target": 61663.4,
-      "leverage": 10,
-      "position_size_usd": 87.51,
-      "notional_usd": 875.15,
-      "risk_dollars": 0.37,
-      "opened_at": "2026-07-08T17:43:10.552396+00:00",
-      "max_hold_until": "2026-07-15T17:43:10.552396+00:00",
-      "tier": "MEDIUM",
-      "conviction": 56,
-      "context": {
-        "trend_score": -10,
-        "rsi": 59.49,
-        "adx": 21.57,
-        "htf_bias": "UNKNOWN",
-        "regime": "UNKNOWN",
-        "session": "US Session",
-        "news_flag": false,
-        "chart_read": "Stochastic %K crossed down through %D from overbought (99.2\u219286.5 vs D 89.2). Early reversal trigger."
-      },
-      "status": "OPEN"
-    }
-  ],
+  "open_trades": [],
   "closed_trades": [
     {
       "alert_id": "705d2dab56",
@@ -4985,12 +4957,45 @@
       "pnl_dollars": -0.37,
       "closed_at": "2026-07-06T21:10:15.994267+00:00",
       "held_hours": 4.75
+    },
+    {
+      "alert_id": "884ad4a202",
+      "market": "BTC",
+      "direction": "SHORT",
+      "entry": 62222.85,
+      "stop": 62485.314378112365,
+      "target": 61663.4,
+      "leverage": 10,
+      "position_size_usd": 87.51,
+      "notional_usd": 875.15,
+      "risk_dollars": 0.37,
+      "opened_at": "2026-07-08T17:43:10.552396+00:00",
+      "max_hold_until": "2026-07-15T17:43:10.552396+00:00",
+      "tier": "MEDIUM",
+      "conviction": 56,
+      "context": {
+        "trend_score": -10,
+        "rsi": 59.49,
+        "adx": 21.57,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed down through %D from overbought (99.2\u219286.5 vs D 89.2). Early reversal trigger."
+      },
+      "status": "CLOSED",
+      "exit_price": 62485.3144,
+      "exit_reason": "outcomes_reconcile",
+      "result": "LOSS",
+      "pnl_dollars": -0.37,
+      "closed_at": "2026-07-09T01:12:19.397135+00:00",
+      "held_hours": 7.49
     }
   ],
-  "total_pnl": -975.39,
-  "total_trades": 150,
+  "total_pnl": -975.76,
+  "total_trades": 151,
   "wins": 34,
-  "losses": 116,
+  "losses": 117,
   "created_at": "2026-04-29T14:21:05.276882+00:00",
   "profit_target": 1500.0
 }
