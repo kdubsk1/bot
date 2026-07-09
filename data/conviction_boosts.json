@@ -7,15 +7,15 @@
       "VWAP_REJECT_BEAR": -15,
       "EMA21_PULLBACK_BULL": -19,
       "EMA21_PULLBACK_BEAR": 0,
-      "BREAK_RETEST_BULL": -1,
+      "BREAK_RETEST_BULL": 0,
       "RSI_DIV_BEAR": -5,
       "STOCH_REVERSAL_BEAR": -7,
-      "BB_REVERSION_BULL": -12,
+      "BB_REVERSION_BULL": -8,
       "STOCH_REVERSAL_BULL": -6,
       "APPROACH_SUPPORT": -17,
       "RSI_DIV_BULL": -1,
       "BREAK_RETEST_BEAR": -4,
-      "BB_REVERSION_BEAR": -16,
+      "BB_REVERSION_BEAR": -19,
       "MACD_CROSS_BEAR": 6,
       "EMA50_BREAKDOWN": -5
     },
@@ -83,22 +83,22 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-07-08T10:03:02.914572+00:00",
+    "last_decay_check_at": "2026-07-09T10:02:49.631787+00:00",
     "last_decay_actions": [
       {
         "setup": "BREAK_RETEST_BULL",
         "action": "relaxed",
         "reason": "3W/4L = 42.9% WR >= 30.0",
-        "boost_before": -2,
-        "boost_after": -1,
+        "boost_before": -1,
+        "boost_after": 0,
         "window_days": 14
       },
       {
         "setup": "BB_REVERSION_BULL",
         "action": "relaxed",
-        "reason": "3W/1L = 75.0% WR >= 30.0",
-        "boost_before": -13,
-        "boost_after": -12,
+        "reason": "4W/2L = 66.7% WR >= 30.0",
+        "boost_before": -12,
+        "boost_after": -11,
         "window_days": 14
       }
     ],
@@ -111,9 +111,9 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-07-08T10:03:02.988150+00:00",
+    "last_run_at": "2026-07-09T10:02:49.640399+00:00",
     "last_run_summary": {
-      "cycle_changes": 1,
+      "cycle_changes": 2,
       "decay_actions": 2,
       "n_setups_analyzed": 7
     },
