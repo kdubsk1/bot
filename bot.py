@@ -1926,7 +1926,15 @@ async def scan_market(app, market, frames):
             # Wave 74: Trend-alignment guard - counter-trend entries went 0-for-465 in backtest.
             # Skip setups whose direction opposes a CLEAR HTF trend (MIXED is allowed). Logged for audit.
             _w74_dir = str(stp.get("direction", "")).replace("WATCH_", "")
-            _w74_counter = (htf_bias == "LH_LL" and _w74_dir == "LONG") or (htf_bias == "HH_HL" and _w74_dir == "SHORT")
+            # Wave 107 (_WAVE107_SHORT_TREND_GATE): the htf_bias part of this guard only
+            # blocks shorts against a CLEAR bullish STRUCTURE (HH_HL); it misses shorts
+            # fired into a bullish trend_score when structure is mixed. Live data: shorts
+            # were 0/12, and every short fired into trend_score >= 2 lost. So ALSO reject a
+            # SHORT when the trend_score is moderately bullish (>= 2, the code's existing
+            # "trend present" threshold). Longs are deliberately NOT gated this way -- 3 of
+            # 9 winning longs were counter-trend (trend_score <= -2), so gating longs would
+            # kill working trades. Edit the 2 below to tune the short trend gate.
+            _w74_counter = (htf_bias == "LH_LL" and _w74_dir == "LONG") or (htf_bias == "HH_HL" and _w74_dir == "SHORT") or (_w74_dir == "SHORT" and isinstance(trend, (int, float)) and trend >= 2)
             if _w74_counter:
                 try:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
