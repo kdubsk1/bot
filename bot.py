@@ -2639,6 +2639,7 @@ STRATEGY_LOG_PART_MB = 18        # keep each archive part under the 25 MiB sync 
 # append recreates the fresh empty file, so no line is ever lost.
 _ROTATE_DATA_LOGS = [
     ("watch_alerts_suppressed.jsonl", 15),
+    ("intermarket_tape.jsonl", 15),  # Wave 108: tape snapshots (tiny, but insured)
 ]
 
 
@@ -3588,6 +3589,15 @@ async def scan_loop(app):
             now_et = _now_et()
             _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
             _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
+            # Wave 108 (_WAVE108_INTERMARKET_TAPE): shadow-log the intermarket tape
+            # read each cycle (throttled inside the module to ~1 line / 9 min).
+            # Pure data collection for the tape-gate analysis -- never blocks or
+            # fires trades; any failure is skipped silently.
+            try:
+                import intermarket as _im108
+                _im108.log_snapshot()
+            except Exception as _im_err:
+                log.debug("intermarket snapshot skipped: %s" % _im_err)
 
             # Wave 7 Layer 5: Sunday 8 PM ET auto-tune. Wrapped in try/except
             # so a tune failure can never take down the scan loop.
