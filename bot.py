@@ -5736,6 +5736,19 @@ async def _post_init(app):
     # Task 1: Restore scanner state from disk BEFORE anything else
     scanner_info = _load_scanner_state()
     SETTINGS["scanner_on"] = scanner_info["scanner_on"]
+    # Wave 103 (_WAVE103_SCANNER_ALWAYS_ON): the bot's job is to scan -- it must
+    # always come up scanning after any restart. Ignore a persisted OFF on boot
+    # (a manual pause only lasts the current session, never survives a reboot).
+    # The one deliberate cross-restart OFF switch is the SCANNER_FORCE_OFF_ON_BOOT
+    # env var checked just below, which still overrides this. We persist the
+    # forced-ON so on-disk state, SETTINGS, and the watchdog all agree.
+    if not SETTINGS["scanner_on"]:
+        log.info("Wave 103: persisted scanner OFF ignored on boot -- autonomy default is ON.")
+        SETTINGS["scanner_on"] = True
+        try:
+            _save_scanner_state()
+        except Exception:
+            pass
     hrs_ago = scanner_info["hours_ago"]
     log.info(f"Scanner state restored: {'ON' if SETTINGS['scanner_on'] else 'OFF'} "
              f"(last changed {hrs_ago} hours ago)")
