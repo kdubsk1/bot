@@ -228,6 +228,20 @@ def _reset_to_fresh_preset(state: dict, new_session_date: str):
 #   - On session boundary with BUSTED or PASSED eval: full preset reset
 #     to start a fresh eval (unchanged from previous behavior).
 #
+def _locked_peak(peak, starting, max_dd):
+    # Wave 106 (_WAVE106_TOPSTEP_DD_LOCK): real Topstep locks the trailing max-drawdown
+    # floor at the STARTING balance once your peak reaches starting + max_drawdown -- it
+    # never trails above the start. Our sim trailed the floor forever (floor = peak -
+    # max_dd with no cap), which over-penalized every account that got into profit and
+    # then pulled back (the near-passing zone). Capping the effective peak at
+    # starting + max_dd makes the floor lock at exactly the starting balance, matching
+    # the real combine. Used by every breach check so the two can never disagree.
+    try:
+        return min(float(peak), float(starting) + float(max_dd))
+    except (TypeError, ValueError):
+        return peak
+
+
 def check_eval_outcome(state: dict) -> str:
     """
     Wave 30 (May 11, 2026): Detect whether the current eval has ended.
@@ -266,7 +280,7 @@ def check_eval_outcome(state: dict) -> str:
         # (the daily 50k reset). Removed so a daily-loss day falls through to ACTIVE.
 
         # Max drawdown check: drawdown from peak
-        drawdown = peak - balance
+        drawdown = _locked_peak(peak, starting, max_dd) - balance  # Wave 106: floor locks at starting balance
         if drawdown >= max_dd:
             return "BUSTED_MAX_DD"
 
@@ -985,7 +999,7 @@ def check_risk_limits(state: Optional[dict] = None) -> dict:
     daily_used  = abs(min(0, daily_pnl))
     daily_left  = daily_limit - daily_used
 
-    drawdown    = state["peak_balance"] - state["balance"]
+    drawdown    = _locked_peak(state["peak_balance"], state["starting_balance"], state["max_drawdown"]) - state["balance"]  # Wave 106: floor locks at starting balance
     max_dd      = state["max_drawdown"]
     dd_left     = max_dd - drawdown
 
