@@ -1,8 +1,8 @@
 STRATEGY LOG ANALYSIS
 ==================================================
-Total scan decisions: 5850
-  FIRED:    11
-  REJECTED: 2478
+Total scan decisions: 13089
+  FIRED:    19
+  REJECTED: 5434
   ALMOST:   39
 
 MISSED OPPORTUNITIES:
@@ -16,9 +16,9 @@ TOP MISSED WINNERS (setups to investigate):
 
 INDICATOR PATTERNS IN WINNING TRADES:
 ------------------------------
-  Winning trades avg ADX:   24.1  (losing: 28.8)
-  Winning trades avg RSI:   41.6  (losing: 58.0)
-  Winning trades avg Trend: 0.6
+  Winning trades avg ADX:   26.0  (losing: 26.2)
+  Winning trades avg RSI:   41.5  (losing: 54.8)
+  Winning trades avg Trend: -0.3
 
 
 STRATEGY CANDIDATES FOR REVIEW:

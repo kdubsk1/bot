@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-09T20:15:15.388494+00:00",
+  "generated_at": "2026-07-10T02:15:31.520903+00:00",
   "topstep": {
     "balance": 50091.56,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -377,15 +377,19 @@ const DATA = {
       {
         "time": "2026-07-09 14:22",
         "balance": 56472.42
+      },
+      {
+        "time": "2026-07-10 00:57",
+        "balance": 55625.33
       }
     ]
   },
   "crypto": {
-    "balance": 23.88,
+    "balance": 23.52,
     "starting_balance": 1000.0,
-    "total_pnl": -976.12,
-    "open_count": 1,
-    "closed_count": 152,
+    "total_pnl": -976.48,
+    "open_count": 0,
+    "closed_count": 153,
     "equity_curve": [
       {
         "time": "Start",
@@ -998,20 +1002,24 @@ const DATA = {
       {
         "time": "2026-07-09 18:01",
         "balance": 23.88
+      },
+      {
+        "time": "2026-07-10 01:58",
+        "balance": 23.52
       }
     ]
   },
   "all_time": {
     "wins": 10,
-    "losses": 19,
-    "wr": 34.5,
-    "total_trades": 29
+    "losses": 21,
+    "wr": 32.3,
+    "total_trades": 31
   },
   "today": {
     "wins": 0,
-    "losses": 3,
+    "losses": 1,
     "wr": 0.0,
-    "total_trades": 3
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -1029,6 +1037,13 @@ const DATA = {
       "wr": 0.0
     },
     {
+      "setup": "GC:BREAK_RETEST_BULL",
+      "fires": 4,
+      "wins": 1,
+      "losses": 3,
+      "wr": 25.0
+    },
+    {
       "setup": "NQ:BREAK_RETEST_BULL",
       "fires": 4,
       "wins": 2,
@@ -1036,17 +1051,10 @@ const DATA = {
       "wr": 50.0
     },
     {
-      "setup": "GC:BREAK_RETEST_BULL",
-      "fires": 3,
-      "wins": 1,
-      "losses": 2,
-      "wr": 33.3
-    },
-    {
       "setup": "BTC:STOCH_REVERSAL_BEAR",
-      "fires": 3,
+      "fires": 4,
       "wins": 0,
-      "losses": 3,
+      "losses": 4,
       "wr": 0.0
     },
     {
@@ -1080,6 +1088,38 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-07-10 01:43",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4121.5",
+      "stop": "4145.1318",
+      "target": "4072.8",
+      "rr": "2.06",
+      "conv": "93",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-07-10 00:57",
+      "market": "GC",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4137.5",
+      "stop": "4134.063",
+      "target": "4144.7",
+      "rr": "2.09",
+      "conv": "53",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4134.063"
+    },
+    {
       "time": "2026-07-09 18:26",
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BEAR",
@@ -1091,9 +1131,9 @@ const DATA = {
       "rr": "2.05",
       "conv": "54",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "63542.8"
     },
     {
       "time": "2026-07-09 14:22",
@@ -1446,38 +1486,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "82.5236"
-    },
-    {
-      "time": "2026-07-03 14:53",
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29922.5",
-      "stop": "29911.6274",
-      "target": "29955.25",
-      "rr": "3.01",
-      "conv": "69",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "29911.6274"
-    },
-    {
-      "time": "2026-07-03 14:19",
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29905.0",
-      "stop": "29895.201",
-      "target": "29924.25",
-      "rr": "1.96",
-      "conv": "68",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29924.25"
     }
   ],
   "suspended_setups": [
@@ -1740,9 +1748,9 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 5,
-      "losses": 6,
-      "total_pnl_r": 5.11,
-      "wr": 45.5
+      "losses": 7,
+      "total_pnl_r": 4.11,
+      "wr": 41.7
     },
     "NQ": {
       "wins": 4,
@@ -1758,9 +1766,9 @@ const DATA = {
     },
     "BTC": {
       "wins": 1,
-      "losses": 3,
-      "total_pnl_r": -0.43,
-      "wr": 25.0
+      "losses": 4,
+      "total_pnl_r": -1.43,
+      "wr": 20.0
     }
   },
   "by_tier": {
@@ -1771,8 +1779,8 @@ const DATA = {
     },
     "MEDIUM": {
       "wins": 1,
-      "losses": 4,
-      "wr": 20.0
+      "losses": 6,
+      "wr": 14.3
     },
     "LOW": {
       "wins": 0,
@@ -1782,17 +1790,17 @@ const DATA = {
   },
   "open_trades": [
     {
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "15m",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
       "direction": "SHORT",
-      "entry": "63200.72",
-      "target": "62500.0",
-      "stop": "63542.8",
-      "conviction": 54,
-      "last_rescore_conviction": 54,
-      "tier": "MEDIUM",
-      "timestamp": "2026-07-09T18:26:29.834275+00:00"
+      "entry": "4121.5",
+      "target": "4072.8",
+      "stop": "4145.1318",
+      "conviction": 93,
+      "last_rescore_conviction": 93,
+      "tier": "HIGH",
+      "timestamp": "2026-07-10T01:43:50.487145+00:00"
     }
   ]
 };
