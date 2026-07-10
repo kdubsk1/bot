@@ -81,8 +81,9 @@ def _ensure_csv():
     empty values for the new columns. Never loses data.
     """
     if not os.path.exists(STRATEGY_LOG):
-        with open(STRATEGY_LOG, "w", newline="", encoding="utf-8") as f:
-            csv.DictWriter(f, fieldnames=COLS).writeheader()
+        # Wave 102 (_WAVE102_STRATEGY_LOG_ATOMIC): atomic header create (was a
+        # raw open("w") truncate-write on the file that already lost data once).
+        safe_io.atomic_write_text(STRATEGY_LOG, ",".join(COLS) + "\r\n")
         return
 
     # File exists — check if header matches current COLS
@@ -104,19 +105,14 @@ def _ensure_csv():
     except Exception:
         pass
 
-    try:
-        with open(STRATEGY_LOG, newline="", encoding="utf-8") as f:
-            old_rows = list(csv.DictReader(f))
-    except Exception:
-        old_rows = []
-
-    with open(STRATEGY_LOG, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=COLS)
-        writer.writeheader()
-        for row in old_rows:
-            # Fill missing columns with empty string
-            clean = {k: row.get(k, "") for k in COLS}
-            writer.writerow(clean)
+    # Wave 102 (_WAVE102_STRATEGY_LOG_ATOMIC): atomic, locked rewrite via safe_io.
+    # safe_rewrite_csv reads the old-schema rows inside its own lock (DictReader
+    # on the file's current header), we remap each row to the new COLS (missing
+    # columns -> ""), and it writes the result atomically. Crash-safe -- no more
+    # truncate-rewrite of the file that already lost data once.
+    def _migrate_to_cols(rows):
+        return [{k: r.get(k, "") for k in COLS} for r in rows]
+    safe_io.safe_rewrite_csv(STRATEGY_LOG, COLS, _migrate_to_cols)
 
 
 def update_fired_row_result(market: str, setup_type: str, direction: str,
