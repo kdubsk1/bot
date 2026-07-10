@@ -21,7 +21,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
-from safe_io import atomic_write_json
+from safe_io import atomic_write_json, file_lock
 
 _log = logging.getLogger("nqcalls.cryptosim")
 
@@ -29,6 +29,30 @@ _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 _DATA_DIR = os.path.join(_BASE_DIR, "data")
 os.makedirs(_DATA_DIR, exist_ok=True)
 CRYPTO_SIM_FILE = os.path.join(_DATA_DIR, "crypto_sim.json")
+CRYPTO_HISTORY_FILE = os.path.join(_DATA_DIR, "crypto_sim_history.jsonl")
+
+# Wave 100 (_WAVE100_CRYPTO_STATE_CAP): keep the live crypto state O(1).
+# closed_trades used to grow without bound (appended on every close and
+# preserved across resets), and the whole state is loaded + re-serialized
+# every scan cycle -- so the file grew daily and every cycle got slower.
+# We now cap the live list to the most recent _CRYPTO_CLOSED_CAP trades and
+# archive older ones to an append-only history file. Nothing is lost:
+# lifetime stats live in separate counters, so trimming the list does not
+# affect them. Mirrors how the futures sim keeps its active state small.
+_CRYPTO_CLOSED_CAP = 100
+
+
+def _archive_crypto_closed(rows):
+    """Append overflow closed trades to the history archive (append-only, locked)."""
+    if not rows:
+        return
+    try:
+        with file_lock(CRYPTO_HISTORY_FILE):
+            with open(CRYPTO_HISTORY_FILE, "a", encoding="utf-8") as fh:
+                for r in rows:
+                    fh.write(json.dumps(r) + "\n")
+    except Exception as exc:
+        _log.warning("crypto history archive append failed: %s", exc)
 
 DEFAULT_STATE = {
     "enabled":           True,
@@ -194,6 +218,11 @@ def close_crypto_trade(alert_id: str, exit_price: float,
         state["losses"] = int(state.get("losses", 0)) + 1
 
     state["closed_trades"].append(match)
+    # Wave 100 (_WAVE100_CRYPTO_STATE_CAP): keep the live list small; archive the rest.
+    if len(state["closed_trades"]) > _CRYPTO_CLOSED_CAP:
+        _overflow = state["closed_trades"][:-_CRYPTO_CLOSED_CAP]
+        state["closed_trades"] = state["closed_trades"][-_CRYPTO_CLOSED_CAP:]
+        _archive_crypto_closed(_overflow)
     state["open_trades"] = [t for t in state["open_trades"] if t.get("alert_id") != alert_id]
     save_crypto_state(state)
     return match
