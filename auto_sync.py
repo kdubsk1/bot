@@ -55,6 +55,14 @@ from typing import Optional, Tuple, Callable, List, Dict
 
 log = logging.getLogger("auto_sync")
 
+# Wave 101 (_WAVE101_LOUD_SYNC_SKIP): files skipped for exceeding the sync
+# size cap are recorded here so periodic_sync_loop can fire a LOUD Telegram
+# alert. Previously an oversized file was skipped with only a log.warning
+# (silent), so a file could stop syncing and lose its data on the next
+# Railway restart with no notice -- this is what cost ~12 days of
+# strategy_log data. Now Wayne is told the moment any file stops syncing.
+_SKIPPED_LARGE = []
+
 # ── Configuration ────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
 SYNC_INTERVAL_SECONDS = 6 * 60 * 60   # 6 hours
@@ -169,7 +177,14 @@ def _walk_sync_paths() -> List[Path]:
                     continue
                 try:
                     if child.stat().st_size > 25 * 1024 * 1024:  # Wave 59: raised from 5MB so strategy_log keeps backing up to GitHub
-                        log.warning(f"auto_sync: skipping large file {child} (>25MB)")
+                        log.error(f"auto_sync: SKIPPING large file {child} (>25MB) - NOT backed up!")
+                        try:
+                            _mb = child.stat().st_size / (1024.0 * 1024.0)
+                            _rec = "%s (%.1f MB)" % (child.name, _mb)
+                            if _rec not in _SKIPPED_LARGE:
+                                _SKIPPED_LARGE.append(_rec)
+                        except Exception:
+                            pass
                         continue
                 except OSError:
                     continue
@@ -395,6 +410,20 @@ async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
     while True:
         try:
             r = await _do_sync(label="periodic")
+            # Wave 101 (_WAVE101_LOUD_SYNC_SKIP): if any file was too large to
+            # sync, alert LOUDLY so a silent data-loss can never happen again.
+            if _SKIPPED_LARGE:
+                if telegram_send:
+                    try:
+                        await telegram_send(
+                            "WARNING: auto-sync SKIPPED oversized files (NOT backed up):\n"
+                            + "\n".join("  - " + s for s in sorted(set(_SKIPPED_LARGE)))
+                            + "\nThese exceed the 25MB sync cap and will lose recent "
+                            "data on the next restart. They need rotation."
+                        )
+                    except Exception:
+                        pass
+                _SKIPPED_LARGE.clear()
             ts = datetime.now(timezone.utc).strftime("%H:%M UTC")
 
             if r["ok"] and r["files_changed"] > 0:
