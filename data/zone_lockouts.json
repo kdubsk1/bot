@@ -1,16 +1,9 @@
 [
   {
-    "market": "GC",
+    "market": "NQ",
     "direction": "LONG",
-    "zone_low": 4134.6191,
-    "zone_high": 4140.3809,
-    "expiry": "2026-07-10T03:12:18.881770+00:00"
-  },
-  {
-    "market": "BTC",
-    "direction": "SHORT",
-    "zone_low": 63102.2257,
-    "zone_high": 63299.2143,
-    "expiry": "2026-07-10T03:58:08.223863+00:00"
+    "zone_low": 29922.8172,
+    "zone_high": 29959.1828,
+    "expiry": "2026-07-10T06:58:35.252067+00:00"
   }
 ]

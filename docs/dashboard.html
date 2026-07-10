@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-10T02:15:31.520903+00:00",
+  "generated_at": "2026-07-10T08:15:45.433051+00:00",
   "topstep": {
-    "balance": 50091.56,
+    "balance": 49983.27,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 91.56,
+    "today_pnl": -108.29,
+    "total_pnl": -16.73,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -381,6 +381,14 @@ const DATA = {
       {
         "time": "2026-07-10 00:57",
         "balance": 55625.33
+      },
+      {
+        "time": "2026-07-10 02:27",
+        "balance": 57511.03
+      },
+      {
+        "time": "2026-07-10 02:59",
+        "balance": 56648.36
       }
     ]
   },
@@ -1010,16 +1018,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 10,
-    "losses": 21,
-    "wr": 32.3,
-    "total_trades": 31
+    "wins": 11,
+    "losses": 22,
+    "wr": 33.3,
+    "total_trades": 33
   },
   "today": {
-    "wins": 0,
-    "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "wins": 1,
+    "losses": 2,
+    "wr": 33.3,
+    "total_trades": 3
   },
   "setup_stats": [
     {
@@ -1028,6 +1036,13 @@ const DATA = {
       "wins": 4,
       "losses": 2,
       "wr": 66.7
+    },
+    {
+      "setup": "NQ:BREAK_RETEST_BULL",
+      "fires": 5,
+      "wins": 2,
+      "losses": 3,
+      "wr": 40.0
     },
     {
       "setup": "SOL:BB_REVERSION_BEAR",
@@ -1044,13 +1059,6 @@ const DATA = {
       "wr": 25.0
     },
     {
-      "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 4,
-      "wins": 2,
-      "losses": 2,
-      "wr": 50.0
-    },
-    {
       "setup": "BTC:STOCH_REVERSAL_BEAR",
       "fires": 4,
       "wins": 0,
@@ -1059,10 +1067,10 @@ const DATA = {
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 3,
-      "wins": 1,
+      "fires": 4,
+      "wins": 2,
       "losses": 2,
-      "wr": 33.3
+      "wr": 50.0
     },
     {
       "setup": "NQ:OPENING_RANGE_BREAKOUT",
@@ -1087,6 +1095,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-10 02:59",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "29941.0",
+      "stop": "29886.8561",
+      "target": "30052.5",
+      "rr": "2.06",
+      "conv": "68",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29886.8561"
+    },
+    {
+      "time": "2026-07-10 02:27",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29879.5",
+      "stop": "29856.551",
+      "target": "29931.25",
+      "rr": "2.26",
+      "conv": "69",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "29931.25"
+    },
     {
       "time": "2026-07-10 01:43",
       "market": "GC",
@@ -1454,38 +1494,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "81.611"
-    },
-    {
-      "time": "2026-07-03 20:12",
-      "market": "SOL",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "82.37",
-      "stop": "83.3566",
-      "target": "80.25",
-      "rr": "2.15",
-      "conv": "66",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "83.3566"
-    },
-    {
-      "time": "2026-07-03 19:37",
-      "market": "SOL",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "82.17",
-      "stop": "82.5236",
-      "target": "81.12",
-      "rr": "2.97",
-      "conv": "68",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "82.5236"
     }
   ],
   "suspended_setups": [
@@ -1753,10 +1761,10 @@ const DATA = {
       "wr": 41.7
     },
     "NQ": {
-      "wins": 4,
-      "losses": 5,
-      "total_pnl_r": 3.41,
-      "wr": 44.4
+      "wins": 5,
+      "losses": 6,
+      "total_pnl_r": 4.67,
+      "wr": 45.5
     },
     "SOL": {
       "wins": 0,
@@ -1773,9 +1781,9 @@ const DATA = {
   },
   "by_tier": {
     "HIGH": {
-      "wins": 9,
-      "losses": 12,
-      "wr": 42.9
+      "wins": 10,
+      "losses": 13,
+      "wr": 43.5
     },
     "MEDIUM": {
       "wins": 1,

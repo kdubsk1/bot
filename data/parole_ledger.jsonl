@@ -311,3 +311,10 @@
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-09T18:26:29.821355+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-09T18:26:30.421192+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T01:58:40.067699+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:28:43.810298+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:38:46.428906+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:39:48.045901+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:40:49.687702+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:41:51.826634+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:42:53.548797+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-10T05:43:55.230426+00:00"}
