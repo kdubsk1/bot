@@ -6327,6 +6327,11 @@ async def cmd_journal(u, c):
 _LAST_WATCHDOG_ALERT_AT = None
 _WATCHDOG_ALERT_COOLDOWN_HOURS = 6
 _WATCHDOG_OFF_THRESHOLD_HOURS = 2
+# Wave 104 (_WAVE104_SCANNER_SELF_HEAL): if the scanner has been OFF at least
+# this long, the watchdog stops merely alerting and AUTO-RESUMES it. Longer than
+# the 2h alert window so a short intentional pause is respected, but the bot can
+# never be left silently off for long -- it heals back to always-scanning.
+_WATCHDOG_AUTO_RESUME_HOURS = 6
 _WATCHDOG_STUCK_THRESHOLD_MIN = 30
 
 
@@ -6347,6 +6352,38 @@ async def scanner_watchdog(app):
     while True:
         try:
             await asyncio.sleep(60 * 60)  # 1 hour between checks
+
+            # Wave 104 (_WAVE104_SCANNER_SELF_HEAL): self-heal a long unexpected OFF.
+            # Runs every hour, independent of the alert cooldown, so recovery is
+            # prompt. If the scanner has been OFF longer than the auto-resume
+            # window, turn it back ON (the bot should always be hunting) and say so.
+            _resumed = False
+            try:
+                _hs = _load_scanner_state()
+                if not _hs.get("scanner_on", False):
+                    _lc = _hs.get("last_changed", "")
+                    _off_h = None
+                    if _lc:
+                        try:
+                            _lcdt = datetime.fromisoformat(_lc)
+                            if _lcdt.tzinfo is None:
+                                _lcdt = _lcdt.replace(tzinfo=timezone.utc)
+                            _off_h = (datetime.now(timezone.utc) - _lcdt).total_seconds() / 3600.0
+                        except Exception:
+                            _off_h = None
+                    if _off_h is not None and _off_h >= _WATCHDOG_AUTO_RESUME_HOURS:
+                        SETTINGS["scanner_on"] = True
+                        _save_scanner_state()
+                        log.info("Wave 104: scanner self-healed ON after %.1fh OFF" % _off_h)
+                        try:
+                            await tg_send(app, "Scanner self-healed: it had been OFF for %.1fh, so I turned it back ON. The bot should always be hunting -- pause it again if that was intentional." % _off_h)
+                        except Exception:
+                            pass
+                        _resumed = True
+            except Exception as _wd_heal_err:
+                log.warning("scanner self-heal check failed: %s" % _wd_heal_err)
+            if _resumed:
+                continue
 
             # Cooldown: skip if we alerted recently
             now = datetime.now(timezone.utc)
