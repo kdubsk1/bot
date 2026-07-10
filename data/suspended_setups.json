@@ -1,18 +1,4 @@
 {
-  "SOL:BB_REVERSION_BEAR": {
-    "reason": "bled $500 in 7d",
-    "suspended_at": "2026-07-07T14:08:23.240590+00:00",
-    "total_at_suspension": 57,
-    "wr_at_suspension": 45.6,
-    "bleed_at_suspension": -500.0
-  },
-  "GC:EMA21_PULLBACK_BULL": {
-    "reason": "0W/115L (0.0% WR)",
-    "suspended_at": "2026-07-07T20:00:08.943467+00:00",
-    "total_at_suspension": 115,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
   "BTC:EMA21_PULLBACK_BEAR": {
     "reason": "5W/15L (25.0% WR)",
     "suspended_at": "2026-07-09T20:00:20.120770+00:00",
@@ -354,6 +340,13 @@
     "suspended_at": "2026-07-09T20:00:20.122986+00:00",
     "total_at_suspension": 5,
     "wr_at_suspension": 20.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:EMA21_PULLBACK_BULL": {
+    "reason": "0W/115L (0.0% WR)",
+    "suspended_at": "2026-07-10T22:30:11.287166+00:00",
+    "total_at_suspension": 115,
+    "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   }
 }

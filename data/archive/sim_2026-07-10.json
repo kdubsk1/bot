@@ -1,0 +1,71 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 49983.27,
+  "peak_balance": 50259.25,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": -108.29,
+  "today_date": "2026-07-10",
+  "session_date": "2026-07-10",
+  "total_pnl": -16.73,
+  "trades": [
+    {
+      "alert_id": "c0ed32f261",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4137.5,
+      "stop": 4134.063013209437,
+      "target": 4144.7,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-07-10T00:57:41.333292",
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 4137.5,
+      "result": "LOSS",
+      "closed_at": "2026-07-10T00:57:42.491971"
+    },
+    {
+      "alert_id": "8040ec425d",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29941.0,
+      "stop": 29886.856133898043,
+      "target": 30052.5,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-07-10T02:59:53.272618",
+      "status": "CLOSED",
+      "pnl": -108.29,
+      "exit_price": 29886.8561,
+      "result": "LOSS",
+      "closed_at": "2026-07-10T04:58:35.256326"
+    }
+  ],
+  "open_sim_trades": [
+    {
+      "alert_id": "6322e28286",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4121.5,
+      "stop": 4145.131830086286,
+      "target": 4072.8,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "MACD_CROSS_BEAR",
+      "opened_at": "2026-07-10T01:43:50.589424",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
+}
