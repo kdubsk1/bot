@@ -2622,6 +2622,38 @@ def _check_bench_shadows(market, frames):
 STRATEGY_LOG_ROTATE_MB = 15      # rotate once the live log passes this
 STRATEGY_LOG_PART_MB = 18        # keep each archive part under the 25 MiB sync cap
 
+# Wave 105 (_WAVE105_DATA_LOG_ROTATE): generalize Wave 93 rotation to other
+# append-only JSONL logs so none can grow past auto_sync's 25 MB skip cap and
+# silently stop syncing (the data loss that bit strategy_log.csv). Each listed
+# file is write-only -- appended for later analysis, never read back for live
+# logic (verified in-code) -- so archiving + truncating is lossless. Extend the
+# list ONLY with files confirmed write-only. os.replace is atomic; a racing
+# append recreates the fresh empty file, so no line is ever lost.
+_ROTATE_DATA_LOGS = [
+    ("watch_alerts_suppressed.jsonl", 15),
+]
+
+
+def _rotate_data_logs():
+    for _name, _mb in _ROTATE_DATA_LOGS:
+        try:
+            _p = os.path.join(BASE_DIR, "data", _name)
+            if not os.path.exists(_p):
+                continue
+            if os.path.getsize(_p) <= _mb * 1024 * 1024:
+                continue
+            _adir = os.path.join(BASE_DIR, "data", "archive")
+            os.makedirs(_adir, exist_ok=True)
+            _stem, _ext = os.path.splitext(_name)
+            _ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            _dest = os.path.join(_adir, "%s_%s%s" % (_stem, _ts, _ext))
+            os.replace(_p, _dest)
+            open(_p, "a", encoding="utf-8").close()
+            log.info("Wave 105: rotated %s (%.1f MB) to archive/%s" % (_name, os.path.getsize(_dest) / (1024.0 * 1024.0), os.path.basename(_dest)))
+        except Exception as _rot_err:
+            log.warning("Wave 105: rotate of %s failed: %s" % (_name, _rot_err))
+
+
 def _rotate_strategy_log():
     try:
         path = os.path.join(BASE_DIR, "data", "strategy_log.csv")
@@ -3547,6 +3579,7 @@ async def scan_loop(app):
             now_utc = datetime.now(timezone.utc)
             now_et = _now_et()
             _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
+            _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
 
             # Wave 7 Layer 5: Sunday 8 PM ET auto-tune. Wrapped in try/except
             # so a tune failure can never take down the scan loop.
