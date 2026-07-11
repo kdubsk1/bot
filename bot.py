@@ -4059,6 +4059,36 @@ async def cmd_cryptostatus(u, c):
         log.error(f"/cryptostatus failed: {e}")
         await u.message.reply_text(f"Crypto status command failed: {e}")
 
+# Wave 111 (_WAVE111_RESETCRYPTO_CMD): /resetcrypto - a discoverable slash-command
+# entrance to the EXISTING reset flow (the "Reset Crypto" button + confirm dialog,
+# Waves 37/52). Posts the same confirmation keyboard wired to the same
+# reset_crypto_yes / reset_cancel callbacks handled by on_button, so there is
+# exactly ONE reset implementation. Balance resets to the starting value and open
+# trades clear; closed-trade HISTORY is preserved (Wave 52). Nothing happens
+# without tapping YES in the dialog.
+async def cmd_resetcrypto(u, c):
+    try:
+        cs_state = crypto_sim.load_crypto_state()
+        cur_bal = float(cs_state.get("balance", 0))
+        start_bal = float(cs_state.get("starting_balance", 1000))
+        n_closed = len(cs_state.get("closed_trades", []))
+        n_open = len(cs_state.get("open_trades", []))
+    except Exception:
+        cur_bal, start_bal, n_closed, n_open = 0, 1000, 0, 0
+    confirm_kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton("YES - reset", callback_data="reset_crypto_yes"),
+         InlineKeyboardButton("Cancel", callback_data="reset_cancel")],
+    ])
+    await u.message.reply_text(
+        f"*Reset Crypto Sim?*\n"
+        f"Balance: ${cur_bal:,.2f} -> ${start_bal:,.0f}\n"
+        f"Open trades: {n_open} (cleared)  |  Closed history: {n_closed} (KEPT)\n"
+        f"This cannot be undone.",
+        parse_mode="Markdown",
+        reply_markup=confirm_kb,
+    )
+
+
 async def cmd_leverage(u, c):
     """Wave 98: /leverage [N] - view or set the crypto sim leverage (BTC/SOL)."""
     try:
@@ -6604,7 +6634,7 @@ def main():
     # it). Handlers left as harmless dead code; unregistered so they leave the menu.
     for cmd,fn in [("start",cmd_start),("menu",cmd_menu),("stats",cmd_stats),
                    ("open",cmd_open),("win",cmd_win),("loss",cmd_loss),("skip",cmd_skip),
-                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("leverage",cmd_leverage),
+                   ("report",cmd_report),("analyze",cmd_analyze),("simstatus",cmd_simstatus),("cryptostatus",cmd_cryptostatus),("leverage",cmd_leverage),("resetcrypto",cmd_resetcrypto),
                    ("simreset",cmd_simreset),("simon",cmd_simon),("simoff",cmd_simoff),
                    ("mnq",cmd_mnq),("help",cmd_help),
                    ("dashboard",cmd_dashboard),("review",cmd_review),("brief",cmd_brief),
