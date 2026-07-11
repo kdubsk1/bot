@@ -838,6 +838,7 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
     if market in ("BTC", "SOL"):
         try:
             crypto_context = {
+                "suggested_lev": lev,  # Wave 109 (_WAVE109_LEVERAGE_AUTOAPPLY): bot-chosen per-trade leverage; sim caps at /leverage
                 "trend_score": trend,
                 "rsi": round(rsi_v, 2),
                 "adx": round(adx_v, 2),
