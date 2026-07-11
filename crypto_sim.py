@@ -162,12 +162,21 @@ def open_crypto_trade(alert_id: str, market: str, direction: str,
         return {}
 
     risk_pct          = float(state["account_risk_pct"]) / 100.0
-    risk_dollars      = float(state["balance"]) * risk_pct
     stop_pct          = abs(entry - stop) / entry
     if stop_pct <= 0:
         return {}
-    position_size_usd = risk_dollars / stop_pct
     _lev_used         = _effective_leverage(state, context)  # Wave 109: per-trade leverage
+    # Wave 110 (_WAVE110_RISK_INPUT_SCALING): risk what the bot's own leverage
+    # model implies. suggest_leverage picks lev ~= account_risk_pct/stop_pct capped
+    # by tier+regime, so the ACTUAL account fraction at stop is lev*stop_pct -- the
+    # cap pushes it BELOW account_risk_pct exactly when conditions are bad. The sim
+    # used to risk the flat max anyway. Now: risk = min(account_risk_pct, lev*stop),
+    # so per-trade risk NEVER increases vs before -- it only decreases when the
+    # bot's model says be careful -- and exposure can never exceed balance*leverage
+    # (the old sizing could imply impossible >lev exposure on tight stops).
+    _risk_frac        = min(risk_pct, float(_lev_used) * stop_pct)
+    risk_dollars      = float(state["balance"]) * _risk_frac
+    position_size_usd = risk_dollars / stop_pct
     notional_usd      = position_size_usd * float(_lev_used)
 
     now = datetime.now(timezone.utc)
@@ -381,12 +390,21 @@ def format_crypto_sim_block(market: str, tier: str,
     direction = "LONG" if target > entry else "SHORT"
 
     risk_pct          = float(state["account_risk_pct"]) / 100.0
-    risk_dollars      = float(state["balance"]) * risk_pct
     stop_pct          = abs(entry - stop) / entry
     if stop_pct <= 0:
         return ""
-    position_size_usd = risk_dollars / stop_pct
     _lev_used         = _effective_leverage(state, context)  # Wave 109: per-trade leverage
+    # Wave 110 (_WAVE110_RISK_INPUT_SCALING): risk what the bot's own leverage
+    # model implies. suggest_leverage picks lev ~= account_risk_pct/stop_pct capped
+    # by tier+regime, so the ACTUAL account fraction at stop is lev*stop_pct -- the
+    # cap pushes it BELOW account_risk_pct exactly when conditions are bad. The sim
+    # used to risk the flat max anyway. Now: risk = min(account_risk_pct, lev*stop),
+    # so per-trade risk NEVER increases vs before -- it only decreases when the
+    # bot's model says be careful -- and exposure can never exceed balance*leverage
+    # (the old sizing could imply impossible >lev exposure on tight stops).
+    _risk_frac        = min(risk_pct, float(_lev_used) * stop_pct)
+    risk_dollars      = float(state["balance"]) * _risk_frac
+    position_size_usd = risk_dollars / stop_pct
     notional_usd      = position_size_usd * float(_lev_used)
 
     target_pct = abs(target - entry) / entry
