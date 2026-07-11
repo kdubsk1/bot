@@ -119,6 +119,30 @@ def reset_crypto_account() -> None:
 
 
 # ── Open trade ─────────────────────────────────────────────────────
+# Wave 109 (_WAVE109_LEVERAGE_AUTOAPPLY): the bot chooses leverage per trade.
+# ot.suggest_leverage already computes a tier+regime-aware leverage for every
+# alert (risk-input scaled: leverage never raises dollar risk); until now the
+# sim ignored it and applied the flat global /leverage setting to every trade.
+# Now the suggestion (context["suggested_lev"]) is USED, hard-capped by the
+# global setting -- /leverage becomes the CEILING, not the constant. P&L is
+# unaffected by design (Wave 31: P&L is risk-based and never multiplies
+# leverage); this changes notional/margin realism and telemetry. Falls back
+# to the global setting when no suggestion is present.
+def _effective_leverage(state, context):
+    try:
+        cap = int(float(state.get("leverage", 10)))
+    except (TypeError, ValueError):
+        cap = 10
+    cap = max(1, cap)
+    try:
+        sug = context.get("suggested_lev") if isinstance(context, dict) else None
+        if sug is None:
+            return cap
+        return max(1, min(int(float(sug)), cap))
+    except (TypeError, ValueError):
+        return cap
+
+
 def open_crypto_trade(alert_id: str, market: str, direction: str,
                       entry: float, stop: float, target: float,
                       conviction: int, tier: str,
@@ -143,7 +167,8 @@ def open_crypto_trade(alert_id: str, market: str, direction: str,
     if stop_pct <= 0:
         return {}
     position_size_usd = risk_dollars / stop_pct
-    notional_usd      = position_size_usd * float(state["leverage"])
+    _lev_used         = _effective_leverage(state, context)  # Wave 109: per-trade leverage
+    notional_usd      = position_size_usd * float(_lev_used)
 
     now = datetime.now(timezone.utc)
     trade = {
@@ -153,7 +178,7 @@ def open_crypto_trade(alert_id: str, market: str, direction: str,
         "entry":             entry,
         "stop":              stop,
         "target":            target,
-        "leverage":          state["leverage"],
+        "leverage":          _lev_used,  # Wave 109: leverage actually used (per-trade)
         "position_size_usd": round(position_size_usd, 2),
         "notional_usd":      round(notional_usd, 2),
         "risk_dollars":      round(risk_dollars, 2),
@@ -361,7 +386,8 @@ def format_crypto_sim_block(market: str, tier: str,
     if stop_pct <= 0:
         return ""
     position_size_usd = risk_dollars / stop_pct
-    notional_usd      = position_size_usd * float(state["leverage"])
+    _lev_used         = _effective_leverage(state, context)  # Wave 109: per-trade leverage
+    notional_usd      = position_size_usd * float(_lev_used)
 
     target_pct = abs(target - entry) / entry
     # Wave 31: same leverage-2x fix - reward should not double-apply leverage
@@ -378,7 +404,7 @@ def format_crypto_sim_block(market: str, tier: str,
     adx = ctx.get("adx", 0)
     regime = ctx.get("regime", "UNKNOWN")
 
-    lev = int(state["leverage"])
+    lev = _effective_leverage(state, context)  # Wave 109: show what the sim actually used
     bal = float(state["balance"])
     risk_pct_disp = float(state["account_risk_pct"])
     max_hold_days = int(state["max_hold_days"])
