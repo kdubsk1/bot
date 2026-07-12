@@ -2739,7 +2739,21 @@ def get_session_trades(session_id: str = None) -> list[dict]:
         except Exception:
             session_id = datetime.now().strftime("%Y-%m-%d")
     rows = _read_all()
-    return [r for r in rows if r.get("session_id") == session_id]
+    live_matches = [r for r in rows if r.get("session_id") == session_id]
+    if live_matches:
+        return live_matches
+    # Wave 117 (_WAVE117_SESSION_ARCHIVE): no live rows for this session ->
+    # it has probably been archived (older months). Each session archives to
+    # data/archive/outcomes_<session_id>.csv; read that file directly so
+    # /session works for past months instead of showing an empty view.
+    try:
+        _arch = os.path.join(_BASE_DIR, "data", "archive", "outcomes_%s.csv" % session_id)
+        if os.path.exists(_arch):
+            _arch_rows = safe_io.safe_read_csv(_arch)
+            return [r for r in _arch_rows if r.get("session_id") == session_id] or _arch_rows
+    except Exception:
+        pass
+    return []
 
 
 def archive_session(session_id: str) -> str:
