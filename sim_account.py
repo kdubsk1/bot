@@ -412,8 +412,10 @@ def _archive_sim_state(state: dict, session_id: str):
         return
     archive_path = os.path.join(_BASE_DIR, "data", "archive", f"sim_{session_id}.json")
     try:
-        with open(archive_path, "w") as f:
-            json.dump(state, f, indent=2)
+        os.makedirs(os.path.dirname(archive_path), exist_ok=True)
+        # Wave 114 (_WAVE114_SIMACCT_SAFEIO): atomic write (was a raw "w" --
+        # a crash mid-write left a torn archive file). Same content.
+        safe_io.atomic_write_json(archive_path, state, indent=2)
     except Exception:
         pass
 
@@ -582,14 +584,14 @@ def _update_lifetime_stats(state: dict):
             try:
                 notify_path = os.path.join(_BASE_DIR, "data", "wave47_pending_notify.json")
                 os.makedirs(os.path.dirname(notify_path), exist_ok=True)
-                with open(notify_path, "w", encoding="utf-8") as _nf:
-                    json.dump({
-                        "newly_suspended": [
-                            {"market": m, "setup": s, "losses": _l, "reason": _r}
-                            for m, s, _l, _r in _w47_newly
-                        ],
-                        "ts": datetime.now(timezone.utc).isoformat(),
-                    }, _nf)
+                # Wave 114 (_WAVE114_SIMACCT_SAFEIO): atomic write (was raw "w").
+                safe_io.atomic_write_json(notify_path, {
+                    "newly_suspended": [
+                        {"market": m, "setup": s, "losses": _l, "reason": _r}
+                        for m, s, _l, _r in _w47_newly
+                    ],
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                })
             except Exception as _ne:
                 _log.warning("Wave 47 notify file write failed: %s", _ne)
     except Exception as _w47_err:
