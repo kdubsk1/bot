@@ -4096,8 +4096,9 @@ async def cmd_leverage(u, c):
         cur = int(_cst.get("leverage", 10))
         if not c.args:
             await u.message.reply_text(
-                f"\u26a1 *Crypto leverage:* `{cur}x`\n"
-                f"Change it with `/leverage N` (1-20), e.g. `/leverage 5`.",
+                f"\u26a1 *Crypto leverage:* AUTO (max `{cur}x`)  # _WAVE119_LEVERAGE_DISPLAY\n"
+                f"The bot picks leverage per trade by regime/conviction, up to your `{cur}x` ceiling.\n"
+                f"Raise/lower the ceiling with `/leverage N` (1-20), e.g. `/leverage 20` to let it use more.",
                 parse_mode="Markdown")
             return
         try:
@@ -4111,7 +4112,8 @@ async def cmd_leverage(u, c):
         _cst["leverage"] = n
         crypto_sim.save_crypto_state(_cst)
         await u.message.reply_text(
-            f"\u2705 Crypto sim leverage set: `{cur}x` \u2192 `{n}x`\n"
+            f"\u2705 Crypto sim leverage ceiling set: `{cur}x` \u2192 `{n}x`\n"
+            f"The bot still auto-picks per trade, now up to `{n}x`. "
             f"Applies to NEW BTC/SOL sim trades (open trades keep their entry leverage).",
             parse_mode="Markdown")
     except Exception as e:
