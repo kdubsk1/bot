@@ -569,6 +569,10 @@ def run_auto_tune() -> dict:
             new_boost = max(current_boost - max_adj, -20)
 
         if new_boost != current_boost:
+            _wf_ok, _wf_why, _wf_stats = _validate_boost_walkforward(setup, new_boost - current_boost, window_days)
+            _log_tune_proposal("weekly_auto_tune", setup, new_boost - current_boost, _wf_ok, _wf_why, _wf_stats)
+            if not _wf_ok:
+                continue
             boosts[setup] = new_boost
             changes.append({
                 "setup": setup,
@@ -607,6 +611,80 @@ def run_auto_tune() -> dict:
 # ============================================================
 # LAYER 6 (Wave 9): Edge Decay Defense
 # ============================================================
+# Wave 112 (_WAVE112_TUNE_VALIDATION): walk-forward validation gate for the
+# self-tuning layers. The tuner used to apply boosts from raw recent stats --
+# min samples as low as 5 -- with no out-of-sample check, so it could chase
+# noise. Now every proposed boost must pass a chronological train/holdout
+# split of that setup's own closed outcomes: the most recent ~40% of trades
+# (the holdout, minimum 4) must independently agree with the direction of
+# the change (positive boost -> holdout expectancy positive; negative ->
+# negative). Too little evidence (n < 8) = REJECT, conservative by design.
+# Every proposal and verdict is appended to data/tune_audit.jsonl -- the
+# learning loop keeps receipts.
+TUNE_AUDIT_FILE = os.path.join(_BASE_DIR, "data", "tune_audit.jsonl")
+
+
+def _validate_boost_walkforward(setup, delta, window_days):
+    """Return (ok, why, stats). ok=True only if the holdout segment of this
+    setup's own recent closed outcomes agrees with the sign of delta."""
+    try:
+        from datetime import timedelta
+        cutoff = datetime.now(timezone.utc) - timedelta(days=int(window_days))
+        rows = []
+        for r in _iter_closed_outcome_rows():
+            if r.get("status") != "CLOSED":
+                continue
+            result = r.get("result")
+            if result not in ("WIN", "LOSS"):
+                continue
+            if r.get("setup", "?") != setup:
+                continue
+            try:
+                ts = datetime.fromisoformat(r.get("timestamp", ""))
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+            except Exception:
+                continue
+            if ts < cutoff:
+                continue
+            try:
+                rr = float(r.get("rr", 0))
+            except Exception:
+                rr = 0.0
+            dollar = rr * 100.0 if result == "WIN" else -100.0
+            rows.append((ts, dollar))
+        rows.sort(key=lambda x: x[0])
+        n = len(rows)
+        hold_n = max(4, int(round(n * 0.4)))
+        if n < 8 or hold_n >= n:
+            return False, "insufficient sample for holdout (n=%d)" % n, {"n": n}
+        holdout = rows[n - hold_n:]
+        h_avg = sum(d for _, d in holdout) / len(holdout)
+        stats = {"n": n, "holdout_n": len(holdout),
+                 "holdout_avg_dollar": round(h_avg, 1)}
+        if delta > 0 and h_avg > 0:
+            return True, "holdout agrees (+)", stats
+        if delta < 0 and h_avg < 0:
+            return True, "holdout agrees (-)", stats
+        return False, "holdout disagrees with direction", stats
+    except Exception as e:
+        return False, "validator error: %s" % e, {}
+
+
+def _log_tune_proposal(layer, setup, delta, ok, why, stats):
+    """Append one audit line per tune proposal. Never raises."""
+    try:
+        rec = {"ts": datetime.now(timezone.utc).isoformat(), "layer": layer,
+               "setup": setup, "delta": delta,
+               "verdict": "APPLY" if ok else "REJECT",
+               "why": why, "stats": stats}
+        os.makedirs(os.path.dirname(TUNE_AUDIT_FILE), exist_ok=True)
+        with open(TUNE_AUDIT_FILE, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, separators=(",", ":")) + "\n")
+    except Exception:
+        pass
+
+
 def _iter_closed_outcome_rows():
     """
     Wave 71a (Jun 26, 2026): yield every CLOSED win/loss outcome row from the
@@ -890,6 +968,10 @@ def run_daily_soft_tune() -> dict:
             new_boost = max(current_boost - max_adj, -20)
 
         if new_boost != current_boost:
+            _wf_ok, _wf_why, _wf_stats = _validate_boost_walkforward(setup, new_boost - current_boost, window_days)
+            _log_tune_proposal("daily_soft_tune", setup, new_boost - current_boost, _wf_ok, _wf_why, _wf_stats)
+            if not _wf_ok:
+                continue
             boosts[setup] = new_boost
             changes.append({
                 "setup": setup,
