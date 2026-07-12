@@ -624,6 +624,11 @@ def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
             logger.warning("TopstepX error for %s %s: %s", market, timeframe, data.get("errorMessage", "unknown"))
             return pd.DataFrame(columns=_STANDARD_COLS)
 
+    # Wave 115 (_WAVE115_FEED_MODE): by here the fetch succeeded; body["live"]
+    # says whether the account served real-time (True) or the delayed retry
+    # (False). Record + announce changes. Guarded: only when the key exists.
+    if "live" in body:
+        _note_tsx_feed_mode(body.get("live") is True)
     bars_list = data.get("bars", [])
     if not bars_list:
         # Empty result — could mean contract expired / rolled over. Invalidate cache and retry once.
@@ -742,6 +747,33 @@ _TD_BAR_COUNT  = {"15m": 500, "1h": 500, "4h": 500, "1d": 730}
 
 # Fallback counter: track consecutive failures per market|tf
 _td_fallback_count: Dict[str, int] = {}
+
+# Wave 115 (_WAVE115_FEED_MODE): account-wide TopstepX feed mode, made VISIBLE.
+# The API tries live=True on every fetch; the account entitlement decides what
+# we actually get. mode is "LIVE" or "DELAYED" (None until the first successful
+# fetch). On every CHANGE we log at ERROR with the Wave-62 "DATA ALERT" prefix
+# (the established transport that reaches Telegram), so Wayne is told the
+# moment the feed upgrades to real-time (or ever degrades back).
+_tsx_feed: Dict[str, Optional[str]] = {"mode": None}
+
+
+def _note_tsx_feed_mode(was_live: bool) -> None:
+    try:
+        new_mode = "LIVE" if was_live else "DELAYED"
+        old_mode = _tsx_feed.get("mode")
+        if new_mode == old_mode:
+            return
+        _tsx_feed["mode"] = new_mode
+        if old_mode is None:
+            logger.info("TopstepX feed mode: %s%s", new_mode,
+                        "" if was_live else " (~10-15 min delayed-data plan)")
+        else:
+            logger.error("DATA ALERT: TopstepX feed mode changed %s -> %s%s",
+                         old_mode, new_mode,
+                         " - REAL-TIME data active!" if was_live else
+                         " - account fell back to the delayed-data plan")
+    except Exception:
+        pass
 # Track which data source was last used per market|tf
 _last_source: Dict[str, str] = {}
 
@@ -1304,7 +1336,8 @@ def get_frames(market: str) -> Dict[str, pd.DataFrame]:
     bar_counts = "/".join(f"{tf}:{len(frames.get(tf, []))}bars" for tf in _ALL_TIMEFRAMES)
     sources = set(_last_source.get(f"{market_upper}|{tf}", "cache") for tf in _ALL_TIMEFRAMES)
     source_str = "+".join(sorted(sources))
-    logger.info("Data check %s: %s | source=%s", market_upper, bar_counts, source_str)
+    _feed115 = (" | feed=" + (_tsx_feed.get("mode") or "n/a")) if market_upper in _FUTURES_MARKETS else ""  # Wave 115
+    logger.info("Data check %s: %s | source=%s%s", market_upper, bar_counts, source_str, _feed115)
 
     return frames
 
