@@ -3590,6 +3590,18 @@ async def scan_loop(app):
             now_et = _now_et()
             _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
             _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
+            # Wave 120 (_WAVE120_DROP_ALERT): surface any dropped write immediately
+            # instead of losing data silently. get_dropped_writes()/reset come from
+            # Wave 118 safe_io; guarded so a partial deploy cannot crash the loop.
+            try:
+                if hasattr(safe_io, "get_dropped_writes"):
+                    _dw = safe_io.get_dropped_writes()
+                    if _dw.get("count", 0) > 0:
+                        await tg_send(app, "DATA ALERT: %d write(s) were dropped (last: %s). Investigate - data may be incomplete." % (_dw["count"], _dw.get("last_path", "?")))
+                        if hasattr(safe_io, "reset_dropped_writes"):
+                            safe_io.reset_dropped_writes()
+            except Exception as _dwe:
+                log.debug("drop-write check failed: %s" % _dwe)
             # Wave 108 (_WAVE108_INTERMARKET_TAPE): shadow-log the intermarket tape
             # read each cycle (throttled inside the module to ~1 line / 9 min).
             # Pure data collection for the tape-gate analysis -- never blocks or
