@@ -556,6 +556,38 @@ def get_crypto_status_text() -> str:
     n = wins + losses
     wr = (wins / n * 100.0) if n > 0 else 0.0
 
+    # Wave 122 (_WAVE122_CRYPTO_PNL): crypto's own Today / 7-day realized P&L
+    # (from closed_trades' pnl_dollars + closed_at). Crypto is 24/7 so the
+    # UTC calendar day is the honest window (no session logic on crypto).
+    _now_utc = datetime.now(timezone.utc)
+    _day_start = _now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+    _week_start = _now_utc - timedelta(days=7)
+    _td_pnl = _wk_pnl = 0.0
+    _td_w = _td_l = _wk_w = _wk_l = 0
+    for _t in closed:
+        try:
+            _ca = datetime.fromisoformat(_t.get("closed_at", ""))
+            if _ca.tzinfo is None:
+                _ca = _ca.replace(tzinfo=timezone.utc)
+            _p = float(_t.get("pnl_dollars", 0))
+            _is_win = str(_t.get("result", "")) == "WIN"
+            if _ca >= _week_start:
+                _wk_pnl += _p
+                if _is_win:
+                    _wk_w += 1
+                else:
+                    _wk_l += 1
+            if _ca >= _day_start:
+                _td_pnl += _p
+                if _is_win:
+                    _td_w += 1
+                else:
+                    _td_l += 1
+        except Exception:
+            continue
+    def _fmt_pnl(v):
+        return ("+$%s" % format(v, ",.2f")) if v >= 0 else ("-$%s" % format(abs(v), ",.2f"))
+
     now = datetime.now(timezone.utc)
     open_lines = []
     for t in open_trades[:5]:
@@ -602,6 +634,8 @@ def get_crypto_status_text() -> str:
         f"  Target:       `{tgt_progress:.1f}%` of `${profit_tgt:,.0f}` goal",
         f"  Peak:         `${peak_bal:,.2f}`  (drawdown: `${drawdown:,.2f}`)",
         f"  Trades:       `{n}` ({wins}W/{losses}L — {wr:.1f}% WR)",
+        f"  Today:        `{_fmt_pnl(_td_pnl)}`  ({_td_w}W/{_td_l}L)",
+        f"  7 days:       `{_fmt_pnl(_wk_pnl)}`  ({_wk_w}W/{_wk_l}L)",
         "━━━━━━━━━━━━━━━━━━",
         "📂 *OPEN POSITIONS*",
         f"  Currently open: `{len(open_trades)}` trade(s)",
