@@ -2644,6 +2644,54 @@ _ROTATE_DATA_LOGS = [
 ]
 
 
+# Wave 121 (_WAVE121_STATE_SIZE_SENTINEL): early-warning size sentinel for
+# STATE files (not append logs -- those rotate). crypto_sim.json once grew
+# unbounded and silently slowed the bot for days (fixed by Wave 100). This
+# checks each small state file once/hour and Telegrams Wayne if any exceeds
+# a generous cap, so the NEXT unbounded-growth bug is caught the day it
+# starts. Pure observability: it never trims or writes anything.
+_LAST_STATE_SIZE_CHECK = 0.0
+# (filename in data/, cap in KB). Caps are generous -- these files are
+# normally well under 50KB, so a warning means real abnormal growth.
+_STATE_FILES_TO_WATCH = [
+    ("crypto_sim.json", 500),
+    ("sim_account.json", 500),
+    ("scanner_state.json", 250),
+    ("lifetime_stats.json", 500),
+    ("cooldowns.json", 250),
+    ("active_setups.json", 250),
+    ("zone_lockouts.json", 250),
+    ("family_cooldowns.json", 250),
+    ("sim_history.json", 1000),
+]
+
+
+async def _check_state_file_sizes(app):
+    """Once/hour, alert if any watched state file exceeds its cap. Never raises."""
+    global _LAST_STATE_SIZE_CHECK
+    try:
+        import time as _t
+        _now = _t.time()
+        if _now - _LAST_STATE_SIZE_CHECK < 3600:
+            return
+        _LAST_STATE_SIZE_CHECK = _now
+        _bloated = []
+        for _fname, _cap_kb in _STATE_FILES_TO_WATCH:
+            try:
+                _fp = os.path.join(BASE_DIR, "data", _fname)
+                if not os.path.exists(_fp):
+                    continue
+                _kb = os.path.getsize(_fp) / 1024.0
+                if _kb > _cap_kb:
+                    _bloated.append("%s %.0fKB (cap %dKB)" % (_fname, _kb, _cap_kb))
+            except Exception:
+                continue
+        if _bloated:
+            await tg_send(app, "DATA ALERT: state file(s) bloating: " + "; ".join(_bloated) + ". Likely unbounded growth -- tell FABEL to add an array cap (like Wave 100).")
+    except Exception as _sse:
+        log.debug("state-size sentinel failed: %s" % _sse)
+
+
 def _rotate_data_logs():
     for _name, _mb in _ROTATE_DATA_LOGS:
         try:
@@ -3590,6 +3638,7 @@ async def scan_loop(app):
             now_et = _now_et()
             _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
             _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
+            await _check_state_file_sizes(app)  # Wave 121: warn if a state file bloats
             # Wave 120 (_WAVE120_DROP_ALERT): surface any dropped write immediately
             # instead of losing data silently. get_dropped_writes()/reset come from
             # Wave 118 safe_io; guarded so a partial deploy cannot crash the loop.
