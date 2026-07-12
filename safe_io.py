@@ -243,6 +243,56 @@ def safe_append_csv(path: str, fieldnames: List[str], row: dict) -> None:
                 pass
 
 
+# Wave 118 (_WAVE118_SAFE_JSONL): locked JSONL append + dropped-write
+# accounting. Gives event logs the same lock domain + durability as CSV
+# writes, and -- critically -- COUNTS any failed write so a periodic task
+# can alert Wayne instead of losing data silently ("make sure everything
+# is saving"). Mirrors safe_append_csv mechanics.
+_DROPPED_WRITES = {"count": 0, "last_path": None}
+
+
+def safe_append_jsonl(path: str, obj: Any) -> bool:
+    """Append one object as a JSON line under an exclusive lock.
+
+    Returns True on success. On ANY failure, increments the dropped-write
+    counter and returns False -- never raises, so a logging failure cannot
+    crash the caller. Serialized against safe_io rewriters via file_lock.
+    """
+    try:
+        line = json.dumps(obj, separators=(",", ":"), default=str) + "\n"
+        line_bytes = line.encode("utf-8")
+        parent = os.path.dirname(path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+        with file_lock(path):
+            with open(path, "ab") as f:
+                f.write(line_bytes)
+                f.flush()
+                try:
+                    os.fsync(f.fileno())
+                except OSError:
+                    pass
+        return True
+    except Exception:
+        try:
+            _DROPPED_WRITES["count"] += 1
+            _DROPPED_WRITES["last_path"] = path
+        except Exception:
+            pass
+        return False
+
+
+def get_dropped_writes() -> dict:
+    """Return {"count": N, "last_path": path|None} of failed safe appends."""
+    return dict(_DROPPED_WRITES)
+
+
+def reset_dropped_writes() -> None:
+    """Clear the dropped-write counter (call after alerting)."""
+    _DROPPED_WRITES["count"] = 0
+    _DROPPED_WRITES["last_path"] = None
+
+
 def safe_rewrite_csv(
     path: str,
     fieldnames: List[str],
