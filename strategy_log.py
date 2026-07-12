@@ -411,118 +411,132 @@ def _load_all_strategy_rows() -> list:
 
 def build_strategy_analysis() -> str:
     """
-    Analyzes the strategy log to find:
-    - Patterns we're missing (ALMOST/REJECTED that would have won)
-    - Setups that are being filtered too aggressively
-    - New potential strategy candidates
-    Returns a text report.
+    Analyze the strategy log (live + all rotated archives) into a clean,
+    mobile-friendly report: an OVERVIEW headline (fired win rate, best/worst
+    setup by real win rate), the setups we filtered that would have won, the
+    indicator fingerprint of winning trades, and loosen-filter candidates.
+    Honest numbers only - every figure is computed from real logged outcomes.
+    Returns a monospace text report (sent inside a code block, columns aligned).
     """
     if not os.path.exists(STRATEGY_LOG):
         return "No strategy log data yet."
 
     # Wave 116 (_WAVE116_ANALYZE_UNION): read the live log PLUS every rotated
-    # archive part (Wave 105 moves strategy_log.csv to
-    # data/archive/strategy_log_<stamp>_partNN.csv once it passes ~18MB and
-    # starts a fresh live file). Without this, /analyze counts appear to
-    # "reset" after a rotation even though all rows are safe on disk.
+    # archive part so counts reflect the true total, not just the current file.
+    # Wave 124 (_WAVE124_ANALYZE_REDESIGN): same full data, professional layout.
     rows = _load_all_strategy_rows()
-
     if not rows:
         return "Strategy log is empty."
 
-    fired     = [r for r in rows if r.get("decision") == DECISION_FIRED]
-    rejected  = [r for r in rows if r.get("decision") == DECISION_REJECTED]
-    almost    = [r for r in rows if r.get("decision") == DECISION_ALMOST]
+    def _num(v, cast=float, default=0.0):
+        try:
+            return cast(v)
+        except (TypeError, ValueError):
+            return default
 
-    # Missed winners — setups we rejected that would have won
-    missed_wins  = [r for r in rejected + almost if r.get("result") == "WOULD_WIN"]
-    missed_losses= [r for r in rejected + almost if r.get("result") == "WOULD_LOSE"]
+    fired    = [r for r in rows if r.get("decision") == DECISION_FIRED]
+    rejected = [r for r in rows if r.get("decision") == DECISION_REJECTED]
+    almost   = [r for r in rows if r.get("decision") == DECISION_ALMOST]
 
-    lines = [
-        "STRATEGY LOG ANALYSIS",
-        "=" * 50,
-        f"Total scan decisions: {len(rows)}",
-        f"  FIRED:    {len(fired)}",
-        f"  REJECTED: {len(rejected)}",
-        f"  ALMOST:   {len(almost)}",
-        "",
-        "MISSED OPPORTUNITIES:",
-        "-" * 30,
-        f"Setups we rejected that WOULD HAVE WON:  {len(missed_wins)}",
-        f"Setups we rejected that WOULD HAVE LOST: {len(missed_losses)}",
-        "",
-    ]
+    missed_wins = [r for r in rejected + almost if r.get("result") == "WOULD_WIN"]
+
+    fired_wins   = [r for r in fired if "WIN"  in str(r.get("result", ""))]
+    fired_losses = [r for r in fired if "LOSS" in str(r.get("result", ""))]
+    n_resolved   = len(fired_wins) + len(fired_losses)
+    overall_wr   = (len(fired_wins) / n_resolved * 100.0) if n_resolved else 0.0
+
+    # Per-setup fired win rate (real results only) -> best / worst (min sample).
+    setup_stats = {}
+    for r in fired:
+        res = str(r.get("result", ""))
+        if "WIN" in res or "LOSS" in res:
+            key = "%s:%s" % (r.get("market"), r.get("setup_type"))
+            s = setup_stats.setdefault(key, [0, 0])
+            if "WIN" in res:
+                s[0] += 1
+            else:
+                s[1] += 1
+    ranked = []
+    for key, (w, l) in setup_stats.items():
+        tot = w + l
+        if tot >= 8:
+            ranked.append((key, w / tot * 100.0, tot))
+    ranked.sort(key=lambda x: x[1], reverse=True)
+
+    DIV = "\u2501" * 27
+
+    def _row(label, value, width=16):
+        return "  " + (label + " " * width)[:width] + value
+
+    L = ["\U0001F4CA STRATEGY ANALYSIS", DIV, "OVERVIEW"]
+    L.append(_row("Scans logged", format(len(rows), ",")))
+    if n_resolved:
+        L.append(_row("Fired", "%d  \u00b7  %.0f%% WR (%dW/%dL)"
+                      % (len(fired), overall_wr, len(fired_wins), len(fired_losses))))
+    else:
+        L.append(_row("Fired", "%d  (none resolved yet)" % len(fired)))
+    L.append(_row("Missed winners", "%d   (filtered, would've won)" % len(missed_wins)))
+    if ranked:
+        bk, bwr, bn = ranked[0]
+        L.append("")
+        L.append("  Best   %-22s %.0f%%  (n%d)" % (bk, bwr, bn))
+        if len(ranked) > 1:
+            wk, wwr, wn = ranked[-1]
+            L.append("  Worst  %-22s %.0f%%  (n%d)" % (wk, wwr, wn))
 
     if missed_wins:
-        lines.append("TOP MISSED WINNERS (setups to investigate):")
+        L.append(DIV)
+        L.append("\U0001F3AF TOP MISSED WINNERS")
         by_type = {}
         for r in missed_wins:
-            key = f"{r.get('market')}:{r.get('setup_type')}:{r.get('tf')}"
+            key = "%s:%s \u00b7 %s" % (r.get("market"), r.get("setup_type"), r.get("tf"))
             by_type.setdefault(key, []).append(r)
-        for key, group in sorted(by_type.items(), key=lambda x: len(x[1]), reverse=True):
-            reasons = [r.get("reject_reason","?") for r in group]
-            most_common_reason = max(set(reasons), key=reasons.count)
-            avg_conv = round(sum(int(r.get("conviction",0)) for r in group) / max(1,len(group)))
-            lines.append(f"  {key}: {len(group)} missed wins")
-            lines.append(f"    Avg conviction: {avg_conv} | Most filtered by: {most_common_reason}")
-        lines.append("")
+        for key, group in sorted(by_type.items(), key=lambda x: len(x[1]), reverse=True)[:5]:
+            reasons = [str(r.get("reject_reason", "?")) for r in group]
+            common = max(set(reasons), key=reasons.count)
+            avg_conv = round(sum(_num(r.get("conviction"), int, 0) for r in group) / max(1, len(group)))
+            L.append("  %-26s %dx" % (key, len(group)))
+            L.append("    avg conv %d \u00b7 blocked by %s" % (avg_conv, common))
 
-    # Pattern discovery — look for indicator combos that correlate with wins
-    if len(fired) >= 10:
-        wins  = [r for r in fired if "WIN" in r.get("result","")]
-        losses= [r for r in fired if "LOSS" in r.get("result","")]
-        if wins and losses:
-            lines.append("INDICATOR PATTERNS IN WINNING TRADES:")
-            lines.append("-" * 30)
-            try:
-                avg_adx_win  = round(sum(float(r.get("adx",0)) for r in wins)  / max(1,len(wins)),  1)
-                avg_adx_loss = round(sum(float(r.get("adx",0)) for r in losses) / max(1,len(losses)), 1)
-                avg_rsi_win  = round(sum(float(r.get("rsi",0)) for r in wins)  / max(1,len(wins)),  1)
-                avg_rsi_loss = round(sum(float(r.get("rsi",0)) for r in losses) / max(1,len(losses)), 1)
-                avg_trend_win = round(sum(int(r.get("trend",0)) for r in wins) / max(1,len(wins)),  1)
-                lines.append(f"  Winning trades avg ADX:   {avg_adx_win}  (losing: {avg_adx_loss})")
-                lines.append(f"  Winning trades avg RSI:   {avg_rsi_win}  (losing: {avg_rsi_loss})")
-                lines.append(f"  Winning trades avg Trend: {avg_trend_win}")
-                lines.append("")
-                if avg_adx_win > avg_adx_loss + 3:
-                    lines.append(f"  💡 INSIGHT: Wins have higher ADX — consider raising MIN_ADX")
-                if avg_trend_win > 3:
-                    lines.append(f"  💡 INSIGHT: Strong trend correlation — trend filter is working")
-            except:
-                pass
+    if len(fired_wins) >= 3 and len(fired_losses) >= 3:
+        L.append(DIV)
+        L.append("\U0001F52C WINNING-TRADE PATTERNS")
+        try:
+            def _avg(rs, k):
+                return sum(_num(r.get(k)) for r in rs) / max(1, len(rs))
+            aw, al = _avg(fired_wins, "adx"), _avg(fired_losses, "adx")
+            rw, rl = _avg(fired_wins, "rsi"), _avg(fired_losses, "rsi")
+            tw = sum(_num(r.get("trend"), int, 0) for r in fired_wins) / max(1, len(fired_wins))
+            L.append("  %-9swin %.1f   loss %.1f" % ("ADX", aw, al))
+            L.append("  %-9swin %.1f   loss %.1f" % ("RSI", rw, rl))
+            L.append("  %-9swin %+.1f" % ("Trend", tw))
+            if aw > al + 3:
+                L.append("  \U0001F4A1 Wins run higher ADX - the trend filter is working.")
+            elif tw > 3:
+                L.append("  \U0001F4A1 Strong trend correlation in the winners.")
+        except Exception:
+            pass
 
-    # Candidate strategies — setups appearing in missed wins consistently
-    lines += [
-        "",
-        "STRATEGY CANDIDATES FOR REVIEW:",
-        "-" * 30,
-    ]
-    candidate_setups = {}
+    cand = {}
     for r in missed_wins:
-        key = f"{r.get('market')}:{r.get('setup_type')}"
-        candidate_setups.setdefault(key, 0)
-        candidate_setups[key] += 1
+        key = "%s:%s" % (r.get("market"), r.get("setup_type"))
+        cand[key] = cand.get(key, 0) + 1
+    cand = [(k, c) for k, c in cand.items() if c >= 2]
+    if cand:
+        L.append(DIV)
+        L.append("\u26A1 LOOSEN-FILTER CANDIDATES")
+        for key, count in sorted(cand, key=lambda x: x[1], reverse=True)[:6]:
+            L.append("  %-24s %dx missed" % (key, count))
 
-    if candidate_setups:
-        for key, count in sorted(candidate_setups.items(), key=lambda x: x[1], reverse=True):
-            if count >= 2:
-                lines.append(f"  ⚡ {key}: appeared {count}x as missed winner — consider loosening filter")
-    else:
-        lines.append("  Not enough data yet. Keep running.")
+    if len(L) <= 3:
+        L.append("  Not enough data yet - keep the bot running.")
 
-    lines += [
-        "",
-        "=" * 50,
-        "END OF ANALYSIS",
-        "Paste this to Claude to review and update strategy files.",
-    ]
-
-    report = "\n".join(lines)
-
-    # Save candidate file
-    with open(CANDIDATE_FILE, "w", encoding="utf-8") as f:
-        f.write(report)
-
+    report = "\n".join(L)
+    try:
+        with open(CANDIDATE_FILE, "w", encoding="utf-8") as f:
+            f.write(report)
+    except Exception:
+        pass
     return report
 
 
