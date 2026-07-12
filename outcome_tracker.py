@@ -2028,9 +2028,16 @@ def _write_learning_entry(trade_row: dict, result: str, exit_p: float,
             "lesson":       " | ".join(lesson_bits),
         }
 
-        # Append-only write. JSONL = one JSON per line, safe under concurrent appends.
-        with open(LEARNINGS_FILE, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry_obj) + "\n")
+        # Wave 120 (_WAVE120_LEARNINGS_SAFE): durable, locked append with
+        # dropped-write accounting (was a raw open("a") that failed silently).
+        # Same one-JSON-per-line format, so /journal + get_recent_learnings are
+        # unchanged. Falls back to the raw append if safe_append_jsonl is absent
+        # (pre-Wave-118 safe_io), so this file stays safe to deploy on its own.
+        if hasattr(safe_io, "safe_append_jsonl"):
+            safe_io.safe_append_jsonl(LEARNINGS_FILE, entry_obj)
+        else:
+            with open(LEARNINGS_FILE, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry_obj) + "\n")
     except Exception as e:
         import logging
         logging.getLogger("nqcalls").debug(f"_write_learning_entry inner: {e}")
