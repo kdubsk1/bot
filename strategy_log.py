@@ -382,6 +382,33 @@ def check_missed_setups(live_frames: dict):
     return updated_log
 
 
+def _load_all_strategy_rows() -> list:
+    """Return every strategy-log row: live file + all rotated archive parts.
+    Archives (chronological by filename) first, live file last. Per-file
+    DictReader so mixed headers are handled; unreadable files are skipped.
+    Live and archive are disjoint (rotation MOVES rows), so no double-count."""
+    import glob
+    all_rows = []
+    try:
+        archive_dir = os.path.join(_DATA_DIR, "archive")
+        parts = sorted(glob.glob(os.path.join(archive_dir, "strategy_log_*.csv")))
+    except Exception:
+        parts = []
+    for _p in parts:
+        try:
+            with open(_p, newline="") as _f:
+                all_rows.extend(list(csv.DictReader(_f)))
+        except Exception:
+            continue
+    if os.path.exists(STRATEGY_LOG):
+        try:
+            with open(STRATEGY_LOG, newline="") as _f:
+                all_rows.extend(list(csv.DictReader(_f)))
+        except Exception:
+            pass
+    return all_rows
+
+
 def build_strategy_analysis() -> str:
     """
     Analyzes the strategy log to find:
@@ -393,8 +420,12 @@ def build_strategy_analysis() -> str:
     if not os.path.exists(STRATEGY_LOG):
         return "No strategy log data yet."
 
-    with open(STRATEGY_LOG, newline="") as f:
-        rows = list(csv.DictReader(f))
+    # Wave 116 (_WAVE116_ANALYZE_UNION): read the live log PLUS every rotated
+    # archive part (Wave 105 moves strategy_log.csv to
+    # data/archive/strategy_log_<stamp>_partNN.csv once it passes ~18MB and
+    # starts a fresh live file). Without this, /analyze counts appear to
+    # "reset" after a rotation even though all rows are safe on disk.
+    rows = _load_all_strategy_rows()
 
     if not rows:
         return "Strategy log is empty."
