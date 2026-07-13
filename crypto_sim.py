@@ -370,6 +370,15 @@ def auto_check_crypto_trades(live_prices: dict, live_frames: dict) -> list:
 
 
 # ── Format alert block ─────────────────────────────────────────────
+def _md_safe_text(text):
+    # Wave 126 (_WAVE126_CRYPTO_MD_SAFE): display-only sanitizer. Free-text
+    # fields (regime like TRENDING_BULL, chart-read labels) rendered raw into
+    # Markdown messages can unbalance entities and drop the whole message to
+    # plain text (same class as Wave 125 in sim_account). Stored trade data is
+    # NEVER sanitized - only what gets displayed.
+    return str(text).replace("_", " ").replace("*", "").replace("`", "").replace("[", "")
+
+
 def format_crypto_sim_block(market: str, tier: str,
                             entry: float, stop: float, target: float,
                             alert_id: str, conviction: int,
@@ -420,7 +429,7 @@ def format_crypto_sim_block(market: str, tier: str,
     trend = ctx.get("trend_score", 0)
     rsi = ctx.get("rsi", 0)
     adx = ctx.get("adx", 0)
-    regime = ctx.get("regime", "UNKNOWN")
+    regime = _md_safe_text(ctx.get("regime", "UNKNOWN"))  # Wave 126: display-only
 
     lev = _effective_leverage(state, context)  # Wave 109: show what the sim actually used
     bal = float(state["balance"])
@@ -616,7 +625,7 @@ def get_crypto_status_text() -> str:
         m = t.get("market", "?")
         ctx = t.get("context", {}) or {}
         setup = ctx.get("chart_read", "")
-        return f"{m} {setup[:40]}" if setup else m
+        return f"{m} {_md_safe_text(setup)[:40]}" if setup else m  # Wave 126: display-only
 
     # May 2 Wave 5: mirror /simstatus two-section format
     peak_bal   = float(state.get("peak_balance", bal))
