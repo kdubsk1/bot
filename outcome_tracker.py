@@ -3618,17 +3618,29 @@ def build_daily_report() -> tuple[str, str]:
         _w45_et_now = _now_et()
         today     = _w45_et_now.strftime("%Y-%m-%d")
         today_dt  = _w45_et_now.strftime("%A, %B %d, %Y")
+        # Wave 127 (_WAVE127_RECAP_SESSION_ALIGN): the session this report
+        # covers. Before 4 PM ET = the in-progress session (labeled today).
+        # From 4 PM ET the session clock has already rolled to TOMORROW at
+        # the 6 PM reopen, so freeze at noon to keep the session that just
+        # CLOSED (still labeled today) - the 8 PM auto-report must cover
+        # the completed day, not a 2-hour-old new session. Weekends resolve
+        # to the upcoming Monday session (weekend crypto belongs to Monday).
+        from session_clock import get_session_date as _w127_gsd
+        _w127_sid = _w127_gsd(_w45_et_now if _w45_et_now.hour < 16
+                              else _w45_et_now.replace(hour=12, minute=0))
     except Exception:
         today     = datetime.now().strftime("%Y-%m-%d")
         today_dt  = datetime.now().strftime("%A, %B %d, %Y")
+        _w127_sid = today  # Wave 127 fallback: calendar date if clock unavailable
     rows      = _read_all()
     perf      = _load_performance()
 
-    # Filter to today's alerts
+    # Filter to this session's alerts (Wave 127: bucket by session_id so
+    # /recap matches /session and the sim exactly - FINDING #24. _read_all()
+    # backfills session_id on legacy rows, so every row has one.)
     today_rows = []
     for r in rows:
-        ts = r.get("timestamp", "")
-        if today in ts:
+        if r.get("session_id", "") == _w127_sid:
             today_rows.append(r)
 
     # Separate by status
@@ -3670,6 +3682,7 @@ def build_daily_report() -> tuple[str, str]:
     lines = [
         f"NQ CALLS DAILY REPORT",
         f"Date: {today_dt}",
+        f"Session: {_w127_sid}",
         f"Generated: {datetime.now().strftime('%H:%M EST')}",
         f"{'='*50}",
         f"",
