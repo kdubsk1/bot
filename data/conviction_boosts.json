@@ -9,8 +9,8 @@
       "EMA21_PULLBACK_BEAR": 0,
       "BREAK_RETEST_BULL": -5,
       "RSI_DIV_BEAR": -5,
-      "STOCH_REVERSAL_BEAR": -10,
-      "BB_REVERSION_BULL": -3,
+      "STOCH_REVERSAL_BEAR": -15,
+      "BB_REVERSION_BULL": 2,
       "STOCH_REVERSAL_BULL": -6,
       "APPROACH_SUPPORT": -17,
       "RSI_DIV_BULL": -1,
@@ -68,9 +68,9 @@
     "rolling_window_days": 28,
     "max_adjustment_per_cycle": 5,
     "min_trades_to_adjust": 10,
-    "last_run_at": "2026-07-06T00:12:36.504479+00:00",
+    "last_run_at": "2026-07-13T00:09:06.754646+00:00",
     "last_run_summary": {
-      "cycle_changes": 0,
+      "cycle_changes": 2,
       "l3_changed": false,
       "n_setups_analyzed": 12
     },

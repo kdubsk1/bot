@@ -35,5 +35,20 @@
       "closed_at": "2026-07-10T22:30:19.396775"
     }
   ],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "b41f1fabc2",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4088.3,
+      "stop": 4133.86211706214,
+      "target": 3976.3,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "MACD_CROSS_BEAR",
+      "opened_at": "2026-07-12T22:40:33.494045",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
