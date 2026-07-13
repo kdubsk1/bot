@@ -1419,6 +1419,10 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     total_risk = c_info.get("total_risk", round(risk_per_c * max(contracts, 1), 2))
     cushion_pct= c_info.get("cushion_pct", 0)
     reasoning  = c_info.get("reasoning", "")
+    # Wave 125 (_WAVE125_ALERT_MD_SAFE): the sizing reasoning is rendered in
+    # italic (_..._) below; neutralize Markdown chars inside it so a stray one
+    # cannot unbalance the whole alert message (which drops it to plain text).
+    _safe_reasoning = str(reasoning).replace("_", " ").replace("*", "").replace("`", "").replace("[", "")
     rejected   = c_info.get("rejected", False)
 
     spv          = MNQ_POINT_VALUE if (market == "NQ" and use_mnq) else \
@@ -1463,7 +1467,7 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
         f"\n\U0001f4b0 *SIM \u2014 {contracts} {label}* | Risk `${total_risk:,.0f}` \u2192 Reward `${total_reward:,.0f}` (R:R `{rr_display:.1f}`)\n"
         f"  Balance: `${risk['balance']:,.2f}` ({today_pnl_str} today \u00b7 combine {_life_pnl_sign}${_life_pnl:,.0f} \u00b7 {_life_pct:+.1f}%)\n"
         f"  Cushion: Daily `${risk['daily_left']:,.0f}` \u00b7 DD `${risk['dd_left']:,.0f}`\n"
-        f"  _{reasoning}_"
+        f"  _{_safe_reasoning}_"
     )
     # Only show the daily-limit warning when actually approaching (>=60%).
     # Wave 34: dropped the always-shown progress bar that was 0% on quiet days.
