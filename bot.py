@@ -1237,6 +1237,38 @@ def _log_scan_stack(market, tf, all_setups, snapshot, adx_v, rsi_v, vol_ratio, h
             pass
 
 
+def _market_position_open(market: str) -> bool:
+    # Wave 129 (_WAVE129_ONE_POSITION_PER_MARKET): fire-time position guard.
+    # ONE position per market, enforced at the moment of fire against ALL
+    # THREE position sources (any one can drift from the others):
+    #   1) outcomes rows still OPEN (the alert lifecycle),
+    #   2) the futures sim open positions (NQ/GC),
+    #   3) the crypto sim open positions (BTC/SOL).
+    # The scan-level already_in check reads only source 1 and only ONCE per
+    # scan pass - stale by fire time: a second setup in the same pass (e.g.
+    # opposite direction, which the dup-guards allow) or a row-vs-sim
+    # lifecycle drift could double-enter one market (observed on NQ Jul 10).
+    # Never blocks on error - a guard failure must not stop the bot.
+    try:
+        for _r in ot.load_open_trades():
+            if _r.get("market") == market:
+                return True
+    except Exception as _e:
+        log.warning(f"W129 guard: outcomes check failed (non-fatal): {_e}")
+    try:
+        if market in ("NQ", "GC"):
+            for _t in sim.load_state().get("open_sim_trades", []):
+                if _t.get("market") == market and _t.get("status", "OPEN") == "OPEN":
+                    return True
+        elif market in ("BTC", "SOL"):
+            for _t in crypto_sim.load_crypto_state().get("open_trades", []):
+                if _t.get("market") == market:
+                    return True
+    except Exception as _e:
+        log.warning(f"W129 guard: sim check failed (non-fatal): {_e}")
+    return False
+
+
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
     cfg        = get_market_config(market)
@@ -2281,6 +2313,22 @@ async def scan_market(app, market, frames):
             # Wave 8 (May 3): include Wave 7 breakdown fields so we can later
             # measure whether the boost actually changed outcomes. Without this
             # the auto-tune (Layer 5) flies blind and we lose the signal.
+            # Wave 129 (_WAVE129_ONE_POSITION_PER_MARKET): re-check at FIRE
+            # time. One market = one position - the scan-start already_in is
+            # stale by now if an earlier setup in this same pass just fired,
+            # and it never saw the sims at all.
+            if _market_position_open(market):
+                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                    cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                    sl.DECISION_REJECTED,
+                    f"One-position guard (Wave 129): {market} already has an open position - blocking second entry",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    score_breakdown=bd_final)
+                log.info(f"[{market}] [{entry_tf}] W129 ONE-POSITION guard blocked {stp['type']} {stp['direction']} - position already open")
+                continue
+
             _w7_for_log = w7_breakdown if "w7_breakdown" in dir() else {}
             alert_id = ot.log_alert({
                 "market":market, "tf":entry_tf, "setup":stp["type"], "direction":stp["direction"],
