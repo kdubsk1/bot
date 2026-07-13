@@ -2997,7 +2997,7 @@ def performance_text(days: int = 30) -> str:
 
     if not window:
         return (
-            f"*PERFORMANCE - last {days} days*\n"
+            f"\U0001F4CA *PERFORMANCE - last {days} days*\n"
             f"No data in window. The bot may have started recently or all "
             f"alerts older than {days} days."
         )
@@ -3008,7 +3008,7 @@ def performance_text(days: int = 30) -> str:
 
     if not resolved:
         return (
-            f"*PERFORMANCE - last {days} days*\n"
+            f"\U0001F4CA *PERFORMANCE - last {days} days*\n"
             f"`{len(window)}` alerts | `{len(skips)}` SKIPs | `{len(opens)}` OPEN\n"
             f"No resolved (WIN/LOSS) trades yet. Mostly SKIPs means entry levels "
             f"are missing - alerts firing too far from price."
@@ -3018,8 +3018,10 @@ def performance_text(days: int = 30) -> str:
     losses = [r for r in resolved if r["result"] == "LOSS"]
     overall_wr = 100.0 * len(wins) / max(1, len(resolved))
 
-    lines = [f"*PERFORMANCE - last `{days}` days*",
-             "-" * 36,
+    # Wave 128 (_WAVE128_UI_FINISH): professional polish - emoji headers +
+    # mobile-width box-drawing dividers, matching the /cryptostatus style.
+    lines = [f"\U0001F4CA *PERFORMANCE - last `{days}` days*",
+             "\u2501" * 18,
              f"`{len(window)}` alerts | `{len(resolved)}` resolved | `{len(skips)}` SKIP | `{len(opens)}` OPEN",
              f"Overall: `{len(wins)}W`/`{len(losses)}L` = `{overall_wr:.1f}%` WR",
              ""]
@@ -3036,7 +3038,7 @@ def performance_text(days: int = 30) -> str:
         suspended = {}
 
     if setup_stats:
-        lines.append("*By setup:*")
+        lines.append("\U0001F3AF *By setup:*")
         items = sorted(setup_stats.items(),
                        key=lambda x: -(x[1]["W"] + x[1]["L"]))
         for setup, st in items[:12]:
@@ -3061,7 +3063,7 @@ def performance_text(days: int = 30) -> str:
         if r.get("result") == "WIN":    mk_stats[m]["W"] += 1
         elif r.get("result") == "LOSS": mk_stats[m]["L"] += 1
         elif r.get("result") == "SKIP": mk_stats[m]["SKIP"] += 1
-    lines.append("*By market:*")
+    lines.append("\U0001F30D *By market:*")
     for m, st in sorted(mk_stats.items()):
         tot = st["W"] + st["L"]
         wr = 100.0 * st["W"] / tot if tot else 0
@@ -3074,7 +3076,7 @@ def performance_text(days: int = 30) -> str:
         t = r.get("tier", "?")
         if r["result"] == "WIN":  tier_stats[t]["W"] += 1
         else:                     tier_stats[t]["L"] += 1
-    lines.append("*By tier (CALIBRATION):*")
+    lines.append("\u2696\uFE0F *By tier (CALIBRATION):*")
     tier_order = ["HIGH", "MEDIUM", "LOW", "SHADOW"]
     tier_wrs = {}
     for t in tier_order:
@@ -3087,7 +3089,7 @@ def performance_text(days: int = 30) -> str:
     # Calibration health check
     if tier_wrs.get("HIGH") is not None and tier_wrs.get("MEDIUM") is not None:
         if tier_wrs["HIGH"] < tier_wrs["MEDIUM"] - 5:
-            lines.append(f"  WARNING: HIGH WR `{tier_wrs['HIGH']:.0f}%` < MEDIUM `{tier_wrs['MEDIUM']:.0f}%` - calibration drift")
+            lines.append(f"  \u26A0\uFE0F WARNING: HIGH WR `{tier_wrs['HIGH']:.0f}%` < MEDIUM `{tier_wrs['MEDIUM']:.0f}%` - calibration drift")
     lines.append("")
 
     # Per-hour - just best/worst
@@ -3109,7 +3111,7 @@ def performance_text(days: int = 30) -> str:
                 hr_items.append((wr, h, st["W"], st["L"]))
         hr_items.sort(reverse=True)
         if hr_items:
-            lines.append("*Best/worst hours (UTC, >=2 trades):*")
+            lines.append("\U0001F550 *Best/worst hours (UTC, >=2 trades):*")
             best = hr_items[0]
             worst = hr_items[-1]
             lines.append(f"  Best:  `{best[1]:02d}:00`  `{best[2]}W`/`{best[3]}L` `{best[0]:.0f}%`")
@@ -3123,7 +3125,7 @@ def performance_text(days: int = 30) -> str:
         if r["result"] == "WIN":  dir_stats[d]["W"] += 1
         else:                     dir_stats[d]["L"] += 1
     if dir_stats:
-        lines.append("*By direction:*")
+        lines.append("\U0001F9ED *By direction:*")
         for d, st in sorted(dir_stats.items()):
             tot = st["W"] + st["L"]
             wr = 100.0 * st["W"] / tot if tot else 0
@@ -3133,7 +3135,7 @@ def performance_text(days: int = 30) -> str:
     # Recent losses for context
     if losses:
         recent = sorted(losses, key=lambda r: r.get("timestamp", ""), reverse=True)[:5]
-        lines.append("*Recent losses (last 5):*")
+        lines.append("\u274C *Recent losses (last 5):*")
         for r in recent:
             ts = r.get("timestamp", "")[:10]
             mkt = r.get("market", "?")
@@ -3771,7 +3773,6 @@ def build_daily_report() -> tuple[str, str]:
         "",
         "=" * 50,
         "END OF REPORT",
-        "Paste this into Claude to review and update bot settings.",
     ]
 
     full_text = "\n".join(lines)
@@ -3800,18 +3801,18 @@ def build_daily_report() -> tuple[str, str]:
     if today_wins:
         short += f"\n✅ *Wins today:*\n"
         for r in today_wins:
-            short += f"  {r.get('market')} {r.get('setup')} [{r.get('tf')}]\n"
+            short += f"  {r.get('market')} {str(r.get('setup') or '').replace('_', ' ')} [{r.get('tf')}]\n"
     if today_losses:
         short += f"\n❌ *Losses today:*\n"
         for r in today_losses:
-            short += f"  {r.get('market')} {r.get('setup')} [{r.get('tf')}]\n"
+            short += f"  {r.get('market')} {str(r.get('setup') or '').replace('_', ' ')} [{r.get('tf')}]\n"
     if len(today_open) > 0:
         short += f"\n🔄 *Still open:* {len(today_open)} trade(s)\n"
     if learning_updates:
         short += f"\n🧠 *Learning updated:* {len(learning_updates)} setup(s) adjusted\n"
     short += (
         f"━━━━━━━━━━━━━━━━━━\n"
-        f"_Full report saved. Paste to Claude to review._"
+        f"_Full report saved._"
     )
 
     return full_text, short
