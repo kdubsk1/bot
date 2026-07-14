@@ -2158,6 +2158,16 @@ def auto_check_outcomes(live_frames: dict):
     import logging
     _log = logging.getLogger("nqcalls")
     open_trades = load_open_trades()
+    # Wave 130 (_WAVE130_OUTCOME_CHECK_SCOPE): check only trades whose market
+    # is present in the frames we were given. Call sites pass per-market
+    # frames ({market: frames} from each scan), so iterating ALL open trades
+    # made every OTHER market's scan warn "no frames for <mkt>" every cycle
+    # (pure log noise) while doing no useful work. Each market's own scan
+    # checks its own trades with full frames - and that call runs BEFORE the
+    # already-in-position early return, so open positions are still checked
+    # every cycle. A market present in live_frames with EMPTY frames still
+    # warns below (that is a genuine data failure worth seeing).
+    open_trades = [r for r in open_trades if r.get("market") in live_frames]
     if not open_trades:
         return []
 
