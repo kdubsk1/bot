@@ -2,8 +2,8 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 49909.27,
-  "peak_balance": 50259.25,
+  "balance": 50727.27,
+  "peak_balance": 50727.27,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
   "max_drawdown": 2000,
@@ -12,43 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": -74.0,
-  "today_date": "2026-07-13",
-  "session_date": "2026-07-13",
-  "total_pnl": -90.73,
-  "trades": [
-    {
-      "alert_id": "6322e28286",
-      "market": "GC",
-      "direction": "SHORT",
-      "entry": 4121.5,
-      "stop": 4145.131830086286,
-      "target": 4072.8,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "MACD_CROSS_BEAR",
-      "opened_at": "2026-07-10T01:43:50.589424",
-      "status": "CLOSED",
-      "pnl": -74.0,
-      "exit_price": 4128.9,
-      "result": "LOSS",
-      "closed_at": "2026-07-10T22:30:19.396775"
-    }
-  ],
-  "open_sim_trades": [
-    {
-      "alert_id": "b41f1fabc2",
-      "market": "GC",
-      "direction": "SHORT",
-      "entry": 4088.3,
-      "stop": 4133.86211706214,
-      "target": 3976.3,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "MACD_CROSS_BEAR",
-      "opened_at": "2026-07-12T22:40:33.494045",
-      "status": "OPEN",
-      "pnl": 0.0
-    }
-  ]
+  "today_pnl": 0.0,
+  "today_date": "2026-07-14",
+  "session_date": "2026-07-14",
+  "total_pnl": 727.27,
+  "trades": [],
+  "open_sim_trades": []
 }

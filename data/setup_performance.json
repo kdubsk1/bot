@@ -189,11 +189,11 @@
     "last_updated": "2026-06-17T17:36:46.922938"
   },
   "GC:MACD_CROSS_BEAR": {
-    "wins": 23,
+    "wins": 24,
     "losses": 1,
-    "total": 24,
-    "win_rate": 95.8,
-    "last_updated": "2026-07-10T22:30:17.930209"
+    "total": 25,
+    "win_rate": 96.0,
+    "last_updated": "2026-07-13T19:55:31.654422"
   },
   "BTC:MACD_CROSS_BEAR": {
     "wins": 2,
