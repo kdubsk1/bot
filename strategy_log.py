@@ -279,16 +279,31 @@ def check_missed_setups(live_frames: dict):
                     alert_ts = row.get("timestamp", "")
                     try:
                         alert_dt = pd.Timestamp(alert_ts, tz="UTC")
+                        # Wave 138 (_WAVE138_MISSED_ACCURACY): age out stale paper
+                        # setups - a rejection resolving DAYS later is not an
+                        # actionable missed winner for an intraday bot and it
+                        # polluted the loosen-candidate data.
+                        if (pd.Timestamp.now(tz="UTC") - alert_dt).total_seconds() > 86400:
+                            row["result"] = "EXPIRED"
+                            row["result_checked_at"] = datetime.now(timezone.utc).isoformat()
+                            continue
                         recent = market_data[market_data.index >= alert_dt]
                         if recent.empty:
-                            recent = market_data.iloc[-5:]
+                            # Wave 138: no bars since the alert yet - wait for
+                            # real data. NEVER evaluate a rejection against an
+                            # unrelated recent window (the old iloc[-5:] guess
+                            # could fabricate results for old/unparsed alerts).
+                            continue
                     except Exception:
-                        recent = market_data.iloc[-5:]
+                        continue  # Wave 138: unparseable timestamp - skip, never guess
                     period_high = float(recent["High"].max())
                     period_low  = float(recent["Low"].min())
                 elif isinstance(market_data, (int, float)):
                     period_high = float(market_data)
                     period_low  = float(market_data)
+                    recent = None  # Wave 138: scalar price - touch ORDER is
+                    # unknowable, so a both-levels-hit case resolves through the
+                    # conservative except path below (deliberately, not by luck)
                 else:
                     continue
 
