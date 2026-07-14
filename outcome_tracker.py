@@ -54,6 +54,28 @@ HOLD_BY_TIER  = {
     TIER_HIGH: "swing (1-3 days)"
 }
 
+
+def suggest_hold(market: str, tf: str, tier: str) -> str:
+    # Wave 135 (_WAVE135_HOLD_TIME_TRUTH): hold guidance from the TIMEFRAME +
+    # MARKET rules, not the conviction tier. The old HOLD_BY_TIER printed
+    # "swing (1-3 days)" on every HIGH-tier alert - impossible for NQ/GC:
+    # Topstep Combine positions must be flat by ~4:10 PM ET (no overnight
+    # holds), so futures holds are HOURS at most. Only 24/7 crypto can
+    # genuinely swing. HOLD_BY_TIER stays as the safety fallback.
+    try:
+        m = str(market).upper()
+        t = str(tf).lower()
+        if m in ("NQ", "GC"):
+            base = {"15m": "scalp (15-90 min)",
+                    "1h":  "intraday (1-4 hours)",
+                    "4h":  "intraday (hours)"}.get(t, "intraday (hours)")
+            return base + " - flat by 4PM ET"
+        return {"15m": "scalp (1-6 hours)",
+                "1h":  "intraday (hours-1 day)",
+                "4h":  "swing (1-3 days)"}.get(t, "intraday (hours-1 day)")
+    except Exception:
+        return HOLD_BY_TIER.get(tier, "intraday (hours)")
+
 ADX_MIN_FOR_RECLAIM   = 20.0
 MIN_DIST_ATR_FOR_SWING = 0.5
 
