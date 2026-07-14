@@ -35,5 +35,20 @@
       "closed_at": "2026-07-14T03:41:44.067446"
     }
   ],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "ff1dcf387c",
+      "market": "NQ",
+      "direction": "SHORT",
+      "entry": 29665.5,
+      "stop": 29831.74786298609,
+      "target": 29325.75,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "OPENING_RANGE_BREAKOUT",
+      "opened_at": "2026-07-14T14:05:21.772988",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
