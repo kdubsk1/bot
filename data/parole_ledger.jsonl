@@ -628,3 +628,6 @@
 {"event": "denied_no_partner", "market": "BTC", "setup": "STOCH_REVERSAL_BULL", "direction": "LONG", "ts": "2026-07-13T14:52:20.631407+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-13T23:51:54.704686+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-14T00:02:01.965845+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-14T04:44:56.770319+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-14T04:45:28.429469+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-14T04:46:00.278303+00:00"}

@@ -16,6 +16,24 @@
   "today_date": "2026-07-14",
   "session_date": "2026-07-14",
   "total_pnl": 727.27,
-  "trades": [],
+  "trades": [
+    {
+      "alert_id": "aa8d6fdeb9",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4021.4,
+      "stop": 3988.8366539320964,
+      "target": 4111.5,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-07-14T03:41:43.124547",
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 4021.4,
+      "result": "LOSS",
+      "closed_at": "2026-07-14T03:41:44.067446"
+    }
+  ],
   "open_sim_trades": []
 }
