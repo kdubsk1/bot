@@ -1,11 +1,4 @@
 {
-  "GC:EMA21_PULLBACK_BULL": {
-    "reason": "0W/115L (0.0% WR)",
-    "suspended_at": "2026-07-10T22:30:11.287166+00:00",
-    "total_at_suspension": 115,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
   "BTC:STOCH_REVERSAL_BULL": {
     "reason": "1W/5L (16.7% WR)",
     "suspended_at": "2026-07-12T21:26:11.125473+00:00",
@@ -347,6 +340,13 @@
     "suspended_at": "2026-07-12T21:26:11.126267+00:00",
     "total_at_suspension": 11,
     "wr_at_suspension": 9.1,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:EMA21_PULLBACK_BULL": {
+    "reason": "0W/115L (0.0% WR)",
+    "suspended_at": "2026-07-14T03:31:11.582153+00:00",
+    "total_at_suspension": 115,
+    "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   }
 }
