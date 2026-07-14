@@ -500,18 +500,21 @@ class PositionSizer:
         cushion_pct = (actual_risk / cushion) * 100 if cushion > 0 else 0
 
         # ── Reasoning string for Telegram ─────────────────────────
-        reasoning = (
-            f"surv={survival_contracts} {binding.upper()}, "
-            f"kelly={kelly_contracts} ({kelly_method}), "
-            f"conv={conviction_mult:.2f}, "
-            f"regime={regime_mult:.2f}, "
-            f"pos={position_mult:.2f}"
-        )
+        # Wave 136 (_WAVE136_SIZING_TRUTH): the reasoning line is what Wayne
+        # SEES on every alert - human first. Full machine detail is still
+        # returned in the structured fields below (and logged).
         if _vlock:
-            _vlock_msg = (f"validation lock active (n={_vlock_n}, WR={_vlock_wr:.0%})"
-                          if _vlock_n >= _VALIDATION_LOCK_WINDOW
-                          else f"validation lock active (n={_vlock_n} < {_VALIDATION_LOCK_WINDOW})")
-            reasoning = f"LOCKED → 1 contract — {_vlock_msg} | {reasoning}"
+            if _vlock_n >= _VALIDATION_LOCK_WINDOW:
+                reasoning = (f"1 contract - safety lock: sizes up once the last "
+                             f"{_VALIDATION_LOCK_WINDOW}-trade win rate holds 50%+ "
+                             f"(now {_vlock_wr:.0%})")
+            else:
+                reasoning = (f"1 contract - safety lock: building the track record "
+                             f"({_vlock_n}/{_VALIDATION_LOCK_WINDOW} trades toward the 50% test)")
+        else:
+            _lim = "survival cap" if binding == "survival" else kelly_method.replace("_", "-")
+            reasoning = (f"{final_contracts} contract(s) - {_lim}, "
+                         f"conviction x{conviction_mult:.2f}, regime x{regime_mult:.2f}")
 
         return {
             'contracts':           final_contracts,
