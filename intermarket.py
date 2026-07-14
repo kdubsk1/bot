@@ -19,12 +19,17 @@ Also: the confirmer set now uses TwelveData-friendly liquid ETFs/indices that
 proxy the old futures cleanly (SPY for S&P futures, UUP for the dollar, TLT
 inverse for 10y yields), so every confirmer is reliably fetchable for free.
 
-Confirmers per market (invert=True means "up is risk-OFF" for this market):
-    NQ  <- SPY (S&P), QQQ (Nasdaq), SMH (semis), VIX (inverted)
+Confirmers per market (invert=True means "up is risk-OFF" for this market).
+Wave 134 (_WAVE134_CONFIRMER_EXPANSION): VIX (dead on TwelveData free) replaced
+by VIXY (ETF proxy, fetchable), and the read set widened - every ticker chosen
+to be TwelveData-carried so the whole tape runs on the proven "td" source:
+    NQ  <- SPY (S&P), QQQ (Nasdaq), SMH (semis), IWM (small-caps breadth),
+           HYG (credit risk appetite), NVDA (AI bellwether), VIXY (inverted)
     GC  <- UUP (dollar, inverted), TLT (bonds; up = yields down = gold bid),
-           VIX (fear is a safe-haven BID for gold)
-    BTC <- QQQ (risk appetite), VIX (inverted)
-    SOL <- BTC (crypto leader), QQQ (risk appetite)
+           SLV (silver confirms metal moves), GDX (miners lead/confirm gold),
+           VIXY (fear is a safe-haven BID for gold)
+    BTC <- QQQ (risk appetite), ETH (crypto breadth), VIXY (inverted)
+    SOL <- BTC (crypto leader), ETH (closest peer), QQQ (risk appetite)
 
 Longevity / robustness (unchanged Wave 108 guarantees, kept intact):
   * SHADOW ONLY - never blocks, never fires, never affects a trade.
@@ -56,15 +61,20 @@ TAPE_LOG_FILE = os.path.join(_BASE_DIR, "data", "intermarket_tape.jsonl")
 _TTL_S = 1800            # a good series stays fresh this long (30 min)
 _FAIL_BACKOFF_S = 1500   # after a failed fetch, leave that ticker alone 25 min
 _LAST_GOOD_MAX_S = 7200  # serve stale last-good data for up to 2 hours
-_PACE_S = 1.5            # sleep before EVERY network call (rate-limit kindness)
+_PACE_S = 8.0            # sleep before EVERY network call. Wave 134: 13 unique
+                         # tickers per snapshot; TwelveData free allows 8 req/min,
+                         # so >=7.5s spacing keeps every snapshot inside the limit
+                         # (snapshot runs in a daemon thread - scans never wait).
 _SNAPSHOT_MIN_GAP_S = 1800  # at most one snapshot per 30 min
 
 # Per-market confirmers. invert=True means "up is risk-OFF" for that market.
 CONFIRMERS = {
-    "NQ":  [("SPY", False), ("QQQ", False), ("SMH", False), ("VIX", True)],
-    "GC":  [("UUP", True), ("TLT", False), ("VIX", False)],
-    "BTC": [("QQQ", False), ("VIX", True)],
-    "SOL": [("BTC", False), ("QQQ", False)],
+    "NQ":  [("SPY", False), ("QQQ", False), ("SMH", False), ("IWM", False),
+            ("HYG", False), ("NVDA", False), ("VIXY", True)],
+    "GC":  [("UUP", True), ("TLT", False), ("SLV", False), ("GDX", False),
+            ("VIXY", False)],
+    "BTC": [("QQQ", False), ("ETH", False), ("VIXY", True)],
+    "SOL": [("BTC", False), ("ETH", False), ("QQQ", False)],
 }
 
 # canonical confirmer -> per-source symbol. "td" = TwelveData symbol (primary),
@@ -77,6 +87,14 @@ _SYMBOL_MAP = {
     "TLT": {"td": "TLT",     "yf": "TLT"},
     "VIX": {"td": "VIX",     "yf": "^VIX"},
     "BTC": {"td": "BTC/USD", "yf": "BTC-USD"},
+    # Wave 134 additions - all TwelveData-carried (free tier):
+    "VIXY": {"td": "VIXY",    "yf": "VIXY"},
+    "IWM":  {"td": "IWM",     "yf": "IWM"},
+    "HYG":  {"td": "HYG",     "yf": "HYG"},
+    "NVDA": {"td": "NVDA",    "yf": "NVDA"},
+    "SLV":  {"td": "SLV",     "yf": "SLV"},
+    "GDX":  {"td": "GDX",     "yf": "GDX"},
+    "ETH":  {"td": "ETH/USD", "yf": "ETH-USD"},
 }
 
 _BULL_AT = 0.35
