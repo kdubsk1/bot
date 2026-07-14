@@ -601,14 +601,14 @@ def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
         # technical analysis). For 15m bars near the current bar this introduces a tiny lag,
         # but the bot is making decisions on closed bars so it doesn't matter.
         if body.get("live") is True:
-            logger.info("TopstepX %s %s: success=false on live=True — retrying with live=False (delayed data)", market, timeframe)
+            logger.info("TopstepX %s %s: live=True (funded env) not available — using live=False (Combine sim feed, real-time L1)", market, timeframe)
             body["live"] = False
             try:
                 resp_dl = _do_post()
                 if resp_dl.status_code == 200:
                     data = resp_dl.json()
                     if data.get("success"):
-                        logger.info("TopstepX %s %s: live=False worked ✅ (account on delayed-data plan)", market, timeframe)
+                        logger.info("TopstepX %s %s: live=False worked ✅ (Combine sim feed - real-time L1)", market, timeframe)
                     else:
                         logger.warning("TopstepX %s %s: live=False also failed: %s",
                                        market, timeframe, data.get("errorMessage", "unknown"))
@@ -750,7 +750,7 @@ _td_fallback_count: Dict[str, int] = {}
 
 # Wave 115 (_WAVE115_FEED_MODE): account-wide TopstepX feed mode, made VISIBLE.
 # The API tries live=True on every fetch; the account entitlement decides what
-# we actually get. mode is "LIVE" or "DELAYED" (None until the first successful
+# we actually get. mode is "LIVE" or "SIM-REALTIME" (None until the first successful
 # fetch). On every CHANGE we log at ERROR with the Wave-62 "DATA ALERT" prefix
 # (the established transport that reaches Telegram), so Wayne is told the
 # moment the feed upgrades to real-time (or ever degrades back).
@@ -759,19 +759,23 @@ _tsx_feed: Dict[str, Optional[str]] = {"mode": None}
 
 def _note_tsx_feed_mode(was_live: bool) -> None:
     try:
-        new_mode = "LIVE" if was_live else "DELAYED"
+        # Wave 133 (_WAVE133_FEED_RELABEL): measured Jul 13 (Wave 132 age
+        # telemetry): newest-bar age ~1.0-1.3 min -> the Combine sim feed IS
+        # real-time L1 (as Topstep documents). "DELAYED" was an unmeasured
+        # assumption from the live flag, which selects funded-vs-sim env.
+        new_mode = "LIVE" if was_live else "SIM-REALTIME"
         old_mode = _tsx_feed.get("mode")
         if new_mode == old_mode:
             return
         _tsx_feed["mode"] = new_mode
         if old_mode is None:
             logger.info("TopstepX feed mode: %s%s", new_mode,
-                        "" if was_live else " (~10-15 min delayed-data plan)")
+                        "" if was_live else " (Combine sim feed - real-time L1, measured age ~1min)")
         else:
             logger.error("DATA ALERT: TopstepX feed mode changed %s -> %s%s",
                          old_mode, new_mode,
-                         " - REAL-TIME data active!" if was_live else
-                         " - account fell back to the delayed-data plan")
+                         " - funded-environment feed active!" if was_live else
+                         " - on the Combine sim feed (real-time L1)")
     except Exception:
         pass
 # Track which data source was last used per market|tf
