@@ -1337,7 +1337,24 @@ def get_frames(market: str) -> Dict[str, pd.DataFrame]:
     sources = set(_last_source.get(f"{market_upper}|{tf}", "cache") for tf in _ALL_TIMEFRAMES)
     source_str = "+".join(sorted(sources))
     _feed115 = (" | feed=" + (_tsx_feed.get("mode") or "n/a")) if market_upper in _FUTURES_MARKETS else ""  # Wave 115
-    logger.info("Data check %s: %s | source=%s%s", market_upper, bar_counts, source_str, _feed115)
+    # Wave 132 (_WAVE132_FEED_FRESHNESS): measure, don't assume. Log the age
+    # of the newest 15m bar (from its OPEN time) so the logs PROVE whether
+    # the feed is real-time or delayed. Interpretation: if partial bars are
+    # included, a real-time feed shows age 0-15m; completed-bars-only shows
+    # 15-30m; a 15-min-DELAYED feed shifts each range +15m (30-45m). Wave
+    # 115's LIVE/DELAYED label only reflects which API flag worked - Topstep
+    # includes real-time Level 1 data in the Combine, so the sim feed may
+    # already be real-time; this field settles it with data.
+    _fresh132 = ""
+    try:
+        _df15 = frames.get("15m")
+        if _df15 is not None and len(_df15) > 0:
+            _newest = _df15.index[-1]
+            _age_min = (pd.Timestamp.now(tz="UTC") - _newest).total_seconds() / 60.0
+            _fresh132 = " | newest15m=%s age=%.1fm" % (_newest.strftime("%H:%M"), _age_min)
+    except Exception:
+        _fresh132 = ""
+    logger.info("Data check %s: %s | source=%s%s%s", market_upper, bar_counts, source_str, _feed115, _fresh132)
 
     return frames
 
