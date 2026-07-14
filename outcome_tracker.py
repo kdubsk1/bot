@@ -2467,8 +2467,10 @@ _AUTO_REVIEW_FILE = os.path.join(_BASE_DIR, "data", "last_review_count.json")
 
 def check_auto_review() -> Optional[str]:
     """
-    Returns a strategy review message every 10 closed trades, or None.
-    Tracks last reviewed count so it only fires once per threshold.
+    Weekly strategy review (Wave 131): returns the review message at most
+    once every 7 days (and only if 3+ new trades closed since the last one).
+    The bot still LEARNS from every trade elsewhere - this only throttles
+    the Telegram message. Quiet-initializes after a state reset (redeploy).
     """
     try:
         rows = []
@@ -2478,19 +2480,38 @@ def check_auto_review() -> Optional[str]:
         closed = [r for r in rows if r.get("status") == "CLOSED" and r.get("result") in ("WIN","LOSS")]
         total_closed = len(closed)
 
-        # Load last reviewed count
-        last_count = 0
+        # Wave 131 (_WAVE131_WEEKLY_REVIEW): weekly cadence, not every 10
+        # trades. Wayne: "think of all that, but message maybe once a week."
+        # Learning paths run on every trade regardless - only the MESSAGE is
+        # throttled. State resets (e.g. a redeploy wiping the marker file)
+        # initialize QUIETLY instead of firing, which was the spam source.
+        _now_ts = datetime.now(timezone.utc)
+        _state = {}
         if os.path.exists(_AUTO_REVIEW_FILE):
-            with open(_AUTO_REVIEW_FILE) as f:
-                last_count = json.load(f).get("count", 0)
-
-        # Fire every 10 trades
-        if total_closed < 10 or total_closed // 10 == last_count // 10:
+            try:
+                with open(_AUTO_REVIEW_FILE) as f:
+                    _state = json.load(f)
+            except Exception:
+                _state = {}
+        last_count = int(_state.get("count", 0) or 0)
+        _last_ts = None
+        try:
+            if _state.get("last_review_ts"):
+                _last_ts = datetime.fromisoformat(_state["last_review_ts"])
+        except Exception:
+            _last_ts = None
+        if _last_ts is None:
+            # First run or reset state: start the weekly clock now, send nothing.
+            safe_io.atomic_write_json(_AUTO_REVIEW_FILE,
+                {"count": total_closed, "last_review_ts": _now_ts.isoformat()})
+            return None
+        _age_days = (_now_ts - _last_ts).total_seconds() / 86400.0
+        if _age_days < 7.0 or (total_closed - last_count) < 3:
             return None
 
-        # Save new count
         # Wave 48 (May 12, 2026): atomic write.
-        safe_io.atomic_write_json(_AUTO_REVIEW_FILE, {"count": total_closed})
+        safe_io.atomic_write_json(_AUTO_REVIEW_FILE,
+            {"count": total_closed, "last_review_ts": _now_ts.isoformat()})
 
         # Build the review
         perf = _load_performance()
@@ -2537,7 +2558,7 @@ def check_auto_review() -> Optional[str]:
             lines.append("All setups performing within normal range.")
 
         lines.append("━━━━━━━━━━━━━━━━━━")
-        lines.append("🧠 Review triggered automatically every 10 trades.")
+        lines.append("\U0001f9e0 Weekly strategy review - at most once every 7 days.")
         return "\n".join(lines)
     except Exception as e:
         return None
