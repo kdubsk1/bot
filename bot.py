@@ -2279,7 +2279,7 @@ async def scan_market(app, market, frames):
                 _w22_regime = snapshot_context.get("regime", "UNKNOWN") if isinstance(snapshot_context, dict) else "UNKNOWN"
                 lev, risk_pct = ot.suggest_leverage(tier, stp["entry"], stp["raw_stop"], SETTINGS["account_risk_pct"], regime=_w22_regime)
                 lev = min(lev, lev_cap)
-            hold = ot.HOLD_BY_TIER.get(tier)
+            hold = ot.suggest_hold(market, entry_tf, tier)  # Wave 135 (_WAVE135_HOLD_TIME_TRUTH): tf+market truth, not tier
 
             # Apr 30 dup-guard: block same market+setup+direction firing within 10 min.
             # Prevents the BTC SHORT BREAK_RETEST_BEAR x2 in 2 minutes loss pattern.
