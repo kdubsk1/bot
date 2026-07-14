@@ -829,6 +829,29 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
         msg += f"⏱ *Hold:* {_md(hold)}\n"
 
     msg += f"━━━━━━━━━━━━━━━━━━\n📋 *Chart Read:*\n{_md(setup['detail'])}\n━━━━━━━━━━━━━━━━━━\n"
+    # Wave 137 (_WAVE137_WHY_LINE): confluence context - which independent
+    # reads (Wave-134 expanded tape) line up with THIS trade right now, plus
+    # the news-window flag. Additive-only per Wayne's law: informs, never
+    # blocks. get_tape serves the warm snapshot cache (no network in the
+    # alert path); fully wrapped so it can never break an alert.
+    try:
+        import intermarket as _im137
+        _t137 = _im137.get_tape(market) or {}
+        _tape137 = _t137.get("tape")
+        if _tape137 and _tape137 != "UNKNOWN":
+            _det137 = {k: v for k, v in (_t137.get("detail") or {}).items() if v is not None}
+            if is_long:
+                _al137 = [k for k, v in _det137.items() if v >= 0.5]
+            else:
+                _al137 = [k for k, v in _det137.items() if v <= -0.5]
+            _who137 = (" - " + ", ".join(_al137[:4])) if _al137 else ""
+            _news137 = "  |  \U0001F4C5 news window" if ot.in_news_window() else ""
+            msg += (f"\U0001F9ED *Why:* tape {_tape137} - {len(_al137)}/{len(_det137)} "
+                    f"reads with this trade{_who137}{_news137}\n"
+                    + "\u2501" * 18 + "\n")
+    except Exception as _we137:
+        log.debug(f"[{market}] why-line skipped: {_we137}")
+
     if extra_footer:
         msg += f"{_md(extra_footer)}\n━━━━━━━━━━━━━━━━━━\n"
     sb = sim.format_sim_block(market, tier, setup["entry"], setup["raw_stop"], target, alert_id,
