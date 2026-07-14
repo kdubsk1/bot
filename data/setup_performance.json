@@ -84,11 +84,11 @@
     "last_updated": "2026-06-26T09:55:57.730695"
   },
   "GC:BB_REVERSION_BULL": {
-    "wins": 32,
+    "wins": 33,
     "losses": 6,
-    "total": 38,
-    "win_rate": 84.2,
-    "last_updated": "2026-07-08T19:55:29.778331"
+    "total": 39,
+    "win_rate": 84.6,
+    "last_updated": "2026-07-14T15:10:34.131599"
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 145,
@@ -175,11 +175,11 @@
     "last_updated": "2026-06-17T19:43:25.938143"
   },
   "GC:STOCH_REVERSAL_BEAR": {
-    "wins": 16,
+    "wins": 17,
     "losses": 11,
-    "total": 27,
-    "win_rate": 59.3,
-    "last_updated": "2026-07-09T16:36:17.307279"
+    "total": 28,
+    "win_rate": 60.7,
+    "last_updated": "2026-07-14T16:10:28.374877"
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 4,
@@ -225,17 +225,17 @@
   },
   "BTC:STOCH_REVERSAL_BEAR": {
     "wins": 47,
-    "losses": 41,
-    "total": 88,
-    "win_rate": 53.4,
-    "last_updated": "2026-07-10T01:58:07.517412"
+    "losses": 42,
+    "total": 89,
+    "win_rate": 52.8,
+    "last_updated": "2026-07-14T15:33:50.388835"
   },
   "NQ:BREAK_RETEST_BULL": {
-    "wins": 89,
+    "wins": 90,
     "losses": 43,
-    "total": 132,
-    "win_rate": 67.4,
-    "last_updated": "2026-07-10T04:58:34.330424"
+    "total": 133,
+    "win_rate": 67.7,
+    "last_updated": "2026-07-14T19:55:05.219455"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,
@@ -288,10 +288,10 @@
   },
   "GC:EMA50_BREAKDOWN": {
     "wins": 0,
-    "losses": 1,
-    "total": 1,
+    "losses": 3,
+    "total": 3,
     "win_rate": 0.0,
-    "last_updated": "2026-06-04T16:24:55.960056"
+    "last_updated": "2026-07-14T19:10:54.904684"
   },
   "GC:MACD_CROSS_BULL": {
     "wins": 0,
@@ -351,10 +351,10 @@
   },
   "NQ:OPENING_RANGE_BREAKOUT": {
     "wins": 12,
-    "losses": 1,
-    "total": 13,
-    "win_rate": 92.3,
-    "last_updated": "2026-07-09T17:11:35.549487"
+    "losses": 2,
+    "total": 14,
+    "win_rate": 85.7,
+    "last_updated": "2026-07-14T14:36:07.611059"
   },
   "BTC:VWAP_REJECT_BEAR": {
     "wins": 2,

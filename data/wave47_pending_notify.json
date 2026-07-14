@@ -1,17 +1,11 @@
 {
   "newly_suspended": [
     {
-      "market": "SOL",
-      "setup": "BB_REVERSION_BEAR",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
-    },
-    {
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BEAR",
       "losses": 4,
       "reason": "Wave 47 auto: 0W/4L over last 30 days"
     }
   ],
-  "ts": "2026-07-13T20:00:18.528392+00:00"
+  "ts": "2026-07-14T20:00:22.084069+00:00"
 }

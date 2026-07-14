@@ -38,3 +38,7 @@
 {"ts": "2026-07-13T14:52:19.303336+00:00", "alert_id": "58f8ad0f85", "market": "NQ", "tf": "1h", "hour": 14, "time_edge_score": 51, "time_expected_R": 0.527, "time_label": "prime"}
 {"ts": "2026-07-14T03:41:43.046232+00:00", "alert_id": "aa8d6fdeb9", "market": "GC", "tf": "4h", "hour": 3, "time_edge_score": 41, "time_expected_R": 0.226, "time_label": "good"}
 {"ts": "2026-07-14T14:05:21.709111+00:00", "alert_id": "ff1dcf387c", "market": "NQ", "tf": "15m", "hour": 14, "time_edge_score": 51, "time_expected_R": 0.527, "time_label": "prime"}
+{"ts": "2026-07-14T15:10:35.505537+00:00", "alert_id": "7547ef03b2", "market": "BTC", "tf": "15m", "hour": 15, "time_edge_score": 51, "time_expected_R": 0.539, "time_label": "prime"}
+{"ts": "2026-07-14T15:28:46.983651+00:00", "alert_id": "254031ffc4", "market": "GC", "tf": "1h", "hour": 15, "time_edge_score": 51, "time_expected_R": 0.539, "time_label": "prime"}
+{"ts": "2026-07-14T16:55:52.376581+00:00", "alert_id": "4177278b9f", "market": "BTC", "tf": "15m", "hour": 16, "time_edge_score": 35, "time_expected_R": 0.048, "time_label": "neutral"}
+{"ts": "2026-07-14T18:55:47.682886+00:00", "alert_id": "9fed76bc10", "market": "NQ", "tf": "1h", "hour": 18, "time_edge_score": 46, "time_expected_R": 0.393, "time_label": "good"}
