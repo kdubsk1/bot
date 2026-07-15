@@ -348,5 +348,19 @@
     "total_at_suspension": 115,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:BB_REVERSION_BEAR": {
+    "reason": "27W/71L (27.6% WR)",
+    "suspended_at": "2026-07-15T12:34:38.969139+00:00",
+    "total_at_suspension": 98,
+    "wr_at_suspension": 27.6,
+    "bleed_at_suspension": 0.0
+  },
+  "BTC:STOCH_REVERSAL_BEAR": {
+    "reason": "bled $600 in 7d",
+    "suspended_at": "2026-07-15T12:34:38.971969+00:00",
+    "total_at_suspension": 92,
+    "wr_at_suspension": 51.1,
+    "bleed_at_suspension": -600.0
   }
 }
