@@ -6,3 +6,6 @@
 {"ts":"2026-07-13T10:01:16.746948+00:00","layer":"daily_soft_tune","setup":"BB_REVERSION_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
 {"ts":"2026-07-13T10:01:16.750564+00:00","layer":"daily_soft_tune","setup":"STOCH_REVERSAL_BEAR","delta":-3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
 {"ts":"2026-07-13T10:01:16.753183+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
+{"ts":"2026-07-15T10:03:28.479400+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
+{"ts":"2026-07-15T10:03:28.485770+00:00","layer":"daily_soft_tune","setup":"STOCH_REVERSAL_BEAR","delta":-3,"verdict":"APPLY","why":"holdout agrees (-)","stats":{"n":8,"holdout_n":4,"holdout_avg_dollar":-24.3}}
+{"ts":"2026-07-15T10:03:28.489181+00:00","layer":"daily_soft_tune","setup":"BREAK_RETEST_BULL","delta":3,"verdict":"APPLY","why":"holdout agrees (+)","stats":{"n":8,"holdout_n":4,"holdout_avg_dollar":93.2}}

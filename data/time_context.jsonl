@@ -45,3 +45,6 @@
 {"ts": "2026-07-15T00:13:33.779366+00:00", "alert_id": "587988f227", "market": "BTC", "tf": "15m", "hour": 0, "time_edge_score": 24, "time_expected_R": -0.269, "time_label": "dead"}
 {"ts": "2026-07-15T00:23:36.634391+00:00", "alert_id": "c116d6471a", "market": "NQ", "tf": "15m", "hour": 0, "time_edge_score": 24, "time_expected_R": -0.269, "time_label": "dead"}
 {"ts": "2026-07-15T01:41:20.987517+00:00", "alert_id": "68457a8a77", "market": "NQ", "tf": "15m", "hour": 1, "time_edge_score": 38, "time_expected_R": 0.135, "time_label": "good"}
+{"ts": "2026-07-15T05:06:23.395860+00:00", "alert_id": "afed064303", "market": "NQ", "tf": "15m", "hour": 5, "time_edge_score": 36, "time_expected_R": 0.081, "time_label": "neutral"}
+{"ts": "2026-07-15T06:31:48.463209+00:00", "alert_id": "6a131342af", "market": "NQ", "tf": "15m", "hour": 6, "time_edge_score": 32, "time_expected_R": -0.054, "time_label": "neutral"}
+{"ts": "2026-07-15T07:18:35.479195+00:00", "alert_id": "3429182914", "market": "NQ", "tf": "15m", "hour": 7, "time_edge_score": 15, "time_expected_R": -0.538, "time_label": "dead"}
