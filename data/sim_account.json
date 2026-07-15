@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50676.73,
+  "balance": 50627.16,
   "peak_balance": 50727.27,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -12,10 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": -5.04,
+  "today_pnl": -54.61,
   "today_date": "2026-07-15",
   "session_date": "2026-07-15",
-  "total_pnl": 676.73,
+  "total_pnl": 627.16,
   "trades": [
     {
       "alert_id": "afed064303",
@@ -67,7 +67,39 @@
       "exit_price": 30009.9688,
       "result": "LOSS",
       "closed_at": "2026-07-15T07:23:39.903169"
+    },
+    {
+      "alert_id": "f3e5fce581",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29974.75,
+      "stop": 29949.964487079047,
+      "target": 30047.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-07-15T12:50:00.564730",
+      "status": "CLOSED",
+      "pnl": -49.57,
+      "exit_price": 29949.9645,
+      "result": "LOSS",
+      "closed_at": "2026-07-15T13:15:22.066152"
     }
   ],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "0f688c0486",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4065.6,
+      "stop": 4087.2255580329215,
+      "target": 4022.1,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "STOCH_REVERSAL_BEAR",
+      "opened_at": "2026-07-15T14:57:04.474326",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }

@@ -232,10 +232,10 @@
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 94,
-    "losses": 49,
-    "total": 143,
-    "win_rate": 65.7,
-    "last_updated": "2026-07-15T07:30:51.456898"
+    "losses": 50,
+    "total": 144,
+    "win_rate": 65.3,
+    "last_updated": "2026-07-15T13:15:21.550247"
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 0,

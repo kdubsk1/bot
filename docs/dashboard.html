@@ -283,16 +283,16 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-15T12:39:45.567720+00:00",
+  "generated_at": "2026-07-15T18:39:55.772855+00:00",
   "topstep": {
-    "balance": 50676.73,
+    "balance": 50627.16,
     "starting_balance": 50000,
-    "today_pnl": -5.04,
-    "total_pnl": 676.73,
+    "today_pnl": -54.61,
+    "total_pnl": 627.16,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -389,6 +389,10 @@ const DATA = {
       {
         "time": "2026-07-15 07:18",
         "balance": 61379.36
+      },
+      {
+        "time": "2026-07-15 12:50",
+        "balance": 60458.67
       }
     ]
   },
@@ -807,23 +811,23 @@ const DATA = {
   },
   "all_time": {
     "wins": 11,
-    "losses": 18,
-    "wr": 37.9,
-    "total_trades": 29
+    "losses": 19,
+    "wr": 36.7,
+    "total_trades": 30
   },
   "today": {
     "wins": 2,
-    "losses": 4,
-    "wr": 33.3,
-    "total_trades": 6
+    "losses": 5,
+    "wr": 28.6,
+    "total_trades": 7
   },
   "setup_stats": [
     {
       "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 7,
+      "fires": 8,
       "wins": 3,
-      "losses": 4,
-      "wr": 42.9
+      "losses": 5,
+      "wr": 37.5
     },
     {
       "setup": "BTC:STOCH_REVERSAL_BEAR",
@@ -876,6 +880,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-15 14:57",
+      "market": "GC",
+      "setup": "STOCH_REVERSAL_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4065.6",
+      "stop": "4087.2256",
+      "target": "4022.1",
+      "rr": "2.01",
+      "conv": "59",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-07-15 12:50",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "29974.75",
+      "stop": "29949.9645",
+      "target": "30047.0",
+      "rr": "2.92",
+      "conv": "65",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29949.9645"
+    },
     {
       "time": "2026-07-15 07:18",
       "market": "NQ",
@@ -1243,38 +1279,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "4146.6694"
-    },
-    {
-      "time": "2026-07-09 13:57",
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "62904.74",
-      "stop": "63192.5418",
-      "target": "62447.04",
-      "rr": "1.59",
-      "conv": "55",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "63192.5418"
-    },
-    {
-      "time": "2026-07-08 17:43",
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "62222.85",
-      "stop": "62485.3144",
-      "target": "61663.4",
-      "rr": "2.13",
-      "conv": "56",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "62485.3144"
     }
   ],
   "suspended_setups": [
@@ -1548,9 +1552,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 6,
-      "losses": 8,
-      "total_pnl_r": 6.84,
-      "wr": 42.9
+      "losses": 9,
+      "total_pnl_r": 5.84,
+      "wr": 40.0
     },
     "BTC": {
       "wins": 0,
@@ -1562,8 +1566,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 10,
-      "losses": 11,
-      "wr": 47.6
+      "losses": 12,
+      "wr": 45.5
     },
     "MEDIUM": {
       "wins": 1,
@@ -1576,7 +1580,21 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "STOCH_REVERSAL_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "4065.6",
+      "target": "4022.1",
+      "stop": "4087.2256",
+      "conviction": 59,
+      "last_rescore_conviction": 59,
+      "tier": "MEDIUM",
+      "timestamp": "2026-07-15T14:57:04.331669+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
