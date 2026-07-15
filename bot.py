@@ -1292,6 +1292,46 @@ def _market_position_open(market: str) -> bool:
     return False
 
 
+# Wave 140 (_WAVE140_LEARNABLE_REJECTS): give rejected/shadow rows the SAME
+# structure target the fire path would have used, so check_missed_setups can
+# grade them into real WOULD_WIN/WOULD_LOSE evidence. Without a target these
+# rows could never resolve - the bot's #1 filters produced ZERO learnable
+# shadow data (measured Jul 15: 1,511 vol-confirm near-misses, none graded;
+# 3,709 suspended-shadow rows, none graded).
+# DEDUP: the same setup instance is re-detected and re-logged many times per
+# hour; grading every copy would count one market move dozens of times and
+# pollute the Wave-60 learning stats. Only the FIRST rejection per
+# (market, setup, direction) per hour gets levels; the rest stay level-less
+# and are stamped NO_LEVELS at birth by Wave 139 (one graded instance is
+# one paper trade, mirroring how one real fire would have been one position).
+# DETECTED rows are deliberately NOT leveled: a detection that later FIRES
+# would grade the same move twice (paper + real).
+_W140_LEVELED = {}
+_W140_DEDUP_S = 3600.0
+_W140_LAST_MISSED = [0.0]
+
+def _w140_shadow_levels(market, stp, df_e, atr_v, trend):
+    """Return (target, rr) for a rejected setup, or (0, 0) when deduped or
+    unavailable. Never raises - a levels failure must never break a scan."""
+    try:
+        key = "%s:%s:%s" % (market, stp.get("type"), stp.get("direction"))
+        now = _time.time()
+        _last = _W140_LEVELED.get(key)
+        if _last is not None and now - _last < _W140_DEDUP_S:
+            return 0, 0
+        tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"],
+                                              stp["raw_stop"], atr_v,
+                                              market=market, trend_score_val=trend)
+        if method == "no_target" or not tgt:
+            return 0, 0
+        _W140_LEVELED[key] = now
+        if len(_W140_LEVELED) > 400:
+            _W140_LEVELED.clear()  # tiny map; a clear just re-levels sooner
+        return round(float(tgt), 4), round(float(rr), 2)
+    except Exception:
+        return 0, 0
+
+
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
     cfg        = get_market_config(market)
@@ -1927,7 +1967,7 @@ async def scan_market(app, market, frames):
             if _reject_reason:
                 try:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                        cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+                        cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend), 0, "REJECT",
                         trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                         sl.DECISION_REJECTED,
                         f"{_reject_reason} — insufficient participation",
@@ -1994,7 +2034,7 @@ async def scan_market(app, market, frames):
             if _w74_counter:
                 try:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                        cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+                        cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend), 0, "REJECT",
                         trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                         sl.DECISION_REJECTED,
                         "Wave 74 trend-alignment guard: counter-trend vs " + str(htf_bias) + " (0/465 historical)",
@@ -2015,7 +2055,7 @@ async def scan_market(app, market, frames):
                 suspended_info = ot.get_suspended_setups().get(f"{market}:{stp['type']}", {})
                 reason_text = suspended_info.get("reason", "unknown")
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                    cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+                    cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend), 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                     sl.DECISION_SHADOW_SUSPENDED,
                     f"Suspended due to {reason_text} — shadow-logged to track would-have-fired rate",
@@ -2030,7 +2070,7 @@ async def scan_market(app, market, frames):
                 required_adx = max(required_adx, prime_adx)
             if adx_v < required_adx:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                    cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+                    cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend), 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                     sl.DECISION_REJECTED,
                     f"ADX {round(adx_v,1)} below {stp['type']} minimum {required_adx} — market too choppy for this setup type",
@@ -3978,9 +4018,17 @@ async def scan_loop(app):
                 _LAST_SCAN_TIMESTAMP = datetime.now(timezone.utc)  # Wave 19: track most recent scan
 
                 try:
-                    live_15m = {m: f.get("15m") for m,f in frames_by_market.items() if f.get("15m") is not None}
-                    missed = sl.check_missed_setups(live_15m)
-                    if missed: log.info(f"Missed check: {len(missed)} resolved")
+                    # Wave 140 (_WAVE140_LEARNABLE_REJECTS): rejected rows now
+                    # carry levels, so graded paper trades stay "in flight" for
+                    # hours and the pending pool is never empty - unthrottled,
+                    # the checker would full-rewrite the CSV every cycle again
+                    # (the exact churn Wave 139 removed). Grading reads bar
+                    # HISTORY, so a 10-minute cadence loses zero accuracy.
+                    if _time.time() - _W140_LAST_MISSED[0] >= 600:
+                        live_15m = {m: f.get("15m") for m,f in frames_by_market.items() if f.get("15m") is not None}
+                        missed = sl.check_missed_setups(live_15m)
+                        _W140_LAST_MISSED[0] = _time.time()
+                        if missed: log.info(f"Missed check: {len(missed)} resolved")
                 except Exception as e: log.warning(f"Missed check: {e}")
 
                 for m in active:
