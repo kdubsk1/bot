@@ -225,6 +225,21 @@ def log_scan_decision(
     for k in COLS:
         row.setdefault(k, "")
 
+    # Wave 139 (_WAVE139_PENDING_DRAIN): a non-FIRED row logged without
+    # BOTH a stop and a target can never be simulated by
+    # check_missed_setups, so it would sit "pending" forever. Thousands
+    # of such rows kept the pending pool permanently non-empty, forcing
+    # a full locked rewrite of the whole CSV on every scan. Stamp them
+    # NO_LEVELS at birth so clean scans skip the rewrite entirely.
+    # FIRED rows are exempt (outcome_tracker owns their result); rows
+    # born with a result keep it.
+    if decision != DECISION_FIRED and not row["result"]:
+        _has_stop = row.get("stop") not in ("", None, 0, 0.0)
+        _has_tgt = row.get("target") not in ("", None, 0, 0.0)
+        if not (_has_stop and _has_tgt):
+            row["result"] = "NO_LEVELS"
+            row["result_checked_at"] = row["timestamp"]
+
     # Locked atomic append. Prevents check_missed_setups from clobbering
     # this row by rewriting the file with a stale snapshot.
     safe_io.safe_append_csv(STRATEGY_LOG, COLS, row)
@@ -261,6 +276,19 @@ def check_missed_setups(live_frames: dict):
             if row.get("result"):             # already resolved
                 continue
             if row.get("decision") == DECISION_FIRED:  # handled by outcome_tracker
+                continue
+            # Wave 139 (_WAVE139_PENDING_DRAIN): a row without BOTH levels
+            # can never be simulated - stamp it once (no market data
+            # needed) so it leaves the pending pool for good. Drains the
+            # legacy backlog logged before the log-time stamp existed.
+            try:
+                _w139_tgt = float(row.get("target") or 0)
+                _w139_stp = float(row.get("stop") or 0)
+            except (TypeError, ValueError):
+                _w139_tgt = _w139_stp = 0.0
+            if _w139_tgt == 0 or _w139_stp == 0:
+                row["result"] = "NO_LEVELS"
+                row["result_checked_at"] = datetime.now(timezone.utc).isoformat()
                 continue
             market = row.get("market")
             market_data = live_frames.get(market)
