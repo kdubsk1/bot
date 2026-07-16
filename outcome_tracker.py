@@ -140,7 +140,149 @@ _DOLLAR_BLEED_WINDOW_DAYS = 7
 # logic re-suspends them on the next loss. Net cost: at most 1 losing
 # trade per setup per 14-day window. Net benefit: previously-good setups
 # can reactivate when conditions favour them again.
-_AUTO_UNSUSPEND_DAYS = 3  # Wave 53 (May 13, 2026): 14->3. Faster recovery, cockroach mode.
+_AUTO_UNSUSPEND_DAYS = 3  # Wave 53: 14->3. RETIRED by Wave 144 (see below).
+
+# ============================================================================
+# Wave 144 (_WAVE144_PAROLE_FIX): THE PAROLE TRAP.
+#
+# The Wave 20 timer above NEVER WORKED. Both of its loops live in ONE function
+# pass: loop 1 auto-restored a setup (del suspended[key]); loop 2 immediately
+# re-evaluated it, found its LIFETIME win rate still under 35% - which it must
+# be, since no trades can fire while a setup is benched - and re-suspended it
+# with a fresh timestamp. The "fresh shot under current market conditions"
+# lasted microseconds. The setup never got one scan to fire.
+# PROVEN from data/suspension_events.jsonl: 474 AUTO_RESTORED-then-SUSPENDED-
+# in-the-same-second events across 50 setups since 2026-05-10, against only 4
+# genuine restores in two months. Wave 53 lowering 14->3 days just spun the
+# useless cycle 4.6x faster. A timer can never work here: the thing it waits
+# for - a better record - cannot happen while the setup is unable to trade.
+#
+# The fix is NOT to blindly free 50 setups carrying 1,658 historical losses.
+# It is PROBATION THAT MUST BE EARNED, on evidence that costs nothing:
+#   1. Wave 140 gave every suspended setup's shadow row real levels, so a
+#      benched setup now writes graded WOULD_WIN / WOULD_LOSE paper trades all
+#      day long (Wave 138's rules; identical to how real trades are judged).
+#   2. When that SHADOW record proves EXPECTANCY-POSITIVE over a real sample,
+#      the setup earns probation and comes off the bench.
+#   3. On probation the LIFETIME gate is skipped - that gate IS the trap. It is
+#      judged only on the NEW trades it fires from that moment.
+#   4. After _PROBATION_JUDGE_TRADES live trades: expectancy-positive on THOSE
+#      trades -> GRADUATED (clean slate, judged from graduation onward);
+#      otherwise -> straight back to the bench, and it must re-earn probation
+#      from scratch on fresh paper evidence.
+#   5. The DOLLAR-BLEED gate stays ACTIVE at every stage. Real money always
+#      outranks paper: bleed past the limit and it is benched instantly.
+#
+# Why expectancy and not win rate: BTC:STOCH_REVERSAL_BEAR sits at 47W/45L =
+# 51.1% WR and was suspended for bleeding $600 in 7 days - above a 50% bar and
+# still losing money, because its wins are smaller than its losses. A 51%
+# winner at 0.8:1 bleeds an account; a 35% winner at 3:1 prints. Expectancy is
+# the only honest gate, and it is the same standard filter_ledger uses.
+# ============================================================================
+PROBATION_FILE = os.path.join(_BASE_DIR, "data", "probation.json")
+_PROBATION_MIN_SHADOW = 10       # graded paper trades required to earn probation
+_PROBATION_JUDGE_TRADES = 5      # live trades granted before judgment
+_PROBATION_MIN_EXPECTANCY = 0.0  # R per trade; must beat this on paper AND live
+
+
+def get_probation() -> dict:
+    """Wave 144: setups off the bench and on trial (SERVING), plus setups that
+    passed their trial (GRADUATED). Never raises - a probation-file problem
+    must never break the suspension engine."""
+    try:
+        if os.path.exists(PROBATION_FILE):
+            with open(PROBATION_FILE, "r", encoding="utf-8") as f:
+                return json.load(f) or {}
+    except Exception:
+        pass
+    return {}
+
+
+def _save_probation(data: dict):
+    try:
+        safe_io.atomic_write_json(PROBATION_FILE, data)
+    except Exception:
+        pass
+
+
+def _expectancy(wins: int, losses: int, avg_rr: float) -> float:
+    """Expected R per trade - the one measure that cannot flatter a setup."""
+    n = wins + losses
+    if n <= 0 or avg_rr <= 0:
+        return -1.0
+    wr = wins / n
+    return wr * avg_rr - (1.0 - wr)
+
+
+def shadow_evidence_by_setup() -> dict:
+    """Wave 144: per market:setup record built from GRADED shadow rows - the
+    paper trades a benched setup writes while it sits out. This is how a setup
+    earns its way back without risking a cent. Lazy import: strategy_log
+    imports this module, so a module-level import would be circular."""
+    ev = {}
+    try:
+        import strategy_log as _sl
+        rows = _sl._load_all_strategy_rows()
+    except Exception:
+        return ev
+    for r in rows:
+        try:
+            if r.get("decision") != "REJECTED_SUSPENDED":
+                continue
+            res = r.get("result", "")
+            if res not in ("WOULD_WIN", "WOULD_LOSE"):
+                continue
+            key = "%s:%s" % (r.get("market", "?"), r.get("setup_type", "?"))
+            b = ev.setdefault(key, {"wins": 0, "losses": 0, "rr_sum": 0.0, "rr_n": 0})
+            if res == "WOULD_WIN":
+                b["wins"] += 1
+            else:
+                b["losses"] += 1
+            rr = float(r.get("rr") or 0)
+            if rr > 0:
+                b["rr_sum"] += rr
+                b["rr_n"] += 1
+        except Exception:
+            continue
+    for b in ev.values():
+        b["n"] = b["wins"] + b["losses"]
+        b["avg_rr"] = (b["rr_sum"] / b["rr_n"]) if b["rr_n"] else 0.0
+        b["wr"] = (100.0 * b["wins"] / b["n"]) if b["n"] else 0.0
+        b["expectancy"] = _expectancy(b["wins"], b["losses"], b["avg_rr"])
+    return ev
+
+
+def _probation_avg_rr(key: str, since_iso: str) -> float:
+    """Average R:R of the LIVE trades this setup closed since a given moment."""
+    try:
+        rows = _read_all()
+        since = datetime.fromisoformat(since_iso)
+        if since.tzinfo is None:
+            since = since.replace(tzinfo=timezone.utc)
+    except Exception:
+        return 0.0
+    rr_sum = 0.0
+    n = 0
+    for r in rows:
+        try:
+            if r.get("status") != "CLOSED":
+                continue
+            if r.get("result") not in ("WIN", "LOSS"):
+                continue
+            if "%s:%s" % (r.get("market", ""), r.get("setup", "")) != key:
+                continue
+            ts = datetime.fromisoformat(r.get("timestamp", ""))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            if ts < since:
+                continue
+            rr = float(r.get("rr") or 0)
+            if rr > 0:
+                rr_sum += rr
+                n += 1
+        except Exception:
+            continue
+    return (rr_sum / n) if n else 0.0
 
 
 def get_suspended_setups() -> dict:
@@ -216,28 +358,47 @@ def check_and_update_suspensions() -> list[str]:
     # May 2: build dollar-bleed map from last N days of outcomes.csv
     bleed_by_setup = _compute_dollar_bleed(_DOLLAR_BLEED_WINDOW_DAYS)
 
-    # Wave 20 (May 9, 2026): time-based auto-unsuspension. THE deadlock fix.
-    # Suspended setups would otherwise stay suspended forever because the WR
-    # restore gate requires new trades that suspension blocks. Iterate the
-    # SUSPENDED dict (not all_keys) since suspended setups may not be in perf.
+    # Wave 144 (_WAVE144_PAROLE_FIX): PROBATION EARNED ON SHADOW PROOF.
+    # This replaces the Wave 20 blind timer, which was a no-op: it restored a
+    # setup and the loop below re-suspended it in the same pass on the same
+    # unchanged lifetime record. Evidence works where a timer cannot - every
+    # benched setup shadow-fires all day and Wave 140 made those rows
+    # gradeable, so a setup can prove itself on paper for free. Earn
+    # expectancy-positive proof over a real sample -> come off the bench with a
+    # protected window. Nothing is ever freed on hope.
     _now_utc = datetime.now(timezone.utc)
-    _auto_cutoff = timedelta(days=_AUTO_UNSUSPEND_DAYS)
+    _probation = get_probation()
+    try:
+        _shadow = shadow_evidence_by_setup()
+    except Exception:
+        _shadow = {}
     for _key in list(suspended.keys()):
-        _info = suspended[_key]
-        _suspended_at_str = _info.get("suspended_at", "")
-        try:
-            _suspended_at = datetime.fromisoformat(_suspended_at_str)
-            if _suspended_at.tzinfo is None:
-                _suspended_at = _suspended_at.replace(tzinfo=timezone.utc)
-            if (_now_utc - _suspended_at) >= _auto_cutoff:
-                _reason = f"auto-unsuspended after {_AUTO_UNSUSPEND_DAYS} days (cooldown)"
-                _info_copy = dict(_info)
-                del suspended[_key]
-                changes.append(f"AUTO_RESTORED {_key} ({_reason})")
-                _log_suspension_event("AUTO_RESTORED", _key, _reason, _info_copy)
-        except Exception:
-            # bad timestamp - leave entry alone, will need WR-based restore
+        if _key in _probation:
             continue
+        _ev = _shadow.get(_key)
+        if not _ev or _ev.get("n", 0) < _PROBATION_MIN_SHADOW:
+            continue  # no proof, no parole - it stays benched, costing nothing
+        if _ev.get("expectancy", -1.0) <= _PROBATION_MIN_EXPECTANCY:
+            continue  # paper says it still loses money - the bench is correct
+        _perf_now = perf.get(_key, {})
+        _p_reason = (f"earned probation on shadow proof: {_ev['wins']}W/{_ev['losses']}L "
+                     f"({_ev['wr']:.0f}% WR, avg rr {_ev['avg_rr']:.1f}, "
+                     f"expectancy {_ev['expectancy']:+.2f}R over {_ev['n']} paper trades)")
+        _probation[_key] = {
+            "state":            "SERVING",
+            "granted_at":       _now_utc.isoformat(),
+            "wins_at_start":    _perf_now.get("wins", 0),
+            "losses_at_start":  _perf_now.get("losses", 0),
+            "shadow_n":         _ev["n"],
+            "shadow_wr":        round(_ev["wr"], 1),
+            "shadow_expectancy": round(_ev["expectancy"], 3),
+            "judge_after_trades": _PROBATION_JUDGE_TRADES,
+            "was_suspended_for": suspended[_key].get("reason", ""),
+        }
+        del suspended[_key]
+        changes.append(f"PROBATION {_key} ({_p_reason})")
+        _log_suspension_event("PROBATION", _key, _p_reason, _probation[_key])
+    _save_probation(_probation)
 
 
     # Combine perf keys and bleed keys so both gates are evaluated
@@ -251,7 +412,92 @@ def check_and_update_suspensions() -> list[str]:
         wr     = round(wins / max(1, total) * 100, 1) if total else 0.0
         bleed  = bleed_by_setup.get(key, 0.0)  # negative number = lost money
 
-        if key in suspended:
+        if key in _probation:
+            # Wave 144 (_WAVE144_PAROLE_FIX): a setup on probation - or one that
+            # already graduated - is judged ONLY on the trades it fires from
+            # that point on. Its lifetime record is deliberately ignored: that
+            # record is frozen evidence from a regime it already paid for, and
+            # consulting it is precisely the trap that re-benched 50 setups 474
+            # times. THE ONE CONSTANT: the dollar-bleed gate still applies at
+            # every stage. Real money always outranks paper.
+            _p = _probation[key]
+            if _p.get("state") == "GRADUATED":
+                # A graduated setup earned a CLEAN SLATE. Deleting its record
+                # here instead would hand it straight back to the lifetime gate
+                # below and re-bench it on the very next pass - the same trap,
+                # one step downstream. It keeps every protection the others
+                # have (WR gate + bleed gate), measured from a fair start line.
+                _gw = max(0, wins - _p.get("wins_at_graduation", 0))
+                _gl = max(0, losses - _p.get("losses_at_graduation", 0))
+                _gn = _gw + _gl
+                _gwr = round(100.0 * _gw / max(1, _gn), 1) if _gn else 100.0
+                _g_bleed = bleed <= -_SUSPEND_DOLLAR_BLEED
+                if _g_bleed or (_gn >= _SUSPEND_MIN_TRADES and _gwr < _SUSPEND_WR_BELOW):
+                    _g_reason = (f"bled ${abs(bleed):.0f} in {_DOLLAR_BLEED_WINDOW_DAYS}d after graduating"
+                                 if _g_bleed else
+                                 f"{_gw}W/{_gl}L ({_gwr}% WR) since graduating")
+                    suspended[key] = {
+                        "reason":              _g_reason,
+                        "suspended_at":        datetime.now(timezone.utc).isoformat(),
+                        "total_at_suspension": total,
+                        "wr_at_suspension":    wr,
+                        "bleed_at_suspension": round(bleed, 2),
+                    }
+                    del _probation[key]
+                    _save_probation(_probation)
+                    changes.append(f"SUSPENDED {key} ({_g_reason})")
+                    _log_suspension_event("SUSPENDED", key, _g_reason, suspended[key])
+                continue
+            _new_w = max(0, wins - _p.get("wins_at_start", 0))
+            _new_l = max(0, losses - _p.get("losses_at_start", 0))
+            _new_n = _new_w + _new_l
+            if bleed <= -_SUSPEND_DOLLAR_BLEED:
+                _f_reason = f"bled ${abs(bleed):.0f} in {_DOLLAR_BLEED_WINDOW_DAYS}d while on probation"
+                suspended[key] = {
+                    "reason":              _f_reason,
+                    "suspended_at":        datetime.now(timezone.utc).isoformat(),
+                    "total_at_suspension": total,
+                    "wr_at_suspension":    wr,
+                    "bleed_at_suspension": round(bleed, 2),
+                }
+                del _probation[key]
+                _save_probation(_probation)
+                changes.append(f"PROBATION_FAILED {key} ({_f_reason})")
+                _log_suspension_event("PROBATION_FAILED", key, _f_reason, suspended[key])
+            elif _new_n >= _p.get("judge_after_trades", _PROBATION_JUDGE_TRADES):
+                _live_rr = _probation_avg_rr(key, _p.get("granted_at", ""))
+                _live_exp = _expectancy(_new_w, _new_l, _live_rr)
+                _live_wr = round(100.0 * _new_w / max(1, _new_n), 1)
+                if _live_exp > _PROBATION_MIN_EXPECTANCY:
+                    _g_reason = (f"graduated: {_new_w}W/{_new_l}L ({_live_wr}% WR, avg rr "
+                                 f"{_live_rr:.1f}, expectancy {_live_exp:+.2f}R) on {_new_n} live trades")
+                    _probation[key] = {
+                        "state":                "GRADUATED",
+                        "graduated_at":         datetime.now(timezone.utc).isoformat(),
+                        "wins_at_graduation":   wins,
+                        "losses_at_graduation": losses,
+                        "trial_record":         f"{_new_w}W/{_new_l}L",
+                        "trial_expectancy":     round(_live_exp, 3),
+                    }
+                    _save_probation(_probation)
+                    changes.append(f"GRADUATED {key} ({_g_reason})")
+                    _log_suspension_event("GRADUATED", key, _g_reason, _probation[key])
+                else:
+                    _f_reason = (f"probation failed: {_new_w}W/{_new_l}L ({_live_wr}% WR, "
+                                 f"expectancy {_live_exp:+.2f}R) on {_new_n} live trades")
+                    suspended[key] = {
+                        "reason":              _f_reason,
+                        "suspended_at":        datetime.now(timezone.utc).isoformat(),
+                        "total_at_suspension": total,
+                        "wr_at_suspension":    wr,
+                        "bleed_at_suspension": round(bleed, 2),
+                    }
+                    del _probation[key]
+                    _save_probation(_probation)
+                    changes.append(f"PROBATION_FAILED {key} ({_f_reason})")
+                    _log_suspension_event("PROBATION_FAILED", key, _f_reason, suspended[key])
+            # else: still serving its trial - fires freely, lifetime gate skipped
+        elif key in suspended:
             # Already suspended -- check for restoration. Require BOTH:
             # WR back above threshold AND no recent dollar bleed.
             if total >= _SUSPEND_MIN_TRADES and wr >= _RESTORE_WR_ABOVE and bleed > -_SUSPEND_DOLLAR_BLEED:
@@ -347,25 +593,64 @@ def get_suspension_report() -> str:
         "",
     ]
     _now = datetime.now(timezone.utc)
+    # Wave 144 (_WAVE144_PAROLE_FIX): the old countdown promised "auto-restore
+    # in Nd" from the Wave 20 timer. That timer never restored anything: it
+    # freed a setup and the same function pass re-benched it on the unchanged
+    # lifetime record - 474 recorded times across 50 setups, against 4 real
+    # restores in two months. The countdown was a lie on the phone for two
+    # months. Parole is now EARNED, so show the only thing that matters: how
+    # close each benched setup's free paper trades are to earning it back.
+    try:
+        _shadow = shadow_evidence_by_setup()
+    except Exception:
+        _shadow = {}
     for key, info in sorted(suspended.items()):
         reason = info.get("reason", "?")
         since_full = info.get("suspended_at", "")
         since = since_full[:10] if since_full else "?"
-        # Wave 20: countdown to auto-unsuspend
-        countdown = ""
+        progress = " (no paper evidence yet)"
         try:
-            _sa = datetime.fromisoformat(since_full)
-            if _sa.tzinfo is None:
-                _sa = _sa.replace(tzinfo=timezone.utc)
-            _days_in = (_now - _sa).total_seconds() / 86400.0
-            _days_left = max(0, _AUTO_UNSUSPEND_DAYS - int(_days_in))
-            countdown = f" (auto-restore in {_days_left}d)" if _days_left > 0 else " (eligible for auto-restore now)"
+            _ev = _shadow.get(key)
+            if _ev and _ev.get("n"):
+                if _ev["n"] < _PROBATION_MIN_SHADOW:
+                    progress = (f" | paper {_ev['wins']}W/{_ev['losses']}L "
+                                f"({_ev['n']}/{_PROBATION_MIN_SHADOW} trades toward parole)")
+                elif _ev["expectancy"] > _PROBATION_MIN_EXPECTANCY:
+                    progress = (f" | paper {_ev['wins']}W/{_ev['losses']}L, "
+                                f"expectancy {_ev['expectancy']:+.2f}R - PAROLE EARNED, frees on next check")
+                else:
+                    progress = (f" | paper {_ev['wins']}W/{_ev['losses']}L, "
+                                f"expectancy {_ev['expectancy']:+.2f}R - still losing on paper")
         except Exception:
             pass
-        lines.append(f"  🔴 `{key}` — {reason} (since {since}){countdown}")
+        lines.append(f"  🔴 `{key}` — {reason} (since {since}){progress}")
+
+    try:
+        _prob = get_probation()
+        _serving = {k: v for k, v in _prob.items() if v.get("state") == "SERVING"}
+        _grads = {k: v for k, v in _prob.items() if v.get("state") == "GRADUATED"}
+        if _serving:
+            lines.append("")
+            lines.append("*On probation - earned parole on paper, proving it live:*")
+            for k, v in sorted(_serving.items()):
+                lines.append(f"  `{k}` - paper {v.get('shadow_wr','?')}% WR over "
+                             f"{v.get('shadow_n','?')}, judged after "
+                             f"{v.get('judge_after_trades','?')} live trades")
+        if _grads:
+            lines.append("")
+            lines.append("*Graduated - earned their way back:*")
+            for k, v in sorted(_grads.items()):
+                lines.append(f"  `{k}` - trial {v.get('trial_record','?')} "
+                             f"on {(v.get('graduated_at','') or '')[:10]}")
+    except Exception:
+        pass
 
     lines.append("")
-    lines.append(f"_Setups auto-restore when WR climbs above 50% OR after {_AUTO_UNSUSPEND_DAYS} days._")
+    lines.append("_Parole is earned, not timed. A benched setup shadow-fires all day; "
+                 f"prove expectancy-positive over {_PROBATION_MIN_SHADOW}+ free paper trades "
+                 f"to come off the bench, then hold up over {_PROBATION_JUDGE_TRADES} live "
+                 "trades to graduate. Real money always outranks paper: bleeding benches "
+                 "it instantly._")
     return "\n".join(lines)
 
 
