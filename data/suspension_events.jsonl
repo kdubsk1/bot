@@ -1011,3 +1011,4 @@
 {"timestamp": "2026-07-15T22:13:02.957848+00:00", "action": "SUSPENDED", "key": "NQ:STOCH_REVERSAL_BULL", "reason": "6W/17L (26.1% WR)", "total_at_suspension": 23, "wr_at_suspension": 26.1, "bleed_at_suspension": 0.0, "suspended_at": "2026-07-15T22:13:02.957839+00:00"}
 {"timestamp": "2026-07-15T22:13:02.957879+00:00", "action": "SUSPENDED", "key": "SOL:RSI_DIV_BEAR", "reason": "0W/65L (0.0% WR)", "total_at_suspension": 65, "wr_at_suspension": 0.0, "bleed_at_suspension": 0.0, "suspended_at": "2026-07-15T22:13:02.957869+00:00"}
 {"timestamp": "2026-07-15T22:13:02.957907+00:00", "action": "SUSPENDED", "key": "BTC:EMA50_BREAKDOWN", "reason": "0W/61L (0.0% WR)", "total_at_suspension": 61, "wr_at_suspension": 0.0, "bleed_at_suspension": 0.0, "suspended_at": "2026-07-15T22:13:02.957897+00:00"}
+{"timestamp": "2026-07-16T14:07:33.222385+00:00", "action": "RESTORED", "key": "BTC:STOCH_REVERSAL_BEAR", "reason": "WR climbed to 51.1% over 92 trades, bleed $-400 7d"}

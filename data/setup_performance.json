@@ -1,10 +1,10 @@
 {
   "NQ:BB_REVERSION_BULL": {
     "wins": 8,
-    "losses": 27,
-    "total": 35,
-    "win_rate": 22.9,
-    "last_updated": "2026-07-16T07:35:34.759550"
+    "losses": 28,
+    "total": 36,
+    "win_rate": 22.2,
+    "last_updated": "2026-07-16T14:07:39.709996"
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
@@ -63,11 +63,11 @@
     "last_updated": "2026-05-07T17:22:51.505063"
   },
   "NQ:STOCH_REVERSAL_BULL": {
-    "wins": 6,
+    "wins": 7,
     "losses": 18,
-    "total": 24,
-    "win_rate": 25.0,
-    "last_updated": "2026-07-16T07:21:31.168979"
+    "total": 25,
+    "win_rate": 28.0,
+    "last_updated": "2026-07-16T14:07:39.709002"
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 0,
@@ -238,11 +238,11 @@
     "last_updated": "2026-07-15T13:15:21.550247"
   },
   "GC:VWAP_REJECT_BEAR": {
-    "wins": 0,
-    "losses": 36,
-    "total": 36,
-    "win_rate": 0.0,
-    "last_updated": "2026-06-11T06:45:20.520856"
+    "wins": 1,
+    "losses": 37,
+    "total": 38,
+    "win_rate": 2.6,
+    "last_updated": "2026-07-16T14:07:39.708141"
   },
   "BTC:EMA21_PULLBACK_BEAR": {
     "wins": 5,
@@ -280,11 +280,11 @@
     "last_updated": "2026-06-20T14:47:35.297905"
   },
   "NQ:EMA21_PULLBACK_BEAR": {
-    "wins": 0,
+    "wins": 2,
     "losses": 24,
-    "total": 24,
-    "win_rate": 0.0,
-    "last_updated": "2026-07-16T05:33:09.651612"
+    "total": 26,
+    "win_rate": 7.7,
+    "last_updated": "2026-07-16T14:07:39.707317"
   },
   "GC:EMA50_BREAKDOWN": {
     "wins": 0,
@@ -385,18 +385,18 @@
     "last_updated": "2026-06-17T07:51:04.589685"
   },
   "NQ:MACD_CROSS_BEAR": {
-    "wins": 1,
+    "wins": 3,
     "losses": 8,
-    "total": 9,
-    "win_rate": 11.1,
-    "last_updated": "2026-06-18T12:58:47.102222"
+    "total": 11,
+    "win_rate": 27.3,
+    "last_updated": "2026-07-16T14:07:39.706374"
   },
   "NQ:BREAK_RETEST_BEAR": {
     "wins": 1,
-    "losses": 27,
-    "total": 28,
-    "win_rate": 3.6,
-    "last_updated": "2026-07-16T08:18:01.128520"
+    "losses": 28,
+    "total": 29,
+    "win_rate": 3.4,
+    "last_updated": "2026-07-16T14:07:39.711005"
   },
   "NQ:VWAP_REJECT_BEAR": {
     "wins": 28,
