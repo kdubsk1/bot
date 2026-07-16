@@ -1332,6 +1332,46 @@ def _w140_shadow_levels(market, stp, df_e, atr_v, trend):
         return 0, 0
 
 
+def _w143_get(filt, market, setup, base):
+    """Wave 143 (_WAVE143_LEARNED_OVERRIDES): the gates' read path into the
+    learned-overrides store - the HANDS of the learning loop, built to
+    Wayne's signed bounds (Jul 15: whitelist vol_confirm/vol_floor/adx_min/
+    conv_min only; hard floors 0.6x/0.2x/12/44; 2-day proof; 1 change/day;
+    auto-revert on 10 bad live trades; 1-day revert cooldown, 3 strikes ->
+    a week). Guarded lazy import with a full fallback: if the module is
+    missing or broken every gate silently uses its base - the learning
+    system can NEVER break a scan."""
+    try:
+        import learned_overrides as _lo
+        return _lo.get(filt, market, setup, base)
+    except Exception:
+        return base
+
+
+def _w143_mark_via(stp, filt, market, observed, base):
+    """Wave 143: if this value passed ONLY because of a learned override,
+    mark the setup so the trade (if it fires) is tagged for the revert
+    tracker. Never raises."""
+    try:
+        import learned_overrides as _lo
+        if _lo.is_pass_via_override(filt, market, stp["type"], observed, base):
+            stp["_w143_via"] = (filt, market, stp["type"])
+    except Exception:
+        pass
+
+
+def _w143_outcome_lookup(alert_id):
+    """Wave 143: resolve a tagged alert to (result, rr) from outcomes so the
+    revert tracker can judge an override on the live trades it unlocked."""
+    try:
+        for r in ot._read_all():
+            if str(r.get("alert_id", "")) == str(alert_id) and r.get("status") == "CLOSED":
+                return r.get("result", ""), float(r.get("rr") or 0)
+    except Exception:
+        pass
+    return "", 0.0
+
+
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
     cfg        = get_market_config(market)
@@ -1960,10 +2000,23 @@ async def scan_market(app, market, frames):
         for stp in setups:
             _vol_dir = ot.VOLUME_DIRECTION.get(stp["type"], "confirm")
             _reject_reason = None
-            if vol_ratio < 0.3:
-                _reject_reason = f"dead market (vol_ratio={vol_ratio:.2f}x < 0.3x floor)"
-            elif _vol_dir == "confirm" and vol_ratio < 0.8:
-                _reject_reason = f"confirm setup needs vol_ratio >= 0.8x (got {vol_ratio:.2f}x)"
+            # Wave 143 (_WAVE143_LEARNED_OVERRIDES): the volume gates read
+            # through the learned-overrides store. Base thresholds unchanged
+            # (0.3x floor / 0.8x confirm); a bucket only reads lower after the
+            # ledger proved it on 2 consecutive days of graded paper evidence,
+            # never below Wayne's signed floors (0.2x / 0.6x). The reason text
+            # carries the LIVE threshold - Wave 142's classifier parses it at
+            # any value, so the eyes stay open after every move.
+            _w143_floor = _w143_get("vol_floor", market, stp["type"], 0.3)
+            _w143_conf = _w143_get("vol_confirm", market, stp["type"], 0.8)
+            if vol_ratio < _w143_floor:
+                _reject_reason = f"dead market (vol_ratio={vol_ratio:.2f}x < {_w143_floor:.2f}x floor)"
+            elif _vol_dir == "confirm" and vol_ratio < _w143_conf:
+                _reject_reason = f"confirm setup needs vol_ratio >= {_w143_conf:.2f}x (got {vol_ratio:.2f}x)"
+            if _reject_reason is None:
+                if _vol_dir == "confirm":
+                    _w143_mark_via(stp, "vol_confirm", market, vol_ratio, 0.8)
+                _w143_mark_via(stp, "vol_floor", market, vol_ratio, 0.3)
             if _reject_reason:
                 try:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
@@ -2068,6 +2121,13 @@ async def scan_market(app, market, frames):
             if is_prime_session:
                 prime_adx = getattr(cfg, "MIN_ADX_PRIME", required_adx)
                 required_adx = max(required_adx, prime_adx)
+            # Wave 143: ADX minimum reads through the learned store (floor 12,
+            # Wayne-signed). The gate passes its own computed base in, so the
+            # per-setup / prime-session logic above stays the source of truth.
+            _w143_adx_base = required_adx
+            required_adx = _w143_get("adx_min", market, stp["type"], required_adx)
+            if adx_v >= required_adx:
+                _w143_mark_via(stp, "adx_min", market, adx_v, _w143_adx_base)
             if adx_v < required_adx:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend), 0, "REJECT",
@@ -2265,12 +2325,21 @@ async def scan_market(app, market, frames):
             except Exception:
                 pass
             bd_final["final_score"] = conv
+            # Wave 143 (_WAVE143_LEARNED_OVERRIDES): the conviction minimum is
+            # learnable within Wayne's signed floor (44). CRITICAL: the gate is
+            # secretly TWO gates - the tier ladder below independently assigns
+            # REJECT under the same 48, so a naive hook on the fire line alone
+            # would be a fake loosening (tier=="REJECT" still blocks). The
+            # variable is hoisted ABOVE the ladder and both use it, so a
+            # learned 46 genuinely fires as LOW tier. HIGH/MEDIUM cuts (60/53)
+            # are untouched - only the floor between LOW and REJECT moves.
+            _WAVE60_MIN_CONV = _w143_get("conv_min", market, stp["type"], 48)
             if   conv>=60: tier="HIGH"   # Wave 60: tiers on the evidence (win-rate) scale
             elif conv>=53: tier="MEDIUM"
-            elif conv>=48: tier="LOW"
+            elif conv>=_WAVE60_MIN_CONV: tier="LOW"
             else:          tier="REJECT"
-
-            _WAVE60_MIN_CONV = 48  # Wave 60: fire gate on the win-rate scale (LOW tier and up)
+            if tier == "LOW":
+                _w143_mark_via(stp, "conv_min", market, conv, 48)
             if tier=="REJECT" or conv < _WAVE60_MIN_CONV:
                 decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
                 _conv_reason = (
@@ -2469,6 +2538,19 @@ async def scan_market(app, market, frames):
                                        {k: round(v, 4) for k, v in _w87_lm.items()})
             except Exception as _w87e:
                 log.warning(f"W87 map shadow (non-fatal): {_w87e}")
+
+            # Wave 143: a trade that exists only because a learned override
+            # let it through gets tagged; the revert tracker judges the
+            # override on these exact trades and undoes itself if they run
+            # below break-even. Real accountability for every loosening.
+            try:
+                if stp.get("_w143_via"):
+                    import learned_overrides as _lo143
+                    _f143, _m143, _s143 = stp["_w143_via"]
+                    _lo143.tag_trade(_f143, _m143, _s143, str(alert_id))
+                    log.info(f"[{market}] W143 tagged trade {alert_id} via {_f143} override")
+            except Exception as _w143te:
+                log.warning(f"W143 tag_trade failed (non-fatal): {_w143te}")
 
             # Task 8: Increment daily trade counter
             DAILY_TRADE_COUNT += 1
@@ -3895,6 +3977,28 @@ async def scan_loop(app):
                         _full, short = ot.build_daily_report()
                         await tg_send(app, short)
 
+                        # Wave 143 (_WAVE143_LEARNED_OVERRIDES): the HANDS run
+                        # once a day at this same checkpoint. daily_decision()
+                        # applies AT MOST one bounded loosening (2 consecutive
+                        # days of proof, Wayne's signed floors and pace) and
+                        # returns '' on silent days - no note means no change,
+                        # the no-spam guarantee lives in the module itself.
+                        # revert_check() judges every active override on the
+                        # live trades it unlocked and undoes itself when wrong
+                        # (1-day cooldown; 3 strikes -> a week; Wayne's terms).
+                        try:
+                            import learned_overrides as _lo143d
+                            _w143_n1 = _lo143d.daily_decision()
+                            if _w143_n1:
+                                await asyncio.sleep(1)
+                                await tg_send(app, _w143_n1)
+                            _w143_n2 = _lo143d.revert_check(_w143_outcome_lookup)
+                            if _w143_n2:
+                                await asyncio.sleep(1)
+                                await tg_send(app, _w143_n2)
+                        except Exception as _w143de:
+                            log.error(f"Wave 143 hands failed (non-fatal): {_w143de}")
+
                         # Wave 54 (May 13, 2026): generate weekly self-review.
                         # Runs piggy-backed on the daily report trigger so it
                         # uses the same 8 PM ET schedule. File overwritten daily
@@ -4945,6 +5049,32 @@ async def cmd_history(u,c):
 async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
+
+async def cmd_overrides(u, c):
+    """
+    Wave 143 (_WAVE143_LEARNED_OVERRIDES): /overrides - what have the hands
+    learned? Active overrides with their proof and live-watch progress, plus
+    reverted ones cooling down. Bounds are Wayne-signed law.
+    """
+    try:
+        import learned_overrides as _lo
+        text = _lo.status_text()
+    except Exception as e:
+        text = f"Overrides unavailable: {e}"
+    await u.message.reply_text(f"```\n{text[:4000]}\n```", parse_mode="Markdown")
+
+async def cmd_revert(u, c):
+    """
+    Wave 143: /revert [market] [setup] - Wayne's instant overrule. No args
+    reverts every active learned override.
+    """
+    try:
+        import learned_overrides as _lo
+        args = list(c.args or [])
+        text = _lo.manual_revert(*(args[:2]))
+    except Exception as e:
+        text = f"Revert failed: {e}"
+    await u.message.reply_text(text[:4000])
 
 async def cmd_ledger(u, c):
     """
@@ -6867,6 +6997,8 @@ def main():
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
                    ("journal",cmd_journal),
                    ("ledger",cmd_ledger),  # Wave 141: the filter ledger - the learning loop\'s eyes
+                   ("overrides",cmd_overrides),  # Wave 143: the hands - learned overrides status
+                   ("revert",cmd_revert),  # Wave 143: instant manual overrule
                    ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
                    ("commands",cmd_commands),("combine",cmd_combine)]:
         app.add_handler(CommandHandler(cmd,fn))
