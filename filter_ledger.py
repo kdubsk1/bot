@@ -49,58 +49,89 @@ WR_CAP = 0.95          # never require more than 95% (avoid impossible bars)
 
 
 # ---------------------------------------------------------------- classify
+def _band(gap, near, mid):
+    """How close was this to passing? NEAR = worth studying as a loosen
+    candidate; FAR = the gate was obviously right."""
+    if gap <= near:
+        return "NEAR"
+    if gap <= mid:
+        return "MID"
+    return "FAR"
+
+
 def classify_reason(reason: str):
     """Map a raw reject_reason string to (filter_class, near_miss_band).
 
-    The band answers "how close was this to passing?" - only near misses
-    are loosen candidates; a 0.05x volume print failing a 0.8x gate is
-    not evidence the gate is wrong.
+    Wave 142 (_WAVE142_AGNOSTIC_CLASSIFIER): the threshold is PARSED OUT of
+    the reason string, never hardcoded. Wave 143's hands may lower a gate
+    (0.80x -> 0.75x), which rewrites the reason text; a classifier keyed to
+    "0.8x" would stop matching and the ledger would go blind to the very
+    filter it just moved - self-blinding at the worst possible moment.
+    Parsing the threshold keeps the eyes open at ANY threshold, forever,
+    and the band is the GAP to whatever the gate actually required.
+    Class names carry no threshold for the same reason (a bucket must keep
+    its identity across a move, or its evidence history resets).
     """
     r = reason or ""
-    m = re.search(r"vol_ratio >= 0\.8x \(got ([0-9.]+)x\)", r)
+    # "confirm setup needs vol_ratio >= 0.80x (got 0.71x)"
+    m = re.search(r"vol_ratio >= ([0-9.]+)x \(got ([0-9.]+)x\)", r)
+    if m:
+        try:
+            thr = float(m.group(1))
+            v = float(m.group(2))
+        except ValueError:
+            return "VOL_CONFIRM", "ALL"
+        return "VOL_CONFIRM", _band(thr - v, 0.2, 0.4)
+    # "dead market (vol_ratio=0.12x < 0.30x floor)"
+    m = re.search(r"dead market \(vol_ratio=([0-9.]+)x < ([0-9.]+)x floor\)", r)
+    if m:
+        try:
+            v = float(m.group(1))
+            thr = float(m.group(2))
+        except ValueError:
+            return "VOL_FLOOR", "ALL"
+        return "VOL_FLOOR", _band(thr - v, 0.1, 0.2)
+    m = re.search(r"dead market \(vol_ratio=([0-9.]+)x", r)  # legacy rows
     if m:
         try:
             v = float(m.group(1))
         except ValueError:
-            return "VOL_CONFIRM_0.8", "ALL"
-        if v >= 0.6:
-            return "VOL_CONFIRM_0.8", "NEAR_0.6-0.8"
-        if v >= 0.4:
-            return "VOL_CONFIRM_0.8", "MID_0.4-0.6"
-        return "VOL_CONFIRM_0.8", "FAR_<0.4"
-    m = re.search(r"dead market \(vol_ratio=([0-9.]+)x", r)
-    if m:
-        try:
-            v = float(m.group(1))
-        except ValueError:
-            return "VOL_FLOOR_0.3", "ALL"
-        return ("VOL_FLOOR_0.3", "NEAR_0.2-0.3") if v >= 0.2 else ("VOL_FLOOR_0.3", "FAR_<0.2")
+            return "VOL_FLOOR", "ALL"
+        return "VOL_FLOOR", _band(0.3 - v, 0.1, 0.2)
     if r.startswith("Wave 74 trend-alignment guard"):
         return "TREND_GUARD", "ALL"
     if r.startswith("Suspended due to"):
         return "SUSPENDED", "ALL"
+    # "ADX 16.2 below STOCH_REVERSAL_BULL minimum 18 - too choppy"
     m = re.search(r"ADX ([0-9.]+) below .*? minimum ([0-9.]+)", r)
     if m:
         try:
             gap = float(m.group(2)) - float(m.group(1))
         except ValueError:
             return "ADX_MIN", "ALL"
-        if gap < 3:
-            return "ADX_MIN", "NEAR_<3"
-        if gap < 8:
-            return "ADX_MIN", "MID_3-8"
-        return "ADX_MIN", "FAR_>8"
+        return "ADX_MIN", _band(gap, 3, 8)
     m = re.search(r"R:R ([0-9.]+) below minimum ([0-9.]+)", r)
     if m:
         try:
             gap = float(m.group(2)) - float(m.group(1))
         except ValueError:
             return "RR_MIN", "ALL"
-        return ("RR_MIN", "NEAR_<0.3") if gap < 0.3 else ("RR_MIN", "FAR_>=0.3")
-    if "Conviction" in r and "short of" in r:
-        return "CONV_MIN", "NEAR"
+        return "RR_MIN", _band(gap, 0.3, 0.8)
+    # News-window floor is welded shut (never learnable) - classify first so
+    # its "conviction NN below tightened floor" text cannot be read as the
+    # ordinary conviction gate.
     if "news" in r.lower():
         return "NEWS", "ALL"
+    # BOTH conviction variants: "just short of 48" (ALMOST) and
+    # "below 48 minimum (tier=REJECT)" - the second used to fall through to
+    # OTHER, hiding real evidence in a junk bucket.
+    m = re.search(r"Conviction ([0-9.]+) (?:just short of|below) ([0-9.]+)", r)
+    if m:
+        try:
+            gap = float(m.group(2)) - float(m.group(1))
+        except ValueError:
+            return "CONV_MIN", "ALL"
+        return "CONV_MIN", _band(gap, 5, 12)
     return "OTHER", "ALL"
 
 
@@ -268,5 +299,5 @@ def build_ledger_report() -> str:
             L.append("  %-3s %-16s n%d" % (e["market"], e["filter"], e["n"]))
     L.append(DIV)
     L.append("  Read-only: nothing auto-changes yet.")
-    L.append("  Wave 142 acts only on proof + sign-off.")
+    L.append("  The hands (Wave 143) act only on proof.")
     return "\n".join(L)
