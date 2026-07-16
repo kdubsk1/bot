@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 50587.16,
+  "peak_balance": 50727.27,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": -40.0,
+  "today_date": "2026-07-16",
+  "session_date": "2026-07-16",
+  "total_pnl": 587.16,
+  "trades": [
+    {
+      "alert_id": "0f688c0486",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4065.6,
+      "stop": 4087.2255580329215,
+      "target": 4022.1,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "STOCH_REVERSAL_BEAR",
+      "opened_at": "2026-07-15T14:57:04.474326",
+      "status": "CLOSED",
+      "pnl": -40.0,
+      "exit_price": 4069.6,
+      "result": "LOSS",
+      "closed_at": "2026-07-15T22:13:10.412744"
+    }
+  ],
+  "open_sim_trades": []
+}
