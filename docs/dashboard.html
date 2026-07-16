@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-16T02:43:37.108399+00:00",
+  "generated_at": "2026-07-16T08:43:44.032895+00:00",
   "topstep": {
     "balance": 50587.16,
     "starting_balance": 50000,
@@ -381,6 +381,10 @@ const DATA = {
       {
         "time": "2026-07-15 14:57",
         "balance": 55137.96
+      },
+      {
+        "time": "2026-07-16 06:09",
+        "balance": 54310.89
       }
     ]
   },
@@ -799,15 +803,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 8,
-    "losses": 18,
-    "wr": 30.8,
-    "total_trades": 26
+    "losses": 19,
+    "wr": 29.6,
+    "total_trades": 27
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -826,10 +830,10 @@ const DATA = {
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 4,
+      "fires": 5,
       "wins": 2,
-      "losses": 2,
-      "wr": 50.0
+      "losses": 3,
+      "wr": 40.0
     },
     {
       "setup": "GC:STOCH_REVERSAL_BEAR",
@@ -868,6 +872,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-16 06:09",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29724.75",
+      "stop": "29667.9567",
+      "target": "29878.25",
+      "rr": "2.7",
+      "conv": "62",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29667.9567"
+    },
     {
       "time": "2026-07-15 14:57",
       "market": "GC",
@@ -1251,22 +1271,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "29946.2818"
-    },
-    {
-      "time": "2026-07-09 14:17",
-      "market": "GC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "4129.9",
-      "stop": "4146.6694",
-      "target": "4102.7",
-      "rr": "1.62",
-      "conv": "60",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4146.6694"
     }
   ],
   "suspended_setups": [
@@ -1546,9 +1550,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 5,
-      "losses": 9,
-      "total_pnl_r": 3.73,
-      "wr": 35.7
+      "losses": 10,
+      "total_pnl_r": 2.73,
+      "wr": 33.3
     }
   },
   "by_tier": {
@@ -1559,8 +1563,8 @@ const DATA = {
     },
     "HIGH": {
       "wins": 7,
-      "losses": 11,
-      "wr": 38.9
+      "losses": 12,
+      "wr": 36.8
     },
     "LOW": {
       "wins": 0,
