@@ -4923,6 +4923,23 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_ledger(u, c):
+    """
+    Wave 141 (_WAVE141_FILTER_LEDGER): /ledger - the filter ledger.
+    Read-only aggregation of the graded shadow outcomes Wave 140
+    unlocked: per filter, is the gate saving money or costing wins?
+    Verdicts use the Wave-63 break-even + 25%-margin standard. The
+    auto-adjust hands (Wave 142) will act only on READY verdicts,
+    after data proof + Wayne\'s explicit sign-off.
+    """
+    await u.message.reply_text("\u23F3 Building the filter ledger...")
+    try:
+        import filter_ledger as _fl
+        report = _fl.build_ledger_report()
+        await u.message.reply_text(f"```\n{report[:4000]}\n```", parse_mode="Markdown")
+    except Exception as e:
+        await u.message.reply_text(f"Filter ledger failed: {e}")
+
 async def cmd_performance(u, c):
     """
     Wave 46 (May 12, 2026): Multi-dimensional performance analytics.
@@ -6826,6 +6843,7 @@ def main():
                    ("sync",cmd_sync),("recap",cmd_recap),
                    ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
                    ("journal",cmd_journal),
+                   ("ledger",cmd_ledger),  # Wave 141: the filter ledger - the learning loop\'s eyes
                    ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
                    ("commands",cmd_commands),("combine",cmd_combine)]:
         app.add_handler(CommandHandler(cmd,fn))
