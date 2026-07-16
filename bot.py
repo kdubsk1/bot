@@ -1785,7 +1785,7 @@ async def scan_market(app, market, frames):
 
     for entry_tf in cfg.ENTRY_TIMEFRAMES:
         htf_key = cfg.HTF_CONFIRM if entry_tf==cfg.ENTRY_TIMEFRAMES[0] else cfg.HTF_SWING
-        if entry_tf=="15m" and news_flag: continue
+        _w145_news_15m = bool(entry_tf=="15m" and news_flag)  # Wave 145a (_WAVE145_NEWS_TF_EVIDENCE): the silent 15m news skip, now measured at the fire point
         df_e = frames.get(entry_tf)
         df_h = frames.get(htf_key)
         if df_e is None or df_h is None: continue
@@ -2390,6 +2390,29 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
                 log.info(f"[{market}] [{entry_tf}] W129 ONE-POSITION guard blocked {stp['type']} {stp['direction']} - position already open")
+                continue
+
+            if _w145_news_15m:
+                # Wave 145a (_WAVE145_NEWS_TF_EVIDENCE): this 15m setup passed
+                # EVERY live gate during a news window - including the news
+                # conviction floor (+10). The old hard skip at the timeframe
+                # loop hid these forever, unmeasured: 513 news-window scan rows
+                # in the live log and not one of them 15m. Evidence phase:
+                # nothing fires; the setup is logged with full levels so the
+                # grader prices the blackout in WOULD_WIN / WOULD_LOSE. The
+                # skip gets removed on that proof - never on a hunch (Law #1).
+                try:
+                    sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                        cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                        trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                        "SHADOW_NEWS_TF",
+                        "news-window 15m blackout: passed every live gate, would have fired",
+                        context=snapshot_context,
+                        detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                        score_breakdown=bd_final)
+                    log.info(f"[{market}] [15m] W145 NEWS-TF shadow: {stp['type']} {stp['direction']} passed all gates during news")
+                except Exception as _w145e:
+                    log.warning(f"W145 news shadow log failed: {_w145e}")
                 continue
 
             _w7_for_log = w7_breakdown if "w7_breakdown" in dir() else {}
