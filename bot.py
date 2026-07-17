@@ -1310,11 +1310,19 @@ _W140_LEVELED = {}
 _W140_DEDUP_S = 3600.0
 _W140_LAST_MISSED = [0.0]
 
-def _w140_shadow_levels(market, stp, df_e, atr_v, trend):
+def _w140_shadow_levels(market, stp, df_e, atr_v, trend, lane=""):
     """Return (target, rr) for a rejected setup, or (0, 0) when deduped or
-    unavailable. Never raises - a levels failure must never break a scan."""
+    unavailable. Never raises - a levels failure must never break a scan.
+    Wave 146 (_WAVE146_PAROLE_LANE): 'lane' gives a caller its own dedup
+    namespace. Measured live: 1,759 suspended-shadow rows had produced only
+    27 leveled paper trades (1.5%) because a benched setup's volume/trend
+    rejections consume the shared hourly slot before its parole evidence
+    can - the suspension gate sits AFTER those gates, so it usually found
+    the slot already spent. The SUSPENDED site now runs in its own lane:
+    parole cases build at full speed, still one independent instance per
+    bucket per hour, zero change to any other site's cadence."""
     try:
-        key = "%s:%s:%s" % (market, stp.get("type"), stp.get("direction"))
+        key = lane + "%s:%s:%s" % (market, stp.get("type"), stp.get("direction"))
         now = _time.time()
         _last = _W140_LEVELED.get(key)
         if _last is not None and now - _last < _W140_DEDUP_S:
@@ -2108,7 +2116,7 @@ async def scan_market(app, market, frames):
                 suspended_info = ot.get_suspended_setups().get(f"{market}:{stp['type']}", {})
                 reason_text = suspended_info.get("reason", "unknown")
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
-                    cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend), 0, "REJECT",
+                    cur_price, stp["entry"], stp["raw_stop"], *_w140_shadow_levels(market, stp, df_e, atr_v, trend, lane="SUSP|"), 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                     sl.DECISION_SHADOW_SUSPENDED,
                     f"Suspended due to {reason_text} — shadow-logged to track would-have-fired rate",
