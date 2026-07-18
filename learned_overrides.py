@@ -87,11 +87,13 @@ def _load() -> dict:
         data.setdefault("overrides", {})
         data.setdefault("ready_history", {})
         data.setdefault("last_apply_date", "")
+        data.setdefault("seeds", {})  # Wave 149 (_WAVE149_ADX_BASE_SEED)
         _cache["data"] = data
         _cache["mtime"] = mt
         return data
     except Exception:
-        return {"overrides": {}, "ready_history": {}, "last_apply_date": ""}
+        return {"overrides": {}, "ready_history": {}, "last_apply_date": "",
+                "seeds": {}}
 
 
 def _save(data: dict):
@@ -147,6 +149,54 @@ def get(filt: str, market: str, setup: str, base):
         return v
     except Exception:
         return base
+
+
+_SEED_SEEN = {}
+
+
+def seed_base(filt: str, market: str, setup: str, base):
+    """Wave 149 (_WAVE149_ADX_BASE_SEED): record the base a DYNAMIC gate
+    actually computes, so daily_decision can reason about that bucket.
+
+    WHY THIS EXISTS: adx_min's base is not a constant. It is
+    cfg.ADX_MIN_BY_SETUP[setup] (falling back to cfg.MIN_ADX), widened by
+    cfg.MIN_ADX_PRIME during a prime session. BOUNDS["adx_min"]["base"] is
+    therefore None, and daily_decision skips any adx bucket whose base it
+    does not know - so the adx hand has been asleep since Wave 143 shipped.
+    The gate knows the number; it just never told anyone. Now it does.
+
+    WE RECORD THE MINIMUM BASE EVER SEEN, DELIBERATELY. get() is loosen-only:
+    it returns min(override, base), so an override ABOVE the live base does
+    nothing at all. If we seeded the prime-session maximum (say 25) while the
+    ordinary base is 20, the first three notches (25->23->21->19) would be
+    invisible until they crossed 20 - three days of "learning" that changed
+    nothing, and three days of Telegram notes claiming otherwise. Seeding the
+    minimum makes every notch real on the day it is applied.
+
+    WRITES ARE RARE BY CONSTRUCTION: only when a bucket is unknown, or when a
+    LOWER base appears. Once the ordinary (non-prime) base has been seen this
+    stops touching the disk forever. Never raises - this runs on the scan path
+    and a seeding failure must never cost a scan.
+    """
+    try:
+        key = _bucket_key(filt, market, setup)
+        b = float(base)
+        prev = _SEED_SEEN.get(key)
+        if prev is not None and b >= prev:
+            return  # nothing lower to record - no disk touch at all
+        data = _load()
+        seeds = data.setdefault("seeds", {})
+        cur = (seeds.get(key) or {}).get("base")
+        if cur is not None and b >= float(cur) - 1e-9:
+            _SEED_SEEN[key] = float(cur)
+            return
+        seeds[key] = {"base": b,
+                      "seeded_at": datetime.now(timezone.utc).isoformat()}
+        _SEED_SEEN[key] = b
+        _save(data)
+        _audit({"event": "seed_base", "bucket": key, "base": b})
+    except Exception:
+        pass
 
 
 def is_pass_via_override(filt: str, market: str, setup: str, observed, base) -> bool:
@@ -280,7 +330,13 @@ def daily_decision(now=None) -> str:
         if filt == "adx_min":
             base = o.get("base") if o else None
             if base is None:
-                continue  # adx base is injected by the gate on first sighting; skip until known
+                # Wave 149 (_WAVE149_ADX_BASE_SEED): fall back to the base the
+                # gate recorded on a real scan. Before 149 this branch always
+                # hit `continue`, so the adx hand could never move no matter
+                # how much evidence a bucket produced.
+                base = (data.get("seeds", {}).get(key) or {}).get("base")
+            if base is None:
+                continue  # still unseen - the gate seeds it on its next scan
         else:
             base = bnd["base"]
         cur = float(o["value"]) if (o and o.get("state") == "ACTIVE") else float(base)
