@@ -5058,6 +5058,78 @@ async def cmd_lifetime(u,c):
     """Show lifetime stats across all sessions."""
     await u.message.reply_text(sim.lifetime_stats_text(), parse_mode="Markdown")
 
+async def cmd_parole(u, c):
+    """
+    Wave 147 (_WAVE147_PAROLE_BOARD): /parole - the revival program's live
+    board. Every benched setup's case: graded paper trades toward the
+    10-trade bar, record, expectancy; then who is SERVING probation and who
+    GRADUATED. Pure read - computes from the same functions the engine uses,
+    so the board can never disagree with the machine.
+    """
+    try:
+        import outcome_tracker as _ot147
+        susp = _ot147.get_suspended_setups()
+        prob = _ot147.get_probation()
+        try:
+            ev = _ot147.shadow_evidence_by_setup()
+        except Exception:
+            ev = {}
+        L = ["PAROLE BOARD - earned, never given", ""]
+        rows = []
+        for key in susp.keys():
+            e = ev.get(key)
+            n = e["n"] if e else 0
+            exp = e["expectancy"] if e else None
+            rows.append((key, n, exp, e))
+        rows.sort(key=lambda r: (-(r[1]), -(r[2] if r[2] is not None else -9)))
+        shown = 0
+        none_yet = 0
+        for key, n, exp, e in rows:
+            if n <= 0:
+                none_yet += 1
+                continue
+            if shown >= 15:
+                continue
+            shown += 1
+            bar = "%d/%d" % (min(n, 10), 10)
+            if n >= 10 and exp is not None and exp > 0.0:
+                L.append("  %s  %s  %dW/%dL  %+.2fR  <- PAROLE EARNED, frees on next board" %
+                         (key, bar, e["wins"], e["losses"], exp))
+            elif exp is not None and exp > 0.0:
+                L.append("  %s  %s  %dW/%dL  %+.2fR  climbing" %
+                         (key, bar, e["wins"], e["losses"], exp))
+            else:
+                L.append("  %s  %s  %dW/%dL  %+.2fR  bench holding" %
+                         (key, bar, e["wins"], e["losses"], exp if exp is not None else -1.0))
+        hidden = len(rows) - shown - none_yet
+        if hidden > 0:
+            L.append("  ... and %d more building cases" % hidden)
+        if none_yet:
+            L.append("  (%d benched setups have no graded paper evidence yet)" % none_yet)
+        serving = {k: v for k, v in prob.items() if v.get("state") == "SERVING"}
+        grads = {k: v for k, v in prob.items() if v.get("state") == "GRADUATED"}
+        if serving:
+            L.append("")
+            L.append("SERVING PROBATION - proving it with real trades:")
+            for k, v in sorted(serving.items()):
+                L.append("  %s  paper %s%% WR over %s; judged after %s live trades" %
+                         (k, v.get("shadow_wr", "?"), v.get("shadow_n", "?"),
+                          v.get("judge_after_trades", "?")))
+        if grads:
+            L.append("")
+            L.append("GRADUATED - earned their way back:")
+            for k, v in sorted(grads.items()):
+                L.append("  %s  trial %s on %s" %
+                         (k, v.get("trial_record", "?"), (v.get("graduated_at", "") or "")[:10]))
+        L.append("")
+        L.append("Rules: 10+ graded paper trades, expectancy-positive -> probation. "
+                 "5 live trades judge it. Graduation = clean slate. Bleeding real "
+                 "money benches anyone instantly. /revert overrules anything.")
+        text = "\n".join(L)
+    except Exception as e:
+        text = "Parole board unavailable: %s" % e
+    await u.message.reply_text("```\n" + text[:3900] + "\n```", parse_mode="Markdown")
+
 async def cmd_overrides(u, c):
     """
     Wave 143 (_WAVE143_LEARNED_OVERRIDES): /overrides - what have the hands
@@ -7007,6 +7079,7 @@ def main():
                    ("ledger",cmd_ledger),  # Wave 141: the filter ledger - the learning loop\'s eyes
                    ("overrides",cmd_overrides),  # Wave 143: the hands - learned overrides status
                    ("revert",cmd_revert),  # Wave 143: instant manual overrule
+                   ("parole",cmd_parole),  # Wave 147: the revival program's live board
                    ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
                    ("commands",cmd_commands),("combine",cmd_combine)]:
         app.add_handler(CommandHandler(cmd,fn))
