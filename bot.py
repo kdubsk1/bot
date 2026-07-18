@@ -1385,6 +1385,20 @@ def _w140_shadow_levels(market, stp, df_e, atr_v, trend, lane=""):
         return 0, 0
 
 
+def _w149_seed(filt, market, setup, base):
+    """Wave 149 (_WAVE149_ADX_BASE_SEED): hand the learned-overrides store the
+    base this gate actually computed. adx_min is the only whitelisted filter
+    whose base is dynamic (per-setup, widened during prime session), so the
+    store cannot know it without being told - which is why the adx hand has
+    been asleep since Wave 143. Guarded lazy import and swallow-all: this
+    path can touch the disk, and a scan must never die for a seed."""
+    try:
+        import learned_overrides as _lo
+        _lo.seed_base(filt, market, setup, base)
+    except Exception:
+        pass
+
+
 def _w143_get(filt, market, setup, base):
     """Wave 143 (_WAVE143_LEARNED_OVERRIDES): the gates' read path into the
     learned-overrides store - the HANDS of the learning loop, built to
@@ -2178,6 +2192,9 @@ async def scan_market(app, market, frames):
             # Wayne-signed). The gate passes its own computed base in, so the
             # per-setup / prime-session logic above stays the source of truth.
             _w143_adx_base = required_adx
+            # Wave 149: tell the store what this gate actually requires, so the
+            # daily decision can reason about adx like the other three filters.
+            _w149_seed("adx_min", market, stp["type"], _w143_adx_base)
             required_adx = _w143_get("adx_min", market, stp["type"], required_adx)
             if adx_v >= required_adx:
                 _w143_mark_via(stp, "adx_min", market, adx_v, _w143_adx_base)
