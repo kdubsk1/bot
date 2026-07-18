@@ -1310,6 +1310,40 @@ _W140_LEVELED = {}
 _W140_DEDUP_S = 3600.0
 _W140_LAST_MISSED = [0.0]
 
+_W148_LAST = {"m": ""}
+
+
+def _w148_note():
+    """Wave 148 (_WAVE148_LEVELS_XRAY): the shadow-levels helper's verdict as a
+    short log suffix. '' when levels were found - nothing to explain."""
+    m = _W148_LAST.get("m", "")
+    return (" | levels: " + m) if m else ""
+
+
+def _w148_reject_reason(method, market):
+    """Wave 148: the TRUTH about why no target was found, replacing a hardcoded
+    sentence that was wrong for two of the three possible causes. Read from the
+    source: outcome_tracker.structure_target returns tgt=0.0 with one of three
+    codes - no_target / rr_too_high / rr_too_low - and the old line called all
+    three 'too close for minimum R:R'. For the entire BREAK_RETEST family the
+    real code is rr_too_high (levels too FAR in R terms because the stop is
+    tight), so the log recorded the exact opposite of what happened, and every
+    audit that read it was misled. The cap mirrors Wave 75's per-market table
+    (GC 3.0 / NQ 3.5 / BTC 4.0 / SOL 4.0, default 3.5) - if that table moves,
+    move this one in the same commit."""
+    cap = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}.get(market, 3.5)
+    if method == "rr_too_high":
+        return ("No usable swing target \u2014 every candidate level prices ABOVE "
+                "the %.1fR cap for %s (stop is tight, so real structure sits too "
+                "far in R terms)" % (cap, market))
+    if method == "rr_too_low":
+        return ("No usable swing target \u2014 nearest structural level prices "
+                "BELOW the minimum R:R (stop is wide, so reachable structure is "
+                "worth too little)")
+    return ("No usable swing target \u2014 no swing level in range at all "
+            "(method=%s)" % (method or "unknown"))
+
+
 def _w140_shadow_levels(market, stp, df_e, atr_v, trend, lane=""):
     """Return (target, rr) for a rejected setup, or (0, 0) when deduped or
     unavailable. Never raises - a levels failure must never break a scan.
@@ -1326,10 +1360,21 @@ def _w140_shadow_levels(market, stp, df_e, atr_v, trend, lane=""):
         now = _time.time()
         _last = _W140_LEVELED.get(key)
         if _last is not None and now - _last < _W140_DEDUP_S:
+            # Wave 148: mark the dedup explicitly. Without this the module dict
+            # still holds the PREVIOUS call's code and the note would report a
+            # stale reason - a log that lies about lying.
+            _W148_LAST["m"] = "deduped"
             return 0, 0
         tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"],
                                               stp["raw_stop"], atr_v,
                                               market=market, trend_score_val=trend)
+        # Wave 148 (_WAVE148_LEVELS_XRAY): structure_target hands back one of
+        # three failure codes and this helper threw it away, so nothing could
+        # say WHY a benched setup never produced a target. Measured Jul 17: 8 of
+        # 19 triggering benched buckets have entry AND stop but have NEVER been
+        # leveled - they cannot be graded, so they can never earn parole, and
+        # the fire path rejects no-target setups too. Record the code.
+        _W148_LAST["m"] = "" if (tgt and method != "no_target") else (method or "no_target")
         if method == "no_target" or not tgt:
             return 0, 0
         _W140_LEVELED[key] = now
@@ -2121,7 +2166,7 @@ async def scan_market(app, market, frames):
                     sl.DECISION_SHADOW_SUSPENDED,
                     f"Suspended due to {reason_text} — shadow-logged to track would-have-fired rate",
                     context=snapshot_context,
-                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio) + _w148_note())
                 continue
 
             adx_min_by_setup = getattr(cfg, "ADX_MIN_BY_SETUP", {})
@@ -2253,7 +2298,7 @@ async def scan_market(app, market, frames):
                     cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
                     trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                     sl.DECISION_REJECTED,
-                    "No real swing target available — nearest structural level too close for minimum R:R",
+                    _w148_reject_reason(method, market),
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 _sample_reject_log(market, entry_tf, stp["type"], "No swing target available")
