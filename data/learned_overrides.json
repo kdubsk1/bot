@@ -1,0 +1,11 @@
+{
+  "overrides": {},
+  "ready_history": {},
+  "last_apply_date": "",
+  "seeds": {
+    "adx_min|BTC|STOCH_REVERSAL_BEAR": {
+      "base": 16.0,
+      "seeded_at": "2026-07-18T21:25:27.682486+00:00"
+    }
+  }
+}
