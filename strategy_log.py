@@ -415,10 +415,18 @@ def check_missed_setups(live_frames: dict):
                 _mkt = _r.get("market", "")
                 _stp = _r.get("setup_type", "")
                 if _mkt and _stp:
+                    # Wave 152 (_WAVE152_HONEST_COUNTER): graded shadows are
+                    # PAPER evidence and are now tagged as such at the source.
+                    # If outcome_tracker has not landed yet, the extra kwarg
+                    # raises TypeError, the best-effort except below swallows
+                    # it, and the paper feed simply pauses - it can never be
+                    # miscounted as real. That is why this file commits FIRST.
                     if _res == "WOULD_WIN":
-                        _ot.record_trade_result(_mkt, _stp, "WIN")
+                        _ot.record_trade_result(_mkt, _stp, "WIN",
+                                                source="paper")
                     elif _res == "WOULD_LOSE":
-                        _ot.record_trade_result(_mkt, _stp, "LOSS")
+                        _ot.record_trade_result(_mkt, _stp, "LOSS",
+                                                source="paper")
         except Exception:
             pass  # learning feed is best-effort; never break the scan loop
 
