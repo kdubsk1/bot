@@ -697,19 +697,67 @@ def record_trade_result(market: str, setup_type: str, result: str):
     """
     Call this whenever a trade closes WIN or LOSS.
     Updates the learning file automatically.
+
+    Wave 151 (_WAVE151_LOCKED_COUNTER): the read-modify-write now runs
+    INSIDE safe_io.file_lock, and a load failure on an existing file
+    ABORTS the update instead of wiping the counter.
+
+    WHY (read from source + the archive verdict, Jul 18):
+      - The old body was load() -> mutate -> atomic_write(). Atomic
+        writes stop TORN files; they do nothing about LOST UPDATES:
+        two writers overlapping (a real close racing the shadow-grade
+        stream through this same function; the old and new process
+        during a Railway redeploy - and there has been one redeploy
+        per wave) each read the same snapshot, and the second save
+        erases the first increment. The archives prove real WINs are
+        missing from this file (file_wins < real_wins on multiple
+        setups). This is the exact hazard safe_rewrite_csv was built
+        to kill for the strategy log; the counter never got that fix.
+      - Worse: _load_performance() swallows ANY read error and
+        returns {} - one transient glitch and the very next save
+        would atomically REPLACE the whole counter with one record.
+        Inside the lock we load directly and, if the file exists
+        non-empty but cannot be parsed, we log loudly and SKIP this
+        update. Losing one increment is recoverable; overwriting the
+        counter is not.
+      - Non-WIN/LOSS results now return without touching the file.
+        The old body incremented "total" for ANY string, which would
+        have inflated totals with no win or loss attached; every
+        live caller already guards for WIN/LOSS, so this changes
+        nothing today and hardens tomorrow.
     """
-    perf = _load_performance()
-    key  = f"{market}:{setup_type}"
-    if key not in perf:
-        perf[key] = {"wins": 0, "losses": 0, "total": 0}
-    perf[key]["total"] += 1
-    if result == "WIN":
-        perf[key]["wins"] += 1
-    elif result == "LOSS":
-        perf[key]["losses"] += 1
-    perf[key]["win_rate"] = round(perf[key]["wins"] / max(1, perf[key]["total"]) * 100, 1)
-    perf[key]["last_updated"] = datetime.now().isoformat()
-    _save_performance(perf)
+    if result not in ("WIN", "LOSS"):
+        return
+    try:
+        with safe_io.file_lock(LEARNING_FILE):
+            perf = {}
+            try:
+                if os.path.exists(LEARNING_FILE) and os.path.getsize(LEARNING_FILE) > 0:
+                    with open(LEARNING_FILE, "r") as f:
+                        perf = json.load(f)
+            except Exception as _w151e:
+                print("W151 COUNTER GUARD: %s exists but failed to load (%s) - "
+                      "SKIPPING this update rather than overwriting the counter"
+                      % (LEARNING_FILE, _w151e))
+                return
+            if not isinstance(perf, dict):
+                print("W151 COUNTER GUARD: %s did not parse to a dict - "
+                      "skipping" % LEARNING_FILE)
+                return
+            key = f"{market}:{setup_type}"
+            if key not in perf:
+                perf[key] = {"wins": 0, "losses": 0, "total": 0}
+            perf[key]["total"] += 1
+            if result == "WIN":
+                perf[key]["wins"] += 1
+            elif result == "LOSS":
+                perf[key]["losses"] += 1
+            perf[key]["win_rate"] = round(perf[key]["wins"] / max(1, perf[key]["total"]) * 100, 1)
+            perf[key]["last_updated"] = datetime.now().isoformat()
+            _save_performance(perf)
+    except Exception as _w151e2:
+        print("W151 COUNTER: locked update failed (%s) - this increment was "
+              "dropped; the counter file was not touched" % _w151e2)
 
 def get_learning_summary() -> str:
     """Returns a readable summary of what the bot has learned."""
