@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50587.16,
+  "balance": 50591.16,
   "peak_balance": 50727.27,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -13,24 +13,9 @@
   "use_mnq": true,
   "account_risk_pct": 1.5,
   "today_pnl": 0.0,
-  "today_date": "2026-07-17",
-  "session_date": "2026-07-17",
-  "total_pnl": 587.16,
+  "today_date": "2026-07-20",
+  "session_date": "2026-07-20",
+  "total_pnl": 591.16,
   "trades": [],
-  "open_sim_trades": [
-    {
-      "alert_id": "84acf4bec0",
-      "market": "GC",
-      "direction": "SHORT",
-      "entry": 4020.1,
-      "stop": 4033.335606908512,
-      "target": 3992.9,
-      "contracts": 1,
-      "tier": "MEDIUM",
-      "setup_type": "STOCH_REVERSAL_BEAR",
-      "opened_at": "2026-07-17T16:43:17.572698",
-      "status": "OPEN",
-      "pnl": 0.0
-    }
-  ]
+  "open_sim_trades": []
 }
