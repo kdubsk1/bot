@@ -180,6 +180,18 @@ _AUTO_UNSUSPEND_DAYS = 3  # Wave 53: 14->3. RETIRED by Wave 144 (see below).
 # the only honest gate, and it is the same standard filter_ledger uses.
 # ============================================================================
 PROBATION_FILE = os.path.join(_BASE_DIR, "data", "probation.json")
+# Wave 153 (_WAVE153_FULL_PAROLE_LEDGER): the decision labels that count
+# as parole evidence FOR A SETUP THAT IS CURRENTLY BENCHED. A suspended
+# setup shadow-fires all day, but whichever gate rejects it FIRST owns
+# the row label: the volume/ADX/conviction gates all sit UPSTREAM of the
+# suspension check in the scan loop, so a benched setup culled on volume
+# is written REJECTED, never REJECTED_SUSPENDED. Measured Jul 18: of 190
+# graded shadows, 121 REJECTED rows belonged to suspended setups - proof
+# the parole engine could not see. For a benched setup EVERY graded row
+# is by definition "what it would have done if unbenched" - exactly the
+# parole question - so all of them count. Active (non-benched) setups are
+# unaffected: they keep the strict REJECTED_SUSPENDED-only rule below.
+_W153_PAROLE_DECISIONS = ("REJECTED_SUSPENDED", "REJECTED", "ALMOST")
 _PROBATION_MIN_SHADOW = 10       # graded paper trades required to earn probation
 _PROBATION_JUDGE_TRADES = 5      # live trades granted before judgment
 _PROBATION_MIN_EXPECTANCY = 0.0  # R per trade; must beat this on paper AND live
@@ -225,10 +237,27 @@ def shadow_evidence_by_setup() -> dict:
         rows = _sl._load_all_strategy_rows()
     except Exception:
         return ev
+    # Wave 153 (_WAVE153_FULL_PAROLE_LEDGER): read the bench set once, so a
+    # suspended setup can claim ALL its graded shadows as parole proof
+    # (not only the fraction that happened to reach the suspension gate
+    # before another gate rejected them first). Never raises - on any
+    # failure we fall back to the strict old behavior.
+    try:
+        _w153_benched = set(get_suspended_setups().keys())
+    except Exception:
+        _w153_benched = set()
     for r in rows:
         try:
-            if r.get("decision") != "REJECTED_SUSPENDED":
-                continue
+            _w153_dec = r.get("decision")
+            _w153_key = "%s:%s" % (r.get("market", "?"), r.get("setup_type", "?"))
+            if _w153_key in _w153_benched:
+                # benched: any graded shadow is valid "would it win if freed" proof
+                if _w153_dec not in _W153_PAROLE_DECISIONS:
+                    continue
+            else:
+                # active setup: strict, unchanged - only the suspension-gate rows
+                if _w153_dec != "REJECTED_SUSPENDED":
+                    continue
             res = r.get("result", "")
             if res not in ("WOULD_WIN", "WOULD_LOSE"):
                 continue
