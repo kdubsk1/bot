@@ -1310,6 +1310,80 @@ _W140_LEVELED = {}
 _W140_DEDUP_S = 3600.0
 _W140_LAST_MISSED = [0.0]
 
+# Wave 150 (_WAVE150_SETUP_LAB): the lab lane. Named tenant setup classes
+# get a shadow row logged at FULL cadence - BEFORE any gate (volume, trend,
+# suspension, conviction) can consume or block them - so the bot builds
+# graded WOULD_WIN/WOULD_LOSE evidence for setups it currently never fires.
+# STRUCTURALLY UNABLE TO FIRE: the lab writes rows straight to the strategy
+# log and never appends anything to `setups`, so nothing new can ever reach
+# the fire loop or ot.log_alert. The grader (strategy_log._mutator, read
+# from source Jul 18) grades ANY unresolved non-FIRED row carrying both
+# levels, so lab rows resolve exactly like the SUSP| parole rows do.
+# Types are logged as "LAB|<type>" so every downstream stat keys them apart
+# from the real, gated setup. One leveled row per (market,type,direction)
+# per hour via the Wave-146 lane dedup (lane="LAB|").
+# HONEST LIMIT (FABEL_THE_PAPER_CONVICTION_JUL18.md): lab evidence is PAPER
+# and flows into the same blended counter as everything else. It RANKS and
+# COMPARES tenants; it cannot GRADUATE one to live firing until the
+# honest-counter wave splits real from paper. Graduation is a separate,
+# Wayne-signed wave regardless - this wave only builds the evidence.
+_W150_LAB_TENANTS = {
+    # market -> set of setup types. "_ALL_SHORT_" = every detected SHORT
+    # on that market. The "*" row applies to every market.
+    "NQ": {"_ALL_SHORT_"},
+    "*": {"RSI_DIV_BULL", "RSI_DIV_BEAR"},
+}
+
+
+def _w150_is_tenant(market, stp):
+    """True if this detected setup belongs to the lab tenant registry."""
+    try:
+        t = str(stp.get("type", ""))
+        d = str(stp.get("direction", ""))
+        if not t or t.startswith("LAB|"):
+            return False
+        mk = _W150_LAB_TENANTS.get(market, set())
+        anyk = _W150_LAB_TENANTS.get("*", set())
+        if t in mk or t in anyk:
+            return True
+        if "_ALL_SHORT_" in mk and d == "SHORT":
+            return True
+        return False
+    except Exception:
+        return False
+
+
+def _w150_lab_lane(market, entry_tf, setups, df_e, atr_v, trend,
+                   adx_v, rsi_v, vol_ratio, htf_bias, news_flag, cur_price):
+    """Log one leveled LAB| shadow row per tenant per hour. Swallow-all:
+    a lab failure must never touch a scan. Returns rows logged (tests)."""
+    n = 0
+    try:
+        for stp in (setups or []):
+            try:
+                if not _w150_is_tenant(market, stp):
+                    continue
+                tgt, rr = _w140_shadow_levels(market, stp, df_e, atr_v,
+                                              trend, lane="LAB|")
+                if not tgt or not rr:
+                    continue  # deduped this hour, or no structure target
+                sl.log_scan_decision(market, entry_tf,
+                    "LAB|" + str(stp.get("type", "?")),
+                    str(stp.get("direction", "?")),
+                    cur_price, stp["entry"], stp["raw_stop"], tgt, rr,
+                    0, "LAB",
+                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                    "SHADOW_LAB",
+                    "Lab lane: tenant logged ungated at full cadence - "
+                    "structurally cannot fire")
+                n += 1
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return n
+
+
 _W148_LAST = {"m": ""}
 
 
@@ -2063,6 +2137,17 @@ async def scan_market(app, market, frames):
         #   confirm    → require >= 0.8
         #   invert     → pass through (conviction scores low vol as healthy)
         #   neutral    → pass through
+        # Wave 150 (_WAVE150_SETUP_LAB): the lab lane runs BEFORE any gate
+        # so a tenant's evidence cadence is never throttled by the filters
+        # (the Wave-146 lesson: gates upstream of a logger consume its
+        # slots). Writes shadow rows only; appends nothing to `setups`;
+        # structurally cannot fire.
+        try:
+            _w150_lab_lane(market, entry_tf, setups, df_e, atr_v, trend,
+                           adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                           cur_price)
+        except Exception as _w150e:
+            log.debug(f"[{market}] lab lane skipped: {_w150e}")
         _filtered_setups = []
         for stp in setups:
             _vol_dir = ot.VOLUME_DIRECTION.get(stp["type"], "confirm")
