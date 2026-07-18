@@ -693,10 +693,26 @@ def _performance_bonus(market: str, setup_type: str) -> int:
     if adjusted_rate < 0.45:  return -6
     return 0
 
-def record_trade_result(market: str, setup_type: str, result: str):
+def record_trade_result(market: str, setup_type: str, result: str,
+                        source: str = "real"):
     """
     Call this whenever a trade closes WIN or LOSS.
     Updates the learning file automatically.
+
+    Wave 152 (_WAVE152_HONEST_COUNTER): every increment is now TAGGED
+    with its source. The legacy fields (wins/losses/total/win_rate)
+    remain the BLEND and keep feeding the suspension engine and the
+    Bayesian bonus exactly as before - zero behavior change today. But
+    each record now also accrues real_wins/real_losses/real_total and
+    paper_wins/paper_losses/paper_total (with per-source win rates), so
+    the truth is never destroyed at write time again. Callers: the four
+    real close paths pass nothing (source defaults to "real"); the
+    shadow-grade feed in strategy_log passes source="paper". Measured
+    Jul 18: the blended counter was ~85.6 percent paper - every gate
+    reading it was reading mostly paper. The verdict wave will rebuild
+    the real_* columns from the 358 archived real trades and, with
+    Wayne's signature, switch the gates to read real-only. This wave
+    only makes the split EXIST going forward.
 
     Wave 151 (_WAVE151_LOCKED_COUNTER): the read-modify-write now runs
     INSIDE safe_io.file_lock, and a load failure on an existing file
@@ -753,6 +769,17 @@ def record_trade_result(market: str, setup_type: str, result: str):
             elif result == "LOSS":
                 perf[key]["losses"] += 1
             perf[key]["win_rate"] = round(perf[key]["wins"] / max(1, perf[key]["total"]) * 100, 1)
+            _src = "paper" if source == "paper" else "real"
+            _kw = _src + "_wins"
+            _kl = _src + "_losses"
+            _kt = _src + "_total"
+            perf[key][_kt] = perf[key].get(_kt, 0) + 1
+            if result == "WIN":
+                perf[key][_kw] = perf[key].get(_kw, 0) + 1
+            else:
+                perf[key][_kl] = perf[key].get(_kl, 0) + 1
+            perf[key][_src + "_win_rate"] = round(
+                perf[key].get(_kw, 0) / max(1, perf[key][_kt]) * 100, 1)
             perf[key]["last_updated"] = datetime.now().isoformat()
             _save_performance(perf)
     except Exception as _w151e2:
