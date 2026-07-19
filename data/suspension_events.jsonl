@@ -1026,3 +1026,4 @@
 {"timestamp": "2026-07-19T23:18:06.122439+00:00", "action": "PROBATION", "key": "SOL:BB_REVERSION_BULL", "reason": "earned probation on shadow proof: 6W/1L (86% WR, avg rr 2.2, expectancy +1.76R over 7 paper trades)"}
 {"timestamp": "2026-07-19T23:18:06.124913+00:00", "action": "PROBATION", "key": "SOL:VWAP_BOUNCE_BULL", "reason": "earned probation on shadow proof: 141W/166L (46% WR, avg rr 2.0, expectancy +0.40R over 307 paper trades)"}
 {"timestamp": "2026-07-19T23:18:06.124962+00:00", "action": "PROBATION", "key": "SOL:BB_REVERSION_BEAR", "reason": "earned probation on shadow proof: 27W/67L (29% WR, avg rr 2.5, expectancy +0.01R over 94 paper trades)"}
+{"timestamp": "2026-07-19T23:31:55.995688+00:00", "action": "RESTORED", "key": "BTC:BB_REVERSION_BULL", "reason": "WR climbed to 55.6% over 9 trades, bleed $+0 7d"}

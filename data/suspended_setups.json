@@ -230,13 +230,6 @@
     "wr_at_suspension": 12.5,
     "bleed_at_suspension": 0.0
   },
-  "BTC:BB_REVERSION_BULL": {
-    "reason": "1W/4L (20.0% WR)",
-    "suspended_at": "2026-07-15T22:13:02.957651+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 20.0,
-    "bleed_at_suspension": 0.0
-  },
   "NQ:BREAK_RETEST_BEAR": {
     "reason": "0W/27L (0.0% WR)",
     "suspended_at": "2026-07-15T22:13:02.957682+00:00",
