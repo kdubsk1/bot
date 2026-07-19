@@ -1,15 +1,4 @@
 {
-  "SOL:BB_REVERSION_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-18T22:05:38.538465+00:00",
-    "wins_at_start": 30,
-    "losses_at_start": 73,
-    "shadow_n": 72,
-    "shadow_wr": 36.1,
-    "shadow_expectancy": 0.285,
-    "judge_after_trades": 5,
-    "was_suspended_for": "27W/71L (27.6% WR)"
-  },
   "SOL:RSI_DIV_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-18T22:05:38.538465+00:00",
@@ -75,17 +64,6 @@
     "shadow_expectancy": 0.379,
     "judge_after_trades": 5,
     "was_suspended_for": "1W/8L (11.1% WR)"
-  },
-  "SOL:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-18T22:05:38.538465+00:00",
-    "wins_at_start": 15,
-    "losses_at_start": 38,
-    "shadow_n": 199,
-    "shadow_wr": 57.3,
-    "shadow_expectancy": 0.792,
-    "judge_after_trades": 5,
-    "was_suspended_for": "15W/35L (30.0% WR)"
   },
   "GC:VWAP_BOUNCE_BULL": {
     "state": "SERVING",

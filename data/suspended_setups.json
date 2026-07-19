@@ -292,5 +292,19 @@
     "total_at_suspension": 61,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "reason": "probation failed: 27W/12L (69.2% WR, expectancy -1.00R) on 39 live trades",
+    "suspended_at": "2026-07-19T17:07:14.940182+00:00",
+    "total_at_suspension": 92,
+    "wr_at_suspension": 45.7,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:BB_REVERSION_BEAR": {
+    "reason": "probation failed: 1W/21L (4.5% WR, expectancy -1.00R) on 22 live trades",
+    "suspended_at": "2026-07-19T17:07:14.941767+00:00",
+    "total_at_suspension": 125,
+    "wr_at_suspension": 24.8,
+    "bleed_at_suspension": 0.0
   }
 }
