@@ -192,6 +192,30 @@ PROBATION_FILE = os.path.join(_BASE_DIR, "data", "probation.json")
 # parole question - so all of them count. Active (non-benched) setups are
 # unaffected: they keep the strict REJECTED_SUSPENDED-only rule below.
 _W153_PAROLE_DECISIONS = ("REJECTED_SUSPENDED", "REJECTED", "ALMOST")
+import math as _w157_math
+_W157_MIN_SHADOW_FAST = 6        # Wave 157: absolute floor for the Wilson fast-track
+_W157_WILSON_Z = 1.96            # Wave 157: 95% confidence z-score
+
+
+def _wilson_lower_bound(wins, n, z=_W157_WILSON_Z):
+    """Wave 157 (_WAVE157_CONFIDENCE_PAROLE): the lower end of the Wilson
+    score interval for a binomial win-rate. Pessimistic estimate of the
+    true win-rate given wins/n - used so a benched setup only parolees
+    early when even the unlucky end of its record still beats breakeven."""
+    try:
+        n = float(n)
+        if n <= 0:
+            return 0.0
+        p = float(wins) / n
+        z2 = z * z
+        denom = 1.0 + z2 / n
+        centre = p + z2 / (2.0 * n)
+        margin = z * _w157_math.sqrt((p * (1.0 - p) + z2 / (4.0 * n)) / n)
+        return (centre - margin) / denom
+    except Exception:
+        return 0.0
+
+
 _PROBATION_MIN_SHADOW = 10       # graded paper trades required to earn probation
 _PROBATION_JUDGE_TRADES = 5      # live trades granted before judgment
 _PROBATION_MIN_EXPECTANCY = 0.0  # R per trade; must beat this on paper AND live
@@ -405,8 +429,32 @@ def check_and_update_suspensions() -> list[str]:
         if _key in _probation:
             continue
         _ev = _shadow.get(_key)
-        if not _ev or _ev.get("n", 0) < _PROBATION_MIN_SHADOW:
-            continue  # no proof, no parole - it stays benched, costing nothing
+        # Wave 157 (_WAVE157_CONFIDENCE_PAROLE): the flat n>=10 bar treated
+        # 7W/0L and 6W/4L identically. Replace it with a Wilson 95% lower
+        # bound on the shadow win-rate vs the breakeven implied by avg rr
+        # (breakeven_wr = 1/(1+avg_rr)). A setup is proven enough when even
+        # the pessimistic end of its win-rate interval still beats
+        # breakeven. Keeps the ABSOLUTE floor of _W157_MIN_SHADOW_FAST=6
+        # graded trades so nothing parolees on a tiny sample, and the full
+        # _PROBATION_MIN_SHADOW=10 path still qualifies on its own. This
+        # only lets statistically-clean winners off the bench a little
+        # sooner; the expectancy gate below and the live probation window
+        # after still apply. Never raises - any failure falls back to the
+        # strict flat bar.
+        _n_ev = _ev.get("n", 0) if _ev else 0
+        if not _ev or _n_ev < _W157_MIN_SHADOW_FAST:
+            continue  # below the absolute floor - stays benched, costs nothing
+        if _n_ev < _PROBATION_MIN_SHADOW:
+            # fast-track only if the Wilson LB clears breakeven
+            try:
+                _w157_wins = int(_ev.get("wins", 0))
+                _w157_rr = float(_ev.get("avg_rr", 0) or 0)
+                _w157_lb = _wilson_lower_bound(_w157_wins, _n_ev)
+                _w157_breakeven = 1.0 / (1.0 + _w157_rr) if _w157_rr > 0 else 1.0
+                if _w157_lb <= _w157_breakeven:
+                    continue  # interval still touches losing - not proven enough yet
+            except Exception:
+                continue  # on any doubt, keep it benched (strict fallback)
         if _ev.get("expectancy", -1.0) <= _PROBATION_MIN_EXPECTANCY:
             continue  # paper says it still loses money - the bench is correct
         _perf_now = perf.get(_key, {})
