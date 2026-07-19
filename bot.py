@@ -5666,6 +5666,15 @@ async def cmd_commands(u, c):
         "`/recalibrate`  — daily soft-tune\n"
         "`/wave7`  — layer status\n"
         "\n"
+        # Wave 155 (_WAVE155_UI_REFRESH): surface the learning + bench
+        # commands that were registered but missing from this menu.
+        "🎓 *LEARNING & BENCH*\n"
+        "`/suspended`  — benched setups & why\n"
+        "`/parole`  — setups earning their way back\n"
+        "`/ledger`  — what the gates are learning\n"
+        "`/overrides`  — active learned adjustments\n"
+        "`/revert [id]`  — undo a learned adjustment\n"
+        "\n"
         "⚙️ *UTILITY*\n"
         "`/diag`  — bot health check\n"
         "`/sync`  — push data to GitHub\n"
