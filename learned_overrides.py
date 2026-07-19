@@ -510,3 +510,94 @@ def status_text() -> str:
     L.append("  Bounds are Wayne-signed law. /revert")
     L.append("  [market] [setup] overrules instantly.")
     return "\n".join(L)
+
+
+# ---------------------------------------------------------------- Wave 156
+# _WAVE156_SHORT_SEED: the learning loop is correct but SLOW - it needs 15
+# graded NEAR trades + 2 consecutive proven days + steps 0.05/day, and the
+# winning shorts sit so far below the 0.80 wall they classify FAR and are
+# not even studied. Measured Jul 18: NQ|SHORT has fired to Telegram ZERO
+# times though NQ shorts win 58% in shadow, because ~80% die on the volume
+# gate. This gives the PROVEN bear-confirm setups a running start: a single
+# conservative ACTIVE override each, at a level DERIVED FROM THAT SETUP'S
+# OWN winning-volume evidence, never below Wave 154's signed 0.30 bear
+# floor. Then the normal loop refines from there (lower if they keep
+# winning) and revert_check auto-reverts any seed whose next 10 live trades
+# come in below break-even - identical protection to an earned override.
+#
+# ONLY these five made the strict bar (at seed, the vol>=seed zone is a
+# clear net winner: >=2 shadow wins fire, net wins-losses >=2, >=60% WR):
+#   NQ:EMA21_PULLBACK_BEAR  0.30  (5W/1L fire, 83%)
+#   SOL:VWAP_REJECT_BEAR    0.40  (4W/1L fire, 80%)
+#   BTC:VWAP_REJECT_BEAR    0.30  (3W/0L fire, 100%)
+#   BTC:MACD_CROSS_BEAR     0.30  (3W/0L fire, 100%)
+#   BTC:EMA21_PULLBACK_BEAR 0.30  (2W/0L fire, 100%)
+# (NQ:MACD_CROSS_BEAR is 4W/0L but its winners are at vol ~0.19, BELOW the
+# signed 0.30 floor, so it is deliberately NOT seeded - honest limit.)
+_W156_SEED_TABLE = {
+    "vol_confirm|NQ|EMA21_PULLBACK_BEAR": 0.30,
+    "vol_confirm|SOL|VWAP_REJECT_BEAR": 0.40,
+    "vol_confirm|BTC|VWAP_REJECT_BEAR": 0.30,
+    "vol_confirm|BTC|MACD_CROSS_BEAR": 0.30,
+    "vol_confirm|BTC|EMA21_PULLBACK_BEAR": 0.30,
+}
+
+
+def seed_short_overrides():
+    """Plant the Wave 156 seed overrides ONCE. Idempotent and safe:
+    - skips any bucket that already has an override (earned OR seeded),
+      so it never clobbers the loop's work and never re-seeds post-revert;
+    - clamps every seed to the bucket's signed floor, so it can never dip
+      below Wayne's bounds even if the table is edited wrong;
+    - marks each with seeded_by=W156 for audit;
+    - never raises. Returns the count planted."""
+    try:
+        data = _load()
+    except Exception:
+        return 0
+    ov = data.setdefault("overrides", {})
+    planted = 0
+    now_iso = datetime.now(timezone.utc).isoformat()
+    for key, seed in _W156_SEED_TABLE.items():
+        try:
+            if key in ov:
+                continue  # never overwrite an existing override
+            filt, market, setup = key.split("|", 2)
+            bnd = BOUNDS.get(filt, {})
+            base = bnd.get("base")
+            floor = bnd.get("floor")
+            # Wave 154 lowered the effective floor for bear confirm setups;
+            # mirror that here so the seed clamp matches the get() clamp.
+            try:
+                if filt == "vol_confirm" and str(setup).endswith("_BEAR"):
+                    floor = _W154_BEAR_CONFIRM_FLOOR
+            except Exception:
+                pass
+            val = float(seed)
+            if floor is not None and val < float(floor):
+                val = float(floor)
+            if base is not None and val >= float(base):
+                continue  # seed at/above base does nothing - skip
+            ov[key] = {
+                "filter": filt, "market": market, "setup": setup,
+                "base": base, "value": round(val, 2), "state": "ACTIVE",
+                "applied_at": now_iso, "tagged": [],
+                "consecutive_reverts": 0, "seeded_by": "W156",
+                "evidence": {"note": "Wave 156 seed from winning-volume evidence"},
+            }
+            planted += 1
+        except Exception:
+            continue
+    if planted:
+        try:
+            _save(data)
+            _audit({"event": "seed_w156", "planted": planted})
+        except Exception:
+            return 0
+    return planted
+
+
+try:
+    seed_short_overrides()
+except Exception:
+    pass
