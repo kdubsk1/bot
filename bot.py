@@ -1013,6 +1013,109 @@ def _build_confidence_factors(snapshot: dict, trend: int, adx_v: float,
 # Trend-aligned per-setup and per-pair expectancy (R) from the full strategy_log.
 # Rates a live aligned stack by what has actually won TOGETHER. Shadow only in
 # W76 (score logged next to each stack); a later wave lets it drive sizing.
+#
+# Wave 159 (_WAVE159_READ_REFRESH): the W76 seed below was backfilled Jun 29
+# and drifts as the market changes - measured Jul 19, 7 of 17 setups had
+# FLIPPED SIGN on solid samples, so the read was calling winners losers. Keep
+# the read honest: recompute each setup's trend-aligned expectancy from the
+# full maintained history (_load_all_strategy_rows, the same store the parole
+# system trusts), cached 6h, prefer the fresh value when n>=15 else fall back
+# to the seed. Display only, exactly like W76. Never raises.
+_W159_TTL_SEC = 6 * 3600
+_W159_MIN_SAMPLE = 15
+_W159_EDGE_LIVE = {}
+_w159_state = {"built_at": 0.0}
+
+
+def _w159_aligned(direction, trend_raw, htf_bias):
+    """True when a setup was trend-aligned - LONG in an up context, SHORT in
+    a down context - matching how W76 was backfilled."""
+    try:
+        d = str(direction or "").replace("WATCH_", "")
+        try:
+            tr = float(trend_raw)
+        except (TypeError, ValueError):
+            tr = 0.0
+        hb = str(htf_bias or "")
+        if d == "LONG":
+            return tr > 0 or hb == "HH_HL"
+        if d == "SHORT":
+            return tr < 0 or hb == "LH_LL"
+        return False
+    except Exception:
+        return False
+
+
+def _w159_refresh_setup_edges(force=False):
+    """Rebuild _W159_EDGE_LIVE from the full strategy-log history if the cache
+    is older than the TTL. Cheap after the first build (guarded by timestamp).
+    Never raises - on any failure the live map is left as-is and the read
+    falls back to the W76 seed."""
+    import time as _t
+    try:
+        now = _t.time()
+        if not force and (now - _w159_state.get("built_at", 0.0)) < _W159_TTL_SEC:
+            return
+        try:
+            import strategy_log as _sl
+            rows = _sl._load_all_strategy_rows()
+        except Exception:
+            _w159_state["built_at"] = now  # do not hammer on failure
+            return
+        agg = {}
+        for r in rows:
+            try:
+                res = (r.get("result") or "").strip()
+                if res not in ("WOULD_WIN", "WOULD_LOSE"):
+                    continue
+                st = (r.get("setup_type") or "").strip()
+                if not st or "LAB|" in st:
+                    continue
+                if not _w159_aligned(r.get("direction"), r.get("trend"),
+                                     r.get("htf_bias")):
+                    continue
+                a = agg.setdefault(st, {"w": 0, "l": 0, "rr": 0.0, "rrn": 0})
+                if res == "WOULD_WIN":
+                    a["w"] += 1
+                else:
+                    a["l"] += 1
+                try:
+                    rr = float(r.get("rr") or 0)
+                    if rr > 0:
+                        a["rr"] += rr
+                        a["rrn"] += 1
+                except (TypeError, ValueError):
+                    pass
+            except Exception:
+                continue
+        fresh = {}
+        for st, a in agg.items():
+            n = a["w"] + a["l"]
+            if n < _W159_MIN_SAMPLE:
+                continue
+            arr = (a["rr"] / a["rrn"]) if a["rrn"] else 0.0
+            if arr <= 0:
+                continue
+            wr = a["w"] / n
+            fresh[st] = round(wr * arr - (1.0 - wr), 3)
+        _W159_EDGE_LIVE.clear()
+        _W159_EDGE_LIVE.update(fresh)
+        _w159_state["built_at"] = now
+    except Exception:
+        return
+
+
+def _w159_edge(setup):
+    """The freshest edge for a setup: the live recompute when we have a solid
+    sample, else the Wave-76 seed, else None (unknown setup)."""
+    try:
+        if setup in _W159_EDGE_LIVE:
+            return _W159_EDGE_LIVE[setup]
+    except Exception:
+        pass
+    return _W76_SETUP_EDGE.get(setup)
+
+
 _W76_SETUP_EDGE = {
     "APPROACH_RESIST": 1.263, "BB_REVERSION_BULL": 1.036, "BREAK_RETEST_BULL": 0.828,
     "VWAP_BOUNCE_BULL": 0.795, "STOCH_REVERSAL_BEAR": 0.685, "RSI_DIV_BEAR": 0.178,
@@ -1038,8 +1141,9 @@ def _confluence_score(stack_types, market=""):
     evidence and overrides; a BAD pair (conflict) dominates a good one. Else the
     strongest known setup leads, dragged toward the stack mean."""
     try:
+        _w159_refresh_setup_edges()  # Wave 159: keep the read fresh (cached)
         st = [s for s in (stack_types or []) if s]
-        edges = [_W76_SETUP_EDGE[s] for s in st if s in _W76_SETUP_EDGE]
+        edges = [_w159_edge(s) for s in st if _w159_edge(s) is not None]
         pairs = []
         for i in range(len(st)):
             for j in range(i + 1, len(st)):
