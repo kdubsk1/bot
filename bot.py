@@ -7023,6 +7023,33 @@ async def scanner_watchdog(app):
         try:
             await asyncio.sleep(60 * 60)  # 1 hour between checks
 
+            # Wave 157 (_WAVE157_HOURLY_PAROLE_BOARD): the parole board convenes
+            # EVERY HOUR, not only at the 4PM session roll and at boot. Measured
+            # gap (Jul 17): ot.check_and_update_suspensions() was called at exactly
+            # three sites - session close (~569, ~5914) and startup (~6290). Two
+            # costs. A setup that finished earning its parole at 10am waited until
+            # 4pm to be freed. Far worse: a PROBATIONER BLEEDING REAL MONEY stayed
+            # live until the next checkpoint - up to ~8 hours after the bleed gate
+            # should have benched it. Real money always outranks paper, so the gate
+            # that protects it must not wait on a clock.
+            # SAFE BY CONSTRUCTION: the engine is evidence-driven end to end -
+            # probation is earned on graded shadow proof, failed on dollar bleed,
+            # graduated on live record. Nothing inside it counts calls or sessions,
+            # so running it hourly is semantically identical to running it at close,
+            # only sooner. It sits at the TOP of the watchdog tick, above every
+            # continue, so an alert cooldown or a self-heal can never skip it.
+            # Changes are rare -> silence nearly every hour (the no-clutter law).
+            try:
+                _w157_changes = ot.check_and_update_suspensions()
+                if _w157_changes:
+                    _w157_body = "\n".join("  " + str(_c) for _c in _w157_changes[:12])
+                    if len(_w157_changes) > 12:
+                        _w157_body += "\n  ... and %d more" % (len(_w157_changes) - 12)
+                    log.info("Wave 157: hourly board applied %d change(s)" % len(_w157_changes))
+                    await tg_send(app, "PAROLE BOARD (hourly):\n" + _w157_body)
+            except Exception as _w157e:
+                log.warning(f"Wave 157 hourly parole board failed (non-fatal): {_w157e}")
+
             # Wave 104 (_WAVE104_SCANNER_SELF_HEAL): self-heal a long unexpected OFF.
             # Runs every hour, independent of the alert cooldown, so recovery is
             # prompt. If the scanner has been OFF longer than the auto-resume
