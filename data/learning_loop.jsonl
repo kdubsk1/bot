@@ -4,3 +4,4 @@
 {"event":"seed_base","bucket":"adx_min|BTC|VWAP_REJECT_BEAR","base":28.0,"ts":"2026-07-19T03:58:18.732099+00:00"}
 {"event":"seed_base","bucket":"adx_min|SOL|VWAP_BOUNCE_BULL","base":12.0,"ts":"2026-07-19T10:35:30.514739+00:00"}
 {"event":"seed_base","bucket":"adx_min|SOL|EMA50_RECLAIM","base":22.0,"ts":"2026-07-19T12:23:14.910468+00:00"}
+{"event":"seed_w156","planted":5,"ts":"2026-07-19T23:18:13.004034+00:00"}

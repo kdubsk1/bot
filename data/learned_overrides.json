@@ -1,5 +1,81 @@
 {
-  "overrides": {},
+  "overrides": {
+    "vol_confirm|NQ|EMA21_PULLBACK_BEAR": {
+      "filter": "vol_confirm",
+      "market": "NQ",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "base": 0.8,
+      "value": 0.3,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-19T23:18:13.002792+00:00",
+      "tagged": [],
+      "consecutive_reverts": 0,
+      "seeded_by": "W156",
+      "evidence": {
+        "note": "Wave 156 seed from winning-volume evidence"
+      }
+    },
+    "vol_confirm|SOL|VWAP_REJECT_BEAR": {
+      "filter": "vol_confirm",
+      "market": "SOL",
+      "setup": "VWAP_REJECT_BEAR",
+      "base": 0.8,
+      "value": 0.4,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-19T23:18:13.002792+00:00",
+      "tagged": [],
+      "consecutive_reverts": 0,
+      "seeded_by": "W156",
+      "evidence": {
+        "note": "Wave 156 seed from winning-volume evidence"
+      }
+    },
+    "vol_confirm|BTC|VWAP_REJECT_BEAR": {
+      "filter": "vol_confirm",
+      "market": "BTC",
+      "setup": "VWAP_REJECT_BEAR",
+      "base": 0.8,
+      "value": 0.3,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-19T23:18:13.002792+00:00",
+      "tagged": [],
+      "consecutive_reverts": 0,
+      "seeded_by": "W156",
+      "evidence": {
+        "note": "Wave 156 seed from winning-volume evidence"
+      }
+    },
+    "vol_confirm|BTC|MACD_CROSS_BEAR": {
+      "filter": "vol_confirm",
+      "market": "BTC",
+      "setup": "MACD_CROSS_BEAR",
+      "base": 0.8,
+      "value": 0.3,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-19T23:18:13.002792+00:00",
+      "tagged": [],
+      "consecutive_reverts": 0,
+      "seeded_by": "W156",
+      "evidence": {
+        "note": "Wave 156 seed from winning-volume evidence"
+      }
+    },
+    "vol_confirm|BTC|EMA21_PULLBACK_BEAR": {
+      "filter": "vol_confirm",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "base": 0.8,
+      "value": 0.3,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-19T23:18:13.002792+00:00",
+      "tagged": [],
+      "consecutive_reverts": 0,
+      "seeded_by": "W156",
+      "evidence": {
+        "note": "Wave 156 seed from winning-volume evidence"
+      }
+    }
+  },
   "ready_history": {
     "conv_min|GC|BB_REVERSION_BULL": [
       "2026-07-19"
