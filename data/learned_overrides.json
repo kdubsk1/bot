@@ -1,11 +1,30 @@
 {
   "overrides": {},
-  "ready_history": {},
+  "ready_history": {
+    "conv_min|GC|BB_REVERSION_BULL": [
+      "2026-07-19"
+    ],
+    "conv_min|GC|MACD_CROSS_BEAR": [
+      "2026-07-19"
+    ]
+  },
   "last_apply_date": "",
   "seeds": {
     "adx_min|BTC|STOCH_REVERSAL_BEAR": {
       "base": 16.0,
       "seeded_at": "2026-07-18T21:25:27.682486+00:00"
+    },
+    "adx_min|SOL|BB_REVERSION_BEAR": {
+      "base": 22.0,
+      "seeded_at": "2026-07-18T22:27:13.336536+00:00"
+    },
+    "adx_min|SOL|VWAP_REJECT_BEAR": {
+      "base": 30.0,
+      "seeded_at": "2026-07-19T03:40:13.019354+00:00"
+    },
+    "adx_min|BTC|VWAP_REJECT_BEAR": {
+      "base": 28.0,
+      "seeded_at": "2026-07-19T03:58:18.731506+00:00"
     }
   }
 }

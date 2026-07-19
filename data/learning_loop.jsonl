@@ -1,1 +1,4 @@
 {"event":"seed_base","bucket":"adx_min|BTC|STOCH_REVERSAL_BEAR","base":16.0,"ts":"2026-07-18T21:25:27.684766+00:00"}
+{"event":"seed_base","bucket":"adx_min|SOL|BB_REVERSION_BEAR","base":22.0,"ts":"2026-07-18T22:27:13.337233+00:00"}
+{"event":"seed_base","bucket":"adx_min|SOL|VWAP_REJECT_BEAR","base":30.0,"ts":"2026-07-19T03:40:13.019977+00:00"}
+{"event":"seed_base","bucket":"adx_min|BTC|VWAP_REJECT_BEAR","base":28.0,"ts":"2026-07-19T03:58:18.732099+00:00"}

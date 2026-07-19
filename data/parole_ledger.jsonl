@@ -932,3 +932,14 @@
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-17T14:23:34.033359+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-17T14:24:04.919700+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-17T14:24:36.695636+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-18T22:55:27.849058+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-18T23:11:33.349224+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:25:20.069288+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:27:20.992257+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:43:24.637433+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:43:55.157046+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:44:25.659280+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:44:56.173888+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "ts": "2026-07-19T02:45:26.692868+00:00"}
+{"event": "granted", "market": "BTC", "setup": "VWAP_REJECT_BEAR", "partner": "STOCH_REVERSAL_BEAR", "direction": "SHORT", "ts": "2026-07-19T03:58:18.731464+00:00"}
+{"event": "granted", "market": "BTC", "setup": "VWAP_REJECT_BEAR", "partner": "STOCH_REVERSAL_BEAR", "direction": "SHORT", "ts": "2026-07-19T04:08:19.986782+00:00"}
