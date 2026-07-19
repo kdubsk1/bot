@@ -462,6 +462,95 @@ def _zone_locked(market: str, direction: str, entry_price: float) -> bool:
     return False
 
 # ── Setup family cooldowns ────────────────────────────────────────
+# Wave 161 (_WAVE161_DIRECTION_GATE): the symmetric, self-correcting side
+# gate. Built on the Wave-158 direction finding, upgraded with the full
+# archive measurement (Jul 19): direction edge FLIPS with the regime -
+# NQ:LONG +0.84R over full history yet -0.41R in the last 40 graded;
+# BTC:LONG just recovered to +0.32R; SOL:SHORT just broke to -0.67R. So
+# the gate is an EXPECTANCY gate on a rolling recent window, per market
+# per side - never a hardcoded anti-long rule. Mechanics: for each
+# market:direction, keep the last _W161_WINDOW graded shadows from the
+# full maintained history (the same _load_all_strategy_rows the parole
+# system trusts); if the window holds >= _W161_MIN_N and its expectancy
+# is at/below _W161_GATE_EXP, setups on that side are rejected with a
+# clear reason instead of fired. Gated rejects keep logging + grading
+# (Wave 140), so the window keeps moving and the gate lifts itself the
+# moment the side recovers. Thin/unknown sides are NEVER gated. Cached
+# 6h; never raises - any failure disables the gate (fires as before).
+_W161_WINDOW = 40
+_W161_MIN_N = 30
+_W161_GATE_EXP = -0.15
+_W161_TTL_SEC = 6 * 3600
+_W161_SIDE_LIVE = {}
+_w161_state = {"built_at": 0.0}
+
+
+def _w161_refresh_side_exp(force=False):
+    """Rebuild the per market:direction rolling-window expectancy from the
+    full strategy-log history if the cache is older than the TTL. Never
+    raises - on any failure the map is left as-is (or empty = gate off)."""
+    import time as _t
+    try:
+        now = _t.time()
+        if not force and (now - _w161_state.get("built_at", 0.0)) < _W161_TTL_SEC:
+            return
+        try:
+            import strategy_log as _sl
+            rows = _sl._load_all_strategy_rows()
+        except Exception:
+            _w161_state["built_at"] = now  # do not hammer on failure
+            return
+        seq = {}
+        for r in rows:
+            try:
+                res = (r.get("result") or "").strip()
+                if res not in ("WOULD_WIN", "WOULD_LOSE"):
+                    continue
+                if "LAB|" in (r.get("setup_type") or r.get("setup") or ""):
+                    continue
+                mk = (r.get("market") or "").strip()
+                d = (r.get("direction") or "").strip().replace("WATCH_", "")
+                if not mk or d not in ("LONG", "SHORT"):
+                    continue
+                try:
+                    rr = float(r.get("rr") or 0)
+                except (TypeError, ValueError):
+                    rr = 0.0
+                seq.setdefault(mk + ":" + d, []).append(
+                    (1 if res == "WOULD_WIN" else 0, rr))
+            except Exception:
+                continue
+        fresh = {}
+        for key, arr in seq.items():
+            win = arr[-_W161_WINDOW:]
+            n = len(win)
+            if n < _W161_MIN_N:
+                continue
+            rrs = [x[1] for x in win if x[1] > 0]
+            avg = (sum(rrs) / len(rrs)) if rrs else 0.0
+            if avg <= 0:
+                continue
+            wr = sum(x[0] for x in win) / float(n)
+            fresh[key] = round(wr * avg - (1.0 - wr), 3)
+        _W161_SIDE_LIVE.clear()
+        _W161_SIDE_LIVE.update(fresh)
+        _w161_state["built_at"] = now
+    except Exception:
+        return
+
+
+def _w161_side_exp(market, direction):
+    """Rolling-window expectancy for a market side, or None when the data
+    is thin/unknown (None = the gate stays open). Never raises."""
+    try:
+        _w161_refresh_side_exp()
+        key = "%s:%s" % (str(market), str(direction or "").replace("WATCH_", ""))
+        return _W161_SIDE_LIVE.get(key)
+    except Exception:
+        return None
+
+
+# -- Setup family cooldowns (comment above dict retained below) --
 SETUP_FAMILIES = {
     "mean_rev_long":  {"VWAP_BOUNCE_BULL", "APPROACH_SUPPORT", "LIQ_SWEEP_BULL", "RSI_DIV_BULL",
                        "FAILED_BREAKDOWN_BULL"},
@@ -2405,6 +2494,17 @@ async def scan_market(app, market, frames):
                 _reject_reason = f"dead market (vol_ratio={vol_ratio:.2f}x < {_w143_floor:.2f}x floor)"
             elif _vol_dir == "confirm" and vol_ratio < _w143_conf:
                 _reject_reason = f"confirm setup needs vol_ratio >= {_w143_conf:.2f}x (got {vol_ratio:.2f}x)"
+            # Wave 161 (_WAVE161_DIRECTION_GATE): symmetric side-expectancy
+            # gate. Gates WHICHEVER side is bleeding in THIS market right
+            # now, judged by the last 40 graded shadows; never gates on
+            # thin data (<30 in the window). Self-correcting: gated
+            # rejects still log + grade via Wave 140, so the window keeps
+            # updating and the gate lifts when the side recovers.
+            if _reject_reason is None:
+                _w161_exp = _w161_side_exp(market, stp.get("direction"))
+                if _w161_exp is not None and _w161_exp <= _W161_GATE_EXP:
+                    _reject_reason = (f"side edge negative (last{_W161_WINDOW} "
+                                      f"graded {_w161_exp:+.2f}R <= {_W161_GATE_EXP:+.2f}R)")
             if _reject_reason is None:
                 if _vol_dir == "confirm":
                     _w143_mark_via(stp, "vol_confirm", market, vol_ratio, 0.8)
