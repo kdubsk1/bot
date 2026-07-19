@@ -770,7 +770,11 @@ def format_alert(market, tf, setup, conv, tier, trend, target, rr, method,
             _rht = ""
             if "tlabel" in rd:
                 _rht = f"  |  *{rd.get('tlabel')} hour* ({float(rd.get('texp', 0.0)):+.2f}R)"
-            read_line = f"\U0001f9e0 *Read:* {_grade}  |  Confluence {_rcs}/100 ({_rce:+.2f}R){_rht}\n"
+            # Wave 158 (_WAVE158_DIRECTION_READ): show the current side edge
+            _rhd = ""
+            if "dlabel" in rd:
+                _rhd = f"  |  *side {rd.get('dlabel')}* ({float(rd.get('dexp', 0.0)):+.2f}R)"
+            read_line = f"\U0001f9e0 *Read:* {_grade}  |  Confluence {_rcs}/100 ({_rce:+.2f}R){_rht}{_rhd}\n"
     except Exception:
         pass
 
@@ -1080,6 +1084,44 @@ def _time_edge(hour):
             label = "neutral"
         else:
             label = "dead"
+        return score, round(float(er), 3), label
+    except Exception:
+        return 50, 0.0, "neutral"
+
+# Wave 158 (_WAVE158_DIRECTION_READ): per-market long-vs-short expectancy,
+# backfilled (trend-aligned) from the full strategy_log graded shadows.
+# Measured Jul 18: longs bleed on every market (-0.05 to -0.56R), shorts
+# win on NQ/BTC/SOL (+0.27 to +0.96R), GC short is weak (-0.11R). This is
+# a REGIME read, not a rule - it rides in The Read footer so Wayne sees on
+# every alert whether the side is currently paying, and a later wave can
+# turn it into a symmetric self-correcting gate. GC:LONG is absent (no
+# graded data - Gold longs are not being generated) so it reads neutral.
+# SHADOW/DISPLAY ONLY: nothing here blocks or sizes a trade.
+_W158_DIRECTION_EDGE = {
+    "NQ:SHORT": 0.956, "BTC:SHORT": 0.335, "SOL:SHORT": 0.265,
+    "GC:SHORT": -0.105, "SOL:LONG": -0.052, "NQ:LONG": -0.334,
+    "BTC:LONG": -0.561,
+}
+
+def _direction_edge(market, direction):
+    """Wave 158 (_WAVE158_DIRECTION_READ): current per-market side edge.
+    Returns (score_0_100, expected_R, label). Unknown market:direction
+    (e.g. no graded data yet) -> neutral, exactly like _time_edge. Never
+    raises. Display only - does not gate or size anything."""
+    try:
+        _k = "%s:%s" % (str(market), str(direction).replace("WATCH_", ""))
+        er = _W158_DIRECTION_EDGE.get(_k)
+        if er is None:
+            return 50, 0.0, "neutral"
+        score = int(max(0, min(100, round((er + 1.0) / 3.0 * 100))))
+        if er >= 0.5:
+            label = "hot"
+        elif er >= 0.1:
+            label = "favored"
+        elif er > -0.1:
+            label = "neutral"
+        else:
+            label = "against"
         return score, round(float(er), 3), label
     except Exception:
         return 50, 0.0, "neutral"
@@ -2761,6 +2803,13 @@ async def scan_market(app, market, frames):
                 try:
                     _rts, _rte, _rtl = _time_edge(datetime.now(timezone.utc).hour)
                     _read["tlabel"] = _rtl; _read["texp"] = _rte
+                except Exception:
+                    pass
+                # Wave 158 (_WAVE158_DIRECTION_READ): tag the alert with the
+                # current per-market side edge. Display only - never gates.
+                try:
+                    _rds, _rde, _rdl = _direction_edge(market, stp.get("direction"))
+                    _read["dlabel"] = _rdl; _read["dexp"] = _rde
                 except Exception:
                     pass
                 stp["_read"] = _read
