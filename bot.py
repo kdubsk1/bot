@@ -1171,12 +1171,106 @@ _W80_HOUR_EDGE = {0: -0.269, 1: 0.135, 2: 0.265, 3: 0.226, 4: 0.444, 5: 0.081,
                   14: 0.527, 15: 0.539, 16: 0.048, 17: 0.413, 18: 0.393, 19: -0.214,
                   20: 1.388, 21: -0.798, 22: 0.084, 23: 0.38}
 
+# Wave 160 (_WAVE160_HOUR_REFRESH): the W80 hour map was backfilled Jun 29
+# and drifts as the market changes - measured Jul 19 (n>=10): hour 3 went
+# +0.23 -> -0.45, hour 15 +0.54 -> -0.02, hour 16 +0.05 -> +1.59. Same cure
+# as Wave 159 gave the confluence read: recompute each UTC hour's
+# trend-aligned expectancy from the full maintained history (reusing Wave
+# 159's alignment filter and the same full-history loader the parole system
+# trusts), cached 6h, prefer the fresh value when n>=15 else fall back to
+# the W80 seed. Display only, exactly like W80. Never raises.
+_W160_TTL_SEC = 6 * 3600
+_W160_MIN_SAMPLE = 15
+_W160_HOUR_LIVE = {}
+_w160_state = {"built_at": 0.0}
+
+
+def _w160_refresh_hour_edges(force=False):
+    """Rebuild _W160_HOUR_LIVE from the full strategy-log history if the
+    cache is older than the TTL. Cheap after the first build (timestamp
+    guard). Never raises - on any failure the hour read falls back to the
+    W80 seed."""
+    import time as _t
+    try:
+        now = _t.time()
+        if not force and (now - _w160_state.get("built_at", 0.0)) < _W160_TTL_SEC:
+            return
+        try:
+            import strategy_log as _sl
+            rows = _sl._load_all_strategy_rows()
+        except Exception:
+            _w160_state["built_at"] = now  # do not hammer on failure
+            return
+        agg = {}
+        for r in rows:
+            try:
+                res = (r.get("result") or "").strip()
+                if res not in ("WOULD_WIN", "WOULD_LOSE"):
+                    continue
+                if "LAB|" in (r.get("setup_type") or ""):
+                    continue
+                if not _w159_aligned(r.get("direction"), r.get("trend"),
+                                     r.get("htf_bias")):
+                    continue
+                ts = r.get("timestamp") or ""
+                if len(ts) < 13 or ts[10] != "T":
+                    continue
+                try:
+                    hr = int(ts[11:13])
+                except ValueError:
+                    continue
+                if not 0 <= hr <= 23:
+                    continue
+                a = agg.setdefault(hr, {"w": 0, "l": 0, "rr": 0.0, "rrn": 0})
+                if res == "WOULD_WIN":
+                    a["w"] += 1
+                else:
+                    a["l"] += 1
+                try:
+                    rr = float(r.get("rr") or 0)
+                    if rr > 0:
+                        a["rr"] += rr
+                        a["rrn"] += 1
+                except (TypeError, ValueError):
+                    pass
+            except Exception:
+                continue
+        fresh = {}
+        for hr, a in agg.items():
+            n = a["w"] + a["l"]
+            if n < _W160_MIN_SAMPLE:
+                continue
+            arr = (a["rr"] / a["rrn"]) if a["rrn"] else 0.0
+            if arr <= 0:
+                continue
+            wr = a["w"] / n
+            fresh[hr] = round(wr * arr - (1.0 - wr), 3)
+        _W160_HOUR_LIVE.clear()
+        _W160_HOUR_LIVE.update(fresh)
+        _w160_state["built_at"] = now
+    except Exception:
+        return
+
+
+def _w160_hour_edge(hour):
+    """Freshest edge for a UTC hour: the live recompute when the sample is
+    solid, else the W80 seed, else None (thin/unknown -> _time_edge already
+    treats None as neutral)."""
+    try:
+        if hour in _W160_HOUR_LIVE:
+            return _W160_HOUR_LIVE[hour]
+    except Exception:
+        pass
+    return _W80_HOUR_EDGE.get(hour)
+
+
 def _time_edge(hour):
     """Wave 80 (Jun 29, 2026): time-of-day edge, backfilled (trend-aligned).
     Returns (score_0_100, expected_R, label). 12-15 + 17-18 + 20 UTC are prime;
     7-8, 19, 21 bleed. Thin/unknown hours -> neutral. Shadow only in W80."""
     try:
-        er = _W80_HOUR_EDGE.get(int(hour))
+        _w160_refresh_hour_edges()  # Wave 160: keep the hour read fresh (cached)
+        er = _w160_hour_edge(int(hour))
         if er is None:
             return 50, 0.0, "neutral"
         score = int(max(0, min(100, round((er + 1.0) / 3.0 * 100))))
