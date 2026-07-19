@@ -25,6 +25,14 @@
     "adx_min|BTC|VWAP_REJECT_BEAR": {
       "base": 28.0,
       "seeded_at": "2026-07-19T03:58:18.731506+00:00"
+    },
+    "adx_min|SOL|VWAP_BOUNCE_BULL": {
+      "base": 12.0,
+      "seeded_at": "2026-07-19T10:35:30.514179+00:00"
+    },
+    "adx_min|SOL|EMA50_RECLAIM": {
+      "base": 22.0,
+      "seeded_at": "2026-07-19T12:23:14.909917+00:00"
     }
   }
 }

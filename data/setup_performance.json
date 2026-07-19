@@ -8,10 +8,13 @@
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 2,
-    "losses": 5,
-    "total": 7,
-    "win_rate": 28.6,
-    "last_updated": "2026-07-18T21:25:27.301754"
+    "losses": 6,
+    "total": 8,
+    "win_rate": 25.0,
+    "last_updated": "2026-07-19T15:10:22.195476",
+    "paper_total": 1,
+    "paper_losses": 1,
+    "paper_win_rate": 0.0
   },
   "BTC:STOCH_REVERSAL_BULL": {
     "wins": 1,
@@ -31,11 +34,14 @@
     "last_updated": "2026-05-21T10:28:24.895970"
   },
   "SOL:BB_REVERSION_BULL": {
-    "wins": 3,
+    "wins": 4,
     "losses": 7,
-    "total": 10,
-    "win_rate": 30.0,
-    "last_updated": "2026-07-18T17:19:43.819111"
+    "total": 11,
+    "win_rate": 36.4,
+    "last_updated": "2026-07-19T14:36:03.319414",
+    "paper_total": 1,
+    "paper_wins": 1,
+    "paper_win_rate": 100.0
   },
   "GC:BREAK_RETEST_BULL": {
     "wins": 8,
@@ -45,14 +51,15 @@
     "last_updated": "2026-07-10T01:11:48.972945"
   },
   "SOL:EMA21_PULLBACK_BULL": {
-    "wins": 0,
-    "losses": 8,
-    "total": 8,
-    "win_rate": 0.0,
-    "last_updated": "2026-07-19T09:26:00.050628",
-    "paper_total": 1,
-    "paper_losses": 1,
-    "paper_win_rate": 0.0
+    "wins": 2,
+    "losses": 10,
+    "total": 12,
+    "win_rate": 16.7,
+    "last_updated": "2026-07-19T15:30:28.878372",
+    "paper_total": 5,
+    "paper_losses": 3,
+    "paper_win_rate": 40.0,
+    "paper_wins": 2
   },
   "SOL:APPROACH_SUPPORT": {
     "wins": 0,
@@ -76,11 +83,14 @@
     "last_updated": "2026-07-17T14:12:13.975807"
   },
   "SOL:STOCH_REVERSAL_BULL": {
-    "wins": 0,
+    "wins": 3,
     "losses": 8,
-    "total": 8,
-    "win_rate": 0.0,
-    "last_updated": "2026-07-18T13:30:44.896877"
+    "total": 11,
+    "win_rate": 27.3,
+    "last_updated": "2026-07-19T14:36:03.320612",
+    "paper_total": 3,
+    "paper_wins": 3,
+    "paper_win_rate": 100.0
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 0,
@@ -114,21 +124,25 @@
     "paper_win_rate": 0.0
   },
   "BTC:BB_REVERSION_BULL": {
-    "wins": 1,
+    "wins": 3,
     "losses": 4,
-    "total": 5,
-    "win_rate": 20.0,
-    "last_updated": "2026-05-21T15:52:27.138856"
+    "total": 7,
+    "win_rate": 42.9,
+    "last_updated": "2026-07-19T10:52:41.457681",
+    "paper_total": 2,
+    "paper_wins": 2,
+    "paper_win_rate": 100.0
   },
   "SOL:VWAP_BOUNCE_BULL": {
-    "wins": 16,
-    "losses": 38,
-    "total": 54,
-    "win_rate": 29.6,
-    "last_updated": "2026-07-19T09:37:06.278888",
-    "paper_total": 1,
-    "paper_wins": 1,
-    "paper_win_rate": 100.0
+    "wins": 42,
+    "losses": 50,
+    "total": 92,
+    "win_rate": 45.7,
+    "last_updated": "2026-07-19T14:56:15.740890",
+    "paper_total": 39,
+    "paper_wins": 27,
+    "paper_win_rate": 69.2,
+    "paper_losses": 12
   },
   "BTC:RSI_DIV_BEAR": {
     "wins": 5,
@@ -156,23 +170,24 @@
     "last_updated": "2026-07-17T13:41:18.108588"
   },
   "BTC:BB_REVERSION_BEAR": {
-    "wins": 2,
+    "wins": 3,
     "losses": 14,
-    "total": 16,
-    "win_rate": 12.5,
-    "last_updated": "2026-07-19T02:12:14.580289",
-    "paper_total": 3,
+    "total": 17,
+    "win_rate": 17.6,
+    "last_updated": "2026-07-19T12:17:12.340955",
+    "paper_total": 4,
     "paper_losses": 3,
-    "paper_win_rate": 0.0
+    "paper_win_rate": 25.0,
+    "paper_wins": 1
   },
   "SOL:VWAP_REJECT_BEAR": {
     "wins": 14,
-    "losses": 13,
-    "total": 27,
-    "win_rate": 51.9,
-    "last_updated": "2026-07-19T06:51:32.378985",
-    "paper_total": 1,
-    "paper_losses": 1,
+    "losses": 18,
+    "total": 32,
+    "win_rate": 43.8,
+    "last_updated": "2026-07-19T14:36:03.317843",
+    "paper_total": 6,
+    "paper_losses": 6,
     "paper_win_rate": 0.0,
     "real_total": 1,
     "real_losses": 1,
@@ -180,13 +195,13 @@
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 31,
-    "losses": 82,
-    "total": 113,
-    "win_rate": 27.4,
-    "last_updated": "2026-07-19T09:26:00.051579",
-    "paper_total": 10,
-    "paper_losses": 9,
-    "paper_win_rate": 10.0,
+    "losses": 94,
+    "total": 125,
+    "win_rate": 24.8,
+    "last_updated": "2026-07-19T14:56:15.732076",
+    "paper_total": 22,
+    "paper_losses": 21,
+    "paper_win_rate": 4.5,
     "paper_wins": 1
   },
   "SOL:BREAK_RETEST_BEAR": {
@@ -225,14 +240,15 @@
     "last_updated": "2026-07-13T19:55:31.654422"
   },
   "BTC:MACD_CROSS_BEAR": {
-    "wins": 5,
+    "wins": 6,
     "losses": 22,
-    "total": 27,
-    "win_rate": 18.5,
-    "last_updated": "2026-07-19T00:31:50.273156",
-    "paper_total": 1,
+    "total": 28,
+    "win_rate": 21.4,
+    "last_updated": "2026-07-19T12:17:12.342810",
+    "paper_total": 2,
     "paper_losses": 1,
-    "paper_win_rate": 0.0
+    "paper_win_rate": 50.0,
+    "paper_wins": 1
   },
   "GC:EMA21_PULLBACK_BEAR": {
     "wins": 1,
@@ -254,23 +270,27 @@
   },
   "SOL:RSI_DIV_BEAR": {
     "wins": 0,
-    "losses": 65,
-    "total": 65,
+    "losses": 66,
+    "total": 66,
     "win_rate": 0.0,
-    "last_updated": "2026-06-12T14:57:52.291328"
+    "last_updated": "2026-07-19T14:56:15.731349",
+    "paper_total": 1,
+    "paper_losses": 1,
+    "paper_win_rate": 0.0
   },
   "BTC:STOCH_REVERSAL_BEAR": {
-    "wins": 48,
+    "wins": 49,
     "losses": 55,
-    "total": 103,
-    "win_rate": 46.6,
-    "last_updated": "2026-07-19T02:12:14.583121",
+    "total": 104,
+    "win_rate": 47.1,
+    "last_updated": "2026-07-19T12:17:12.342037",
     "real_total": 1,
     "real_losses": 1,
     "real_win_rate": 0.0,
-    "paper_total": 3,
+    "paper_total": 4,
     "paper_losses": 3,
-    "paper_win_rate": 0.0
+    "paper_win_rate": 25.0,
+    "paper_wins": 1
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 94,
@@ -305,10 +325,13 @@
   },
   "SOL:MACD_CROSS_BEAR": {
     "wins": 3,
-    "losses": 12,
-    "total": 15,
-    "win_rate": 20.0,
-    "last_updated": "2026-07-18T21:25:27.299172"
+    "losses": 15,
+    "total": 18,
+    "win_rate": 16.7,
+    "last_updated": "2026-07-19T14:36:03.331729",
+    "paper_total": 3,
+    "paper_losses": 3,
+    "paper_win_rate": 0.0
   },
   "SOL:EMA21_PULLBACK_BEAR": {
     "wins": 11,
@@ -354,10 +377,13 @@
   },
   "SOL:MACD_CROSS_BULL": {
     "wins": 3,
-    "losses": 15,
-    "total": 18,
-    "win_rate": 16.7,
-    "last_updated": "2026-07-18T12:26:35.564146"
+    "losses": 16,
+    "total": 19,
+    "win_rate": 15.8,
+    "last_updated": "2026-07-19T11:57:04.447293",
+    "paper_total": 1,
+    "paper_losses": 1,
+    "paper_win_rate": 0.0
   },
   "GC:RSI_DIV_BULL": {
     "wins": 1,
@@ -389,12 +415,12 @@
   },
   "BTC:EMA21_PULLBACK_BULL": {
     "wins": 0,
-    "losses": 44,
-    "total": 44,
+    "losses": 47,
+    "total": 47,
     "win_rate": 0.0,
-    "last_updated": "2026-07-19T09:51:10.290393",
-    "paper_total": 7,
-    "paper_losses": 7,
+    "last_updated": "2026-07-19T12:07:07.349619",
+    "paper_total": 10,
+    "paper_losses": 10,
     "paper_win_rate": 0.0
   },
   "NQ:OPENING_RANGE_BREAKOUT": {
@@ -516,5 +542,25 @@
     "paper_win_rate": 33.3,
     "last_updated": "2026-07-19T09:51:10.287534",
     "paper_wins": 1
+  },
+  "SOL:EMA50_RECLAIM": {
+    "wins": 16,
+    "losses": 0,
+    "total": 16,
+    "win_rate": 100.0,
+    "paper_total": 16,
+    "paper_wins": 16,
+    "paper_win_rate": 100.0,
+    "last_updated": "2026-07-19T14:36:03.331138"
+  },
+  "SOL:LAB|RSI_DIV_BEAR": {
+    "wins": 0,
+    "losses": 1,
+    "total": 1,
+    "win_rate": 0.0,
+    "paper_total": 1,
+    "paper_losses": 1,
+    "paper_win_rate": 0.0,
+    "last_updated": "2026-07-19T14:56:15.730644"
   }
 }
