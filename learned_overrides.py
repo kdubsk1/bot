@@ -49,6 +49,13 @@ BOUNDS = {
     "adx_min":     {"base": None, "step": 2.0,  "floor": 12.0, "round": 1},
     "conv_min":    {"base": 48,   "step": 2,    "floor": 44,   "round": 0},
 }
+# Wave 154 (_WAVE154_SHORT_VOLUME_UNLOCK): the signed floor for the
+# volume-confirm gate on BEAR (short) setups only. The global vol_confirm
+# floor above stays 0.60 for longs; shorts may learn down to here because
+# the live data shows low-volume shorts win as well as high-volume ones.
+# The learning system still must EARN any move with graded evidence; this
+# only sets how far down it is allowed to go for the proven short edge.
+_W154_BEAR_CONFIRM_FLOOR = 0.30
 MIN_SAMPLE = 15
 MARGIN = 1.25
 CONSECUTIVE_READY_DAYS = 2
@@ -139,6 +146,25 @@ def get(filt: str, market: str, setup: str, base):
         v = float(o.get("value", base))
         b = BOUNDS.get(filt, {})
         floor = b.get("floor")
+        # Wave 154 (_WAVE154_SHORT_VOLUME_UNLOCK): a DIRECTION-AWARE floor
+        # for the volume-confirm gate. Measured Jul 18 from the live log:
+        # NQ shorts win 53-61% REGARDLESS of volume (10W/9L below 0.4x, the
+        # band where most occur), yet the confirm gate demands 0.80x and the
+        # signed floor 0.60 stopped the learning system from ever reaching
+        # where the edge lives (median short vol_ratio 0.31). That blocked
+        # ~80% of NQ shorts from firing - the reason no shorts reached
+        # Telegram. Bear/short confirm setups (name ends _BEAR) now have a
+        # lower signed floor so the SAME evidence-gated learning system
+        # (15 graded trades, 2-day proof, auto-revert on 10 bad live
+        # trades) CAN lower their threshold if the edge holds - and tighten
+        # back if it fades. Longs/bulls are UNCHANGED at 0.60. This forces
+        # nothing: it only lowers the WALL, the learning loop still has to
+        # earn every notch. vol_floor (the dead-market gate) is untouched.
+        try:
+            if filt == "vol_confirm" and str(setup).endswith("_BEAR"):
+                floor = _W154_BEAR_CONFIRM_FLOOR
+        except Exception:
+            pass
         if floor is not None and v < floor:
             return floor if floor < base else base
         try:
