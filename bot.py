@@ -1397,7 +1397,17 @@ def _direction_edge(market, direction):
     raises. Display only - does not gate or size anything."""
     try:
         _k = "%s:%s" % (str(market), str(direction).replace("WATCH_", ""))
-        er = _W158_DIRECTION_EDGE.get(_k)
+        # Wave 162 (_WAVE162_SIDE_TRUTH): prefer the LIVE rolling window
+        # the Wave-161 gate acts on, so the Read's side line and the gate
+        # can never disagree; the Wave-158 seed is only the cold-start
+        # fallback for sides the window has not covered yet.
+        er = None
+        try:
+            er = _w161_side_exp(market, direction)
+        except Exception:
+            er = None
+        if er is None:
+            er = _W158_DIRECTION_EDGE.get(_k)
         if er is None:
             return 50, 0.0, "neutral"
         score = int(max(0, min(100, round((er + 1.0) / 3.0 * 100))))
@@ -5961,6 +5971,38 @@ async def cmd_help(u,c):
         parse_mode="Markdown")
 
 
+async def cmd_side(u, c):
+    """Wave 162 (_WAVE162_SIDE_TRUTH): /side - which side is paying, per
+    market, straight from the Wave-161 direction gate's rolling window.
+    Shows the SAME numbers the gate acts on - one source of truth."""
+    try:
+        try:
+            _w161_refresh_side_exp()
+        except Exception:
+            pass
+        L = ["\U0001f9ed SIDE TRUTH - last %d graded shadows per side" % _W161_WINDOW,
+             "\u2501" * 27]
+        for _m in ("NQ", "GC", "BTC", "SOL"):
+            for _d in ("LONG", "SHORT"):
+                _e = _W161_SIDE_LIVE.get("%s:%s" % (_m, _d))
+                if _e is None:
+                    L.append("%-3s %-5s    --     thin data (gate open)" % (_m, _d))
+                elif _e <= _W161_GATE_EXP:
+                    L.append("%-3s %-5s %+0.2fR  GATED" % (_m, _d, _e))
+                else:
+                    L.append("%-3s %-5s %+0.2fR  firing" % (_m, _d, _e))
+        L.append("")
+        L.append("Gate: last-%d exp <= %+0.2fR (%d+ graded) pauses that side."
+                 % (_W161_WINDOW, _W161_GATE_EXP, _W161_MIN_N))
+        L.append("Paused sides keep grading shadows, so they free themselves.")
+        await u.message.reply_text("\n".join(L))
+    except Exception as _e2:
+        try:
+            await u.message.reply_text("side view failed: %s" % _e2)
+        except Exception:
+            pass
+
+
 async def cmd_commands(u, c):
     """
     Wave 17 (May 9, 2026): Comprehensive categorized command list.
@@ -6021,6 +6063,7 @@ async def cmd_commands(u, c):
         "`/ledger`  — what the gates are learning\n"
         "`/overrides`  — active learned adjustments\n"
         "`/revert [id]`  — undo a learned adjustment\n"
+        "`/side`  \u2014 which side is paying + gate state\n"
         "\n"
         "⚙️ *UTILITY*\n"
         "`/diag`  — bot health check\n"
@@ -7608,6 +7651,7 @@ def main():
                    ("journal",cmd_journal),
                    ("ledger",cmd_ledger),  # Wave 141: the filter ledger - the learning loop\'s eyes
                    ("overrides",cmd_overrides),  # Wave 143: the hands - learned overrides status
+                   ("side",cmd_side),  # Wave 162: the direction gate's live view
                    ("revert",cmd_revert),  # Wave 143: instant manual overrule
                    ("parole",cmd_parole),  # Wave 147: the revival program's live board
                    ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
