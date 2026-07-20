@@ -134,6 +134,14 @@
     "adx_min|BTC|VWAP_BOUNCE_BULL": {
       "base": 10.0,
       "seeded_at": "2026-07-19T23:54:56.697105+00:00"
+    },
+    "adx_min|BTC|BB_REVERSION_BULL": {
+      "base": 16.0,
+      "seeded_at": "2026-07-20T05:21:20.662835+00:00"
+    },
+    "adx_min|SOL|BB_REVERSION_BULL": {
+      "base": 22.0,
+      "seeded_at": "2026-07-20T05:41:29.029743+00:00"
     }
   }
 }

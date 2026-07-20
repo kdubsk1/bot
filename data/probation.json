@@ -21,28 +21,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "0W/51L (0.0% WR)"
   },
-  "BTC:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-18T22:05:38.538465+00:00",
-    "wins_at_start": 5,
-    "losses_at_start": 94,
-    "shadow_n": 141,
-    "shadow_wr": 31.9,
-    "shadow_expectancy": 0.032,
-    "judge_after_trades": 5,
-    "was_suspended_for": "4W/92L (4.2% WR)"
-  },
-  "NQ:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-18T22:05:38.538465+00:00",
-    "wins_at_start": 29,
-    "losses_at_start": 70,
-    "shadow_n": 80,
-    "shadow_wr": 36.2,
-    "shadow_expectancy": 0.428,
-    "judge_after_trades": 5,
-    "was_suspended_for": "27W/67L (28.7% WR)"
-  },
   "BTC:EMA21_PULLBACK_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-18T22:05:38.538465+00:00",
@@ -87,17 +65,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "0W/6L (0.0% WR)"
   },
-  "SOL:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-19T23:18:05.310206+00:00",
-    "wins_at_start": 42,
-    "losses_at_start": 119,
-    "shadow_n": 307,
-    "shadow_wr": 45.9,
-    "shadow_expectancy": 0.395,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 27W/12L (69.2% WR, expectancy -1.00R) on 39 live trades"
-  },
   "SOL:BB_REVERSION_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-19T23:18:05.310206+00:00",
@@ -108,5 +75,27 @@
     "shadow_expectancy": 0.006,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 1W/21L (4.5% WR, expectancy -1.00R) on 22 live trades"
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-20T04:23:30.954724+00:00",
+    "wins_at_start": 29,
+    "losses_at_start": 85,
+    "shadow_n": 95,
+    "shadow_wr": 30.5,
+    "shadow_expectancy": 0.194,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/15L (0.0% WR, expectancy -1.00R) on 15 live trades"
+  },
+  "SOL:VWAP_BOUNCE_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-07-20T06:23:33.869289+00:00",
+    "wins_at_start": 43,
+    "losses_at_start": 123,
+    "shadow_n": 312,
+    "shadow_wr": 45.5,
+    "shadow_expectancy": 0.383,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 1W/4L (20.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }
