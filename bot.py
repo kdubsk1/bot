@@ -4353,6 +4353,41 @@ _LAST_WEEKLY_RECAP_DATE   = None   # Monday isoformat for which weekly recap was
 _LAST_SCAN_TIMESTAMP      = None   # Wave 19: UTC timestamp of most recent completed scan cycle
 
 # ── Scan loop ─────────────────────────────────────────────────────
+# Wave 163 (_WAVE163_UNKILLABLE_LOOP): supervisor + strong task reference.
+# _W163_SCAN_TASK holds the live task so (a) the GC can never collect it and
+# (b) Wave 164 can see whether it is alive and relaunch it. The supervisor
+# awaits scan_loop; if it returns or raises anything except CancelledError,
+# it logs and relaunches after a short backoff - forever. CancelledError
+# (a real shutdown) is allowed to propagate so we do not fight a deploy.
+_W163_SCAN_TASK = [None]
+_W163_RESTARTS = [0]
+_W163_LAST_RESTART_AT = [None]
+
+
+async def _w163_scan_supervisor(app):
+    """Run scan_loop forever. Any exit other than a real shutdown is treated
+    as a crash and recovered from. Never raises except on CancelledError."""
+    import asyncio as _asyncio
+    from datetime import datetime as _dt, timezone as _tz
+    while True:
+        try:
+            await scan_loop(app)
+            # scan_loop is an infinite loop; a plain return means something
+            # broke out unexpectedly - treat it as a crash and restart.
+            log.error("Wave 163: scan_loop returned unexpectedly - restarting.")
+        except _asyncio.CancelledError:
+            log.info("Wave 163: supervisor cancelled (shutdown) - stopping.")
+            raise
+        except BaseException as _sup_e:
+            log.error("Wave 163: scan_loop crashed (%r) - restarting." % _sup_e)
+        _W163_RESTARTS[0] += 1
+        _W163_LAST_RESTART_AT[0] = _dt.now(_tz.utc)
+        try:
+            await _asyncio.sleep(5)  # brief backoff so a hard-fail cannot hot-spin
+        except _asyncio.CancelledError:
+            raise
+
+
 async def scan_loop(app):
     global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE, _LAST_WEEKLY_RECAP_DATE
@@ -4694,6 +4729,12 @@ async def scan_loop(app):
                 log.info(f"Heartbeat scanner={SETTINGS['scanner_on']} open={len(ot.load_open_trades())}")
                 last_hb=datetime.now(timezone.utc)
 
+        except asyncio.CancelledError:
+            # Wave 163: a real shutdown (deploy/restart) - propagate so the
+            # supervisor knows NOT to relaunch. Any OTHER exit is a crash the
+            # supervisor will recover from.
+            log.info("scan_loop: cancelled (shutdown) - exiting cleanly.")
+            raise
         except Exception as e: log.error(f"scan_loop: {e}\n{traceback.format_exc()}")
         await asyncio.sleep(scan_interval*60)
 
@@ -7118,7 +7159,14 @@ async def _post_init(app):
     asyncio.create_task(_wave18_dashboard_regen_loop())
     log.info("Wave 18: Dashboard auto-regen loop launched (5 min cadence)")
 
-    asyncio.create_task(scan_loop(app)); log.info("Scan loop launched.")
+    # Wave 163 (_WAVE163_UNKILLABLE_LOOP): never fire-and-forget the scan
+    # loop. A supervisor keeps a strong task reference (so it cannot be
+    # garbage-collected) and relaunches scan_loop if it EVER exits for any
+    # reason other than a real shutdown (CancelledError). The scan loop
+    # died silently 3x - each time a deploy cancelled the task and nothing
+    # brought it back. This makes that impossible.
+    _W163_SCAN_TASK[0] = asyncio.create_task(_w163_scan_supervisor(app))
+    log.info("Wave 163: scan loop launched under supervisor (auto-restart).")
 
     # Wave 22 (May 9, 2026): scanner watchdog
     asyncio.create_task(scanner_watchdog(app))
