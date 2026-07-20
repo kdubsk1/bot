@@ -109,6 +109,10 @@
     "adx_min|SOL|EMA50_RECLAIM": {
       "base": 22.0,
       "seeded_at": "2026-07-19T12:23:14.909917+00:00"
+    },
+    "adx_min|BTC|VWAP_BOUNCE_BULL": {
+      "base": 10.0,
+      "seeded_at": "2026-07-19T23:54:56.697105+00:00"
     }
   }
 }

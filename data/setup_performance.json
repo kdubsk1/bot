@@ -52,15 +52,15 @@
     "last_updated": "2026-07-10T01:11:48.972945"
   },
   "SOL:EMA21_PULLBACK_BULL": {
-    "wins": 2,
+    "wins": 3,
     "losses": 11,
-    "total": 13,
-    "win_rate": 15.4,
-    "last_updated": "2026-07-19T17:07:21.520059",
-    "paper_total": 6,
+    "total": 14,
+    "win_rate": 21.4,
+    "last_updated": "2026-07-19T23:54:55.259553",
+    "paper_total": 7,
     "paper_losses": 4,
-    "paper_win_rate": 33.3,
-    "paper_wins": 2
+    "paper_win_rate": 42.9,
+    "paper_wins": 3
   },
   "SOL:APPROACH_SUPPORT": {
     "wins": 0,
@@ -139,14 +139,14 @@
     "paper_win_rate": 100.0
   },
   "SOL:VWAP_BOUNCE_BULL": {
-    "wins": 42,
+    "wins": 43,
     "losses": 119,
-    "total": 161,
-    "win_rate": 26.1,
-    "last_updated": "2026-07-19T17:07:21.557518",
-    "paper_total": 108,
-    "paper_wins": 27,
-    "paper_win_rate": 25.0,
+    "total": 162,
+    "win_rate": 26.5,
+    "last_updated": "2026-07-19T23:54:55.256493",
+    "paper_total": 109,
+    "paper_wins": 28,
+    "paper_win_rate": 25.7,
     "paper_losses": 81
   },
   "BTC:RSI_DIV_BEAR": {
