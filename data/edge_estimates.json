@@ -55,15 +55,15 @@
   },
   "VWAP_BOUNCE_BULL|||HH_HL": {
     "wins": 4,
-    "losses": 17,
+    "losses": 18,
     "total_win_r": 8.842393598595551,
-    "total_loss_r": 17.0
+    "total_loss_r": 18.0
   },
   "VWAP_BOUNCE_BULL|||ALL": {
     "wins": 7,
-    "losses": 34,
+    "losses": 35,
     "total_win_r": 14.696699222915843,
-    "total_loss_r": 34.0
+    "total_loss_r": 35.0
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 7,

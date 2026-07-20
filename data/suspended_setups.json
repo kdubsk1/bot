@@ -244,13 +244,6 @@
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   },
-  "SOL:STOCH_REVERSAL_BULL": {
-    "reason": "0W/5L (0.0% WR)",
-    "suspended_at": "2026-07-15T22:13:02.957747+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
   "SOL:EMA21_PULLBACK_BEAR": {
     "reason": "2W/23L (8.0% WR)",
     "suspended_at": "2026-07-15T22:13:02.957809+00:00",
