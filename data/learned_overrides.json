@@ -74,17 +74,38 @@
       "evidence": {
         "note": "Wave 156 seed from winning-volume evidence"
       }
+    },
+    "conv_min|GC|BB_REVERSION_BULL": {
+      "filter": "conv_min",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "base": 48,
+      "consecutive_reverts": 0,
+      "tagged": [],
+      "value": 46.0,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-20T02:23:29.989519+00:00",
+      "evidence": {
+        "n": 25,
+        "w": 25,
+        "l": 0,
+        "wr": 100.0,
+        "avg_rr": 3.17,
+        "required_wr": 29.9
+      }
     }
   },
   "ready_history": {
     "conv_min|GC|BB_REVERSION_BULL": [
-      "2026-07-19"
+      "2026-07-19",
+      "2026-07-20"
     ],
     "conv_min|GC|MACD_CROSS_BEAR": [
-      "2026-07-19"
+      "2026-07-19",
+      "2026-07-20"
     ]
   },
-  "last_apply_date": "",
+  "last_apply_date": "2026-07-20",
   "seeds": {
     "adx_min|BTC|STOCH_REVERSAL_BEAR": {
       "base": 16.0,
