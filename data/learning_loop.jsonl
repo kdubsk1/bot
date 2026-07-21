@@ -12,3 +12,4 @@
 {"event":"seed_base","bucket":"adx_min|NQ|VWAP_BOUNCE_BULL","base":12.0,"ts":"2026-07-20T15:36:46.754606+00:00"}
 {"event":"apply","bucket":"conv_min|GC|MACD_CROSS_BEAR","from":48.0,"to":46.0,"evidence":{"n":15,"w":15,"l":0,"wr":100.0,"avg_rr":1.97,"required_wr":42.1},"ts":"2026-07-21T00:07:19.836809+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|BREAK_RETEST_BULL","base":16.0,"ts":"2026-07-21T07:26:09.459824+00:00"}
+{"event":"seed_base","bucket":"adx_min|SOL|BREAK_RETEST_BULL","base":18.0,"ts":"2026-07-21T12:57:02.838876+00:00"}

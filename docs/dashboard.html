@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-21T08:29:34.914428+00:00",
+  "generated_at": "2026-07-21T13:01:59.347683+00:00",
   "topstep": {
     "balance": 50591.16,
     "starting_balance": 50000,
@@ -299,72 +299,68 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-07-12 22:40",
-        "balance": 51845.0
-      },
-      {
-        "time": "2026-07-13 14:52",
-        "balance": 51067.32
-      },
-      {
         "time": "2026-07-14 03:41",
-        "balance": 53189.17
+        "balance": 52077.5
       },
       {
         "time": "2026-07-14 14:05",
-        "balance": 52391.33
+        "balance": 51296.34
       },
       {
         "time": "2026-07-14 15:28",
-        "balance": 53986.65
+        "balance": 52858.31
       },
       {
         "time": "2026-07-14 18:55",
-        "balance": 56043.54
+        "balance": 54872.21
       },
       {
         "time": "2026-07-15 00:23",
-        "balance": 55202.89
+        "balance": 54049.13
       },
       {
         "time": "2026-07-15 01:41",
-        "balance": 57595.93
+        "balance": 56392.16
       },
       {
         "time": "2026-07-15 05:06",
-        "balance": 56732.0
+        "balance": 55546.28
       },
       {
         "time": "2026-07-15 06:31",
-        "balance": 59148.78
+        "balance": 57912.55
       },
       {
         "time": "2026-07-15 07:18",
-        "balance": 58261.55
+        "balance": 57043.86
       },
       {
         "time": "2026-07-15 12:50",
-        "balance": 57387.62
+        "balance": 56188.2
       },
       {
         "time": "2026-07-15 14:57",
-        "balance": 56526.81
+        "balance": 55345.38
       },
       {
         "time": "2026-07-16 06:09",
-        "balance": 55678.91
+        "balance": 54515.2
       },
       {
         "time": "2026-07-17 14:02",
-        "balance": 57424.44
+        "balance": 56224.25
       },
       {
         "time": "2026-07-17 16:43",
-        "balance": 59198.86
+        "balance": 57961.58
       },
       {
         "time": "2026-07-20 15:36",
-        "balance": 58310.87
+        "balance": 57092.16
+      },
+      {
+        "time": "2026-07-21 07:55",
+        "balance": 59412.95
       }
     ]
   },
@@ -783,37 +779,30 @@ const DATA = {
   },
   "all_time": {
     "wins": 9,
-    "losses": 19,
-    "wr": 32.1,
-    "total_trades": 28
+    "losses": 18,
+    "wr": 33.3,
+    "total_trades": 27
   },
   "today": {
-    "wins": 0,
+    "wins": 1,
     "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "wr": 100.0,
+    "total_trades": 1
   },
   "setup_stats": [
+    {
+      "setup": "NQ:BREAK_RETEST_BULL",
+      "fires": 8,
+      "wins": 4,
+      "losses": 4,
+      "wr": 50.0
+    },
     {
       "setup": "BTC:STOCH_REVERSAL_BEAR",
       "fires": 7,
       "wins": 1,
       "losses": 6,
       "wr": 14.3
-    },
-    {
-      "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 7,
-      "wins": 3,
-      "losses": 4,
-      "wr": 42.9
-    },
-    {
-      "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 4,
-      "wins": 1,
-      "losses": 3,
-      "wr": 25.0
     },
     {
       "setup": "GC:STOCH_REVERSAL_BEAR",
@@ -823,18 +812,18 @@ const DATA = {
       "wr": 66.7
     },
     {
+      "setup": "NQ:VWAP_BOUNCE_BULL",
+      "fires": 3,
+      "wins": 1,
+      "losses": 2,
+      "wr": 33.3
+    },
+    {
       "setup": "SOL:VWAP_REJECT_BEAR",
       "fires": 2,
       "wins": 0,
       "losses": 2,
       "wr": 0.0
-    },
-    {
-      "setup": "GC:MACD_CROSS_BEAR",
-      "fires": 1,
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
     },
     {
       "setup": "GC:BB_REVERSION_BULL",
@@ -878,9 +867,9 @@ const DATA = {
       "rr": "2.71",
       "conv": "65",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "29192.5"
     },
     {
       "time": "2026-07-20 15:36",
@@ -1477,20 +1466,25 @@ const DATA = {
       "key": "BTC:LAB|RSI_DIV_BEAR",
       "reason": "1W/4L (20.0% WR)",
       "suspended_at": "2026-07-21T06:24:03.406970+00:00"
+    },
+    {
+      "key": "NQ:LAB|STOCH_REVERSAL_BEAR",
+      "reason": "1W/5L (16.7% WR)",
+      "suspended_at": "2026-07-21T13:01:59.336494+00:00"
     }
   ],
   "by_market": {
     "GC": {
-      "wins": 4,
+      "wins": 3,
       "losses": 1,
-      "total_pnl_r": 8.32,
-      "wr": 80.0
+      "total_pnl_r": 5.86,
+      "wr": 75.0
     },
     "NQ": {
-      "wins": 4,
-      "losses": 8,
-      "total_pnl_r": 2.36,
-      "wr": 33.3
+      "wins": 5,
+      "losses": 7,
+      "total_pnl_r": 6.07,
+      "wr": 41.7
     },
     "BTC": {
       "wins": 1,
@@ -1508,8 +1502,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 6,
-      "losses": 9,
-      "wr": 40.0
+      "losses": 8,
+      "wr": 42.9
     },
     "MEDIUM": {
       "wins": 2,
@@ -1522,21 +1516,7 @@ const DATA = {
       "wr": 14.3
     }
   },
-  "open_trades": [
-    {
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "direction": "LONG",
-      "entry": "29105.25",
-      "target": "29192.5",
-      "stop": "29073.006",
-      "conviction": 65,
-      "last_rescore_conviction": 65,
-      "tier": "HIGH",
-      "timestamp": "2026-07-21T07:55:26.605067+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {

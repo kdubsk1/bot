@@ -292,5 +292,12 @@
     "total_at_suspension": 5,
     "wr_at_suspension": 20.0,
     "bleed_at_suspension": 0.0
+  },
+  "NQ:LAB|STOCH_REVERSAL_BEAR": {
+    "reason": "1W/5L (16.7% WR)",
+    "suspended_at": "2026-07-21T13:01:59.336494+00:00",
+    "total_at_suspension": 6,
+    "wr_at_suspension": 16.7,
+    "bleed_at_suspension": 0.0
   }
 }
