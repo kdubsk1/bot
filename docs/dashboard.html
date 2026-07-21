@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-21T14:03:59.800874+00:00",
+  "generated_at": "2026-07-21T14:40:45.322134+00:00",
   "topstep": {
     "balance": 50591.16,
     "starting_balance": 50000,
@@ -860,6 +860,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-07-21 14:40",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29200.0",
+      "stop": "29054.9047",
+      "target": "29532.0",
+      "rr": "2.29",
+      "conv": "61",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-07-21 13:57",
       "market": "NQ",
       "setup": "VWAP_BOUNCE_BULL",
@@ -1242,22 +1258,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "29832.25"
-    },
-    {
-      "time": "2026-07-14 16:55",
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "64740.46",
-      "stop": "65029.1439",
-      "target": "64000.01",
-      "rr": "2.56",
-      "conv": "53",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "65029.1439"
     }
   ],
   "suspended_setups": [
@@ -1475,11 +1475,6 @@ const DATA = {
       "key": "NQ:LAB|STOCH_REVERSAL_BEAR",
       "reason": "1W/5L (16.7% WR)",
       "suspended_at": "2026-07-21T13:01:59.336494+00:00"
-    },
-    {
-      "key": "NQ:VWAP_REJECT_BEAR",
-      "reason": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades",
-      "suspended_at": "2026-07-21T14:03:59.767389+00:00"
     }
   ],
   "by_market": {
@@ -1525,7 +1520,21 @@ const DATA = {
       "wr": 14.3
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "29200.0",
+      "target": "29532.0",
+      "stop": "29054.9047",
+      "conviction": 61,
+      "last_rescore_conviction": 61,
+      "tier": "HIGH",
+      "timestamp": "2026-07-21T14:40:42.648147+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

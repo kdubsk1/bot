@@ -119,5 +119,16 @@
     "shadow_expectancy": 0.119,
     "judge_after_trades": 5,
     "was_suspended_for": "2W/4L (33.3% WR)"
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-21T14:35:32.871507+00:00",
+    "wins_at_start": 29,
+    "losses_at_start": 90,
+    "shadow_n": 100,
+    "shadow_wr": 29.0,
+    "shadow_expectancy": 0.125,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }
