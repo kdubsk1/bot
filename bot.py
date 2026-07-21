@@ -1793,7 +1793,35 @@ def _w140_shadow_levels(market, stp, df_e, atr_v, trend, lane=""):
         # the fire path rejects no-target setups too. Record the code.
         _W148_LAST["m"] = "" if (tgt and method != "no_target") else (method or "no_target")
         if method == "no_target" or not tgt:
-            return 0, 0
+            # Wave 168 (_WAVE168_GRADING_FALLBACK): structure_target found no
+            # swing in the R:R band (codes: no_target / rr_too_high /
+            # rr_too_low), so this row would log target=0, rr=0 -> NO_LEVELS
+            # -> ungradeable. Measured Jul 20: ~93% of 14,139 strategy_log
+            # rows died exactly here, which is why the bot cannot grade its
+            # own shadows. For GRADING/SHADOW ROWS ONLY, fall back to a fixed
+            # 2.0R target built from the row's real entry/stop (2R = low end
+            # of the 2-3R sweet spot, under every market's Wave-75 R:R cap).
+            # The FIRE path (its own direct structure_target call) is
+            # untouched: what fires still requires a real structural level.
+            # Fallback-graded rows are marked fb:<code> in the Wave-148
+            # levels X-ray so the funnel audit can always separate synthetic
+            # grades from structural ones.
+            try:
+                _w168_risk = abs(float(stp["entry"]) - float(stp["raw_stop"]))
+                if _w168_risk <= 0:
+                    return 0, 0
+                _w168_rr = 2.0
+                if stp["direction"] in ("LONG", "WATCH_LONG"):
+                    _w168_tgt = float(stp["entry"]) + _w168_rr * _w168_risk
+                else:
+                    _w168_tgt = float(stp["entry"]) - _w168_rr * _w168_risk
+                _W148_LAST["m"] = "fb:" + (method or "no_target")
+                _W140_LEVELED[key] = now
+                if len(_W140_LEVELED) > 400:
+                    _W140_LEVELED.clear()
+                return round(_w168_tgt, 4), round(_w168_rr, 2)
+            except Exception:
+                return 0, 0
         _W140_LEVELED[key] = now
         if len(_W140_LEVELED) > 400:
             _W140_LEVELED.clear()  # tiny map; a clear just re-levels sooner
