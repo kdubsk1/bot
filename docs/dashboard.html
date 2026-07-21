@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-21T02:29:23.336563+00:00",
+  "generated_at": "2026-07-21T08:29:34.914428+00:00",
   "topstep": {
     "balance": 50591.16,
     "starting_balance": 50000,
@@ -867,6 +867,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-07-21 07:55",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "29105.25",
+      "stop": "29073.006",
+      "target": "29192.5",
+      "rr": "2.71",
+      "conv": "65",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-07-20 15:36",
       "market": "NQ",
       "setup": "VWAP_BOUNCE_BULL",
@@ -1249,22 +1265,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "4063.4"
-    },
-    {
-      "time": "2026-07-14 15:10",
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "64222.01",
-      "stop": "64500.8209",
-      "target": "63654.01",
-      "rr": "2.04",
-      "conv": "53",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "64500.8209"
     }
   ],
   "suspended_setups": [
@@ -1424,11 +1424,6 @@ const DATA = {
       "suspended_at": "2026-07-15T22:13:02.957356+00:00"
     },
     {
-      "key": "SOL:BREAK_RETEST_BULL",
-      "reason": "2W/4L (33.3% WR)",
-      "suspended_at": "2026-07-15T22:13:02.957403+00:00"
-    },
-    {
       "key": "BTC:VWAP_REJECT_BEAR",
       "reason": "2W/14L (12.5% WR)",
       "suspended_at": "2026-07-15T22:13:02.957565+00:00"
@@ -1477,6 +1472,11 @@ const DATA = {
       "key": "BTC:VWAP_BOUNCE_BULL",
       "reason": "probation failed: 1W/14L (6.7% WR, expectancy -1.00R) on 15 live trades",
       "suspended_at": "2026-07-20T05:23:33.429779+00:00"
+    },
+    {
+      "key": "BTC:LAB|RSI_DIV_BEAR",
+      "reason": "1W/4L (20.0% WR)",
+      "suspended_at": "2026-07-21T06:24:03.406970+00:00"
     }
   ],
   "by_market": {
@@ -1522,7 +1522,21 @@ const DATA = {
       "wr": 14.3
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "29105.25",
+      "target": "29192.5",
+      "stop": "29073.006",
+      "conviction": 65,
+      "last_rescore_conviction": 65,
+      "tier": "HIGH",
+      "timestamp": "2026-07-21T07:55:26.605067+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

@@ -119,5 +119,16 @@
     "shadow_expectancy": 0.288,
     "judge_after_trades": 5,
     "was_suspended_for": "49W/105L (31.8% WR)"
+  },
+  "SOL:BREAK_RETEST_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-07-21T07:24:03.867706+00:00",
+    "wins_at_start": 7,
+    "losses_at_start": 15,
+    "shadow_n": 19,
+    "shadow_wr": 31.6,
+    "shadow_expectancy": 0.119,
+    "judge_after_trades": 5,
+    "was_suspended_for": "2W/4L (33.3% WR)"
   }
 }
