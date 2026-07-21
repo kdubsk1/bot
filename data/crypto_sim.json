@@ -7,7 +7,36 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "f1b5ad9a69",
+      "market": "BTC",
+      "direction": "LONG",
+      "entry": 66261.08,
+      "stop": 65963.2073200616,
+      "target": 66923.95,
+      "leverage": 3,
+      "position_size_usd": 2694.27,
+      "notional_usd": 8082.81,
+      "risk_dollars": 12.11,
+      "opened_at": "2026-07-21T18:16:03.624155+00:00",
+      "max_hold_until": "2026-07-28T18:16:03.624155+00:00",
+      "tier": "LOW",
+      "conviction": 50,
+      "context": {
+        "suggested_lev": 3,
+        "trend_score": 4,
+        "rsi": 42.64,
+        "adx": 27.3,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "US Session",
+        "news_flag": false,
+        "chart_read": "Tagged lower Bollinger (66166.1195) and reversed. RSI 42.6 oversold. Mean reversion to middle band."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "55dd8a5115",

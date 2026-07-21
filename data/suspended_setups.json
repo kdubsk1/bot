@@ -299,5 +299,19 @@
     "total_at_suspension": 6,
     "wr_at_suspension": 16.7,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:BREAK_RETEST_BULL": {
+    "reason": "probation failed: 0W/10L (0.0% WR, expectancy -1.00R) on 10 live trades",
+    "suspended_at": "2026-07-21T14:50:47.036903+00:00",
+    "total_at_suspension": 32,
+    "wr_at_suspension": 21.9,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:LAB|BB_REVERSION_BEAR": {
+    "reason": "1W/4L (20.0% WR)",
+    "suspended_at": "2026-07-21T15:00:49.260961+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 20.0,
+    "bleed_at_suspension": 0.0
   }
 }
