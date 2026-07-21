@@ -93,19 +93,40 @@
         "avg_rr": 3.17,
         "required_wr": 29.9
       }
+    },
+    "conv_min|GC|MACD_CROSS_BEAR": {
+      "filter": "conv_min",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "base": 48,
+      "consecutive_reverts": 0,
+      "tagged": [],
+      "value": 46.0,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-21T00:07:18.804596+00:00",
+      "evidence": {
+        "n": 15,
+        "w": 15,
+        "l": 0,
+        "wr": 100.0,
+        "avg_rr": 1.97,
+        "required_wr": 42.1
+      }
     }
   },
   "ready_history": {
     "conv_min|GC|BB_REVERSION_BULL": [
       "2026-07-19",
-      "2026-07-20"
+      "2026-07-20",
+      "2026-07-21"
     ],
     "conv_min|GC|MACD_CROSS_BEAR": [
       "2026-07-19",
-      "2026-07-20"
+      "2026-07-20",
+      "2026-07-21"
     ]
   },
-  "last_apply_date": "2026-07-20",
+  "last_apply_date": "2026-07-21",
   "seeds": {
     "adx_min|BTC|STOCH_REVERSAL_BEAR": {
       "base": 16.0,
