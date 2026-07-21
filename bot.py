@@ -5400,6 +5400,67 @@ def _w165_scan_health_line():
     return "%s %s (%s)%s" % (emoji, label, age, tail)
 
 
+# Wave 167 (_WAVE167_DATA_FRESHNESS): per-market feed freshness for /diag.
+# Measured truth (Wave 132 telemetry + Jul 20 independent check vs Coinbase
+# public data): the TopstepX Combine sim feed is REAL-TIME (~1 min newest-
+# bar age), no funded account needed. This makes that visible: newest 15m
+# bar age per market from the data-layer cache (read-only, no network).
+# NQ/GC show "market closed" outside CME hours instead of a false DELAYED;
+# BTC/SOL trade 24/7 and are always judged. Never raises.
+def _w167_cme_closed(now_utc):
+    """True when CME futures are closed (weekend + daily 21-22 UTC break)."""
+    try:
+        wd, hr = now_utc.weekday(), now_utc.hour
+        if wd == 5:
+            return True                      # Saturday
+        if wd == 4 and hr >= 21:
+            return True                      # Friday after 21:00 UTC
+        if wd == 6 and hr < 22:
+            return True                      # Sunday before 22:00 UTC
+        if hr == 21:
+            return True                      # daily maintenance break
+        return False
+    except Exception:
+        return False
+
+
+def _w167_data_freshness_lines():
+    """List of /diag lines: newest-bar age + verdict per market."""
+    out = ["*Data freshness (newest 15m bar):*"]
+    try:
+        import data_layer as dl
+        now = datetime.now(timezone.utc)
+        closed = _w167_cme_closed(now)
+        for m in ("NQ", "GC", "BTC", "SOL"):
+            try:
+                getter = getattr(dl, "_get_stale_cache", None) or getattr(dl, "_get_cached")
+                df = getter(m, "15m")
+                if df is None or len(df) == 0:
+                    out.append("  %s: no data cached yet" % m)
+                    continue
+                ts = df.index[-1]
+                ts = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+                age = (now - ts).total_seconds() / 60.0
+                if m in ("NQ", "GC") and closed:
+                    out.append("  %s: \U0001f319 market closed (last bar %s)"
+                               % (m, ts.strftime("%a %H:%M")))
+                    continue
+                if age < 3:
+                    out.append("  %s: \U0001f7e2 real-time (%.1fm old)" % (m, age))
+                elif age < 20:
+                    out.append("  %s: \U0001f7e1 lagging (%.0fm old)" % (m, age))
+                else:
+                    out.append("  %s: \U0001f534 STALE (%.0fm old) - feed issue?"
+                               % (m, age))
+            except Exception:
+                out.append("  %s: (unreadable)" % m)
+    except Exception:
+        out.append("  (data layer unavailable)")
+    return out
+
+
 def _build_status_text() -> str:
     """
     Wave 19 (May 9, 2026): shared builder for /status output.
@@ -7392,6 +7453,10 @@ async def cmd_diag(u, c):
         lines.append("")
 
         # Last data source per market|tf
+        # Wave 167 (_WAVE167_DATA_FRESHNESS): show whether the feed is
+        # real-time or delayed, per market, right in /diag.
+        lines.extend(_w167_data_freshness_lines())
+        lines.append("")
         lines.append("*Last data source per fetch:*")
         try:
             ls = getattr(dl, "_last_source", {}) or {}
