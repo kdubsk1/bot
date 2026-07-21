@@ -299,5 +299,12 @@
     "total_at_suspension": 6,
     "wr_at_suspension": 16.7,
     "bleed_at_suspension": 0.0
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "reason": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades",
+    "suspended_at": "2026-07-21T14:03:59.767389+00:00",
+    "total_at_suspension": 119,
+    "wr_at_suspension": 24.4,
+    "bleed_at_suspension": 0.0
   }
 }

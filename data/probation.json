@@ -76,17 +76,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 1W/21L (4.5% WR, expectancy -1.00R) on 22 live trades"
   },
-  "NQ:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-20T04:23:30.954724+00:00",
-    "wins_at_start": 29,
-    "losses_at_start": 85,
-    "shadow_n": 95,
-    "shadow_wr": 30.5,
-    "shadow_expectancy": 0.194,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/15L (0.0% WR, expectancy -1.00R) on 15 live trades"
-  },
   "SOL:STOCH_REVERSAL_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-20T15:23:43.919622+00:00",
