@@ -5356,6 +5356,46 @@ async def cmd_mnq(u,c):
 async def cmd_simweekly(u,c):
     await u.message.reply_text(sim.sim_period_text(7), parse_mode="Markdown")
 
+# Wave 165 (_WAVE165_SCANNER_HEALTH): one place that turns the age of the
+# last scan into an at-a-glance health badge. Green = scanning normally,
+# yellow = getting slow, red = stalled (>10 min, which is also the Wave 164
+# self-restart trigger, so red means "healing now or step in / grab a
+# combine"). Returns (emoji, short_label, mins) so callers can format it
+# however they like. Never raises.
+def _w165_scanner_health():
+    """Return (emoji, label, mins_since_scan_or_None) for the scanner."""
+    try:
+        on = SETTINGS.get("scanner_on", False)
+        ts = _LAST_SCAN_TIMESTAMP
+        if not on:
+            return ("\U0001f534", "OFF", None)
+        if ts is None:
+            return ("\U0001f7e1", "starting", None)
+        mins = (datetime.now(timezone.utc) - ts).total_seconds() / 60.0
+        if mins < 3:
+            return ("\U0001f7e2", "scanning", mins)
+        if mins < 10:
+            return ("\U0001f7e1", "slow", mins)
+        return ("\U0001f534", "DELAYED", mins)
+    except Exception:
+        return ("\u2754", "unknown", None)
+
+
+def _w165_scan_health_line():
+    """A ready-made one-line string for /diag and /status."""
+    emoji, label, mins = _w165_scanner_health()
+    if mins is None:
+        return "%s %s" % (emoji, label)
+    if mins < 1:
+        age = "last <1m ago"
+    elif mins < 60:
+        age = "last %dm ago" % int(mins)
+    else:
+        age = "last %dh %dm ago" % (int(mins / 60), int(mins % 60))
+    tail = "  - check Railway" if label == "DELAYED" else ""
+    return "%s %s (%s)%s" % (emoji, label, age, tail)
+
+
 def _build_status_text() -> str:
     """
     Wave 19 (May 9, 2026): shared builder for /status output.
@@ -5417,7 +5457,7 @@ def _build_status_text() -> str:
         "🤖 *Bot Status*",
         "━" * 18,
         f"*Scanner:* {state_line}",
-        f"*Last scan:* {last_scan_str}",
+        f"*Last scan:* {_w165_scanner_health()[0]} {last_scan_str}",
         f"*Markets active:* {', '.join(active) if active else 'none'}",
         f"*Open trades:* `{len(open_trades)}`",
     ]
@@ -7287,6 +7327,9 @@ async def cmd_diag(u, c):
         # Scanner state
         on = SETTINGS.get("scanner_on", False)
         lines.append(f"*Scanner:* {'🟢 ON' if on else '🔴 OFF'}")
+        # Wave 165 (_WAVE165_SCANNER_HEALTH): the line above is the SETTING;
+        # this one is whether it is actually scanning right now.
+        lines.append(f"*Scanning:* {_w165_scan_health_line()}")
         # Open trades
         try:
             open_t = ot.load_open_trades()
