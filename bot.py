@@ -92,6 +92,10 @@ ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
 
 # ── Scanner state persistence (Task 1) ───────────────────────────
 SCANNER_STATE_FILE = os.path.join(BASE_DIR, "data", "scanner_state.json")
+# Wave 166 (_WAVE166_QUIET_BOOT): minutes of quiet after a boot ping before
+# another boot ping is allowed. Deploy storms -> one banner; a real
+# crash-restart hours later still announces. Wayne-approved 15-min window.
+_W166_BOOT_QUIET_MIN = 15
 
 # Wave 26 (May 11, 2026): bot brain log - exhaustive internal record
 # for Claude analysis. Phantom-loss detections, mid-trade re-scores,
@@ -7136,8 +7140,42 @@ async def _post_init(app):
         # banner where every line earns its spot.
         log.info("W83: legacy verification text suppressed (%d lines) - boot banner sent instead", len(lines))
         _w83_mkt = {"NQ": nq_s, "GC": gc_s, "BTC": btc_s, "SOL": sol_s}
-        await tg_send(app, _build_boot_banner(tsx_result, open_carried, expired_count,
-                                              suspended_count, _w83_mkt, short_sha, time_str))
+        # Wave 166 (_WAVE166_QUIET_BOOT): the "Bot is live!" banner was the
+        # one real ping-spam source - it fired on every restart, and Wayne
+        # deploys many times an hour. Only announce a boot if the previous
+        # boot ping was more than _W166_BOOT_QUIET_MIN minutes ago, so a
+        # deploy storm collapses to a single banner while a genuine
+        # crash-restart hours later still announces. The banner still
+        # computes and is in the Railway logs regardless; only the Telegram
+        # send is gated. Any file error falls back to sending (fail-loud).
+        _w166_send = True
+        _w166_now = datetime.now(timezone.utc)
+        try:
+            _w166_path = os.path.join(BASE_DIR, "data", "last_boot_ping.txt")
+            if os.path.exists(_w166_path):
+                with open(_w166_path, "r", encoding="utf-8") as _w166_fh:
+                    _w166_prev = datetime.fromisoformat(_w166_fh.read().strip())
+                if _w166_prev.tzinfo is None:
+                    _w166_prev = _w166_prev.replace(tzinfo=timezone.utc)
+                _w166_gap = (_w166_now - _w166_prev).total_seconds() / 60.0
+                if _w166_gap < _W166_BOOT_QUIET_MIN:
+                    _w166_send = False
+                    log.info("Wave 166: boot banner suppressed (last boot ping "
+                             "%.1f min ago < %d min quiet window)."
+                             % (_w166_gap, _W166_BOOT_QUIET_MIN))
+        except Exception as _w166_e:
+            log.warning("Wave 166 boot-quiet check failed (sending anyway): %r"
+                        % _w166_e)
+            _w166_send = True
+        if _w166_send:
+            await tg_send(app, _build_boot_banner(tsx_result, open_carried, expired_count,
+                                                  suspended_count, _w83_mkt, short_sha, time_str))
+            try:
+                os.makedirs(os.path.dirname(_w166_path), exist_ok=True)
+                with open(_w166_path, "w", encoding="utf-8") as _w166_fh:
+                    _w166_fh.write(_w166_now.isoformat())
+            except Exception as _w166_we:
+                log.warning("Wave 166 could not record boot-ping time: %r" % _w166_we)
     except Exception as e:
         log.error(f"Startup verification message: {e}")
 
