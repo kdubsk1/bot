@@ -7441,6 +7441,13 @@ _WATCHDOG_OFF_THRESHOLD_HOURS = 2
 # never be left silently off for long -- it heals back to always-scanning.
 _WATCHDOG_AUTO_RESUME_HOURS = 6
 _WATCHDOG_STUCK_THRESHOLD_MIN = 30
+# Wave 164 (_WAVE164_SELF_RESTART): if the scanner is ON but has not scanned
+# in this many minutes, the watchdog RELAUNCHES the scan loop itself (via
+# Wave 163's supervisor) instead of only alerting. Set below the 30-min
+# stuck-alert so recovery happens first; the alert remains as a backstop.
+_WATCHDOG_RESTART_STALE_MIN = 10
+_W164_LAST_RESTART_AT = None
+_W164_RESTART_COUNT = 0
 
 
 async def scanner_watchdog(app):
@@ -7459,7 +7466,9 @@ async def scanner_watchdog(app):
     log.info("Wave 22: scanner watchdog started (hourly checks)")
     while True:
         try:
-            await asyncio.sleep(60 * 60)  # 1 hour between checks
+            # Wave 164 (_WAVE164_SELF_RESTART): 5-minute cadence so a stale
+            # scanner is caught and relaunched within minutes, not an hour.
+            await asyncio.sleep(5 * 60)  # 5 minutes between checks
 
             # Wave 157 (_WAVE157_HOURLY_PAROLE_BOARD): the parole board convenes
             # EVERY HOUR, not only at the 4PM session roll and at boot. Measured
@@ -7487,6 +7496,47 @@ async def scanner_watchdog(app):
                     await tg_send(app, "PAROLE BOARD (hourly):\n" + _w157_body)
             except Exception as _w157e:
                 log.warning(f"Wave 157 hourly parole board failed (non-fatal): {_w157e}")
+
+            # Wave 164 (_WAVE164_SELF_RESTART): the scanner is supposed to be ON
+            # but the scan loop has gone stale (no scan in _WATCHDOG_RESTART_STALE_MIN).
+            # Wave 163 restarts the loop on a normal crash; this covers the case
+            # where the supervisor TASK itself is dead/done. Relaunch it here,
+            # BEFORE the alert cooldown so recovery is never blocked by it, exactly
+            # like the OFF->ON self-heal below. Ping once so a frequent heal is
+            # visible. Fully guarded - a watchdog error can never crash the bot.
+            global _W164_LAST_RESTART_AT, _W164_RESTART_COUNT
+            try:
+                _sc_on = _load_scanner_state().get("scanner_on", False)
+                _stale_min = None
+                if _sc_on and _LAST_SCAN_TIMESTAMP is not None:
+                    _stale_min = (datetime.now(timezone.utc)
+                                  - _LAST_SCAN_TIMESTAMP).total_seconds() / 60.0
+                if _stale_min is not None and _stale_min >= _WATCHDOG_RESTART_STALE_MIN:
+                    _task = None
+                    try:
+                        _task = _W163_SCAN_TASK[0]
+                    except Exception:
+                        _task = None
+                    _dead = (_task is None) or _task.done()
+                    # If the supervisor task is still alive we leave it be (Wave 163
+                    # is handling the restart); only relaunch when it is truly gone.
+                    if _dead:
+                        _W163_SCAN_TASK[0] = asyncio.create_task(_w163_scan_supervisor(app))
+                        _W164_LAST_RESTART_AT = datetime.now(timezone.utc)
+                        _W164_RESTART_COUNT += 1
+                        log.error("Wave 164: scanner stale %d min and supervisor "
+                                  "gone - relaunched scan loop (heal #%d)."
+                                  % (int(_stale_min), _W164_RESTART_COUNT))
+                        try:
+                            await tg_send(app, "\U0001f504 Scanner self-healed: it "
+                                          "had stalled for %d min, so I relaunched "
+                                          "the scan loop. Back to hunting."
+                                          % int(_stale_min))
+                        except Exception:
+                            pass
+            except Exception as _w164e:
+                log.warning("Wave 164 self-restart check failed (non-fatal): %r"
+                            % _w164e)
 
             # Wave 104 (_WAVE104_SCANNER_SELF_HEAL): self-heal a long unexpected OFF.
             # Runs every hour, independent of the alert cooldown, so recovery is
