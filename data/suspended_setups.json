@@ -146,13 +146,6 @@
     "wr_at_suspension": 23.5,
     "bleed_at_suspension": 0.0
   },
-  "SOL:MACD_CROSS_BULL": {
-    "reason": "2W/13L (13.3% WR)",
-    "suspended_at": "2026-07-15T22:13:02.956748+00:00",
-    "total_at_suspension": 15,
-    "wr_at_suspension": 13.3,
-    "bleed_at_suspension": 0.0
-  },
   "GC:VWAP_REJECT_BEAR": {
     "reason": "0W/36L (0.0% WR)",
     "suspended_at": "2026-07-15T22:13:02.956873+00:00",
@@ -244,13 +237,6 @@
     "wr_at_suspension": 8.0,
     "bleed_at_suspension": 0.0
   },
-  "NQ:STOCH_REVERSAL_BULL": {
-    "reason": "6W/17L (26.1% WR)",
-    "suspended_at": "2026-07-15T22:13:02.957839+00:00",
-    "total_at_suspension": 23,
-    "wr_at_suspension": 26.1,
-    "bleed_at_suspension": 0.0
-  },
   "SOL:RSI_DIV_BEAR": {
     "reason": "0W/65L (0.0% WR)",
     "suspended_at": "2026-07-15T22:13:02.957869+00:00",
@@ -312,6 +298,13 @@
     "suspended_at": "2026-07-21T15:00:49.260961+00:00",
     "total_at_suspension": 5,
     "wr_at_suspension": 20.0,
+    "bleed_at_suspension": 0.0
+  },
+  "GC:LAB|RSI_DIV_BEAR": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-07-22T00:32:28.334240+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   }
 }
