@@ -69,13 +69,6 @@
     "wr_at_suspension": 28.6,
     "bleed_at_suspension": 0.0
   },
-  "BTC:STOCH_REVERSAL_BULL": {
-    "reason": "1W/5L (16.7% WR)",
-    "suspended_at": "2026-07-15T22:13:02.955442+00:00",
-    "total_at_suspension": 6,
-    "wr_at_suspension": 16.7,
-    "bleed_at_suspension": 0.0
-  },
   "NQ:MACD_CROSS_BULL": {
     "reason": "0W/8L (0.0% WR)",
     "suspended_at": "2026-07-15T22:13:02.955472+00:00",

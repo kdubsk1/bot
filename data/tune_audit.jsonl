@@ -12,3 +12,4 @@
 {"ts":"2026-07-18T10:01:33.125503+00:00","layer":"daily_soft_tune","setup":"BREAK_RETEST_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=7)","stats":{"n":7}}
 {"ts":"2026-07-19T10:01:12.188989+00:00","layer":"daily_soft_tune","setup":"BREAK_RETEST_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=7)","stats":{"n":7}}
 {"ts":"2026-07-20T10:00:43.466960+00:00","layer":"daily_soft_tune","setup":"BREAK_RETEST_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=7)","stats":{"n":7}}
+{"ts":"2026-07-22T10:04:16.420209+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}

@@ -98,17 +98,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "2W/13L (13.3% WR)"
   },
-  "GC:RSI_DIV_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-22T00:37:28.892747+00:00",
-    "wins_at_start": 0,
-    "losses_at_start": 56,
-    "shadow_n": 137,
-    "shadow_wr": 59.1,
-    "shadow_expectancy": 0.681,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
-  },
   "SOL:STOCH_REVERSAL_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-22T06:13:25.114590+00:00",
@@ -130,5 +119,27 @@
     "shadow_expectancy": 0.716,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 1W/5L (16.7% WR, expectancy -1.00R) on 6 live trades"
+  },
+  "BTC:STOCH_REVERSAL_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-07-22T14:14:44.980991+00:00",
+    "wins_at_start": 5,
+    "losses_at_start": 10,
+    "shadow_n": 10,
+    "shadow_wr": 50.0,
+    "shadow_expectancy": 0.779,
+    "judge_after_trades": 5,
+    "was_suspended_for": "1W/5L (16.7% WR)"
+  },
+  "GC:RSI_DIV_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-22T14:29:48.670643+00:00",
+    "wins_at_start": 0,
+    "losses_at_start": 61,
+    "shadow_n": 142,
+    "shadow_wr": 57.0,
+    "shadow_expectancy": 0.63,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }
