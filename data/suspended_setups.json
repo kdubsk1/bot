@@ -300,13 +300,6 @@
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   },
-  "BTC:BB_REVERSION_BULL": {
-    "reason": "6W/28L (17.6% WR)",
-    "suspended_at": "2026-07-22T05:48:21.019859+00:00",
-    "total_at_suspension": 34,
-    "wr_at_suspension": 17.6,
-    "bleed_at_suspension": -200.0
-  },
   "NQ:STOCH_REVERSAL_BULL": {
     "reason": "probation failed: 0W/22L (0.0% WR, expectancy -1.00R) on 22 live trades",
     "suspended_at": "2026-07-22T07:53:43.307417+00:00",
