@@ -133,9 +133,9 @@
   },
   "BB_REVERSION_BULL|||ALL": {
     "wins": 10,
-    "losses": 23,
+    "losses": 24,
     "total_win_r": 23.17310775543535,
-    "total_loss_r": 23.0
+    "total_loss_r": 24.0
   },
   "BB_REVERSION_BULL|||HH_HL": {
     "wins": 6,
@@ -271,9 +271,9 @@
   },
   "BB_REVERSION_BULL|||MIXED": {
     "wins": 3,
-    "losses": 4,
+    "losses": 5,
     "total_win_r": 7.177129217569394,
-    "total_loss_r": 4.0
+    "total_loss_r": 5.0
   },
   "MACD_CROSS_BULL|||MIXED": {
     "wins": 0,
