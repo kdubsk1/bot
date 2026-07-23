@@ -10,17 +10,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "3W/30L (9.1% WR)"
   },
-  "BTC:EMA21_PULLBACK_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-18T22:05:38.538465+00:00",
-    "wins_at_start": 8,
-    "losses_at_start": 16,
-    "shadow_n": 34,
-    "shadow_wr": 41.2,
-    "shadow_expectancy": 0.298,
-    "judge_after_trades": 5,
-    "was_suspended_for": "5W/15L (25.0% WR)"
-  },
   "NQ:MACD_CROSS_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-18T22:05:38.538465+00:00",
@@ -141,5 +130,27 @@
     "shadow_expectancy": 0.299,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 3W/2L (60.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "SOL:STOCH_REVERSAL_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-23T12:03:40.369233+00:00",
+    "wins_at_start": 9,
+    "losses_at_start": 22,
+    "shadow_n": 30,
+    "shadow_wr": 30.0,
+    "shadow_expectancy": 0.015,
+    "judge_after_trades": 5,
+    "was_suspended_for": "1W/7L (12.5% WR)"
+  },
+  "BTC:EMA21_PULLBACK_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-23T12:53:50.197393+00:00",
+    "wins_at_start": 12,
+    "losses_at_start": 18,
+    "shadow_n": 40,
+    "shadow_wr": 45.0,
+    "shadow_expectancy": 0.427,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 4W/2L (66.7% WR, expectancy -1.00R) on 6 live trades"
   }
 }
