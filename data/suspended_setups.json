@@ -306,5 +306,12 @@
     "total_at_suspension": 58,
     "wr_at_suspension": 20.7,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:MACD_CROSS_BULL": {
+    "reason": "probation failed: 1W/4L (20.0% WR, expectancy -1.00R) on 5 live trades",
+    "suspended_at": "2026-07-23T07:12:46.596207+00:00",
+    "total_at_suspension": 28,
+    "wr_at_suspension": 17.9,
+    "bleed_at_suspension": 0.0
   }
 }
