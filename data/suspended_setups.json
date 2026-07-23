@@ -97,13 +97,6 @@
     "wr_at_suspension": 23.5,
     "bleed_at_suspension": 0.0
   },
-  "SOL:BREAK_RETEST_BEAR": {
-    "reason": "0W/5L (0.0% WR)",
-    "suspended_at": "2026-07-15T22:13:02.955782+00:00",
-    "total_at_suspension": 5,
-    "wr_at_suspension": 0.0,
-    "bleed_at_suspension": 0.0
-  },
   "BTC:BREAK_RETEST_BULL": {
     "reason": "1W/10L (9.1% WR)",
     "suspended_at": "2026-07-15T22:13:02.956438+00:00",
@@ -305,6 +298,20 @@
     "suspended_at": "2026-07-23T07:12:46.596207+00:00",
     "total_at_suspension": 28,
     "wr_at_suspension": 17.9,
+    "bleed_at_suspension": 0.0
+  },
+  "SOL:STOCH_REVERSAL_BULL": {
+    "reason": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades",
+    "suspended_at": "2026-07-23T14:59:13.664723+00:00",
+    "total_at_suspension": 25,
+    "wr_at_suspension": 20.0,
+    "bleed_at_suspension": 0.0
+  },
+  "NQ:LAB|BREAK_RETEST_BEAR": {
+    "reason": "0W/5L (0.0% WR)",
+    "suspended_at": "2026-07-23T17:29:41.709155+00:00",
+    "total_at_suspension": 5,
+    "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
   }
 }

@@ -187,6 +187,10 @@
     "adx_min|BTC|EMA21_PULLBACK_BEAR": {
       "base": 18.0,
       "seeded_at": "2026-07-23T14:36:14.264090+00:00"
+    },
+    "adx_min|BTC|BREAK_RETEST_BEAR": {
+      "base": 14.0,
+      "seeded_at": "2026-07-23T18:01:32.345025+00:00"
     }
   }
 }

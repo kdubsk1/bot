@@ -1300,3 +1300,81 @@
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T12:38:31.080730+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "VWAP_REJECT_BEAR", "direction": "SHORT", "ts": "2026-07-23T12:39:01.422631+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T12:39:01.423548+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:21:38.913311+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:26:40.102070+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:28:41.181805+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:35:43.023729+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:40:43.872610+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:50:46.000763+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T15:55:46.954179+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T16:20:53.332197+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T16:25:54.281385+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T16:35:56.692286+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T16:40:57.742754+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T16:56:01.089219+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:06:05.129511+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:11:05.922436+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:21:08.497432+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:26:09.549037+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:58:28.297339+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:58:58.812563+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:59:29.338266+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T17:59:59.876700+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:00:30.421506+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:01:00.964919+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:01:32.344959+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:02:02.882160+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:02:33.411817+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:03:03.966550+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:03:34.493807+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:04:05.031532+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:04:36.109765+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:05:06.655126+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:05:37.184323+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:06:09.331638+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:06:39.937748+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:07:10.427741+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:07:41.369160+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:08:11.882629+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:08:42.398158+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:09:12.880023+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:09:43.411174+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:10:13.947026+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:10:44.859741+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:11:15.363470+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:11:45.855649+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:12:16.392132+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:12:46.894122+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:13:17.385264+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:13:48.315492+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:14:18.841239+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:14:49.363538+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:15:19.842989+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:15:50.334674+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:16:20.802799+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:19:55.476722+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:20:25.941307+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:20:56.412452+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:21:26.900129+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:26:27.749629+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T18:41:31.027424+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:41:54.716074+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:43:55.154789+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:48:59.189101+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:49:29.624319+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:50:00.051031+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:50:30.498378+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:51:00.933947+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:51:31.380840+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:52:02.776824+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:52:33.208046+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:53:03.625698+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:53:34.068506+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:54:04.487461+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:54:34.934195+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:55:05.900318+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:55:36.376669+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:56:06.802716+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:56:37.224275+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:57:07.669687+00:00"}
+{"event": "granted", "market": "BTC", "setup": "BREAK_RETEST_BEAR", "partner": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "ts": "2026-07-23T19:57:38.085693+00:00"}
