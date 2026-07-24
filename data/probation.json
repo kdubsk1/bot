@@ -10,17 +10,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "3W/30L (9.1% WR)"
   },
-  "NQ:MACD_CROSS_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-18T22:05:38.538465+00:00",
-    "wins_at_start": 5,
-    "losses_at_start": 8,
-    "shadow_n": 13,
-    "shadow_wr": 38.5,
-    "shadow_expectancy": 0.379,
-    "judge_after_trades": 5,
-    "was_suspended_for": "1W/8L (11.1% WR)"
-  },
   "GC:VWAP_BOUNCE_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-18T22:05:38.538465+00:00",
@@ -87,28 +76,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "NQ:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-23T07:17:47.070132+00:00",
-    "wins_at_start": 31,
-    "losses_at_start": 93,
-    "shadow_n": 105,
-    "shadow_wr": 29.5,
-    "shadow_expectancy": 0.14,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
-  },
-  "BTC:STOCH_REVERSAL_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-23T07:27:49.689319+00:00",
-    "wins_at_start": 53,
-    "losses_at_start": 111,
-    "shadow_n": 113,
-    "shadow_wr": 36.3,
-    "shadow_expectancy": 0.299,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 3W/2L (60.0% WR, expectancy -1.00R) on 5 live trades"
-  },
   "SOL:STOCH_REVERSAL_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-23T12:03:40.369233+00:00",
@@ -119,17 +86,6 @@
     "shadow_expectancy": 0.015,
     "judge_after_trades": 5,
     "was_suspended_for": "1W/7L (12.5% WR)"
-  },
-  "SOL:BB_REVERSION_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-23T15:04:14.144638+00:00",
-    "wins_at_start": 7,
-    "losses_at_start": 15,
-    "shadow_n": 18,
-    "shadow_wr": 50.0,
-    "shadow_expectancy": 0.608,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
   },
   "SOL:BREAK_RETEST_BEAR": {
     "state": "SERVING",
@@ -142,15 +98,59 @@
     "judge_after_trades": 5,
     "was_suspended_for": "0W/5L (0.0% WR)"
   },
-  "BTC:EMA21_PULLBACK_BEAR": {
+  "SOL:BB_REVERSION_BULL": {
     "state": "SERVING",
-    "granted_at": "2026-07-23T20:30:15.886415+00:00",
-    "wins_at_start": 14,
-    "losses_at_start": 21,
-    "shadow_n": 45,
-    "shadow_wr": 44.4,
-    "shadow_expectancy": 0.408,
+    "granted_at": "2026-07-24T03:06:29.310664+00:00",
+    "wins_at_start": 7,
+    "losses_at_start": 20,
+    "shadow_n": 23,
+    "shadow_wr": 39.1,
+    "shadow_expectancy": 0.246,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-24T03:06:29.310664+00:00",
+    "wins_at_start": 37,
+    "losses_at_start": 94,
+    "shadow_n": 112,
+    "shadow_wr": 33.0,
+    "shadow_expectancy": 0.262,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 6W/1L (85.7% WR, expectancy -1.00R) on 7 live trades"
+  },
+  "NQ:MACD_CROSS_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-24T03:06:29.310664+00:00",
+    "wins_at_start": 7,
+    "losses_at_start": 11,
+    "shadow_n": 18,
+    "shadow_wr": 38.9,
+    "shadow_expectancy": 0.371,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "BTC:STOCH_REVERSAL_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-24T03:16:32.018419+00:00",
+    "wins_at_start": 55,
+    "losses_at_start": 121,
+    "shadow_n": 125,
+    "shadow_wr": 34.4,
+    "shadow_expectancy": 0.228,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 2W/10L (16.7% WR, expectancy -1.00R) on 12 live trades"
+  },
+  "BTC:EMA21_PULLBACK_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-24T03:36:36.743518+00:00",
+    "wins_at_start": 14,
+    "losses_at_start": 28,
+    "shadow_n": 52,
+    "shadow_wr": 38.5,
+    "shadow_expectancy": 0.243,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/7L (0.0% WR, expectancy -1.00R) on 7 live trades"
   }
 }
