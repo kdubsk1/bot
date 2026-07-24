@@ -1,0 +1,2 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+a311c39b54,2026-07-24T14:12:41.608317+00:00,GC,1h,STOCH_REVERSAL_BEAR,SHORT,4063.9,4076.8547,4033.0,2.39,swing_level_sweet,-10,49,LOW,,intraday (1-4 hours) - flat by 4PM ET,51.34,13.3868,39.27,MIXED,14,1.3,0,CLOSED,LOSS,0,4076.8547,49,,2026-07-24,0,0,
