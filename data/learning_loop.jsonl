@@ -20,3 +20,4 @@
 {"event":"seed_base","bucket":"adx_min|SOL|BREAK_RETEST_BEAR","base":18.0,"ts":"2026-07-24T01:45:18.419526+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|VWAP_REJECT_BEAR","base":20.0,"ts":"2026-07-24T06:13:25.101392+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|MACD_CROSS_BEAR","base":22.0,"ts":"2026-07-24T06:56:15.768796+00:00"}
+{"event":"seed_base","bucket":"adx_min|GC|STOCH_REVERSAL_BEAR","base":18.0,"ts":"2026-07-24T14:12:41.604808+00:00"}
