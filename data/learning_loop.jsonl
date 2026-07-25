@@ -22,3 +22,4 @@
 {"event":"seed_base","bucket":"adx_min|NQ|MACD_CROSS_BEAR","base":22.0,"ts":"2026-07-24T06:56:15.768796+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|STOCH_REVERSAL_BEAR","base":18.0,"ts":"2026-07-24T14:12:41.604808+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|EMA21_PULLBACK_BEAR","base":20.0,"ts":"2026-07-24T15:05:23.522110+00:00"}
+{"event":"tag","bucket":"vol_confirm|BTC|EMA21_PULLBACK_BEAR","alert_id":"0de2b3cad3","n_tagged":1,"ts":"2026-07-25T09:44:04.153222+00:00"}
