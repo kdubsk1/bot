@@ -6847,6 +6847,7 @@ async def _post_init(app):
         import wave13_migrate
         import wave169_migrate
         import wave170_migrate
+        import grade_backfill
         _w12_result = wave12_migrate.maybe_run()
         _w12_result = wave13_migrate.maybe_run()
         _w169_result = wave169_migrate.maybe_run()
@@ -6855,6 +6856,28 @@ async def _post_init(app):
         _w170_result = wave170_migrate.maybe_run()
         if _w170_result.get("ran"):
             log.info("Wave 170: ok=%s %s" % (_w170_result.get("ok"), _w170_result.get("summary", "")))
+        # Wave 173 (_WAVE173_AUTO_GRADE): grade the historical scan backlog in the
+        # background. Capped per run and daemonised so startup is never blocked.
+        # Writes data/grade_backfill_report.json every run for visibility.
+        try:
+            import threading as _w173_threading
+            def _w173_grade_worker():
+                try:
+                    _st = grade_backfill.main(["--limit", "30000", "--include-archives"])
+                    log.info(
+                        "Wave 173 grading: graded=%s win=%s lose=%s expired=%s rebuilt=%s",
+                        _st.get("total_graded"), _st.get("WOULD_WIN"),
+                        _st.get("WOULD_LOSE"), _st.get("EXPIRED"),
+                        _st.get("rebuilt_targets"),
+                    )
+                except Exception as _we:
+                    log.error("Wave 173 grading worker failed: %s", _we)
+            _w173_threading.Thread(
+                target=_w173_grade_worker, name="w173_grade", daemon=True
+            ).start()
+            log.info("Wave 173: background grading backfill started")
+        except Exception as _w173_e:
+            log.error("Wave 173: could not start grading thread: %s", _w173_e)
         if _w12_result.get("ran"):
             ok = _w12_result.get("ok", False)
             summary = _w12_result.get("summary", "(no summary)")
