@@ -1116,3 +1116,4 @@
 {"timestamp": "2026-07-25T14:08:13.969681+00:00", "action": "PROBATION_FAILED", "key": "SOL:STOCH_REVERSAL_BEAR", "reason": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades", "total_at_suspension": 36, "wr_at_suspension": 30.6, "bleed_at_suspension": 0.0, "suspended_at": "2026-07-25T14:08:13.964884+00:00"}
 {"timestamp": "2026-07-25T14:44:42.597419+00:00", "action": "PROBATION", "key": "SOL:STOCH_REVERSAL_BEAR", "reason": "earned probation on shadow proof: 11W/24L (31% WR, avg rr 2.3, expectancy +0.05R over 35 paper trades)"}
 {"timestamp": "2026-07-25T14:49:47.422197+00:00", "action": "PROBATION", "key": "NQ:EMA21_PULLBACK_BULL", "reason": "earned probation on shadow proof: 126W/226L (36% WR, avg rr 2.1, expectancy +0.12R over 352 paper trades)"}
+{"timestamp": "2026-07-25T22:59:44.134669+00:00", "action": "RESTORED", "key": "GC:STOCH_REVERSAL_BEAR", "reason": "WR climbed to 47.8% over 46 trades, bleed $-100 7d"}

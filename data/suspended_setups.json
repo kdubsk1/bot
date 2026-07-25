@@ -9,16 +9,6 @@
       "real_expectancy": -0.1876
     }
   },
-  "GC:STOCH_REVERSAL_BEAR": {
-    "reason": "REAL evidence: 4W/13L over 17 real trades, avg 2.65R, expectancy -0.142R/trade",
-    "suspended_at": "2026-07-25T14:02:55.539329+00:00",
-    "wave170_evidence": {
-      "real_total": 17,
-      "real_win_rate": 23.5,
-      "real_avg_rr_win": 2.647,
-      "real_expectancy": -0.1418
-    }
-  },
   "BTC:BB_REVERSION_BULL": {
     "reason": "REAL evidence: 1W/8L over 9 real trades, avg 2.32R, expectancy -0.631R/trade",
     "suspended_at": "2026-07-25T14:02:55.539332+00:00",
