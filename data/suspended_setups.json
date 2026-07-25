@@ -299,5 +299,12 @@
     "total_at_suspension": 5,
     "wr_at_suspension": 0.0,
     "bleed_at_suspension": 0.0
+  },
+  "SOL:EMA50_BREAKDOWN": {
+    "reason": "3W/6L (33.3% WR)",
+    "suspended_at": "2026-07-25T04:22:17.119487+00:00",
+    "total_at_suspension": 9,
+    "wr_at_suspension": 33.3,
+    "bleed_at_suspension": 0.0
   }
 }
