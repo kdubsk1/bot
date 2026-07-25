@@ -1,34 +1,34 @@
 📊 STRATEGY ANALYSIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OVERVIEW
-  Scans logged    94,672
-  Fired           202  ·  28% WR (33W/84L)
-  Missed winners  1031   (filtered, would've won)
+  Scans logged    118,599
+  Fired           211  ·  29% WR (36W/90L)
+  Missed winners  13659   (filtered, would've won)
 
   Best   GC:BB_REVERSION_BULL   67%  (n9)
   Worst  BTC:STOCH_REVERSAL_BEAR 18%  (n22)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 TOP MISSED WINNERS
-  NQ:VWAP_BOUNCE_BULL · 1h   136x
-    avg conv 0 · blocked by R:R 2.04 below minimum 3.0 (tier quick-conv 10, target 30259.0)
-  SOL:VWAP_BOUNCE_BULL · 1h  98x
-    avg conv 6 · blocked by Conviction 45 just short of 48 minimum by 3 points — ALMOST
-  NQ:BREAK_RETEST_BULL · 1h  84x
-    avg conv 0 · blocked by R:R 1.26 below minimum 3.0 (tier quick-conv 19, target 29782.0)
-  GC:RSI_DIV_BEAR · 1h       81x
-    avg conv 0 · blocked by RR 1.71 < min 2.5
-  GC:VWAP_BOUNCE_BULL · 4h   57x
-    avg conv 9 · blocked by ADX 12.7 < min 18
+  BTC:VWAP_REJECT_BEAR · 1h  941x
+    avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.76x) — insufficient participation
+  BTC:EMA21_PULLBACK_BULL · 15m 859x
+    avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
+  SOL:VWAP_REJECT_BEAR · 1h  729x
+    avg conv 0 · blocked by Wave 74 trend-alignment guard: counter-trend vs MIXED (0/465 historical)
+  BTC:VWAP_BOUNCE_BULL · 15m 643x
+    avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
+  GC:VWAP_BOUNCE_BULL · 4h   591x
+    avg conv 1 · blocked by confirm setup needs vol_ratio >= 0.80x (got 0.35x) — insufficient participation
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔬 WINNING-TRADE PATTERNS
-  ADX      win 25.4   loss 27.9
-  RSI      win 50.0   loss 54.3
-  Trend    win -1.9
+  ADX      win 25.4   loss 28.1
+  RSI      win 50.4   loss 53.9
+  Trend    win -2.1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ LOOSEN-FILTER CANDIDATES
-  NQ:VWAP_BOUNCE_BULL      161x missed
-  SOL:VWAP_BOUNCE_BULL     114x missed
-  GC:VWAP_BOUNCE_BULL      102x missed
-  NQ:BREAK_RETEST_BULL     85x missed
-  GC:RSI_DIV_BEAR          81x missed
-  BTC:APPROACH_RESIST      55x missed
+  BTC:VWAP_REJECT_BEAR     1000x missed
+  BTC:EMA21_PULLBACK_BULL  966x missed
+  GC:VWAP_BOUNCE_BULL      947x missed
+  BTC:VWAP_BOUNCE_BULL     881x missed
+  SOL:VWAP_REJECT_BEAR     853x missed
+  SOL:VWAP_BOUNCE_BULL     842x missed
