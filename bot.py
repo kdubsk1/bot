@@ -6861,17 +6861,39 @@ async def _post_init(app):
         # Writes data/grade_backfill_report.json every run for visibility.
         try:
             import threading as _w173_threading
+            # Wave 174 (_WAVE174_GRADE_DRAIN): keep grading until the backlog is
+            # actually empty, then sweep every 3h so new rows never age out ungraded.
             def _w173_grade_worker():
-                try:
-                    _st = grade_backfill.main(["--limit", "30000", "--include-archives"])
+                import time as _w174_time
+                _passes = 0
+                while _passes < 20:
+                    try:
+                        _st = grade_backfill.main(["--limit", "30000", "--include-archives"])
+                    except Exception as _we:
+                        log.error("Wave 174 grading pass failed: %s", _we)
+                        break
+                    _n = _st.get("total_graded") or 0
+                    _passes += 1
                     log.info(
-                        "Wave 173 grading: graded=%s win=%s lose=%s expired=%s rebuilt=%s",
-                        _st.get("total_graded"), _st.get("WOULD_WIN"),
-                        _st.get("WOULD_LOSE"), _st.get("EXPIRED"),
-                        _st.get("rebuilt_targets"),
+                        "Wave 174 grading pass %s: graded=%s win=%s lose=%s expired=%s rebuilt=%s",
+                        _passes, _n, _st.get("WOULD_WIN"), _st.get("WOULD_LOSE"),
+                        _st.get("EXPIRED"), _st.get("rebuilt_targets"),
                     )
-                except Exception as _we:
-                    log.error("Wave 173 grading worker failed: %s", _we)
+                    if _n == 0:
+                        log.info("Wave 174: grading backlog drained after %s pass(es)", _passes)
+                        break
+                    _w174_time.sleep(10)
+                while True:
+                    _w174_time.sleep(10800)
+                    try:
+                        _sw = grade_backfill.main(["--limit", "5000"])
+                        if (_sw.get("total_graded") or 0) > 0:
+                            log.info(
+                                "Wave 174 sweep: graded=%s win=%s lose=%s",
+                                _sw.get("total_graded"), _sw.get("WOULD_WIN"), _sw.get("WOULD_LOSE"),
+                            )
+                    except Exception as _se:
+                        log.error("Wave 174 sweep failed: %s", _se)
             _w173_threading.Thread(
                 target=_w173_grade_worker, name="w173_grade", daemon=True
             ).start()
