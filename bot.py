@@ -6846,11 +6846,15 @@ async def _post_init(app):
         import wave12_migrate
         import wave13_migrate
         import wave169_migrate
+        import wave170_migrate
         _w12_result = wave12_migrate.maybe_run()
         _w12_result = wave13_migrate.maybe_run()
         _w169_result = wave169_migrate.maybe_run()
         if _w169_result.get("ran"):
             log.info("Wave 169: ok=%s %s" % (_w169_result.get("ok"), _w169_result.get("summary", "")))
+        _w170_result = wave170_migrate.maybe_run()
+        if _w170_result.get("ran"):
+            log.info("Wave 170: ok=%s %s" % (_w170_result.get("ok"), _w170_result.get("summary", "")))
         if _w12_result.get("ran"):
             ok = _w12_result.get("ok", False)
             summary = _w12_result.get("summary", "(no summary)")

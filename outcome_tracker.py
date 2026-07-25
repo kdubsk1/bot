@@ -132,6 +132,21 @@ _RESTORE_WR_ABOVE   = 50.0    # restore if recent win_rate climbs above this
 _SUSPEND_DOLLAR_BLEED = 500.0 # Wave 53 (May 13, 2026): 200->500. Allow more room before suspending.
 _DOLLAR_BLEED_WINDOW_DAYS = 7
 
+# Wave 170 (_WAVE170_EXPECTANCY_GATE): the BENCH decision now judges REAL money
+# only, and on EXPECTANCY rather than win rate. Win rate alone cannot tell a
+# profitable low-hit-rate setup from a losing one. Measured on 359 real closes:
+# BTC:BREAK_RETEST_BEAR ran 22.2% WR at 3.82R (+0.070R/trade, PROFITABLE) while
+# SOL:VWAP_BOUNCE_BULL ran 15.4% at 1.82R (-0.566R/trade). The old WR<35 gate
+# benched both - including 8 money-makers and ALL 8 NQ short setups, every one of
+# them on zero or one real trade, leaving the bot unable to short its own eval
+# instrument. Expectancy = wr * avg_RR_on_wins - (1 - wr), in R units.
+# Paper/shadow evidence still drives parole, probation and conviction scoring;
+# only the bench decision is real-money-only. The $500/7d dollar-bleed gate is
+# unchanged and remains the backstop.
+_W170_MIN_REAL_TRADES = 8      # never bench on fewer REAL closed trades than this
+_W170_MIN_EXPECTANCY  = -0.10  # bench only when real expectancy is below this (R/trade)
+_W170_DEFAULT_RR      = 2.0    # conservative avg-RR fallback when none recorded
+
 # Wave 20 (May 9, 2026): time-based auto-unsuspension. Fixes deadlock
 # where suspended setups can never restore (WR can't climb above 50%
 # threshold while suspension blocks new trades from firing). Setups
@@ -489,6 +504,15 @@ def check_and_update_suspensions() -> list[str]:
         wr     = round(wins / max(1, total) * 100, 1) if total else 0.0
         bleed  = bleed_by_setup.get(key, 0.0)  # negative number = lost money
 
+        # Wave 170: real-money evidence used by the bench/restore decisions below.
+        _rw        = data.get("real_wins", 0)
+        _rl        = data.get("real_losses", 0)
+        real_total = data.get("real_total", _rw + _rl)
+        _real_wr_f = (_rw / real_total) if real_total else 0.0
+        real_wr    = round(_real_wr_f * 100, 1)
+        _arr       = data.get("real_avg_rr_win", 0.0) or _W170_DEFAULT_RR
+        real_exp   = round(_real_wr_f * _arr - (1.0 - _real_wr_f), 4) if real_total else 0.0
+
         if key in _probation:
             # Wave 144 (_WAVE144_PAROLE_FIX): a setup on probation - or one that
             # already graduated - is judged ONLY on the trades it fires from
@@ -577,7 +601,7 @@ def check_and_update_suspensions() -> list[str]:
         elif key in suspended:
             # Already suspended -- check for restoration. Require BOTH:
             # WR back above threshold AND no recent dollar bleed.
-            if total >= _SUSPEND_MIN_TRADES and wr >= _RESTORE_WR_ABOVE and bleed > -_SUSPEND_DOLLAR_BLEED:
+            if real_total >= _W170_MIN_REAL_TRADES and real_exp >= 0.0 and bleed > -_SUSPEND_DOLLAR_BLEED:
                 del suspended[key]
                 _restore_reason = f"WR climbed to {wr}% over {total} trades, bleed ${bleed:+.0f} 7d"
                 _restore_info = {"total_at_restore": total, "wr_at_restore": wr, "bleed_at_restore": round(bleed, 2)}
@@ -585,11 +609,11 @@ def check_and_update_suspensions() -> list[str]:
                 _log_suspension_event("RESTORED", key, _restore_reason, _restore_info)  # Wave 20
         else:
             # Not suspended -- check both gates
-            wr_gate    = total >= _SUSPEND_MIN_TRADES and wr < _SUSPEND_WR_BELOW
+            wr_gate    = real_total >= _W170_MIN_REAL_TRADES and real_exp < _W170_MIN_EXPECTANCY
             bleed_gate = bleed <= -_SUSPEND_DOLLAR_BLEED  # bleed is negative
             if wr_gate or bleed_gate:
                 reason_parts = []
-                if wr_gate:    reason_parts.append(f"{wins}W/{losses}L ({wr}% WR)")
+                if wr_gate:    reason_parts.append(f"REAL {_rw}W/{_rl}L over {real_total} ({real_wr}% WR, {_arr:.2f}R avg, exp {real_exp:+.3f}R)")
                 if bleed_gate: reason_parts.append(f"bled ${abs(bleed):.0f} in {_DOLLAR_BLEED_WINDOW_DAYS}d")
                 reason_str = " + ".join(reason_parts)
                 suspended[key] = {
