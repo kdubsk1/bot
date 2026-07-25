@@ -779,17 +779,41 @@ def _performance_bonus(market: str, setup_type: str) -> int:
     Bayesian-adjusted conviction bonus/penalty.
     Uses (wins + 10) / (trades + 22) to avoid small-sample overreaction.
     """
+    # Wave 176 (_WAVE176_CONV_REAL): this adjustment now reads REAL closed
+    # trades, not the paper/shadow blend. Measured on the live data file the
+    # blended counters held 3,472 "trades" against 367 real - about 90 percent
+    # fiction - and the Jul 24 daily report was still docking setups -12 for
+    # losses that never cost a dollar. BTC:BREAK_RETEST_BEAR is PROFITABLE on
+    # real money (2W/7L at 3.82R avg = +0.070R/trade) and was being penalised
+    # purely for a low hit rate. Win rate alone cannot separate a profitable
+    # low-hit-rate setup from a losing one - that is the Wave 170 lesson, now
+    # applied to scoring as well as benching.
     perf = _load_performance()
     key  = f"{market}:{setup_type}"
     data = perf.get(key, {})
-    wins   = data.get("wins", 0)
-    losses = data.get("losses", 0)
-    total  = wins + losses
+    def _w176_num(v, d=0.0):
+        try:
+            return float(v)
+        except Exception:
+            return d
+    wins   = _w176_num(data.get("real_wins", 0))
+    losses = _w176_num(data.get("real_losses", 0))
+    total  = _w176_num(data.get("real_total", wins + losses))
     if total < 3:
-        return 0
+        return 0          # no real evidence -> no opinion (never a fake penalty)
+    _exp = _w176_num(data.get("real_expectancy", 0.0))
+    # Proven real profitability earns a bonus that Bayesian shrinkage would
+    # otherwise wash out on a small-but-genuine sample. Graduated by how much
+    # real evidence there is: a 5-trade sample earns half of a 10-trade one.
+    if total >= 10 and _exp >= 0.75:  return 12
+    if total >= 10 and _exp >= 0.30:  return 6
+    if total >= 5  and _exp >= 0.75:  return 6
     adjusted_rate = (wins + 10) / (total + 22)
     if adjusted_rate > 0.65:  return 12
     if adjusted_rate > 0.58:  return 6
+    # Never punish a setup that makes money despite a low hit rate.
+    if _exp > 0:
+        return 0
     if adjusted_rate < 0.38:  return -12
     if adjusted_rate < 0.45:  return -6
     return 0
