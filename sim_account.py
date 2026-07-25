@@ -23,6 +23,31 @@ import safe_io
 
 _log = logging.getLogger("nqcalls.sim")
 
+# Wave 175 (_WAVE175_EVAL_OPEN_TRACE): make the eval-open decision visible.
+# Jul 16-21 seven real NQ/GC alerts fired and only about two became eval
+# trades. A fired alert that never opened left no trace anywhere, so a frozen
+# balance could not be explained from the data files. Every decision on the
+# eval-open path is now recorded. This function NEVER raises into the trading
+# path and changes no behaviour.
+def _w175_log_eval_open(market, alert_id, outcome, detail="", extra=None):
+    try:
+        _log.info("EVAL_OPEN %s %s alert=%s %s", market, outcome, alert_id, detail)
+        _rec = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "market": market,
+            "alert_id": str(alert_id),
+            "outcome": outcome,
+            "detail": str(detail)[:200],
+        }
+        if extra:
+            _rec.update(extra)
+        _dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+        os.makedirs(_dir, exist_ok=True)
+        with open(os.path.join(_dir, "eval_open_trace.jsonl"), "a", encoding="utf-8") as _f:
+            _f.write(json.dumps(_rec) + "\n")
+    except Exception:
+        pass
+
 # Task 5: Enable eval mode by default
 try:
     from position_sizer import set_eval_mode
@@ -1379,11 +1404,17 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     # This Topstep eval sim only handles NQ and GC futures.
     if market in ("BTC", "SOL"):
         return ""
+    _w175_log_eval_open(market, alert_id, "attempt", "tier=%s" % tier)
 
     state = _reset_daily_if_needed(state)
     risk  = check_risk_limits(state)
 
     if not risk["can_trade"]:
+        _w175_log_eval_open(
+            market, alert_id, "blocked_risk",
+            "target_hit=%s daily_ok=%s dd_ok=%s"
+            % (risk.get("target_hit"), risk.get("daily_ok"), risk.get("dd_ok")),
+        )
         if risk["target_hit"]:
             return "\n\U0001f4b0 *SIM:* \U0001f3af Profit target reached! No more trades today."
         warning = ""
@@ -1431,6 +1462,10 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
 
     if rejected or contracts == 0:
         reason = c_info.get("reject_reason", "sized to zero")
+        _w175_log_eval_open(
+            market, alert_id, "blocked_sizer", reason,
+            {"contracts": contracts, "rejected": bool(rejected)},
+        )
         return (
             f"\n\U0001f4b0 *SIM \u2014 No Position*\n"
             f"  \u26d4 Sizer rejected: `{reason}`\n"
@@ -1440,6 +1475,10 @@ def format_sim_block(market: str, tier: str, entry: float, stop: float,
     # Wave 8: pass setup_name so per_setup_stats keys correctly
     open_sim_trade(alert_id, market, direction, entry, stop, target, contracts, tier,
                    setup_type=setup_name)
+    _w175_log_eval_open(
+        market, alert_id, "opened", "contracts=%s dir=%s" % (contracts, direction),
+        {"contracts": contracts, "direction": direction},
+    )
 
     used_pct = risk["daily_used_pct"]
     bar_n    = int(min(10, used_pct / 10))
