@@ -143,8 +143,16 @@ _DOLLAR_BLEED_WINDOW_DAYS = 7
 # Paper/shadow evidence still drives parole, probation and conviction scoring;
 # only the bench decision is real-money-only. The $500/7d dollar-bleed gate is
 # unchanged and remains the backstop.
-_W170_MIN_REAL_TRADES = 8      # never bench on fewer REAL closed trades than this
-_W170_MIN_EXPECTANCY  = -0.10  # bench only when real expectancy is below this (R/trade)
+_W170_MIN_REAL_TRADES = 10     # Wave 183: 8 -> 10. More proof before any bench.
+# Wave 183 (_WAVE183_DEMOTE_NOT_BANISH): bench only the genuinely bad. A setup
+# losing 0.14R was being BANNED while Wave 176 was already docking it up to -12
+# conviction for the same evidence - two punishments for one crime, and the
+# harsher one removed it from the board entirely. Mild losers now stay available
+# and simply fire far less often. The gap between the bench line (-0.40) and the
+# restore line (-0.20) is deliberate hysteresis so a setup near the boundary
+# cannot flap in and out on every check.
+_W170_MIN_EXPECTANCY  = -0.40  # bench only when real expectancy is below this (R/trade)
+_W183_RESTORE_EXPECTANCY = -0.20  # and let it back out once it recovers to here
 _W170_DEFAULT_RR      = 2.0    # conservative avg-RR fallback when none recorded
 
 # Wave 20 (May 9, 2026): time-based auto-unsuspension. Fixes deadlock
@@ -601,7 +609,13 @@ def check_and_update_suspensions() -> list[str]:
         elif key in suspended:
             # Already suspended -- check for restoration. Require BOTH:
             # WR back above threshold AND no recent dollar bleed.
-            if real_total >= _W170_MIN_REAL_TRADES and real_exp >= 0.0 and bleed > -_SUSPEND_DOLLAR_BLEED:
+            # Wave 183: restore does NOT require the higher trade count. Only
+            # BENCHING needs strong proof; getting out again should not. Requiring
+            # n >= 10 here would freeze any setup benched under the old n >= 8 rule
+            # in a limbo where it can neither qualify to be benched nor to be
+            # released. A setup with no real trades scores 0.0, clears -0.20 and is
+            # freed - unproven is not guilty.
+            if real_exp >= _W183_RESTORE_EXPECTANCY and bleed > -_SUSPEND_DOLLAR_BLEED:
                 del suspended[key]
                 _restore_reason = f"WR climbed to {wr}% over {total} trades, bleed ${bleed:+.0f} 7d"
                 _restore_info = {"total_at_restore": total, "wr_at_restore": wr, "bleed_at_restore": round(bleed, 2)}
