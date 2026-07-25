@@ -52,6 +52,7 @@ USAGE
 =====
     python session_projection.py
     python session_projection.py --min-sessions 25 --target 68
+    python session_projection.py --deep 5000     # ask TopstepX for far more history
 """
 
 import os
@@ -191,7 +192,49 @@ def evaluate(rows, target_q):
     return res
 
 
-def run(min_sessions=None, target=68):
+def deep_history(data_layer, market, tf, want_bars):
+    """
+    Ask TopstepX for MORE bars than the live scanner does.
+
+    _TOPSTEPX_BAR_COUNT is what WE request, not a broker cap: the live scanner
+    asks for 500 hourly bars and receives exactly 500. Daily already asks for 730
+    and receives only ~31, which is a genuine data limit - so the two cases are
+    distinguishable, and hourly has simply never been asked for more.
+
+    500 hourly bars is ~21 days, which yields ~15 weekday sessions per session
+    type - below the 20 needed to judge a band honestly. If TopstepX will serve
+    5,000 hourly bars that is ~208 days and roughly 150 sessions per type, which
+    turns "wait two months for data" into "validate this week".
+
+    This raises the request, calls the RAW fetch (bypassing the cache), and
+    always restores the original value in a finally block. The live scan path is
+    never touched: it keeps using get_frames() with the normal 500.
+
+    Returns (dataframe_or_None, bars_received, note).
+    """
+    try:
+        counts = getattr(data_layer, "_TOPSTEPX_BAR_COUNT", None)
+        fetch = getattr(data_layer, "_fetch_topstepx", None)
+        if counts is None or fetch is None:
+            return None, 0, "data_layer has no TopstepX deep-fetch path"
+        original = counts.get(tf)
+        try:
+            counts[tf] = int(want_bars)
+            df = fetch(market, tf)
+        finally:
+            if original is None:
+                counts.pop(tf, None)
+            else:
+                counts[tf] = original          # always restored
+        n = 0 if df is None else len(df)
+        if n == 0:
+            return None, 0, "deep fetch returned nothing"
+        return df, n, "requested %d, received %d" % (want_bars, n)
+    except Exception as e:
+        return None, 0, "deep fetch failed: %s" % e
+
+
+def run(min_sessions=None, target=68, deep=0):
     global _MIN_SESSIONS
     if min_sessions:
         _MIN_SESSIONS = int(min_sessions)
@@ -213,13 +256,31 @@ def run(min_sessions=None, target=68):
         "markets": {},
     }
 
+    report["deep_requested"] = int(deep or 0)
+    report["bar_supply"] = {}
+
     for mkt in MARKETS:
-        try:
-            frames = data_layer.get_frames(mkt)
-        except Exception as e:
-            report["markets"][mkt] = {"error": str(e)}
-            continue
-        df = frames.get("1h")
+        df = None
+        supply = {}
+        # Deep history first (NQ/GC only - crypto comes from ccxt, which caps low).
+        if deep and mkt in ("NQ", "GC"):
+            ddf, dn, dnote = deep_history(data_layer, mkt, "1h", deep)
+            supply["deep"] = dnote
+            if ddf is not None:
+                df = ddf
+                supply["bars_used"] = dn
+                supply["source"] = "deep TopstepX"
+        if df is None:
+            try:
+                frames = data_layer.get_frames(mkt)
+            except Exception as e:
+                report["markets"][mkt] = {"error": str(e)}
+                report["bar_supply"][mkt] = supply
+                continue
+            df = frames.get("1h")
+            supply["bars_used"] = 0 if df is None else len(df)
+            supply["source"] = "normal get_frames (500)"
+        report["bar_supply"][mkt] = supply
         m_out = {}
         for name, h0, dur in SESSIONS:
             rows = collect_sessions(df, h0, dur)
@@ -251,6 +312,11 @@ def run(min_sessions=None, target=68):
     print("=" * 74)
     print("band fitted on oldest 60%% of sessions, scored on newest 40%%")
     print("target confidence: %d%%   tolerance: binomial 95%% CI per sample size\n" % target)
+    if report.get("deep_requested"):
+        print("  DEEP HISTORY PROBE (requested %d hourly bars):" % report["deep_requested"])
+        for mkt, sup in report.get("bar_supply", {}).items():
+            print("     %-5s %-22s %s" % (mkt, sup.get("source", "?"), sup.get("deep", "")))
+        print()
     publishable = 0
     for mkt, sess in report["markets"].items():
         if "error" in sess:
@@ -290,7 +356,13 @@ def main(argv=None):
             tg = int(argv[argv.index("--target") + 1])
         except Exception:
             pass
-    return run(ms, tg)
+    dp = 0
+    if "--deep" in argv:
+        try:
+            dp = int(argv[argv.index("--deep") + 1])
+        except Exception:
+            dp = 5000
+    return run(ms, tg, dp)
 
 
 if __name__ == "__main__":
