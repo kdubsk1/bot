@@ -1,0 +1,18 @@
+{
+  "rows_scanned": 61957,
+  "WOULD_WIN": 13413,
+  "WOULD_LOSE": 14472,
+  "EXPIRED": 2115,
+  "rebuilt_targets": 29932,
+  "skip_fired": 81,
+  "skip_bad_levels": 61,
+  "skip_no_direction": 10785,
+  "skip_bad_timestamp": 0,
+  "skip_too_old": 1149,
+  "skip_no_target": 0,
+  "skip_no_history": 0,
+  "skip_no_window": 1837,
+  "total_graded": 30000,
+  "mode": "write",
+  "generated_at": "2026-07-25T14:44:49.414183+00:00"
+}

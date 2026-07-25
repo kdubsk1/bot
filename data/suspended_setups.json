@@ -1,18 +1,4 @@
 {
-  "NQ:EMA21_PULLBACK_BULL": {
-    "reason": "REAL evidence: 2W/7L over 9 real trades, avg 2.37R, expectancy -0.252R/trade",
-    "suspended_at": "2026-07-15T22:13:02.955378+00:00",
-    "total_at_suspension": 7,
-    "wr_at_suspension": 28.6,
-    "bleed_at_suspension": 0.0,
-    "wave170_evidence": {
-      "real_total": 9,
-      "real_win_rate": 22.2,
-      "real_avg_rr_win": 2.365,
-      "real_expectancy": -0.2522,
-      "old_reason": "2W/5L (28.6% WR)"
-    }
-  },
   "BTC:STOCH_REVERSAL_BEAR": {
     "reason": "REAL evidence: 5W/16L over 21 real trades, avg 2.41R, expectancy -0.188R/trade",
     "suspended_at": "2026-07-25T14:02:55.539311+00:00",
@@ -52,12 +38,5 @@
       "real_avg_rr_win": 1.82,
       "real_expectancy": -0.5662
     }
-  },
-  "SOL:STOCH_REVERSAL_BEAR": {
-    "reason": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades",
-    "suspended_at": "2026-07-25T14:08:13.964884+00:00",
-    "total_at_suspension": 36,
-    "wr_at_suspension": 30.6,
-    "bleed_at_suspension": 0.0
   }
 }
