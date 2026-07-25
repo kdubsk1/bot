@@ -50,6 +50,15 @@ import strategy_log as sl
 import dashboard as dash
 import strategy_review as sr
 from config import TELEGRAM_TOKEN, CHAT_ID
+
+# Wave 177 (_WAVE177_CHANNEL_SPLIT): the bot had ONE destination, so all 45
+# automatic messages - boot banner, hourly PAROLE BOARD, watchdog notices,
+# autotune reports, data alerts, every command reply, and four messages that
+# printed the account BALANCE - landed in the public channel. tg_send() now
+# targets CONTROL; tg_send_pub() serves the handful that belong in public.
+# Unset CONTROL_CHAT_ID means CONTROL == CHAT_ID, i.e. behaviour identical to
+# before. Set it in Railway to move the noise; delete it to revert.
+CONTROL_CHAT_ID = os.getenv("CONTROL_CHAT_ID") or CHAT_ID
 from session_clock import SessionClock, SessionEvent, get_session_date
 import auto_sync  # Persistence: commits data/ + outcomes.csv to GitHub every 6h so Railway runtime data survives restarts
 import trend_memory  # Wave 68: self-grading trend-read memory  _WAVE68_TREND_MEM
@@ -719,7 +728,9 @@ def get_frames(market):
     return dl_get_frames(market)
 
 # ── Telegram ──────────────────────────────────────────────────────
-async def tg_send(app, text):
+async def tg_send(app, text, chat_id=None):
+    # Wave 177: default destination is the CONTROL channel.
+    _dest = chat_id or CONTROL_CHAT_ID
     # Wave 90 (M1 fix): Telegram hard limit is 4096 chars. Oversized messages
     # used to fail with "message is too long" (not a parse error), retry the
     # same oversized text 3x, and get silently dropped. Now: split at line
@@ -739,14 +750,14 @@ async def tg_send(app, text):
             if cur:
                 parts.append(cur)
             for p in parts:
-                await tg_send(app, p)
+                await tg_send(app, p, chat_id=_dest)
             return
         except Exception as e:
             log.warning(f"W90 long-message split failed, sending as-is: {e}")
     for attempt in range(3):
         try:
             mode = "Markdown" if attempt < 2 else None
-            await app.bot.send_message(chat_id=CHAT_ID, text=text, parse_mode=mode)
+            await app.bot.send_message(chat_id=_dest, text=text, parse_mode=mode)
             log.info("Sent.")
             return
         except Exception as e:
@@ -754,7 +765,7 @@ async def tg_send(app, text):
                 log.warning(f"tg_send Markdown error, retrying as plain text: {e}")
                 try:
                     clean = text.replace("*","").replace("`","").replace("_","")
-                    await app.bot.send_message(chat_id=CHAT_ID, text=clean, parse_mode=None)
+                    await app.bot.send_message(chat_id=_dest, text=clean, parse_mode=None)
                     log.info("Sent (plain text fallback).")
                     return
                 except Exception as e2:
@@ -764,6 +775,12 @@ async def tg_send(app, text):
             log.warning(f"tg_send attempt {attempt+1} failed: {e} — retry in {wait}s")
             await asyncio.sleep(wait)
     log.error("tg_send: all 3 attempts failed, dropping message")
+
+async def tg_send_pub(app, text):
+    """Wave 177: PUBLIC broadcast channel (NQ CALLS).
+    Only entries, exits and the session briefs go here. Everything else
+    belongs in the control channel via tg_send()."""
+    await tg_send(app, text, chat_id=CHAT_ID)
 
 def _md(text):
     if not isinstance(text, str):
@@ -2038,7 +2055,7 @@ async def scan_market(app, market, frames):
             f"📅 *Today:* {day_w}W / {day_l}L\n"
             f"🧠 Bot learning updated."
         )
-        await tg_send(app, msg)
+        await tg_send_pub(app, msg)
 
         try:
             review_msg = ot.check_auto_review()
@@ -3160,7 +3177,7 @@ async def scan_market(app, market, frames):
             if stp.get("_w89_partner"):
                 _w90_badge = "\U0001f393 Probation fire \u2014 partner: " + str(stp["_w89_partner"]).replace("_", " ")
                 footer = (footer + "\n" + _w90_badge) if footer else _w90_badge
-            await tg_send(app, format_alert(market, entry_tf, stp, conv, tier, trend,
+            await tg_send_pub(app, format_alert(market, entry_tf, stp, conv, tier, trend,
                                              tgt, rr, method, adx_v, rsi_v, lev, risk_pct, hold,
                                              extra_footer=footer, alert_id=alert_id))
             log.info(
@@ -3914,7 +3931,7 @@ async def force_flatten_futures(app):
             pass
 
         icon = "✅" if result=="WIN" else "❌"
-        await tg_send(app,
+        await tg_send_pub(app,
             f"{icon} *Force Closed — 4:10 PM Rule*\n"
             f"{cfg.EMOJI} *{_md(cfg.FULL_NAME)}*\n"
             f"━━━━━━━━━━━━━━━━━━\n"
@@ -4706,9 +4723,9 @@ async def scan_loop(app):
                     log.error(f"Suspension Telegram msg: {e}")
 
             if SETTINGS["morning_brief"] and now_et.hour==8 and now_et.minute>=30 and last_brief!=now_et.date():
-                await tg_send(app, build_morning_brief()); last_brief=now_et.date()
+                await tg_send_pub(app, build_morning_brief()); last_brief=now_et.date()
             if SETTINGS["asia_brief"] and now_et.hour==18 and last_asia!=now_et.date():
-                await tg_send(app, build_asia_brief()); last_asia=now_et.date()
+                await tg_send_pub(app, build_asia_brief()); last_asia=now_et.date()
             # Daily report moved above (Task 3C) — file-existence-guarded
 
             if SETTINGS["scanner_on"]:
@@ -6562,10 +6579,10 @@ async def on_button(u, c):
         return
     elif d=="brief_morning":
         await q.message.reply_text("⏳ Building...")
-        await tg_send(c.application,build_morning_brief()); await q.message.reply_text("✅ Sent!"); return
+        await tg_send_pub(c.application,build_morning_brief()); await q.message.reply_text("✅ Sent!"); return
     elif d=="brief_asia":
         await q.message.reply_text("⏳ Building...")
-        await tg_send(c.application,build_asia_brief()); await q.message.reply_text("✅ Sent!"); return
+        await tg_send_pub(c.application,build_asia_brief()); await q.message.reply_text("✅ Sent!"); return
     elif d=="report_now":
         await q.message.reply_text("⏳ Building...")
         try:
