@@ -94,7 +94,16 @@ SETTINGS = {
     "scanner_on": False, "scan_interval_min": 5, "cooldown_min": 60,
     "min_rr": 1.5,
     "min_conviction": 65, "account_risk_pct": 1.5,
-    "morning_brief": True, "asia_brief": True, "rescore_on": True,
+    # Wave 181 (_WAVE181_BRIEF_CONTROL): brief scheduling is controlled by
+    # Railway environment variables instead of needing a code deploy to change.
+    # SETTINGS is a plain in-memory dict with no persistence, so before this the
+    # only way to silence the 6pm Asia brief was to ship a wave.
+    #     ASIA_BRIEF=1     turn the 6pm Asia brief back ON   (default: OFF)
+    #     MORNING_BRIEF=0  silence the 8:30am morning brief  (default: ON)
+    # The manual "send brief" buttons are unaffected - pressing one always sends.
+    "morning_brief": os.getenv("MORNING_BRIEF", "1").strip().lower() not in ("0", "false", "no"),
+    "asia_brief": os.getenv("ASIA_BRIEF", "0").strip().lower() not in ("0", "false", "no"),
+    "rescore_on": True,
     "markets": {"NQ": True, "GC": True, "BTC": True, "SOL": True}
 }
 ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
