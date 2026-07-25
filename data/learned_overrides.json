@@ -217,6 +217,10 @@
     "adx_min|NQ|EMA21_PULLBACK_BEAR": {
       "base": 20.0,
       "seeded_at": "2026-07-24T15:05:23.521057+00:00"
+    },
+    "adx_min|BTC|BB_REVERSION_BEAR": {
+      "base": 16.0,
+      "seeded_at": "2026-07-25T14:03:12.661754+00:00"
     }
   }
 }

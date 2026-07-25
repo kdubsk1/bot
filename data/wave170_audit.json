@@ -1,0 +1,429 @@
+{
+  "wave": 170,
+  "purpose": "expectancy-based real-only bench rule + un-bench",
+  "rule": {
+    "min_real_trades": 8,
+    "min_expectancy": -0.1,
+    "default_rr": 2.0
+  },
+  "timestamp_started": "2026-07-25T14:02:55.526192+00:00",
+  "errors": [],
+  "backups": [
+    "setup_performance.json.pre_wave170.bak",
+    "suspended_setups.json.pre_wave170.bak"
+  ],
+  "ledger_files_read": 62,
+  "real_closes_deduped": 368,
+  "setups_with_real_trades": 55,
+  "setups_updated": 51,
+  "ledger_only_setups_skipped": [
+    "BTC:APPROACH_RESIST",
+    "BTC:APPROACH_SUPPORT",
+    "GC:APPROACH_RESIST",
+    "SOL:APPROACH_RESIST"
+  ],
+  "suspended_before": 43,
+  "suspended_after": 6,
+  "freed": [
+    {
+      "key": "GC:BB_REVERSION_BEAR",
+      "real_total": 9,
+      "real_win_rate": 44.4,
+      "real_avg_rr_win": 3.355,
+      "real_expectancy": 0.9356,
+      "old_reason": "4W/8L (33.3% WR)"
+    },
+    {
+      "key": "SOL:MACD_CROSS_BEAR",
+      "real_total": 2,
+      "real_win_rate": 50.0,
+      "real_avg_rr_win": 2.51,
+      "real_expectancy": 0.755,
+      "old_reason": "1W/6L (14.3% WR)"
+    },
+    {
+      "key": "NQ:BB_REVERSION_BULL",
+      "real_total": 13,
+      "real_win_rate": 46.2,
+      "real_avg_rr_win": 2.493,
+      "real_expectancy": 0.6123,
+      "old_reason": "8W/26L (23.5% WR)"
+    },
+    {
+      "key": "NQ:RSI_DIV_BULL",
+      "real_total": 5,
+      "real_win_rate": 40.0,
+      "real_avg_rr_win": 2.25,
+      "real_expectancy": 0.3,
+      "old_reason": "2W/4L (33.3% WR)"
+    },
+    {
+      "key": "BTC:VWAP_BOUNCE_BULL",
+      "real_total": 11,
+      "real_win_rate": 36.4,
+      "real_avg_rr_win": 2.5,
+      "real_expectancy": 0.2727,
+      "old_reason": "probation failed: 1W/14L (6.7% WR, expectancy -1.00R) on 15 live trades"
+    },
+    {
+      "key": "NQ:STOCH_REVERSAL_BULL",
+      "real_total": 10,
+      "real_win_rate": 40.0,
+      "real_avg_rr_win": 2.167,
+      "real_expectancy": 0.267,
+      "old_reason": "probation failed: 0W/22L (0.0% WR, expectancy -1.00R) on 22 live trades"
+    },
+    {
+      "key": "SOL:BREAK_RETEST_BULL",
+      "real_total": 6,
+      "real_win_rate": 33.3,
+      "real_avg_rr_win": 2.515,
+      "real_expectancy": 0.1717,
+      "old_reason": "probation failed: 0W/10L (0.0% WR, expectancy -1.00R) on 10 live trades"
+    },
+    {
+      "key": "BTC:MACD_CROSS_BEAR",
+      "real_total": 3,
+      "real_win_rate": 33.3,
+      "real_avg_rr_win": 2.42,
+      "real_expectancy": 0.14,
+      "old_reason": "2W/21L (8.7% WR)"
+    },
+    {
+      "key": "GC:BREAK_RETEST_BEAR",
+      "real_total": 3,
+      "real_win_rate": 33.3,
+      "real_avg_rr_win": 2.4,
+      "real_expectancy": 0.1333,
+      "old_reason": "1W/5L (16.7% WR)"
+    },
+    {
+      "key": "BTC:BREAK_RETEST_BEAR",
+      "real_total": 9,
+      "real_win_rate": 22.2,
+      "real_avg_rr_win": 3.815,
+      "real_expectancy": 0.07,
+      "old_reason": "4W/23L (14.8% WR)"
+    },
+    {
+      "key": "GC:EMA21_PULLBACK_BULL",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/115L (0.0% WR)"
+    },
+    {
+      "key": "NQ:STOCH_REVERSAL_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/19L (0.0% WR)"
+    },
+    {
+      "key": "NQ:EMA50_BREAKDOWN",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/9L (0.0% WR)"
+    },
+    {
+      "key": "GC:RSI_DIV_BULL",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "1W/103L (1.0% WR)"
+    },
+    {
+      "key": "NQ:RSI_DIV_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/6L (0.0% WR)"
+    },
+    {
+      "key": "NQ:EMA50_RECLAIM",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/11L (0.0% WR)"
+    },
+    {
+      "key": "GC:STOCH_REVERSAL_BULL",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/29L (0.0% WR)"
+    },
+    {
+      "key": "GC:MACD_CROSS_BULL",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/10L (0.0% WR)"
+    },
+    {
+      "key": "NQ:BB_REVERSION_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/38L (0.0% WR)"
+    },
+    {
+      "key": "NQ:BREAK_RETEST_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/27L (0.0% WR)"
+    },
+    {
+      "key": "NQ:LAB|EMA21_PULLBACK_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/15L (0.0% WR)"
+    },
+    {
+      "key": "NQ:LAB|VWAP_REJECT_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/15L (0.0% WR)"
+    },
+    {
+      "key": "BTC:LAB|RSI_DIV_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "1W/4L (20.0% WR)"
+    },
+    {
+      "key": "NQ:LAB|BB_REVERSION_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "1W/4L (20.0% WR)"
+    },
+    {
+      "key": "GC:LAB|RSI_DIV_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/5L (0.0% WR)"
+    },
+    {
+      "key": "SOL:MACD_CROSS_BULL",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "probation failed: 1W/4L (20.0% WR, expectancy -1.00R) on 5 live trades"
+    },
+    {
+      "key": "NQ:LAB|BREAK_RETEST_BEAR",
+      "real_total": 0,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": 0.0,
+      "old_reason": "0W/5L (0.0% WR)"
+    },
+    {
+      "key": "GC:EMA21_PULLBACK_BEAR",
+      "real_total": 4,
+      "real_win_rate": 25.0,
+      "real_avg_rr_win": 2.91,
+      "real_expectancy": -0.0225,
+      "old_reason": "1W/88L (1.1% WR)"
+    },
+    {
+      "key": "BTC:EMA21_PULLBACK_BULL",
+      "real_total": 5,
+      "real_win_rate": 20.0,
+      "real_avg_rr_win": 3.7,
+      "real_expectancy": -0.06,
+      "old_reason": "0W/35L (0.0% WR)"
+    },
+    {
+      "key": "SOL:EMA21_PULLBACK_BEAR",
+      "real_total": 7,
+      "real_win_rate": 28.6,
+      "real_avg_rr_win": 2.18,
+      "real_expectancy": -0.0914,
+      "old_reason": "2W/23L (8.0% WR)"
+    },
+    {
+      "key": "BTC:BB_REVERSION_BEAR",
+      "real_total": 7,
+      "real_win_rate": 14.3,
+      "real_avg_rr_win": 4.61,
+      "real_expectancy": -0.1986,
+      "old_reason": "1W/6L (14.3% WR)"
+    },
+    {
+      "key": "NQ:MACD_CROSS_BULL",
+      "real_total": 1,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/8L (0.0% WR)"
+    },
+    {
+      "key": "BTC:BREAK_RETEST_BULL",
+      "real_total": 7,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "1W/10L (9.1% WR)"
+    },
+    {
+      "key": "BTC:RSI_DIV_BEAR",
+      "real_total": 1,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "4W/13L (23.5% WR)"
+    },
+    {
+      "key": "GC:VWAP_REJECT_BEAR",
+      "real_total": 2,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/36L (0.0% WR)"
+    },
+    {
+      "key": "SOL:EMA21_PULLBACK_BULL",
+      "real_total": 1,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/7L (0.0% WR)"
+    },
+    {
+      "key": "BTC:MACD_CROSS_BULL",
+      "real_total": 1,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/62L (0.0% WR)"
+    },
+    {
+      "key": "BTC:VWAP_REJECT_BEAR",
+      "real_total": 5,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "2W/14L (12.5% WR)"
+    },
+    {
+      "key": "BTC:EMA50_RECLAIM",
+      "real_total": 2,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/17L (0.0% WR)"
+    },
+    {
+      "key": "SOL:RSI_DIV_BEAR",
+      "real_total": 3,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/65L (0.0% WR)"
+    },
+    {
+      "key": "BTC:EMA50_BREAKDOWN",
+      "real_total": 2,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "0W/61L (0.0% WR)"
+    },
+    {
+      "key": "SOL:STOCH_REVERSAL_BULL",
+      "real_total": 5,
+      "real_win_rate": 0.0,
+      "real_avg_rr_win": 0.0,
+      "real_expectancy": -1.0,
+      "old_reason": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
+    }
+  ],
+  "freed_count": 42,
+  "kept_benched": [
+    "BTC:BB_REVERSION_BULL",
+    "BTC:STOCH_REVERSAL_BEAR",
+    "GC:STOCH_REVERSAL_BEAR",
+    "NQ:EMA21_PULLBACK_BULL",
+    "SOL:VWAP_BOUNCE_BULL",
+    "SOL:VWAP_REJECT_BEAR"
+  ],
+  "newly_benched": [
+    {
+      "key": "BTC:STOCH_REVERSAL_BEAR",
+      "real_total": 21,
+      "real_expectancy": -0.1876
+    },
+    {
+      "key": "SOL:VWAP_REJECT_BEAR",
+      "real_total": 10,
+      "real_expectancy": -1.0
+    },
+    {
+      "key": "GC:STOCH_REVERSAL_BEAR",
+      "real_total": 17,
+      "real_expectancy": -0.1418
+    },
+    {
+      "key": "BTC:BB_REVERSION_BULL",
+      "real_total": 9,
+      "real_expectancy": -0.6311
+    },
+    {
+      "key": "SOL:VWAP_BOUNCE_BULL",
+      "real_total": 13,
+      "real_expectancy": -0.5662
+    }
+  ],
+  "short_coverage_after": {
+    "SOL": {
+      "short_free": 8,
+      "short_total": 9,
+      "long_free": 8,
+      "long_total": 9
+    },
+    "GC": {
+      "short_free": 8,
+      "short_total": 9,
+      "long_free": 7,
+      "long_total": 7
+    },
+    "BTC": {
+      "short_free": 8,
+      "short_total": 9,
+      "long_free": 8,
+      "long_total": 9
+    },
+    "NQ": {
+      "short_free": 8,
+      "short_total": 8,
+      "long_free": 9,
+      "long_total": 10
+    }
+  },
+  "markets_with_no_shorts": [],
+  "timestamp_completed": "2026-07-25T14:02:55.543433+00:00"
+}

@@ -12,9 +12,7 @@
     "real_wins": 6,
     "real_losses": 7,
     "real_total": 13,
-    "real_win_rate": 46.2,
-    "real_avg_rr_win": 2.493,
-    "real_expectancy": 0.6123
+    "real_win_rate": 46.2
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 8,
@@ -29,9 +27,7 @@
     "real_wins": 2,
     "real_losses": 4,
     "real_total": 6,
-    "real_win_rate": 33.3,
-    "real_avg_rr_win": 2.515,
-    "real_expectancy": 0.1717
+    "real_win_rate": 33.3
   },
   "BTC:STOCH_REVERSAL_BULL": {
     "wins": 6,
@@ -46,9 +42,7 @@
     "real_wins": 0,
     "real_losses": 3,
     "real_total": 3,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:EMA21_PULLBACK_BULL": {
     "wins": 3,
@@ -63,9 +57,7 @@
     "real_wins": 2,
     "real_losses": 7,
     "real_total": 9,
-    "real_win_rate": 22.2,
-    "real_avg_rr_win": 2.365,
-    "real_expectancy": -0.2522
+    "real_win_rate": 22.2
   },
   "SOL:BB_REVERSION_BULL": {
     "wins": 7,
@@ -80,9 +72,7 @@
     "real_wins": 0,
     "real_losses": 5,
     "real_total": 5,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "GC:BREAK_RETEST_BULL": {
     "wins": 8,
@@ -96,9 +86,7 @@
     "real_wins": 0,
     "real_losses": 4,
     "real_total": 4,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "SOL:EMA21_PULLBACK_BULL": {
     "wins": 6,
@@ -113,9 +101,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "SOL:APPROACH_SUPPORT": {
     "wins": 0,
@@ -126,9 +112,7 @@
     "real_wins": 0,
     "real_losses": 3,
     "real_total": 3,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:APPROACH_SUPPORT": {
     "wins": 0,
@@ -139,9 +123,7 @@
     "real_wins": 0,
     "real_losses": 5,
     "real_total": 5,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:STOCH_REVERSAL_BULL": {
     "wins": 15,
@@ -156,9 +138,7 @@
     "real_wins": 4,
     "real_losses": 6,
     "real_total": 10,
-    "real_win_rate": 40.0,
-    "real_avg_rr_win": 2.167,
-    "real_expectancy": 0.267
+    "real_win_rate": 40.0
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 5,
@@ -173,9 +153,7 @@
     "real_wins": 0,
     "real_losses": 5,
     "real_total": 5,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "BTC:MACD_CROSS_BULL": {
     "wins": 2,
@@ -190,9 +168,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "GC:BB_REVERSION_BULL": {
     "wins": 33,
@@ -206,9 +182,7 @@
     "real_wins": 7,
     "real_losses": 4,
     "real_total": 11,
-    "real_win_rate": 63.6,
-    "real_avg_rr_win": 2.543,
-    "real_expectancy": 1.2545
+    "real_win_rate": 63.6
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 154,
@@ -223,9 +197,7 @@
     "real_total": 35,
     "real_losses": 20,
     "real_win_rate": 42.9,
-    "real_wins": 15,
-    "real_avg_rr_win": 2.213,
-    "real_expectancy": 0.3771
+    "real_wins": 15
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 10,
@@ -240,9 +212,7 @@
     "real_wins": 4,
     "real_losses": 7,
     "real_total": 11,
-    "real_win_rate": 36.4,
-    "real_avg_rr_win": 2.5,
-    "real_expectancy": 0.2727
+    "real_win_rate": 36.4
   },
   "BTC:BB_REVERSION_BULL": {
     "wins": 10,
@@ -257,9 +227,7 @@
     "real_total": 9,
     "real_losses": 8,
     "real_win_rate": 11.1,
-    "real_wins": 1,
-    "real_avg_rr_win": 2.32,
-    "real_expectancy": -0.6311
+    "real_wins": 1
   },
   "SOL:VWAP_BOUNCE_BULL": {
     "wins": 46,
@@ -274,9 +242,7 @@
     "real_wins": 2,
     "real_losses": 11,
     "real_total": 13,
-    "real_win_rate": 15.4,
-    "real_avg_rr_win": 1.82,
-    "real_expectancy": -0.5662
+    "real_win_rate": 15.4
   },
   "BTC:RSI_DIV_BEAR": {
     "wins": 6,
@@ -291,9 +257,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:RSI_DIV_BULL": {
     "wins": 2,
@@ -307,9 +271,7 @@
     "real_wins": 2,
     "real_losses": 3,
     "real_total": 5,
-    "real_win_rate": 40.0,
-    "real_avg_rr_win": 2.25,
-    "real_expectancy": 0.3
+    "real_win_rate": 40.0
   },
   "GC:BREAK_RETEST_BEAR": {
     "wins": 2,
@@ -323,9 +285,7 @@
     "real_wins": 1,
     "real_losses": 2,
     "real_total": 3,
-    "real_win_rate": 33.3,
-    "real_avg_rr_win": 2.4,
-    "real_expectancy": 0.1333
+    "real_win_rate": 33.3
   },
   "BTC:BB_REVERSION_BEAR": {
     "wins": 8,
@@ -340,26 +300,22 @@
     "real_wins": 1,
     "real_losses": 6,
     "real_total": 7,
-    "real_win_rate": 14.3,
-    "real_avg_rr_win": 4.61,
-    "real_expectancy": -0.1986
+    "real_win_rate": 14.3
   },
   "SOL:VWAP_REJECT_BEAR": {
     "wins": 24,
-    "losses": 36,
-    "total": 60,
-    "win_rate": 40.0,
-    "last_updated": "2026-07-25T14:03:11.098052",
-    "paper_total": 34,
-    "paper_losses": 24,
-    "paper_win_rate": 29.4,
+    "losses": 35,
+    "total": 59,
+    "win_rate": 40.7,
+    "last_updated": "2026-07-25T08:13:16.614721",
+    "paper_total": 33,
+    "paper_losses": 23,
+    "paper_win_rate": 30.3,
     "real_total": 10,
     "real_losses": 10,
     "real_win_rate": 0.0,
     "paper_wins": 10,
-    "real_wins": 0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_wins": 0
   },
   "SOL:BB_REVERSION_BEAR": {
     "wins": 38,
@@ -374,9 +330,7 @@
     "real_wins": 4,
     "real_losses": 9,
     "real_total": 13,
-    "real_win_rate": 30.8,
-    "real_avg_rr_win": 2.192,
-    "real_expectancy": -0.0177
+    "real_win_rate": 30.8
   },
   "SOL:BREAK_RETEST_BEAR": {
     "wins": 18,
@@ -391,9 +345,7 @@
     "real_wins": 0,
     "real_losses": 7,
     "real_total": 7,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "BTC:BREAK_RETEST_BEAR": {
     "wins": 12,
@@ -408,9 +360,7 @@
     "real_wins": 2,
     "real_losses": 7,
     "real_total": 9,
-    "real_win_rate": 22.2,
-    "real_avg_rr_win": 3.815,
-    "real_expectancy": 0.07
+    "real_win_rate": 22.2
   },
   "GC:STOCH_REVERSAL_BEAR": {
     "wins": 22,
@@ -425,9 +375,7 @@
     "real_total": 17,
     "real_losses": 13,
     "real_win_rate": 23.5,
-    "real_wins": 4,
-    "real_avg_rr_win": 2.647,
-    "real_expectancy": -0.1418
+    "real_wins": 4
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 8,
@@ -442,9 +390,7 @@
     "real_wins": 4,
     "real_losses": 5,
     "real_total": 9,
-    "real_win_rate": 44.4,
-    "real_avg_rr_win": 3.355,
-    "real_expectancy": 0.9356
+    "real_win_rate": 44.4
   },
   "GC:MACD_CROSS_BEAR": {
     "wins": 26,
@@ -459,9 +405,7 @@
     "real_wins": 4,
     "real_losses": 1,
     "real_total": 5,
-    "real_win_rate": 80.0,
-    "real_avg_rr_win": 2.125,
-    "real_expectancy": 1.5
+    "real_win_rate": 80.0
   },
   "BTC:MACD_CROSS_BEAR": {
     "wins": 11,
@@ -476,9 +420,7 @@
     "real_wins": 1,
     "real_losses": 2,
     "real_total": 3,
-    "real_win_rate": 33.3,
-    "real_avg_rr_win": 2.42,
-    "real_expectancy": 0.14
+    "real_win_rate": 33.3
   },
   "GC:EMA21_PULLBACK_BEAR": {
     "wins": 1,
@@ -489,9 +431,7 @@
     "real_wins": 1,
     "real_losses": 3,
     "real_total": 4,
-    "real_win_rate": 25.0,
-    "real_avg_rr_win": 2.91,
-    "real_expectancy": -0.0225
+    "real_win_rate": 25.0
   },
   "BTC:BREAK_RETEST_BULL": {
     "wins": 8,
@@ -506,9 +446,7 @@
     "real_wins": 0,
     "real_losses": 7,
     "real_total": 7,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "SOL:RSI_DIV_BEAR": {
     "wins": 1,
@@ -523,9 +461,7 @@
     "real_wins": 0,
     "real_losses": 3,
     "real_total": 3,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "BTC:STOCH_REVERSAL_BEAR": {
     "wins": 56,
@@ -540,9 +476,7 @@
     "paper_losses": 71,
     "paper_win_rate": 10.1,
     "paper_wins": 8,
-    "real_wins": 5,
-    "real_avg_rr_win": 2.412,
-    "real_expectancy": -0.1876
+    "real_wins": 5
   },
   "NQ:BREAK_RETEST_BULL": {
     "wins": 99,
@@ -557,9 +491,7 @@
     "real_total": 31,
     "real_wins": 12,
     "real_win_rate": 38.7,
-    "real_losses": 19,
-    "real_avg_rr_win": 2.894,
-    "real_expectancy": 0.5074
+    "real_losses": 19
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 10,
@@ -574,9 +506,7 @@
     "real_wins": 0,
     "real_losses": 2,
     "real_total": 2,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "BTC:EMA21_PULLBACK_BEAR": {
     "wins": 29,
@@ -591,26 +521,22 @@
     "real_wins": 7,
     "real_losses": 5,
     "real_total": 12,
-    "real_win_rate": 58.3,
-    "real_avg_rr_win": 2.701,
-    "real_expectancy": 1.1592
+    "real_win_rate": 58.3
   },
   "SOL:STOCH_REVERSAL_BEAR": {
     "wins": 11,
-    "losses": 25,
-    "total": 36,
-    "win_rate": 30.6,
-    "last_updated": "2026-07-25T14:03:11.103370",
-    "paper_total": 20,
-    "paper_losses": 12,
-    "paper_win_rate": 40.0,
+    "losses": 24,
+    "total": 35,
+    "win_rate": 31.4,
+    "last_updated": "2026-07-25T05:48:32.392477",
+    "paper_total": 19,
+    "paper_losses": 11,
+    "paper_win_rate": 42.1,
     "paper_wins": 8,
     "real_wins": 1,
     "real_losses": 1,
     "real_total": 2,
-    "real_win_rate": 50.0,
-    "real_avg_rr_win": 2.41,
-    "real_expectancy": 0.705
+    "real_win_rate": 50.0
   },
   "SOL:MACD_CROSS_BEAR": {
     "wins": 9,
@@ -625,9 +551,7 @@
     "real_wins": 1,
     "real_losses": 1,
     "real_total": 2,
-    "real_win_rate": 50.0,
-    "real_avg_rr_win": 2.51,
-    "real_expectancy": 0.755
+    "real_win_rate": 50.0
   },
   "SOL:EMA21_PULLBACK_BEAR": {
     "wins": 23,
@@ -642,9 +566,7 @@
     "real_wins": 2,
     "real_losses": 5,
     "real_total": 7,
-    "real_win_rate": 28.6,
-    "real_avg_rr_win": 2.18,
-    "real_expectancy": -0.0914
+    "real_win_rate": 28.6
   },
   "BTC:EMA50_BREAKDOWN": {
     "wins": 0,
@@ -658,9 +580,7 @@
     "real_wins": 0,
     "real_losses": 2,
     "real_total": 2,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:EMA21_PULLBACK_BEAR": {
     "wins": 28,
@@ -675,9 +595,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "GC:EMA50_BREAKDOWN": {
     "wins": 0,
@@ -688,9 +606,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "GC:MACD_CROSS_BULL": {
     "wins": 0,
@@ -715,9 +631,7 @@
     "real_wins": 1,
     "real_losses": 0,
     "real_total": 1,
-    "real_win_rate": 100.0,
-    "real_avg_rr_win": 2.5,
-    "real_expectancy": 2.5
+    "real_win_rate": 100.0
   },
   "SOL:MACD_CROSS_BULL": {
     "wins": 5,
@@ -750,9 +664,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:EMA50_RECLAIM": {
     "wins": 0,
@@ -785,9 +697,7 @@
     "real_wins": 1,
     "real_losses": 4,
     "real_total": 5,
-    "real_win_rate": 20.0,
-    "real_avg_rr_win": 3.7,
-    "real_expectancy": -0.06
+    "real_win_rate": 20.0
   },
   "NQ:OPENING_RANGE_BREAKOUT": {
     "wins": 12,
@@ -801,26 +711,22 @@
     "real_wins": 0,
     "real_losses": 2,
     "real_total": 2,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "BTC:VWAP_REJECT_BEAR": {
     "wins": 16,
-    "losses": 43,
-    "total": 59,
-    "win_rate": 27.1,
-    "last_updated": "2026-07-25T14:03:11.092154",
-    "paper_total": 38,
-    "paper_losses": 29,
-    "paper_win_rate": 23.7,
+    "losses": 42,
+    "total": 58,
+    "win_rate": 27.6,
+    "last_updated": "2026-07-25T04:42:50.366981",
+    "paper_total": 37,
+    "paper_losses": 28,
+    "paper_win_rate": 24.3,
     "paper_wins": 9,
     "real_wins": 0,
     "real_losses": 5,
     "real_total": 5,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:BB_REVERSION_BEAR": {
     "wins": 1,
@@ -857,9 +763,7 @@
     "real_wins": 0,
     "real_losses": 2,
     "real_total": 2,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "NQ:MACD_CROSS_BEAR": {
     "wins": 10,
@@ -896,9 +800,7 @@
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
-    "real_win_rate": 0.0,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_win_rate": 0.0
   },
   "GC:RSI_DIV_BEAR": {
     "wins": 3,
@@ -923,9 +825,7 @@
     "real_wins": 1,
     "real_losses": 2,
     "real_total": 3,
-    "real_win_rate": 33.3,
-    "real_avg_rr_win": 2.57,
-    "real_expectancy": 0.19
+    "real_win_rate": 33.3
   },
   "NQ:EMA50_BREAKDOWN": {
     "wins": 1,
@@ -979,9 +879,7 @@
     "real_losses": 2,
     "real_total": 2,
     "real_win_rate": 0.0,
-    "paper_wins": 1,
-    "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "paper_wins": 1
   },
   "BTC:LAB|RSI_DIV_BEAR": {
     "wins": 2,
