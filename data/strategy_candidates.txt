@@ -1,24 +1,24 @@
 📊 STRATEGY ANALYSIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OVERVIEW
-  Scans logged    118,599
+  Scans logged    118,636
   Fired           211  ·  29% WR (36W/90L)
-  Missed winners  13659   (filtered, would've won)
+  Missed winners  20263   (filtered, would've won)
 
   Best   GC:BB_REVERSION_BULL   67%  (n9)
   Worst  BTC:STOCH_REVERSAL_BEAR 18%  (n22)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 TOP MISSED WINNERS
+  GC:VWAP_BOUNCE_BULL · 4h   2791x
+    avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.51x) — insufficient participation
   BTC:VWAP_REJECT_BEAR · 1h  941x
     avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.76x) — insufficient participation
+  NQ:VWAP_REJECT_BEAR · 1h   871x
+    avg conv 0 · blocked by Wave 74 trend-alignment guard: counter-trend vs MIXED (0/465 historical)
+  GC:VWAP_REJECT_BEAR · 4h   870x
+    avg conv 0 · blocked by dead market (vol_ratio=0.19x < 0.30x floor) — insufficient participation
   BTC:EMA21_PULLBACK_BULL · 15m 859x
     avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
-  SOL:VWAP_REJECT_BEAR · 1h  729x
-    avg conv 0 · blocked by Wave 74 trend-alignment guard: counter-trend vs MIXED (0/465 historical)
-  BTC:VWAP_BOUNCE_BULL · 15m 643x
-    avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
-  GC:VWAP_BOUNCE_BULL · 4h   591x
-    avg conv 1 · blocked by confirm setup needs vol_ratio >= 0.80x (got 0.35x) — insufficient participation
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔬 WINNING-TRADE PATTERNS
   ADX      win 25.4   loss 28.1
@@ -26,9 +26,9 @@ OVERVIEW
   Trend    win -2.1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ LOOSEN-FILTER CANDIDATES
+  GC:VWAP_BOUNCE_BULL      3202x missed
+  GC:VWAP_REJECT_BEAR      1376x missed
+  NQ:VWAP_REJECT_BEAR      1254x missed
   BTC:VWAP_REJECT_BEAR     1000x missed
   BTC:EMA21_PULLBACK_BULL  966x missed
-  GC:VWAP_BOUNCE_BULL      947x missed
-  BTC:VWAP_BOUNCE_BULL     881x missed
-  SOL:VWAP_REJECT_BEAR     853x missed
-  SOL:VWAP_BOUNCE_BULL     842x missed
+  NQ:EMA21_PULLBACK_BEAR   886x missed
