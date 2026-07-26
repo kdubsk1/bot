@@ -153,17 +153,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "REAL evidence: 0W/10L over 10 real trades, avg 0.00R, expectancy -1.000R/trade"
   },
-  "SOL:STOCH_REVERSAL_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-25T14:44:41.646850+00:00",
-    "wins_at_start": 11,
-    "losses_at_start": 25,
-    "shadow_n": 35,
-    "shadow_wr": 31.4,
-    "shadow_expectancy": 0.052,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
-  },
   "NQ:EMA21_PULLBACK_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-25T14:49:46.546924+00:00",
@@ -185,5 +174,16 @@
     "shadow_expectancy": 0.827,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 4W/1L (80.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "SOL:STOCH_REVERSAL_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-26T13:00:44.449078+00:00",
+    "wins_at_start": 13,
+    "losses_at_start": 28,
+    "shadow_n": 465,
+    "shadow_wr": 40.0,
+    "shadow_expectancy": 0.337,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }
