@@ -536,6 +536,88 @@ _MIN_PUBLISH_RATE = 65.0   # a range right less than this often is not worth pri
 _MIN_TEST_WINDOWS = 30     # below this the measured rate is a coin flip dressed up
 
 
+_PUBLISH_TARGET = 0.80    # the promise made to the channel
+
+
+def evaluate_target(paired, target=_PUBLISH_TARGET):
+    """
+    Wave 192: fit the width that delivers `target` accuracy - honestly.
+
+    THE MISTAKE THIS AVOIDS
+    -----------------------
+    The obvious implementation is to try widths until the TEST set scores 80%.
+    That is cheating, and subtly enough that it looks rigorous: the test set
+    would have been used to CHOOSE the width, so the 80% it then reports is
+    fitted, not measured. It is the same error as fitting a 68th-percentile band
+    and reporting that it contained 68% of the same data.
+
+    So the width is chosen on TRAIN only - the narrowest band that contains
+    `target` of the training windows on BOTH sides at once - and the test set is
+    then scored on that fixed width, once. The reported rate is whatever the
+    unseen data gives: sometimes above target, sometimes below. That number is
+    real.
+
+    WHY THIS REPLACED THE KNEE
+    --------------------------
+    The knee of the width-versus-accuracy curve is well defined only when the
+    curve has a sharp bend. On live data it does not: only four rungs cleared
+    the floor and the curve was smooth, so "furthest from the chord" drifted to
+    the wide end and chose +/-154 points for a ONE HOUR NQ range - 1.09% of
+    price, and untradeable. Measured against a fixed 80% target the knee ran
+    14% to 37% wide on every market and horizon tested.
+
+    A fixed target also makes a promise that can be stated in the channel and
+    checked: "80% of the time", every day, same meaning.
+    """
+    n = len(paired)
+    if n < _MIN_SESSIONS:
+        return None
+    split = int(n * 0.6)
+    train, test = paired[:split], paired[split:]
+    if not train or not test:
+        return None
+
+    def joint_rate(rows, up_b, dn_b):
+        if not rows:
+            return 0.0
+        hit = sum(1 for r in rows if r[2] <= up_b and r[3] <= dn_b)
+        return 100.0 * hit / len(rows)
+
+    ups = sorted(r[2] for r in train)
+    dns = sorted(r[3] for r in train)
+
+    # Walk a fine grid of quantiles and take the FIRST that reaches the target
+    # on training data - the narrowest width that keeps the promise in-sample.
+    chosen_q = None
+    for i in range(40, 200):
+        q = i / 200.0                      # 0.200 .. 0.995
+        if joint_rate(train, _pct(ups, q), _pct(dns, q)) >= target * 100.0:
+            chosen_q = q
+            break
+    if chosen_q is None:
+        return None
+
+    up_b, dn_b = _pct(ups, chosen_q), _pct(dns, chosen_q)
+    if up_b + dn_b <= 0:
+        return None
+    measured = joint_rate(test, up_b, dn_b)          # scored ONCE, on unseen data
+    tol = _tolerance_pts(target, len(test))
+    shortfall = target * 100.0 - measured
+    return {
+        "n_total": n, "n_train": len(train), "n_test": len(test),
+        "target_pct": round(target * 100.0, 1),
+        "chosen_q": round(chosen_q, 3),
+        "train_pct": round(joint_rate(train, up_b, dn_b), 1),
+        "up_band": round(up_b, 4), "dn_band": round(dn_b, 4),
+        "width": round(up_b + dn_b, 4),
+        "measured": round(measured, 1),
+        "tolerance_pts": round(tol, 1),
+        # Only UNDER-delivery beyond sampling noise is a failure. Over-delivery
+        # means the band is merely conservative (Wave 187).
+        "verdict": "PUBLISH" if shortfall <= tol else "HOLD",
+    }
+
+
 def evaluate_ladder(paired, price):
     """
     Wave 189: find the BEST band width instead of assuming one.
@@ -629,26 +711,30 @@ def sweep_extremes(data_layer, markets, target_q, deep=0, horizons=None):
             # Its width is CHOSEN by evaluate_ladder (knee of width vs accuracy),
             # not inherited from target_q, so the published range is the best one
             # available rather than whichever percentile we happened to ask for.
-            lad = evaluate_ladder(collect_paired(df, h), px)
-            if lad:
-                ch = lad.get("chosen")
-                if ch:
-                    out.append({"market": mkt, "hours": h, "side": "RANGE",
-                                "n": ch["n_total"], "n_test": ch["n_test"],
-                                "band": ch["up"], "dn_band": ch["dn"],
-                                "width": round(ch["width"], 4),
-                                "width_pct": ch["width_pct"],
-                                "chosen_q": int(ch["q"] * 100),
-                                "measured": ch["rate"],
-                                "why": ch["why"],
-                                "verdict": "PUBLISH",
-                                "ladder": lad["ladder"],
-                                "ref_price": round(px, 4)})
-                else:
-                    out.append({"market": mkt, "hours": h, "side": "RANGE",
-                                "n": len(lad["ladder"]), "verdict": "HOLD",
-                                "why": lad.get("reason", ""),
-                                "ladder": lad["ladder"], "ref_price": round(px, 4)})
+            paired = collect_paired(df, h)
+            lad = evaluate_ladder(paired, px)
+            tgt = evaluate_target(paired, _PUBLISH_TARGET)
+            if tgt:
+                out.append({"market": mkt, "hours": h, "side": "RANGE",
+                            "n": tgt["n_total"], "n_test": tgt["n_test"],
+                            "band": tgt["up_band"], "dn_band": tgt["dn_band"],
+                            "width": tgt["width"],
+                            "width_pct": (round(100.0 * tgt["width"] / px, 3)
+                                          if px else None),
+                            "chosen_q": int(tgt["chosen_q"] * 100),
+                            "target_pct": tgt["target_pct"],
+                            "train_pct": tgt["train_pct"],
+                            "measured": tgt["measured"],
+                            "why": ("narrowest width that held %.0f%% in training"
+                                    % tgt["target_pct"]),
+                            "verdict": tgt["verdict"],
+                            "ladder": (lad or {}).get("ladder"),
+                            "ref_price": round(px, 4)})
+            elif lad:
+                out.append({"market": mkt, "hours": h, "side": "RANGE",
+                            "n": len(lad["ladder"]), "verdict": "HOLD",
+                            "why": "could not reach the target at any width",
+                            "ladder": lad["ladder"], "ref_price": round(px, 4)})
             for side, rows in (("HIGH", up_rows), ("LOW", dn_rows)):
                 ev = evaluate(rows, target_q)
                 if ev is None:
