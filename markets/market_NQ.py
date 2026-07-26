@@ -31,7 +31,13 @@ TIMEFRAMES       = ["15m", "1h", "4h", "1d"]
 # ─── Quality Filters ───────────────────────────────────────────────
 MIN_ADX          = 22      # NQ needs real trend — higher than crypto
 MIN_RR           = 2.5     # Minimum risk/reward
-NEWS_MIN_RR      = 3.0     # Lowered from 4.0 — 20 missed winners at RR 2.5 during news
+NEWS_MIN_RR      = 2.0     # Wave 184: 3.0 -> 2.0. Measured on 2,082 graded R:R rejections:
+                           # setups rejected at rr1.5-3.0 were WORTH +0.455R to +0.986R, while
+                           # the rr3+ bucket the old floor forced us into is -0.521R. The news
+                           # windows cover the 09:30 open and 16:00 close - the busiest hours -
+                           # so the strictest floor applied exactly when the edge is best.
+                           # 2.0 is still above the normal 1.5 floor and sits in the measured
+                           # sweet spot (SWEET_LO/HI = 2.0/3.0).
 MIN_CONVICTION   = 70      # Wave 24 (May 10, 2026): raised 65->70 based on backtest_pro EV sweep (plateau 55-68 = -5R, 70 = -2R)
 COOLDOWN_MIN     = 60      # 1 hour between alerts
 
