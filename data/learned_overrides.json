@@ -221,6 +221,14 @@
     "adx_min|BTC|BB_REVERSION_BEAR": {
       "base": 16.0,
       "seeded_at": "2026-07-25T14:03:12.661754+00:00"
+    },
+    "adx_min|BTC|EMA21_PULLBACK_BULL": {
+      "base": 18.0,
+      "seeded_at": "2026-07-26T16:54:01.411828+00:00"
+    },
+    "adx_min|BTC|BREAK_RETEST_BULL": {
+      "base": 14.0,
+      "seeded_at": "2026-07-26T16:54:01.416706+00:00"
     }
   }
 }
