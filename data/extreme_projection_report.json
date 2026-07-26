@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T18:07:06.511319+00:00",
+  "generated_at": "2026-07-26T18:14:18.960917+00:00",
   "target": 68,
   "results": [
     {
@@ -1611,7 +1611,7 @@
           "rate": 36.7,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.402
+          "width_pct": 0.401
         },
         {
           "q": 0.6,
@@ -1651,7 +1651,7 @@
           "rate": 68.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.659
+          "width_pct": 0.658
         },
         {
           "q": 0.8,
@@ -1691,10 +1691,10 @@
           "rate": 95.8,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 1.441
+          "width_pct": 1.44
         }
       ],
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1705,7 +1705,7 @@
       "band_pct": 0.286,
       "measured": 80.8,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1716,7 +1716,7 @@
       "band_pct": 0.27,
       "measured": 73.3,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1727,7 +1727,7 @@
       "band": 502.45,
       "dn_band": 546.92,
       "width": 1049.37,
-      "width_pct": 1.624,
+      "width_pct": 1.623,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 82.0,
@@ -1753,7 +1753,7 @@
           "rate": 43.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.592
+          "width_pct": 0.591
         },
         {
           "q": 0.65,
@@ -1793,7 +1793,7 @@
           "rate": 83.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.129
+          "width_pct": 1.128
         },
         {
           "q": 0.85,
@@ -1813,7 +1813,7 @@
           "rate": 95.0,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.624
+          "width_pct": 1.623
         },
         {
           "q": 0.95,
@@ -1823,10 +1823,10 @@
           "rate": 98.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 2.497
+          "width_pct": 2.496
         }
       ],
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1837,7 +1837,7 @@
       "band_pct": 0.4,
       "measured": 81.7,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1845,10 +1845,10 @@
       "side": "LOW",
       "n": 149,
       "band": 222.02,
-      "band_pct": 0.344,
+      "band_pct": 0.343,
       "measured": 68.3,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1859,7 +1859,7 @@
       "band": 776.35,
       "dn_band": 491.72,
       "width": 1268.07,
-      "width_pct": 1.962,
+      "width_pct": 1.961,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 83.1,
@@ -1885,7 +1885,7 @@
           "rate": 40.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 0.865
+          "width_pct": 0.864
         },
         {
           "q": 0.65,
@@ -1895,7 +1895,7 @@
           "rate": 52.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 0.969
+          "width_pct": 0.968
         },
         {
           "q": 0.7,
@@ -1925,7 +1925,7 @@
           "rate": 75.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.359
+          "width_pct": 1.358
         },
         {
           "q": 0.85,
@@ -1935,7 +1935,7 @@
           "rate": 77.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.578
+          "width_pct": 1.577
         },
         {
           "q": 0.9,
@@ -1945,7 +1945,7 @@
           "rate": 85.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.962
+          "width_pct": 1.961
         },
         {
           "q": 0.95,
@@ -1955,10 +1955,10 @@
           "rate": 92.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 2.793
+          "width_pct": 2.792
         }
       ],
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1969,7 +1969,7 @@
       "band_pct": 0.571,
       "measured": 85.0,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1980,7 +1980,7 @@
       "band_pct": 0.415,
       "measured": 70.0,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -1991,7 +1991,7 @@
       "band": 691.69,
       "dn_band": 720.18,
       "width": 1411.87,
-      "width_pct": 2.185,
+      "width_pct": 2.184,
       "chosen_q": 89,
       "target_pct": 80.0,
       "train_pct": 81.8,
@@ -2027,7 +2027,7 @@
           "rate": 63.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.126
+          "width_pct": 1.125
         },
         {
           "q": 0.7,
@@ -2037,7 +2037,7 @@
           "rate": 76.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.246
+          "width_pct": 1.245
         },
         {
           "q": 0.75,
@@ -2067,7 +2067,7 @@
           "rate": 86.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.874
+          "width_pct": 1.873
         },
         {
           "q": 0.9,
@@ -2077,7 +2077,7 @@
           "rate": 93.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.185
+          "width_pct": 2.184
         },
         {
           "q": 0.95,
@@ -2087,10 +2087,10 @@
           "rate": 96.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.703
+          "width_pct": 2.702
         }
       ],
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2101,7 +2101,7 @@
       "band_pct": 0.594,
       "measured": 96.7,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2112,7 +2112,7 @@
       "band_pct": 0.574,
       "measured": 73.3,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2123,7 +2123,7 @@
       "band": 1261.45,
       "dn_band": 807.54,
       "width": 2068.99,
-      "width_pct": 3.201,
+      "width_pct": 3.2,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 86.2,
@@ -2131,7 +2131,7 @@
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2139,10 +2139,10 @@
       "side": "HIGH",
       "n": 49,
       "band": 609.31,
-      "band_pct": 0.943,
+      "band_pct": 0.942,
       "measured": 95.0,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2153,7 +2153,7 @@
       "band_pct": 0.556,
       "measured": 65.0,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2164,7 +2164,7 @@
       "band": 1057.71,
       "dn_band": 969.76,
       "width": 2027.47,
-      "width_pct": 3.137,
+      "width_pct": 3.136,
       "chosen_q": 86,
       "target_pct": 80.0,
       "train_pct": 81.8,
@@ -2172,7 +2172,7 @@
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2183,7 +2183,7 @@
       "band_pct": 1.066,
       "measured": 93.3,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "BTC",
@@ -2194,7 +2194,7 @@
       "band_pct": 0.702,
       "measured": 66.7,
       "verdict": "PUBLISH",
-      "ref_price": 64626.42
+      "ref_price": 64650.15
     },
     {
       "market": "SOL",
@@ -2241,7 +2241,7 @@
           "rate": 51.7,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.718
+          "width_pct": 0.717
         },
         {
           "q": 0.7,
@@ -2251,7 +2251,7 @@
           "rate": 58.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.811
+          "width_pct": 0.81
         },
         {
           "q": 0.75,
@@ -2301,10 +2301,10 @@
           "rate": 96.7,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 1.927
+          "width_pct": 1.926
         }
       ],
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2315,7 +2315,7 @@
       "band_pct": 0.372,
       "measured": 80.8,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2326,7 +2326,7 @@
       "band_pct": 0.412,
       "measured": 71.7,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2363,7 +2363,7 @@
           "rate": 43.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.944
+          "width_pct": 0.943
         },
         {
           "q": 0.65,
@@ -2403,7 +2403,7 @@
           "rate": 76.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.462
+          "width_pct": 1.461
         },
         {
           "q": 0.85,
@@ -2433,10 +2433,10 @@
           "rate": 96.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 2.645
+          "width_pct": 2.644
         }
       ],
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2447,7 +2447,7 @@
       "band_pct": 0.558,
       "measured": 80.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2455,10 +2455,10 @@
       "side": "LOW",
       "n": 149,
       "band": 0.4,
-      "band_pct": 0.532,
+      "band_pct": 0.531,
       "measured": 71.7,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2505,7 +2505,7 @@
           "rate": 42.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.316
+          "width_pct": 1.315
         },
         {
           "q": 0.7,
@@ -2525,7 +2525,7 @@
           "rate": 57.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.635
+          "width_pct": 1.634
         },
         {
           "q": 0.8,
@@ -2535,7 +2535,7 @@
           "rate": 65.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.781
+          "width_pct": 1.78
         },
         {
           "q": 0.85,
@@ -2565,10 +2565,10 @@
           "rate": 90.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 3.548
+          "width_pct": 3.547
         }
       ],
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2579,7 +2579,7 @@
       "band_pct": 0.824,
       "measured": 87.5,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2590,7 +2590,7 @@
       "band_pct": 0.651,
       "measured": 62.5,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2657,7 +2657,7 @@
           "rate": 70.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.914
+          "width_pct": 1.913
         },
         {
           "q": 0.8,
@@ -2667,7 +2667,7 @@
           "rate": 76.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.1
+          "width_pct": 2.099
         },
         {
           "q": 0.85,
@@ -2700,7 +2700,7 @@
           "width_pct": 3.096
         }
       ],
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2711,7 +2711,7 @@
       "band_pct": 0.824,
       "measured": 86.7,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2722,7 +2722,7 @@
       "band_pct": 0.771,
       "measured": 70.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2733,7 +2733,7 @@
       "band": 1.61,
       "dn_band": 0.96,
       "width": 2.57,
-      "width_pct": 3.415,
+      "width_pct": 3.414,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 86.2,
@@ -2741,7 +2741,7 @@
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2749,10 +2749,10 @@
       "side": "HIGH",
       "n": 49,
       "band": 0.89,
-      "band_pct": 1.183,
+      "band_pct": 1.182,
       "measured": 90.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2763,7 +2763,7 @@
       "band_pct": 0.651,
       "measured": 55.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2774,7 +2774,7 @@
       "band": 1.61,
       "dn_band": 1.1,
       "width": 2.71,
-      "width_pct": 3.601,
+      "width_pct": 3.6,
       "chosen_q": 86,
       "target_pct": 80.0,
       "train_pct": 81.8,
@@ -2782,7 +2782,7 @@
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2793,7 +2793,7 @@
       "band_pct": 1.103,
       "measured": 93.3,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     },
     {
       "market": "SOL",
@@ -2801,10 +2801,10 @@
       "side": "LOW",
       "n": 37,
       "band": 0.82,
-      "band_pct": 1.09,
+      "band_pct": 1.089,
       "measured": 60.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.25
+      "ref_price": 75.27
     }
   ]
 }
