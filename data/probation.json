@@ -43,28 +43,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "6W/28L (17.6% WR)"
   },
-  "SOL:BB_REVERSION_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-22T18:40:33.953960+00:00",
-    "wins_at_start": 34,
-    "losses_at_start": 96,
-    "shadow_n": 99,
-    "shadow_wr": 30.3,
-    "shadow_expectancy": 0.058,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 3W/2L (60.0% WR, expectancy -1.00R) on 5 live trades"
-  },
-  "SOL:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-22T23:36:26.796223+00:00",
-    "wins_at_start": 45,
-    "losses_at_start": 143,
-    "shadow_n": 334,
-    "shadow_wr": 43.1,
-    "shadow_expectancy": 0.313,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
-  },
   "SOL:BB_REVERSION_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-24T03:06:29.310664+00:00",
@@ -196,5 +174,16 @@
     "shadow_expectancy": 0.122,
     "judge_after_trades": 5,
     "was_suspended_for": "REAL evidence: 2W/7L over 9 real trades, avg 2.37R, expectancy -0.252R/trade"
+  },
+  "SOL:BB_REVERSION_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-26T03:22:38.089974+00:00",
+    "wins_at_start": 38,
+    "losses_at_start": 97,
+    "shadow_n": 407,
+    "shadow_wr": 52.6,
+    "shadow_expectancy": 0.827,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 4W/1L (80.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }

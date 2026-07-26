@@ -20,13 +20,10 @@
     }
   },
   "SOL:VWAP_BOUNCE_BULL": {
-    "reason": "REAL evidence: 2W/11L over 13 real trades, avg 1.82R, expectancy -0.566R/trade",
-    "suspended_at": "2026-07-25T14:02:55.539337+00:00",
-    "wave170_evidence": {
-      "real_total": 13,
-      "real_win_rate": 15.4,
-      "real_avg_rr_win": 1.82,
-      "real_expectancy": -0.5662
-    }
+    "reason": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades",
+    "suspended_at": "2026-07-26T04:07:53.950257+00:00",
+    "total_at_suspension": 193,
+    "wr_at_suspension": 24.4,
+    "bleed_at_suspension": 0.0
   }
 }
