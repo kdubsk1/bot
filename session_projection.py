@@ -54,6 +54,7 @@ USAGE
     python session_projection.py --min-sessions 25 --target 68
     python session_projection.py --deep 5000     # ask TopstepX for far more history
     python session_projection.py --sweep --deep 5000   # find the tightest window that holds
+    python session_projection.py --extremes --deep 5000  # project the HIGH and LOW instead
 """
 
 import os
@@ -388,6 +389,151 @@ def print_sweep(results, target):
     return best
 
 
+# ===================================================================
+# Wave 188: EXTREME PROJECTION - the day's HIGH and LOW, not the close
+# ===================================================================
+# Wayne's insight, and it is the better question. A close-price band asks
+# "where will price BE at time T", which is the hardest thing in markets to
+# predict and the thing intraday manipulation destroys. How far price EXTENDS
+# is far more tractable: range is bounded and mean-reverting where close
+# position is closer to a random walk, it is what ATR-based projection is
+# actually built on, and "expect the low near X" is a tradeable LEVEL rather
+# than a guess about direction.
+#
+# For each non-overlapping window we measure two separate quantities from the
+# window's OPEN price:
+#
+#     up_ext = max(High in window) - open      how far it ran UP
+#     dn_ext = open - min(Low in window)       how far it ran DOWN
+#
+# Each side is validated independently walk-forward, because they behave
+# differently - a market can have a reliable floor and a wild ceiling.
+#
+# The published claim is one-sided and honest:
+#     "high stays below open + X"   P% of the time
+#     "low stays above  open - Y"   P% of the time
+# which is exactly the shape a trader can act on.
+
+def collect_extremes(df, hours):
+    """
+    Non-overlapping windows. Returns (up_rows, dn_rows) where each row is
+    (timestamp, open_price, extension). Uses High/Low - NOT Close.
+    """
+    if df is None or len(df) == 0:
+        return [], []
+    cols = set(getattr(df, "columns", []))
+    if not {"High", "Low"}.issubset(cols):
+        return [], []
+    try:
+        recs = []
+        for ts, row in df.iterrows():
+            t = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=timezone.utc)
+            else:
+                t = t.astimezone(timezone.utc)
+            recs.append((t.replace(minute=0, second=0, microsecond=0),
+                         float(row["High"]), float(row["Low"]),
+                         float(row["Close"])))
+    except Exception:
+        return [], []
+    recs.sort()
+    step = max(1, int(hours))
+    up_rows, dn_rows = [], []
+    for i in range(0, len(recs) - step, step):
+        window = recs[i:i + step + 1]
+        if len(window) < 2:
+            continue
+        open_px = window[0][3]          # close of the anchor bar = the open of the window
+        hi = max(w[1] for w in window[1:])
+        lo = min(w[2] for w in window[1:])
+        up = hi - open_px
+        dn = open_px - lo
+        if up > 0:
+            up_rows.append((window[0][0], open_px, up))
+        if dn > 0:
+            dn_rows.append((window[0][0], open_px, dn))
+    return up_rows, dn_rows
+
+
+def sweep_extremes(data_layer, markets, target_q, deep=0, horizons=None):
+    """Validate the UP and DOWN extension separately, per market per horizon."""
+    horizons = horizons or _SWEEP_HORIZONS
+    out = []
+    for mkt in markets:
+        df = None
+        if deep and mkt in ("NQ", "GC"):
+            ddf, _n, _note = deep_history(data_layer, mkt, "1h", deep)
+            if ddf is not None:
+                df = ddf
+        if df is None:
+            try:
+                df = data_layer.get_frames(mkt).get("1h")
+            except Exception:
+                df = None
+        if df is None or len(df) == 0:
+            continue
+        try:
+            px = float(df["Close"].iloc[-1])
+        except Exception:
+            px = 0.0
+        for h in horizons:
+            up_rows, dn_rows = collect_extremes(df, h)
+            for side, rows in (("HIGH", up_rows), ("LOW", dn_rows)):
+                ev = evaluate(rows, target_q)
+                if ev is None:
+                    out.append({"market": mkt, "hours": h, "side": side,
+                                "n": len(rows), "verdict": "INSUFFICIENT_DATA"})
+                    continue
+                b = ev["bands"]["%d" % int(target_q * 100)]
+                out.append({
+                    "market": mkt, "hours": h, "side": side, "n": ev["n_total"],
+                    "band": b["band"],
+                    "band_pct": round(100.0 * b["band"] / px, 3) if px else None,
+                    "measured": ev["publish_pct"], "verdict": ev["verdict"],
+                    "ref_price": round(px, 4),
+                })
+    return out
+
+
+def print_extremes(results, target):
+    print("=" * 80)
+    print("EXTREME PROJECTION - how far price RUNS, not where it lands")
+    print("=" * 80)
+    print("non-overlapping windows, walk-forward, one-sided (only under-delivery fails)")
+    print("HIGH = how far above the open it ran.  LOW = how far below.\n")
+    print("  %-5s %5s %5s %6s %11s %8s %9s  %s"
+          % ("mkt", "hours", "side", "n", "band", "band%", "measured", "verdict"))
+    best = {}
+    for r in results:
+        if r["verdict"] == "INSUFFICIENT_DATA":
+            print("  %-5s %5d %5s %6d   INSUFFICIENT DATA"
+                  % (r["market"], r["hours"], r["side"], r["n"]))
+            continue
+        print("  %-5s %5d %5s %6d %11.2f %7.3f%% %8.1f%%  %s"
+              % (r["market"], r["hours"], r["side"], r["n"], r["band"],
+                 r["band_pct"], r["measured"], r["verdict"]))
+        if r["verdict"] == "PUBLISH":
+            k = (r["market"], r["side"])
+            cur = best.get(k)
+            if cur is None or r["band_pct"] < cur["band_pct"]:
+                best[k] = r
+    print()
+    if best:
+        print("  TIGHTEST PUBLISHABLE EXTENSION PER MARKET/SIDE:")
+        for (mkt, side), r in sorted(best.items()):
+            px = r["ref_price"]
+            lvl = px + r["band"] if side == "HIGH" else px - r["band"]
+            word = "stays below" if side == "HIGH" else "stays above"
+            print("     %-5s %-4s %dh  %s %.2f  (+/-%.2f, %.3f%%)  %.1f%% measured, n=%d"
+                  % (mkt, side, r["hours"], word, lvl, r["band"],
+                     r["band_pct"], r["measured"], r["n"]))
+    else:
+        print("  Nothing passed.")
+    print("=" * 80)
+    return best
+
+
 def run(min_sessions=None, target=68, deep=0):
     global _MIN_SESSIONS
     if min_sessions:
@@ -517,6 +663,26 @@ def main(argv=None):
             dp = int(argv[argv.index("--deep") + 1])
         except Exception:
             dp = 5000
+    if "--extremes" in argv:
+        try:
+            import data_layer
+        except Exception as e:
+            print("ERROR: data_layer unavailable (%s). This must run on Railway." % e)
+            return None
+        res = sweep_extremes(data_layer, MARKETS, tg / 100.0, dp)
+        best = print_extremes(res, tg)
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            with open(os.path.join(DATA_DIR, "extreme_projection_report.json"), "w",
+                      encoding="utf-8") as f:
+                json.dump({"generated_at": datetime.now(timezone.utc).isoformat(),
+                           "target": tg, "results": res,
+                           "tightest_publishable": {"%s|%s" % k: v for k, v in best.items()}},
+                          f, indent=2)
+            print("  report: %s" % os.path.join(DATA_DIR, "extreme_projection_report.json"))
+        except Exception as e:
+            print("  WARNING: could not write extremes report: %s" % e)
+        return res
     if "--sweep" in argv:
         try:
             import data_layer
