@@ -176,18 +176,36 @@ def evaluate(rows, target_q):
         }
     b = res["bands"]["%d" % int(target_q * 100)]
     tol = _tolerance_pts(target_q, len(test))
-    within_noise = abs(b["delta"]) <= tol
-    above_floor  = b["delta"] >= -_HARD_FLOOR_PTS
     res["tolerance_pts"] = round(tol, 1)
+
+    # Wave 187: only UNDER-delivery is a failure.
+    #
+    # The first version tested abs(delta) <= tolerance, which punished a band for
+    # being too GOOD: Gold at 1h measured 77.2% and 2h measured 83.5% against a
+    # claimed 68%, and both were marked HOLD - rejecting the two tightest, safest
+    # bands on the board. That was wrong. If the band claims 68% and delivers
+    # 83%, the claim is still TRUE; the band is merely wider than it needs to be,
+    # which is the conservative direction.
+    #
+    # So the fix is also the more honest presentation: stop claiming a round
+    # number and publish the MEASURED rate. `publish_pct` below is what should
+    # appear in the channel - never the target.
+    under_by     = -b["delta"]                       # positive means it fell short
+    within_noise = under_by <= tol                   # one-sided now
+    above_floor  = b["delta"] >= -_HARD_FLOOR_PTS
     res["verdict"] = "PUBLISH" if (within_noise and above_floor) else "HOLD"
+    res["publish_pct"] = b["actual_pct"]             # say what was measured
     if not above_floor:
         why = "underdelivers by more than the %.0f pt hard floor" % _HARD_FLOOR_PTS
     elif not within_noise:
-        why = "outside the 95%% CI (+/-%.1f pts) for n_test=%d" % (tol, len(test))
+        why = "falls short by %.1f pts, beyond the 95%% CI of +/-%.1f for n_test=%d" % (
+            under_by, tol, len(test))
+    elif b["delta"] > tol:
+        why = "beats its target - band is conservative, publish the measured rate"
     else:
         why = "consistent with its claim within sampling error"
     res["verdict_reason"] = (
-        "out-of-sample %.1f%% vs claimed %d%% (delta %+.1f pts): %s"
+        "out-of-sample %.1f%% vs target %d%% (delta %+.1f pts): %s"
         % (b["actual_pct"], b["claimed_pct"], b["delta"], why)
     )
     return res
