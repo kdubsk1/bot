@@ -1,0 +1,260 @@
+{
+  "generated_at": "2026-07-26T01:32:23.532926+00:00",
+  "method": "walk-forward: band fitted on oldest 60% of sessions, hit rate measured on newest 40% (never seen during fitting)",
+  "target_confidence": 68,
+  "tolerance_rule": "binomial 95% CI for the test sample size, plus a hard floor of 15 pts",
+  "min_sessions": 20,
+  "markets": {
+    "NQ": {
+      "ASIA": {
+        "n_total": 35,
+        "n_train": 21,
+        "n_test": 14,
+        "median_move": 150.5,
+        "bands": {
+          "68": {
+            "band": 208.0,
+            "claimed_pct": 68,
+            "actual_pct": 50.0,
+            "delta": -18.0,
+            "band_pct_of_price": 0.724
+          },
+          "80": {
+            "band": 227.25,
+            "claimed_pct": 80,
+            "actual_pct": 64.3,
+            "delta": -15.7,
+            "band_pct_of_price": 0.791
+          },
+          "90": {
+            "band": 366.5,
+            "claimed_pct": 90,
+            "actual_pct": 85.7,
+            "delta": -4.3,
+            "band_pct_of_price": 1.276
+          }
+        },
+        "tolerance_pts": 24.4,
+        "verdict": "HOLD",
+        "verdict_reason": "out-of-sample 50.0% vs claimed 68% (delta -18.0 pts): underdelivers by more than the 15 pt hard floor",
+        "reference_price": 28731.25
+      },
+      "LONDON": {
+        "n_total": 35,
+        "n_train": 21,
+        "n_test": 14,
+        "median_move": 85.25,
+        "bands": {
+          "68": {
+            "band": 94.0,
+            "claimed_pct": 68,
+            "actual_pct": 35.7,
+            "delta": -32.3,
+            "band_pct_of_price": 0.329
+          },
+          "80": {
+            "band": 178.0,
+            "claimed_pct": 80,
+            "actual_pct": 57.1,
+            "delta": -22.9,
+            "band_pct_of_price": 0.622
+          },
+          "90": {
+            "band": 285.5,
+            "claimed_pct": 90,
+            "actual_pct": 92.9,
+            "delta": 2.9,
+            "band_pct_of_price": 0.998
+          }
+        },
+        "tolerance_pts": 24.4,
+        "verdict": "HOLD",
+        "verdict_reason": "out-of-sample 35.7% vs claimed 68% (delta -32.3 pts): underdelivers by more than the 15 pt hard floor",
+        "reference_price": 28614.25
+      },
+      "US": {
+        "n_total": 33,
+        "n_train": 19,
+        "n_test": 14,
+        "median_move": 282.75,
+        "bands": {
+          "68": {
+            "band": 428.5,
+            "claimed_pct": 68,
+            "actual_pct": 100.0,
+            "delta": 32.0,
+            "band_pct_of_price": 1.513
+          },
+          "80": {
+            "band": 496.5,
+            "claimed_pct": 80,
+            "actual_pct": 100.0,
+            "delta": 20.0,
+            "band_pct_of_price": 1.753
+          },
+          "90": {
+            "band": 569.75,
+            "claimed_pct": 90,
+            "actual_pct": 100.0,
+            "delta": 10.0,
+            "band_pct_of_price": 2.012
+          }
+        },
+        "tolerance_pts": 24.4,
+        "verdict": "HOLD",
+        "verdict_reason": "out-of-sample 100.0% vs claimed 68% (delta +32.0 pts): outside the 95% CI (+/-24.4 pts) for n_test=14",
+        "reference_price": 28322.25
+      }
+    },
+    "GC": {
+      "ASIA": {
+        "n_total": 45,
+        "n_train": 27,
+        "n_test": 18,
+        "median_move": 31.1,
+        "bands": {
+          "68": {
+            "band": 37.5,
+            "claimed_pct": 68,
+            "actual_pct": 77.8,
+            "delta": 9.8,
+            "band_pct_of_price": 0.925
+          },
+          "80": {
+            "band": 49.9,
+            "claimed_pct": 80,
+            "actual_pct": 88.9,
+            "delta": 8.9,
+            "band_pct_of_price": 1.231
+          },
+          "90": {
+            "band": 56.7,
+            "claimed_pct": 90,
+            "actual_pct": 94.4,
+            "delta": 4.4,
+            "band_pct_of_price": 1.399
+          }
+        },
+        "tolerance_pts": 21.6,
+        "verdict": "PUBLISH",
+        "verdict_reason": "out-of-sample 77.8% vs claimed 68% (delta +9.8 pts): consistent with its claim within sampling error",
+        "reference_price": 4052.0
+      },
+      "LONDON": {
+        "n_total": 45,
+        "n_train": 27,
+        "n_test": 18,
+        "median_move": 24.6,
+        "bands": {
+          "68": {
+            "band": 33.1,
+            "claimed_pct": 68,
+            "actual_pct": 50.0,
+            "delta": -18.0,
+            "band_pct_of_price": 0.817
+          },
+          "80": {
+            "band": 38.1,
+            "claimed_pct": 80,
+            "actual_pct": 61.1,
+            "delta": -18.9,
+            "band_pct_of_price": 0.94
+          },
+          "90": {
+            "band": 52.6,
+            "claimed_pct": 90,
+            "actual_pct": 83.3,
+            "delta": -6.7,
+            "band_pct_of_price": 1.298
+          }
+        },
+        "tolerance_pts": 21.6,
+        "verdict": "HOLD",
+        "verdict_reason": "out-of-sample 50.0% vs claimed 68% (delta -18.0 pts): underdelivers by more than the 15 pt hard floor",
+        "reference_price": 4051.1
+      },
+      "US": {
+        "n_total": 42,
+        "n_train": 25,
+        "n_test": 17,
+        "median_move": 24.5,
+        "bands": {
+          "68": {
+            "band": 39.3,
+            "claimed_pct": 68,
+            "actual_pct": 82.4,
+            "delta": 14.4,
+            "band_pct_of_price": 0.966
+          },
+          "80": {
+            "band": 68.1,
+            "claimed_pct": 80,
+            "actual_pct": 100.0,
+            "delta": 20.0,
+            "band_pct_of_price": 1.673
+          },
+          "90": {
+            "band": 96.8,
+            "claimed_pct": 90,
+            "actual_pct": 100.0,
+            "delta": 10.0,
+            "band_pct_of_price": 2.378
+          }
+        },
+        "tolerance_pts": 22.2,
+        "verdict": "PUBLISH",
+        "verdict_reason": "out-of-sample 82.4% vs claimed 68% (delta +14.4 pts): consistent with its claim within sampling error",
+        "reference_price": 4070.0
+      }
+    },
+    "BTC": {
+      "ASIA": {
+        "n_total": 12,
+        "verdict": "INSUFFICIENT_DATA"
+      },
+      "LONDON": {
+        "n_total": 12,
+        "verdict": "INSUFFICIENT_DATA"
+      },
+      "US": {
+        "n_total": 12,
+        "verdict": "INSUFFICIENT_DATA"
+      }
+    },
+    "SOL": {
+      "ASIA": {
+        "n_total": 12,
+        "verdict": "INSUFFICIENT_DATA"
+      },
+      "LONDON": {
+        "n_total": 12,
+        "verdict": "INSUFFICIENT_DATA"
+      },
+      "US": {
+        "n_total": 12,
+        "verdict": "INSUFFICIENT_DATA"
+      }
+    }
+  },
+  "deep_requested": 5000,
+  "bar_supply": {
+    "NQ": {
+      "deep": "requested 5000, received 797",
+      "bars_used": 797,
+      "source": "deep TopstepX"
+    },
+    "GC": {
+      "deep": "requested 5000, received 1025",
+      "bars_used": 1025,
+      "source": "deep TopstepX"
+    },
+    "BTC": {
+      "bars_used": 300,
+      "source": "normal get_frames (500)"
+    },
+    "SOL": {
+      "bars_used": 300,
+      "source": "normal get_frames (500)"
+    }
+  }
+}
