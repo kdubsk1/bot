@@ -756,11 +756,36 @@ def sweep_extremes(data_layer, markets, target_q, deep=0, horizons=None):
 # Futures get sub-hourly windows (TopstepX serves a 15m frame); crypto gets
 # multi-day windows, because it trades 24/7 and the daily frame goes back ~300
 # days where the hourly frame only reaches ~12.
+# Wave 193: horizons are compared only WITHIN the frame they came from.
+#
+# The first version mixed frames in one comparison and the result was
+# meaningless. The frames cover wildly different spans of market:
+#
+#     NQ  15m frame   500 bars =   5.2 days      NQ  1h frame  797 bars = 33.2 days
+#     BTC 1h  frame   300 bars =  12.5 days      BTC 1d frame  300 bars =  300 days
+#
+# So "how does width grow with horizon" was actually measuring "how does a calm
+# recent week compare with a volatile year", and reporting the difference as a
+# market property. Every market came back TRENDING, SOL at 0.84, and BTC's
+# 1-day range priced at 8.6% of price against a 1-hour comparison that had only
+# seen twelve days. That was the confound, not an edge.
+#
+# Each frame now yields its own self-consistent group with its own exponent,
+# fitted only across horizons measured over the SAME span of market. The 1-hour
+# horizon deliberately appears in two groups where both frames support it: it is
+# the overlap point, and any disagreement between the two is the confound
+# showing itself instead of hiding.
 _HORIZON_PLAN = {
-    "NQ":  [(0.25, "15m"), (0.5, "15m"), (1, "15m"), (2, "1h"), (4, "1h"), (8, "1h")],
-    "GC":  [(0.25, "15m"), (0.5, "15m"), (1, "15m"), (2, "1h"), (4, "1h"), (8, "1h")],
-    "BTC": [(1, "1h"), (4, "1h"), (8, "1h"), (24, "1d"), (72, "1d"), (168, "1d")],
-    "SOL": [(1, "1h"), (4, "1h"), (8, "1h"), (24, "1d"), (72, "1d"), (168, "1d")],
+    "NQ":  [(0.25, "15m"), (0.5, "15m"), (1, "15m"),
+            (1, "1h"), (2, "1h"), (4, "1h"), (8, "1h")],
+    "GC":  [(0.25, "15m"), (0.5, "15m"), (1, "15m"),
+            (1, "1h"), (2, "1h"), (4, "1h"), (8, "1h")],
+    "BTC": [(0.5, "15m"), (1, "15m"),
+            (1, "1h"), (4, "1h"), (8, "1h"),
+            (24, "1d"), (72, "1d"), (168, "1d")],
+    "SOL": [(0.5, "15m"), (1, "15m"),
+            (1, "1h"), (4, "1h"), (8, "1h"),
+            (24, "1d"), (72, "1d"), (168, "1d")],
 }
 
 # The width used to COMPARE horizons. Comparing each horizon at its own knee
@@ -859,8 +884,13 @@ def sweep_quality(data_layer, markets=None, deep=0):
             lad = evaluate_ladder(paired, px)
             chosen = (lad or {}).get("chosen")
             width = fixed["up_band"] + fixed["dn_band"]
+            try:
+                span_days = (df.index[-1] - df.index[0]).total_seconds() / 86400.0
+            except Exception:
+                span_days = None
             rows.append({
                 "hours": hours, "tf": tf, "status": "OK", "bars": len(df),
+                "span_days": round(span_days, 1) if span_days else None,
                 "n": fixed["n_total"], "n_test": fixed["n_test"],
                 "up": fixed["up_band"], "dn": fixed["dn_band"],
                 "width": width,
@@ -873,45 +903,32 @@ def sweep_quality(data_layer, markets=None, deep=0):
             })
 
         ok_rows = [r for r in rows if r.get("status") == "OK"]
-        exponent = None
-        if len(ok_rows) >= 3:
-            # Fit how width actually scales with time, instead of anchoring on
-            # one reference horizon.
-            #
-            # The first version divided every width by sqrt-of-time scaled from
-            # the SHORTEST horizon. That makes the whole column hostage to one
-            # measurement - and worse, horizons come from different frames
-            # (15m, 1h, 1d), so any difference in coverage or quality between
-            # two frames shows up as a fake edge. Caught in test: a synthetic
-            # random walk scored 1.00 on its 15m horizons and 0.50 on its
-            # hourly ones purely from the frame change.
-            #
-            # A least-squares fit of log(width) against log(hours) uses every
-            # point and has no privileged anchor. Its slope is the scaling
-            # exponent - the Hurst exponent:
-            #
-            #     0.50  a random walk, no structure
-            #    <0.50  mean-reverting: price is pulled back, ranges hold
-            #    >0.50  trending: price runs, ranges break
-            xs = [math.log(r["hours"]) for r in ok_rows]
-            ys = [math.log(r["width"]) for r in ok_rows if r["width"] > 0]
-            if len(ys) == len(xs) and len(xs) >= 3:
-                mx = sum(xs) / len(xs)
-                my = sum(ys) / len(ys)
-                den = sum((x - mx) ** 2 for x in xs)
-                if den > 0:
-                    exponent = sum((x - mx) * (y - my)
-                                   for x, y in zip(xs, ys)) / den
-
-        if ok_rows:
-            # Per-row: measured width against the width the FITTED line
-            # predicts if the market were a pure random walk from the same
-            # starting point. Frame-boundary artifacts affect the fit, not one
-            # privileged row.
-            base = ok_rows[0]
-            for r in ok_rows:
+        groups = {}
+        for r in ok_rows:
+            groups.setdefault(r["tf"], []).append(r)
+        exponents = {}
+        for tf, grp in groups.items():
+            grp.sort(key=lambda r: r["hours"])
+            if len(grp) < 3:
+                continue
+            xs = [math.log(r["hours"]) for r in grp]
+            ys = [math.log(r["width"]) for r in grp if r["width"] > 0]
+            if len(ys) != len(xs):
+                continue
+            mx = sum(xs) / len(xs); my = sum(ys) / len(ys)
+            den = sum((x - mx) ** 2 for x in xs)
+            if den > 0:
+                exponents[tf] = sum((x - mx) * (y - my)
+                                    for x, y in zip(xs, ys)) / den
+        # vs-chance is also per group: the reference is the shortest horizon
+        # from the SAME frame, so no cross-frame comparison is ever made.
+        for tf, grp in groups.items():
+            base = grp[0]
+            for r in grp:
                 pred = base["width"] * math.sqrt(r["hours"] / base["hours"])
                 r["vs_random_walk"] = round(r["width"] / pred, 3) if pred else None
+
+        if ok_rows:
             # Rank on CONTAINMENT, not on tightness.
             #
             # The first version ranked by accuracy divided by width, which is
@@ -929,7 +946,8 @@ def sweep_quality(data_layer, markets=None, deep=0):
                     if scored else None)
         else:
             best = None
-        out[mkt] = {"rows": rows, "best": best, "scaling_exponent": exponent}
+        out[mkt] = {"rows": rows, "best": best,
+                    "scaling_exponents": exponents}
     return out
 
 
@@ -942,59 +960,83 @@ def print_quality(q):
           % int(_COMPARE_Q * 100))
     print("that differs is how wide the range has to be to get there.")
     print()
-    print("'vs chance' divides that width by what a random walk predicts")
-    print("(extension grows with the square root of time). Below 1.00 means price")
-    print("is held in TIGHTER than chance - that is a real, tradeable edge.")
+    print("Horizons are only ever compared against others from the SAME data feed,")
+    print("because the feeds cover very different spans of market. Mixing them")
+    print("compares a calm recent week with a volatile year and calls the")
+    print("difference an edge. The 'days' column is there so you can see it.")
+    print()
+    print("'vs chance' divides the width by what a random walk predicts (extension")
+    print("grows with the square root of time). Below 1.00 = held tighter than chance.")
     for mkt, d in q.items():
         print()
         if d.get("error"):
             print("  %-4s ERROR: %s" % (mkt, d["error"]))
             continue
         print("  %s" % mkt)
-        print("     %-9s %-5s %6s %13s %9s %10s %s"
-              % ("horizon", "from", "n", "range at %d%%" % int(_COMPARE_Q * 100),
-                 "of price", "vs chance", ""))
-        for r in d["rows"]:
-            lab = horizon_label(r["hours"])
-            if r.get("status") != "OK":
-                extra = ""
-                if r.get("status") == "TOO FEW WINDOWS":
-                    extra = "(%d windows, %d to test - need %d)" % (
-                        r.get("n", 0), r.get("n_test", 0), _MIN_TEST_WINDOWS)
-                print("     %-9s %-5s   %s %s" % (lab, r.get("tf", "?"),
-                                                  r.get("status"), extra))
-                continue
-            star = ""
-            if d.get("best") is r:
-                star = "  <== most contained"
-            print("     %-9s %-5s %6d   +/-%8.2f %8.3f%% %9.3f%s"
-                  % (lab, r["tf"], r["n"], r["width"] / 2.0,
-                     r["width_pct"], r["vs_random_walk"], star))
-        e = d.get("scaling_exponent")
-        if e is not None:
-            if e < _NULL_LO:
-                verdict = "MEAN-REVERTING - ranges hold better than chance"
-            elif e > _NULL_HI:
-                verdict = "TRENDING - price runs, ranges break more than chance"
+        rows = d.get("rows", [])
+        exps = d.get("scaling_exponents", {}) or {}
+        seen = []
+        for r in rows:
+            if r.get("tf") not in seen:
+                seen.append(r.get("tf"))
+        for tf in seen:
+            grp = [r for r in rows if r.get("tf") == tf]
+            spans = [r.get("span_days") for r in grp if r.get("span_days")]
+            hdr = "   from the %s feed" % tf
+            if spans:
+                hdr += "  (%.0f days of market)" % max(spans)
+            print(hdr)
+            print("     %-9s %6s %13s %9s %10s"
+                  % ("horizon", "n", "range at %d%%" % int(_COMPARE_Q * 100),
+                     "of price", "vs chance"))
+            for r in grp:
+                lab = horizon_label(r["hours"])
+                if r.get("status") != "OK":
+                    extra = ""
+                    if r.get("status") == "TOO FEW WINDOWS":
+                        extra = "(%d windows, %d to test - need %d)" % (
+                            r.get("n", 0), r.get("n_test", 0), _MIN_TEST_WINDOWS)
+                    print("     %-9s   %s %s" % (lab, r.get("status"), extra))
+                    continue
+                star = "  <== most contained" if d.get("best") is r else ""
+                print("     %-9s %6d   +/-%8.2f %8.3f%% %9.3f%s"
+                      % (lab, r["n"], r["width"] / 2.0, r["width_pct"],
+                         r["vs_random_walk"], star))
+            e = exps.get(tf)
+            if e is not None:
+                if e < _NULL_LO:
+                    v = "MEAN-REVERTING - ranges hold better than chance"
+                elif e > _NULL_HI:
+                    v = "TRENDING - price runs, ranges break more than chance"
+                else:
+                    v = "chance-like - honest range, no extra edge"
+                print("     scaling exponent %.2f  (chance reads %.2f-%.2f)  %s"
+                      % (e, _NULL_LO, _NULL_HI, v))
             else:
-                verdict = "chance-like - honest range, no extra edge"
-            print("     scaling exponent %.2f  (chance reads %.2f-%.2f here)  %s"
-                  % (e, _NULL_LO, _NULL_HI, verdict))
+                print("     scaling exponent: needs 3+ horizons on this feed")
         b = d.get("best")
         if b:
             print("     -> most contained vs chance: %s - +/-%.2f (%.3f%% of "
                   "price) holding %.1f%%."
                   % (horizon_label(b["hours"]), b["width"] / 2.0,
                      b["width_pct"], b["rate_at_fixed"]))
+        # the overlap check: 1 hour measured on two different feeds
+        ones = [r for r in rows if r.get("status") == "OK" and r["hours"] == 1]
+        if len(ones) >= 2:
+            a, c = ones[0], ones[1]
+            diff = abs(a["width"] - c["width"]) / max(a["width"], c["width"]) * 100.0
+            print("     CROSS-CHECK  1 hour reads +/-%.2f on the %s feed and "
+                  "+/-%.2f on the %s feed - %.0f%% apart."
+                  % (a["width"] / 2.0, a["tf"], c["width"] / 2.0, c["tf"], diff))
+            if diff > 20:
+                print("                  That gap is the two feeds covering "
+                      "different market, not a horizon effect. Trust the "
+                      "longer-span feed.")
     print()
     print("=" * 78)
     print("A range that only matches chance is still honest - it is just volatility.")
     print("The horizons worth publishing are the ones measurably below 1.00.")
     print("=" * 78)
-
-
-EXTREMES_REPORT = os.path.join(DATA_DIR, "extreme_projection_report.json")
-
 
 def write_extremes_report(res, target, base_dir=None):
     """Single writer for the extremes report - CLI and bot share it."""
