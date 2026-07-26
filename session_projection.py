@@ -1177,9 +1177,18 @@ def print_ladders(results, only=("NQ", "GC")):
         print("  %s  -  %dh window        (price %s)"
               % (r["market"], r["hours"], "{:,.2f}".format(px)))
         print("     %-9s %-22s %-8s" % ("width", "range from here", "held"))
+        # Wave 194: mark the rung nearest the chosen WIDTH.
+        #
+        # This used to compare quantiles, but since Wave 192 the width is picked
+        # off a 200-step grid while the ladder shows nine coarse rungs - so the
+        # marker matched only by coincidence and vanished from most rows.
+        picked_w = r.get("width")
+        nearest = None
+        if r.get("verdict") == "PUBLISH" and picked_w:
+            nearest = min(r["ladder"],
+                          key=lambda c: abs(c["width"] - picked_w))["width"]
         for c in r["ladder"]:
-            chosen = (r.get("verdict") == "PUBLISH"
-                      and int(c["q"] * 100) == r.get("chosen_q"))
+            chosen = nearest is not None and c["width"] == nearest
             lo, hi = px - c["dn"], px + c["up"]
             print("     %-9.1f %-22s %5.1f%%  %s%s"
                   % (c["width"], "%s - %s" % ("{:,.0f}".format(lo), "{:,.0f}".format(hi)),
@@ -1190,8 +1199,11 @@ def print_ladders(results, only=("NQ", "GC")):
         else:
             print("     NOTHING PUBLISHABLE: %s" % r.get("why", ""))
     print()
-    print("  Wider is always more accurate - that is arithmetic, not skill. The")
-    print("  pick is the knee: past it, extra width buys very little accuracy.")
+    print("  Wider is always more accurate - that is arithmetic, not skill.")
+    print("  The pick is the narrowest width that held %d%% on TRAINING data;"
+          % int(_PUBLISH_TARGET * 100))
+    print("  the rate beside it is what unseen data then gave. The marker sits")
+    print("  on the nearest rung, which is a rounding of the real chosen width.")
     print("=" * 74)
 
 

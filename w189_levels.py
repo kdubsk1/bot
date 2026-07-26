@@ -35,10 +35,17 @@ from datetime import datetime, timezone
 
 _W189_REPORT = "extreme_projection_report.json"
 
-# Which horizons appear, and what to call them in plain English.
+# Wave 194: each view names CANDIDATE horizons, and the one whose measured
+# rate lands closest to the promise is the one that prints.
+#
+# Pinning a view to a single fixed horizon published whatever that horizon
+# happened to produce. On live data the 8-hour NQ band came out 982 points wide
+# and right 98% of the time - and a range that is right 98% of the time is not
+# a good range, it is a band so wide it cannot be wrong. It said nothing, and
+# it would have made the channel look silly.
 _W189_VIEWS = [
-    (2, "NEXT 2 HOURS"),
-    (8, "REST OF THE DAY"),
+    ([1, 2, 3], "NEXT FEW HOURS"),
+    ([4, 6, 8], "REST OF THE DAY"),
 ]
 
 # Public-facing market names. "GOLD" reads better than "GC" to a subscriber.
@@ -46,9 +53,20 @@ _W189_NAMES = {"NQ": "NQ", "GC": "GOLD", "BTC": "BTC", "SOL": "SOL"}
 
 # Guards. Each one exists because breaking it would put a misleading number in
 # front of paying subscribers.
-_W189_MIN_RATE     = 65.0   # a range right less than this is not worth printing
+_W189_TARGET       = 80.0   # the promise the projection is fitted to
+_W189_MIN_RATE     = 70.0   # under-delivering this far is a broken band
+_W189_MAX_RATE     = 93.0   # OVER-delivering this far means the band is too wide
 _W189_MIN_WINDOWS  = 30     # fewer test windows than this is a coin flip
 _W189_MAX_AGE_DAYS = 45     # past this the statistics are stale, say nothing
+
+# _W189_MAX_RATE deserves a note, because rejecting a band for being TOO
+# accurate looks wrong at first glance.
+#
+# The width is fitted to deliver 80%. If it then measures 98% on unseen data,
+# the band did not get better - it got WIDER than it needed to be, by roughly a
+# quarter. Wave 187 established that over-delivery is safe, and it is: nobody is
+# misled. But safe is not the same as useful, and a range nobody could ever
+# violate carries no information for the person reading it.
 
 
 def _w189_load(base_dir):
@@ -77,20 +95,32 @@ def _w189_load(base_dir):
     return rep
 
 
-def _w189_range_row(report, market, hours):
-    """The validated RANGE row for this market/horizon, or None."""
+def _w189_range_row(report, market, candidates):
+    """
+    The best validated RANGE row for this market across the candidate horizons.
+
+    "Best" is the one whose MEASURED rate sits closest to the promise. Not the
+    highest rate - that would pick the widest band every time, which is the same
+    degenerate answer that has surfaced at every level of this problem.
+    """
+    best, best_gap = None, None
     try:
+        wanted = set(int(h) for h in candidates)
         for r in report.get("results", []):
-            if (r.get("market") == market
-                    and int(r.get("hours", -1)) == int(hours)
-                    and r.get("side") == "RANGE"
-                    and r.get("verdict") == "PUBLISH"):
-                if float(r.get("measured", 0)) < _W189_MIN_RATE:
-                    return None
-                if int(r.get("n_test", 0)) < _W189_MIN_WINDOWS:
-                    return None
-                return r
-        return None
+            if (r.get("market") != market or r.get("side") != "RANGE"
+                    or r.get("verdict") != "PUBLISH"):
+                continue
+            if int(r.get("hours", -1)) not in wanted:
+                continue
+            rate = float(r.get("measured", 0))
+            if rate < _W189_MIN_RATE or rate > _W189_MAX_RATE:
+                continue
+            if int(r.get("n_test", 0)) < _W189_MIN_WINDOWS:
+                continue
+            gap = abs(rate - _W189_TARGET)
+            if best_gap is None or gap < best_gap:
+                best, best_gap = r, gap
+        return best
     except Exception:
         return None
 
@@ -119,14 +149,14 @@ def build_levels_block(base_dir, markets, price_lookup):
 
     sections = []
     windows_used = []
-    for hours, title in _W189_VIEWS:
+    for candidates, title in _W189_VIEWS:
         # Gather first, format second: column widths can only be known once
         # every row for this section is in hand. Telegram's normal font is
         # proportional, so "GOLD" and "NQ" would not line up as bold text -
         # the rows go inside a fenced block, where they will.
         cells = []
         for mkt in markets:
-            row = _w189_range_row(report, mkt, hours)
+            row = _w189_range_row(report, mkt, candidates)
             if not row:
                 continue
             try:
@@ -142,18 +172,20 @@ def build_levels_block(base_dir, markets, price_lookup):
             except Exception:
                 continue
             windows_used.append(int(row.get("n_test", 0)))
+            hrs = int(row.get("hours", 0))
             cells.append((_W189_NAMES.get(mkt, mkt),
                           _w189_fmt(lo, px), _w189_fmt(hi, px),
-                          "%.0f%%" % rate))
+                          "%.0f%%" % rate,
+                          "%dh" % hrs if hrs else ""))
         if not cells:
             continue
         wn = max(len(c[0]) for c in cells)
         wl = max(len(c[1]) for c in cells)
         wh = max(len(c[2]) for c in cells)
         body = "\n".join(
-            "%s  %s - %s   %s"
-            % (n.ljust(wn), lo.rjust(wl), hi.rjust(wh), rt.rjust(4))
-            for n, lo, hi, rt in cells)
+            "%s  %s - %s   %s  %s"
+            % (n.ljust(wn), lo.rjust(wl), hi.rjust(wh), rt.rjust(4), hz.rjust(3))
+            for n, lo, hi, rt, hz in cells)
         sections.append("*%s*\n```\n%s\n```" % (title, body))
 
     if not sections:
@@ -167,6 +199,7 @@ def build_levels_block(base_dir, markets, price_lookup):
         out.append("_The percentage is how often price stayed inside that "
                    "range, measured on %s past windows the bot had never "
                    "seen._" % "{:,}".format(max(windows_used)))
+    out.append("_The last column is the window each range covers._")
     out.append("_This is where price has tended to stay. It is not a call on "
                "direction._")
     out.append(bar)
