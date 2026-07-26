@@ -53,6 +53,7 @@ USAGE
     python session_projection.py
     python session_projection.py --min-sessions 25 --target 68
     python session_projection.py --deep 5000     # ask TopstepX for far more history
+    python session_projection.py --sweep --deep 5000   # find the tightest window that holds
 """
 
 import os
@@ -234,6 +235,141 @@ def deep_history(data_layer, market, tf, want_bars):
         return None, 0, "deep fetch failed: %s" % e
 
 
+# ===================================================================
+# Wave 186: HORIZON SWEEP - find the tightest window that still holds
+# ===================================================================
+# The session view answered "can we project to the 4pm close?" and for NQ the
+# answer was no: its session bands came out +/-208 to +/-428 points, which is
+# not a prediction, it is a truism. Two problems caused that:
+#
+#   1. a full session is a long time for an index future to wander
+#   2. anchoring only on session starts gave n=33-35 samples, so the
+#      confidence interval was +/-16 points and almost nothing could pass
+#
+# This sweeps SHORTER horizons and uses NON-OVERLAPPING windows anchored on
+# every Nth bar rather than only on session opens. For NQ that lifts the sample
+# from ~35 to ~400 at a 2h horizon, which tightens the CI enough to give a real
+# verdict. Overlapping windows would inflate n with correlated samples and make
+# the CI dishonestly narrow, so they are deliberately not used.
+#
+# It reports band width in POINTS and as a PERCENT OF PRICE, so horizons can be
+# compared on tightness rather than on raw point counts.
+
+_SWEEP_HORIZONS = [1, 2, 3, 4, 6, 8]
+
+
+def collect_horizon(df, hours):
+    """
+    Non-overlapping |close(t+hours) - close(t)| samples.
+    Anchoring on every Nth bar keeps the samples independent.
+    """
+    if df is None or len(df) == 0:
+        return []
+    try:
+        rows = []
+        for ts, row in df.iterrows():
+            t = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=timezone.utc)
+            else:
+                t = t.astimezone(timezone.utc)
+            rows.append((t.replace(minute=0, second=0, microsecond=0), float(row["Close"])))
+    except Exception:
+        return []
+    rows.sort()
+    closes = dict(rows)
+    ordered = [t for t, _c in rows]
+    out = []
+    step = max(1, int(hours))
+    for i in range(0, len(ordered) - step, step):
+        t0 = ordered[i]
+        t1 = t0 + timedelta(hours=hours)
+        c0 = closes.get(t0)
+        c1 = closes.get(t1)
+        if c0 is None or c1 is None:
+            continue
+        mv = abs(c1 - c0)
+        if mv <= 0:
+            continue
+        out.append((t0, c0, mv))
+    return out
+
+
+def sweep_horizons(data_layer, markets, target_q, deep=0):
+    """Test every horizon on every market and return the results table."""
+    results = []
+    for mkt in markets:
+        df = None
+        if deep and mkt in ("NQ", "GC"):
+            ddf, dn, _note = deep_history(data_layer, mkt, "1h", deep)
+            if ddf is not None:
+                df = ddf
+        if df is None:
+            try:
+                df = data_layer.get_frames(mkt).get("1h")
+            except Exception:
+                df = None
+        if df is None or len(df) == 0:
+            continue
+        try:
+            ref_price = float(df["Close"].iloc[-1])
+        except Exception:
+            ref_price = 0.0
+        for h in _SWEEP_HORIZONS:
+            rows = collect_horizon(df, h)
+            ev = evaluate(rows, target_q)
+            if ev is None:
+                results.append({"market": mkt, "hours": h, "n": len(rows),
+                                "verdict": "INSUFFICIENT_DATA"})
+                continue
+            b = ev["bands"]["%d" % int(target_q * 100)]
+            results.append({
+                "market": mkt, "hours": h, "n": ev["n_total"],
+                "band": b["band"],
+                "band_pct": round(100.0 * b["band"] / ref_price, 3) if ref_price else None,
+                "claimed": b["claimed_pct"], "actual": b["actual_pct"],
+                "delta": b["delta"], "tolerance": ev.get("tolerance_pts"),
+                "verdict": ev["verdict"], "ref_price": round(ref_price, 2),
+            })
+    return results
+
+
+def print_sweep(results, target):
+    print("=" * 78)
+    print("HORIZON SWEEP - which prediction window is tight AND holds up")
+    print("=" * 78)
+    print("non-overlapping windows, walk-forward: fitted on oldest 60%, scored on newest 40%")
+    print("target %d%%\n" % target)
+    print("  %-5s %5s %6s %11s %8s %8s %8s  %s"
+          % ("mkt", "hours", "n", "band", "band%", "claims", "actual", "verdict"))
+    best = {}
+    for r in results:
+        if r["verdict"] == "INSUFFICIENT_DATA":
+            print("  %-5s %5d %6d   INSUFFICIENT DATA" % (r["market"], r["hours"], r["n"]))
+            continue
+        star = ""
+        if r["verdict"] == "PUBLISH":
+            cur = best.get(r["market"])
+            if cur is None or r["band_pct"] < cur["band_pct"]:
+                best[r["market"]] = r
+        print("  %-5s %5d %6d %11.2f %7.3f%% %7d%% %7.1f%%  %s%s"
+              % (r["market"], r["hours"], r["n"], r["band"], r["band_pct"],
+                 r["claimed"], r["actual"], r["verdict"], star))
+    print()
+    if best:
+        print("  TIGHTEST PUBLISHABLE WINDOW PER MARKET:")
+        for mkt, r in sorted(best.items()):
+            lo = r["ref_price"] - r["band"]
+            hi = r["ref_price"] + r["band"]
+            print("     %-5s %dh  +/-%.2f (%.3f%%)  measured %.1f%% over n=%d"
+                  % (mkt, r["hours"], r["band"], r["band_pct"], r["actual"], r["n"]))
+            print("           from %.2f that is  %.2f - %.2f" % (r["ref_price"], lo, hi))
+    else:
+        print("  Nothing passed at any horizon.")
+    print("=" * 78)
+    return best
+
+
 def run(min_sessions=None, target=68, deep=0):
     global _MIN_SESSIONS
     if min_sessions:
@@ -363,6 +499,25 @@ def main(argv=None):
             dp = int(argv[argv.index("--deep") + 1])
         except Exception:
             dp = 5000
+    if "--sweep" in argv:
+        try:
+            import data_layer
+        except Exception as e:
+            print("ERROR: data_layer unavailable (%s). This must run on Railway." % e)
+            return None
+        res = sweep_horizons(data_layer, MARKETS, tg / 100.0, dp)
+        best = print_sweep(res, tg)
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            with open(os.path.join(DATA_DIR, "horizon_sweep_report.json"), "w",
+                      encoding="utf-8") as f:
+                json.dump({"generated_at": datetime.now(timezone.utc).isoformat(),
+                           "target": tg, "results": res,
+                           "tightest_publishable": best}, f, indent=2)
+            print("  report: %s" % os.path.join(DATA_DIR, "horizon_sweep_report.json"))
+        except Exception as e:
+            print("  WARNING: could not write sweep report: %s" % e)
+        return res
     return run(ms, tg, dp)
 
 
