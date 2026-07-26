@@ -248,10 +248,11 @@ def run(min_sessions=None, target=68, deep=0):
 
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "method": "walk-forward: band fitted on oldest 60%% of sessions, "
-                  "hit rate measured on newest 40%% (never seen during fitting)",
+        "method": "walk-forward: band fitted on oldest 60% of sessions, "
+                  "hit rate measured on newest 40% (never seen during fitting)",
         "target_confidence": target,
-        "tolerance_rule": "binomial 95% CI for the test sample size; plus a hard floor of %.0f pts" % _HARD_FLOOR_PTS,
+        "tolerance_rule": ("binomial 95%% CI for the test sample size, plus a hard "
+                           "floor of %.0f pts" % _HARD_FLOOR_PTS),
         "min_sessions": _MIN_SESSIONS,
         "markets": {},
     }
@@ -310,7 +311,7 @@ def run(min_sessions=None, target=68, deep=0):
     print("=" * 74)
     print("SESSION PROJECTION VALIDATION  (walk-forward, out-of-sample)")
     print("=" * 74)
-    print("band fitted on oldest 60%% of sessions, scored on newest 40%%")
+    print("band fitted on oldest 60% of sessions, scored on newest 40%")
     print("target confidence: %d%%   tolerance: binomial 95%% CI per sample size\n" % target)
     if report.get("deep_requested"):
         print("  DEEP HISTORY PROBE (requested %d hourly bars):" % report["deep_requested"])
