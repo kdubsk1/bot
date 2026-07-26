@@ -4531,7 +4531,61 @@ def _bias_section(markets):
                 f"  💬 {a['expectation']}\n"]
     return lines
 
+# === Wave 189 (_WAVE189_LEVELS) =====================================
+# The public EXPECTED RANGE block, appended to the morning brief.
+#
+# Strictly additive: every failure path below produces an empty string, and an
+# empty string means the brief is sent exactly as it was before Wave 189.
+# ====================================================================
+
+def _w189_price_of(market):
+    """Current price from the bot's own frames.
+
+    Deliberately NOT fetch_yfinance. Yahoo rate-limits Railway's datacenter IP,
+    which is the reason the brief reports "unavailable" for NQ and Gold. The
+    frames are already fetched, already fresh, and cost nothing extra here.
+    """
+    try:
+        import data_layer as _w189_dl
+        _w189_df = _w189_dl.get_frames(market).get("1h")
+        if _w189_df is None or len(_w189_df) == 0:
+            return None
+        return float(_w189_df["Close"].iloc[-1])
+    except Exception:
+        return None
+
+
 def build_morning_brief():
+    """The morning brief, plus the validated EXPECTED RANGE block."""
+    _w189_base = _w189_morning_brief_inner()
+    _w189_block = ""
+    try:
+        import os as _w189_os
+        _w189_dir = _w189_os.path.dirname(_w189_os.path.abspath(__file__))
+        # Kick the weekly recompute off in the BACKGROUND. Doing it inline
+        # would freeze Telegram polling for minutes while deep history is
+        # pulled for four markets. Today's brief uses the report that already
+        # exists; the refreshed one is picked up by tomorrow's.
+        try:
+            import session_projection as _w189_sp
+            _w189_sp.refresh_extremes_report_async(_w189_dir, max_age_days=6)
+        except Exception:
+            pass
+        import w189_levels as _w189_wl
+        _w189_block = _w189_wl.build_levels_block(
+            _w189_dir, ["NQ", "GC", "BTC", "SOL"], _w189_price_of)
+    except Exception as _w189_e:
+        try:
+            log.warning("w189: range block skipped (%s)", _w189_e)
+        except Exception:
+            pass
+        _w189_block = ""
+    if _w189_block:
+        return _w189_base + "\n\n" + _w189_block
+    return _w189_base
+
+
+def _w189_morning_brief_inner():
     log.info("Building morning brief...")
     now = _now_et()
     lines=[f"🌅 *GOOD MORNING — NQ CALLS*",f"📅 {now.strftime('%A, %B %d, %Y')} | US Session",

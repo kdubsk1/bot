@@ -62,6 +62,8 @@ import sys
 import json
 import math
 import logging
+import time
+import threading
 from datetime import datetime, timezone, timedelta
 
 _log = logging.getLogger(__name__)
@@ -456,6 +458,123 @@ def collect_extremes(df, hours):
     return up_rows, dn_rows
 
 
+def evaluate_joint(paired, target_q):
+    """
+    Wave 189: how often did BOTH sides hold at the same time?
+
+    Publishing "high 73% / low 70%" invites the reader to assume the RANGE holds
+    about 70% of the time. It does not: two one-sided probabilities do not
+    combine that way, and the joint rate is always lower than either. Rather
+    than derive it (which would require assuming independence - false here,
+    since a violent hour breaks both sides at once) this MEASURES it.
+
+    Bands are fitted on the oldest 60% exactly as elsewhere, then the newest 40%
+    is scored on whether BOTH the up-band and the down-band held in the same
+    window. That single number is what belongs next to a published range.
+    """
+    n = len(paired)
+    if n < _MIN_SESSIONS:
+        return None
+    split = int(n * 0.6)
+    train, test = paired[:split], paired[split:]
+    if not train or not test:
+        return None
+    up_band = _pct(sorted(r[2] for r in train), target_q)
+    dn_band = _pct(sorted(r[3] for r in train), target_q)
+    both = sum(1 for r in test if r[2] <= up_band and r[3] <= dn_band)
+    rate = 100.0 * both / len(test)
+    tol = _tolerance_pts(target_q, len(test))
+    return {
+        "n_total": n, "n_test": len(test),
+        "up_band": round(up_band, 4), "dn_band": round(dn_band, 4),
+        "joint_pct": round(rate, 1),
+        "tolerance_pts": round(tol, 1),
+    }
+
+
+def collect_paired(df, hours):
+    """Windows where BOTH extensions exist, kept aligned for the joint test."""
+    up, dn = collect_extremes(df, hours)
+    dn_map = {r[0]: r[2] for r in dn}
+    out = []
+    for t, px, u in up:
+        d = dn_map.get(t)
+        if d is not None:
+            out.append((t, px, u, d))
+    return out
+
+
+_LADDER_QS   = [0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+_MIN_PUBLISH_RATE = 65.0   # a range right less than this often is not worth printing
+_MIN_TEST_WINDOWS = 30     # below this the measured rate is a coin flip dressed up
+
+
+def evaluate_ladder(paired, price):
+    """
+    Wave 189: find the BEST band width instead of assuming one.
+
+    Wayne asked for "whatever point range has the highest win rate". Taken
+    literally that has a degenerate answer: a band 10,000 points wide is right
+    100% of the time and says nothing. Width and hit rate are not independent -
+    every extra point of width BUYS hit rate, so "highest" alone is not a target.
+
+    What IS a real target is the KNEE of that curve: the width past which extra
+    points stop buying meaningful accuracy. Below the knee you are paying width
+    for very little; above it you are giving away tightness for very little.
+
+    So this sweeps the whole ladder of percentiles, measures each one
+    out-of-sample (fit on oldest 60%, scored on newest 40%), and finds the knee
+    geometrically - the point furthest from the straight line joining the
+    narrowest and widest candidates. That is the standard knee construction and
+    it has no tunable magic number in it.
+
+    Candidates below _MIN_PUBLISH_RATE are dropped first, because the knee of a
+    curve that never gets accurate is not worth having.
+    """
+    cands = []
+    for q in _LADDER_QS:
+        jt = evaluate_joint(paired, q)
+        if not jt or jt["n_test"] < _MIN_TEST_WINDOWS:
+            continue
+        width = jt["up_band"] + jt["dn_band"]
+        if width <= 0:
+            continue
+        cands.append({"q": q, "up": jt["up_band"], "dn": jt["dn_band"],
+                      "width": width, "rate": jt["joint_pct"],
+                      "n_test": jt["n_test"], "n_total": jt["n_total"],
+                      "width_pct": round(100.0 * width / price, 3) if price else None})
+    if not cands:
+        return None
+
+    ok = [c for c in cands if c["rate"] >= _MIN_PUBLISH_RATE]
+    if not ok:
+        # Nothing on the ladder is accurate enough to publish at any width.
+        return {"chosen": None, "ladder": cands,
+                "reason": "no width reached %.0f%% out-of-sample" % _MIN_PUBLISH_RATE}
+
+    ok.sort(key=lambda c: c["width"])
+    if len(ok) <= 2:
+        chosen = ok[0]                      # narrowest that clears the floor
+        why = "narrowest width that stayed above %.0f%%" % _MIN_PUBLISH_RATE
+    else:
+        x0, y0 = ok[0]["width"], ok[0]["rate"]
+        x1, y1 = ok[-1]["width"], ok[-1]["rate"]
+        dx, dy = (x1 - x0), (y1 - y0)
+        norm = math.sqrt(dx * dx + dy * dy) or 1.0
+        best, best_d = ok[0], -1.0
+        for c in ok:
+            # perpendicular distance from the narrowest->widest chord
+            d = abs(dy * (c["width"] - x0) - dx * (c["rate"] - y0)) / norm
+            if d > best_d:
+                best_d, best = d, c
+        chosen = best
+        why = "knee of the width-vs-accuracy curve"
+
+    chosen = dict(chosen)
+    chosen["why"] = why
+    return {"chosen": chosen, "ladder": cands, "reason": why}
+
+
 def sweep_extremes(data_layer, markets, target_q, deep=0, horizons=None):
     """Validate the UP and DOWN extension separately, per market per horizon."""
     horizons = horizons or _SWEEP_HORIZONS
@@ -479,6 +598,30 @@ def sweep_extremes(data_layer, markets, target_q, deep=0, horizons=None):
             px = 0.0
         for h in horizons:
             up_rows, dn_rows = collect_extremes(df, h)
+            # Wave 189: the RANGE row - one measured range, one measured rate.
+            # Its width is CHOSEN by evaluate_ladder (knee of width vs accuracy),
+            # not inherited from target_q, so the published range is the best one
+            # available rather than whichever percentile we happened to ask for.
+            lad = evaluate_ladder(collect_paired(df, h), px)
+            if lad:
+                ch = lad.get("chosen")
+                if ch:
+                    out.append({"market": mkt, "hours": h, "side": "RANGE",
+                                "n": ch["n_total"], "n_test": ch["n_test"],
+                                "band": ch["up"], "dn_band": ch["dn"],
+                                "width": round(ch["width"], 4),
+                                "width_pct": ch["width_pct"],
+                                "chosen_q": int(ch["q"] * 100),
+                                "measured": ch["rate"],
+                                "why": ch["why"],
+                                "verdict": "PUBLISH",
+                                "ladder": lad["ladder"],
+                                "ref_price": round(px, 4)})
+                else:
+                    out.append({"market": mkt, "hours": h, "side": "RANGE",
+                                "n": len(lad["ladder"]), "verdict": "HOLD",
+                                "why": lad.get("reason", ""),
+                                "ladder": lad["ladder"], "ref_price": round(px, 4)})
             for side, rows in (("HIGH", up_rows), ("LOW", dn_rows)):
                 ev = evaluate(rows, target_q)
                 if ev is None:
@@ -494,6 +637,166 @@ def sweep_extremes(data_layer, markets, target_q, deep=0, horizons=None):
                     "ref_price": round(px, 4),
                 })
     return out
+
+
+EXTREMES_REPORT = os.path.join(DATA_DIR, "extreme_projection_report.json")
+
+
+def write_extremes_report(res, target, base_dir=None):
+    """Single writer for the extremes report - CLI and bot share it."""
+    d = os.path.join(base_dir, "data") if base_dir else DATA_DIR
+    os.makedirs(d, exist_ok=True)
+    out = os.path.join(d, "extreme_projection_report.json")
+    tmp = out + ".tmp"
+    payload = {"generated_at": datetime.now(timezone.utc).isoformat(),
+               "target": target, "results": res}
+    # write-then-rename: a crash mid-write can never leave a half-written
+    # report that the public card would then try to read.
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, default=str)
+    os.replace(tmp, out)
+    return out
+
+
+def refresh_extremes_report_if_stale(base_dir=None, max_age_days=6,
+                                     target=68, deep=5000,
+                                     markets=None, data_layer_mod=None):
+    """
+    Keep the published ranges current without anyone having to remember.
+
+    The bands are statistics, not live quotes, so they do not need refreshing
+    often - but they DO need refreshing, or the staleness guard in w189_levels
+    will eventually (and correctly) silence the whole card. Called from the
+    daily brief, this recomputes at most once a week and needs no scheduler of
+    its own.
+
+    Returns True if it refreshed, False if it was already fresh or could not
+    run. Never raises: a stale or missing report makes the card print nothing,
+    which is the safe direction.
+    """
+    try:
+        path = EXTREMES_REPORT
+        if base_dir:
+            path = os.path.join(base_dir, "data", "extreme_projection_report.json")
+        if os.path.exists(path):
+            age = time.time() - os.path.getmtime(path)
+            if age < max_age_days * 86400:
+                return False
+    except Exception:
+        return False
+    try:
+        dl = data_layer_mod
+        if dl is None:
+            import data_layer as dl
+        res = sweep_extremes(dl, markets or MARKETS, target / 100.0, deep)
+        fresh_ok = sum(1 for r in res
+                       if r.get("side") == "RANGE" and r.get("verdict") == "PUBLISH")
+
+        # NEVER replace a good report with an empty one.
+        #
+        # sweep_extremes swallows a per-market feed error and simply returns
+        # fewer rows - so a transient outage on Railway produces a perfectly
+        # valid EMPTY result, which would then overwrite a report full of good
+        # measured bands. Caught in test: a broken feed wiped the live report
+        # and the card went silent for a week until the next refresh.
+        #
+        # The rule is the same one that governs every data file here: a write
+        # may only ever add or improve. If this run found nothing publishable
+        # and the existing report has something, the existing report wins.
+        if fresh_ok == 0:
+            # Write NOTHING. Not the old report overwritten, not an empty one.
+            #
+            # Writing an empty report would also poison the freshness check:
+            # the file would look brand new, so the next six days of briefs
+            # would skip the refresh and publish nothing. Declining to write
+            # leaves the good report in place if there is one, and leaves no
+            # report at all if there is not - and either way tomorrow's brief
+            # tries again. Caught in test.
+            _log.warning("w189: refresh found no publishable range "
+                         "(feed problem?) - not writing; will retry")
+            return False
+
+        write_extremes_report(res, target, base_dir=base_dir)
+        return True
+    except Exception as e:
+        _log.warning("w189: extremes refresh failed (%s) - keeping old report", e)
+        return False
+
+
+_REFRESH_LOCK    = threading.Lock()
+_REFRESH_RUNNING = False
+
+
+def refresh_extremes_report_async(base_dir=None, **kw):
+    """
+    Kick the refresh off in the background and return immediately.
+
+    This matters more than it looks. The refresh pulls deep history for four
+    markets and takes minutes. The morning brief is built inside the bot's
+    async loop, so calling the refresh inline would freeze Telegram polling -
+    the bot would go unresponsive, once a week, for no visible reason.
+
+    So today's brief uses the report that already exists, and the refreshed one
+    is picked up by tomorrow's. Bands are week-scale statistics; a day of lag in
+    a weekly refresh costs nothing.
+
+    The running flag prevents a second thread piling on if a brief is triggered
+    twice (the /brief button exists), which would otherwise have two threads
+    writing the same file. Returns True if a thread was started.
+    """
+    global _REFRESH_RUNNING
+    with _REFRESH_LOCK:
+        if _REFRESH_RUNNING:
+            return False
+        _REFRESH_RUNNING = True
+
+    def _run():
+        global _REFRESH_RUNNING
+        try:
+            refresh_extremes_report_if_stale(base_dir=base_dir, **kw)
+        except Exception as e:
+            _log.warning("w189: background refresh failed: %s", e)
+        finally:
+            with _REFRESH_LOCK:
+                _REFRESH_RUNNING = False
+
+    t = threading.Thread(target=_run, name="w189-refresh", daemon=True)
+    t.start()
+    return True
+
+
+def print_ladders(results, only=("NQ", "GC")):
+    """Show the full width-vs-accuracy ladder so the pick can be overridden."""
+    rows = [r for r in results if r.get("side") == "RANGE" and r.get("ladder")
+            and r.get("market") in only]
+    if not rows:
+        return
+    print()
+    print("=" * 74)
+    print("HOW WIDE SHOULD THE RANGE BE?   (every number measured out-of-sample)")
+    print("=" * 74)
+    for r in rows:
+        px = r.get("ref_price") or 0
+        print()
+        print("  %s  -  %dh window        (price %s)"
+              % (r["market"], r["hours"], "{:,.2f}".format(px)))
+        print("     %-9s %-22s %-8s" % ("width", "range from here", "held"))
+        for c in r["ladder"]:
+            chosen = (r.get("verdict") == "PUBLISH"
+                      and int(c["q"] * 100) == r.get("chosen_q"))
+            lo, hi = px - c["dn"], px + c["up"]
+            print("     %-9.1f %-22s %5.1f%%  %s%s"
+                  % (c["width"], "%s - %s" % ("{:,.0f}".format(lo), "{:,.0f}".format(hi)),
+                     c["rate"], "#" * int(c["rate"] / 5),
+                     "   <== PICKED" if chosen else ""))
+        if r.get("verdict") == "PUBLISH":
+            print("     picked: %s" % r.get("why", ""))
+        else:
+            print("     NOTHING PUBLISHABLE: %s" % r.get("why", ""))
+    print()
+    print("  Wider is always more accurate - that is arithmetic, not skill. The")
+    print("  pick is the knee: past it, extra width buys very little accuracy.")
+    print("=" * 74)
 
 
 def print_extremes(results, target):
@@ -671,15 +974,9 @@ def main(argv=None):
             return None
         res = sweep_extremes(data_layer, MARKETS, tg / 100.0, dp)
         best = print_extremes(res, tg)
+        print_ladders(res)
         try:
-            os.makedirs(DATA_DIR, exist_ok=True)
-            with open(os.path.join(DATA_DIR, "extreme_projection_report.json"), "w",
-                      encoding="utf-8") as f:
-                json.dump({"generated_at": datetime.now(timezone.utc).isoformat(),
-                           "target": tg, "results": res,
-                           "tightest_publishable": {"%s|%s" % k: v for k, v in best.items()}},
-                          f, indent=2)
-            print("  report: %s" % os.path.join(DATA_DIR, "extreme_projection_report.json"))
+            print("  report: %s" % write_extremes_report(res, tg))
         except Exception as e:
             print("  WARNING: could not write extremes report: %s" % e)
         return res
