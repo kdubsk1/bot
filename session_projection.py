@@ -809,28 +809,50 @@ def print_extremes(results, target):
           % ("mkt", "hours", "side", "n", "band", "band%", "measured", "verdict"))
     best = {}
     for r in results:
-        if r["verdict"] == "INSUFFICIENT_DATA":
-            print("  %-5s %5d %5s %6d   INSUFFICIENT DATA"
-                  % (r["market"], r["hours"], r["side"], r["n"]))
+        # Wave 190: RANGE rows have their own section (print_ladders) and carry
+        # different fields. They crashed this table on a KeyError for
+        # 'band_pct' the first time it ran live - my fault: I added a new row
+        # type to the sweep and never ran the printer over it. Skipped here,
+        # and every field below is now read defensively so that a printer can
+        # never again take down a run that had already done all its work.
+        if r.get("side") == "RANGE":
             continue
-        print("  %-5s %5d %5s %6d %11.2f %7.3f%% %8.1f%%  %s"
-              % (r["market"], r["hours"], r["side"], r["n"], r["band"],
-                 r["band_pct"], r["measured"], r["verdict"]))
-        if r["verdict"] == "PUBLISH":
-            k = (r["market"], r["side"])
-            cur = best.get(k)
-            if cur is None or r["band_pct"] < cur["band_pct"]:
-                best[k] = r
+        try:
+            if r.get("verdict") == "INSUFFICIENT_DATA":
+                print("  %-5s %5d %5s %6d   INSUFFICIENT DATA"
+                      % (r.get("market", "?"), r.get("hours", 0),
+                         r.get("side", "?"), r.get("n", 0)))
+                continue
+            bp = r.get("band_pct")
+            print("  %-5s %5d %5s %6d %11.2f %7s %8.1f%%  %s"
+                  % (r.get("market", "?"), r.get("hours", 0), r.get("side", "?"),
+                     r.get("n", 0), float(r.get("band") or 0),
+                     ("%.3f%%" % bp) if bp is not None else "    -  ",
+                     float(r.get("measured") or 0), r.get("verdict", "?")))
+            if r.get("verdict") == "PUBLISH" and bp is not None:
+                k = (r.get("market"), r.get("side"))
+                cur = best.get(k)
+                if cur is None or bp < cur.get("band_pct", 1e9):
+                    best[k] = r
+        except Exception as e:
+            print("  %-5s %5s %5s   (row unprintable: %s)"
+                  % (r.get("market", "?"), r.get("hours", "?"),
+                     r.get("side", "?"), e))
     print()
     if best:
         print("  TIGHTEST PUBLISHABLE EXTENSION PER MARKET/SIDE:")
         for (mkt, side), r in sorted(best.items()):
-            px = r["ref_price"]
-            lvl = px + r["band"] if side == "HIGH" else px - r["band"]
-            word = "stays below" if side == "HIGH" else "stays above"
-            print("     %-5s %-4s %dh  %s %.2f  (+/-%.2f, %.3f%%)  %.1f%% measured, n=%d"
-                  % (mkt, side, r["hours"], word, lvl, r["band"],
-                     r["band_pct"], r["measured"], r["n"]))
+            try:
+                px = float(r.get("ref_price") or 0)
+                band = float(r.get("band") or 0)
+                lvl = px + band if side == "HIGH" else px - band
+                word = "stays below" if side == "HIGH" else "stays above"
+                print("     %-5s %-4s %sh  %s %.2f  (+/-%.2f, %.3f%%)  %.1f%% measured, n=%d"
+                      % (mkt, side, r.get("hours", "?"), word, lvl, band,
+                         float(r.get("band_pct") or 0),
+                         float(r.get("measured") or 0), int(r.get("n") or 0)))
+            except Exception as e:
+                print("     %-5s %-4s (unprintable: %s)" % (mkt, side, e))
     else:
         print("  Nothing passed.")
     print("=" * 80)
