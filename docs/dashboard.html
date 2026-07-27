@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-27T14:34:02.923463+00:00",
+  "generated_at": "2026-07-27T20:34:12.302244+00:00",
   "topstep": {
-    "balance": 50477.69,
+    "balance": 50346.69,
     "starting_balance": 50000,
-    "today_pnl": -113.47,
-    "total_pnl": 477.69,
+    "today_pnl": 0.0,
+    "total_pnl": 346.69,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -329,6 +329,10 @@ const DATA = {
       {
         "time": "2026-07-27 09:38",
         "balance": 51369.76
+      },
+      {
+        "time": "2026-07-27 19:05",
+        "balance": 50599.21
       }
     ]
   },
@@ -747,15 +751,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 3,
-    "losses": 10,
-    "wr": 23.1,
-    "total_trades": 13
+    "losses": 11,
+    "wr": 21.4,
+    "total_trades": 14
   },
   "today": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "wr": 0.0,
-    "total_trades": 3
+    "total_trades": 4
   },
   "setup_stats": [
     {
@@ -806,9 +810,32 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "GC:MACD_CROSS_BEAR",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-27 19:05",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "4h",
+      "dir": "SHORT",
+      "entry": "4076.4",
+      "stop": "4104.5233",
+      "target": "4032.5",
+      "rr": "1.56",
+      "conv": "82",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4089.5"
+    },
     {
       "time": "2026-07-27 09:38",
       "market": "NQ",
@@ -1061,8 +1088,8 @@ const DATA = {
     },
     "GC": {
       "wins": 0,
-      "losses": 1,
-      "total_pnl_r": -1.0,
+      "losses": 2,
+      "total_pnl_r": -2.0,
       "wr": 0.0
     }
   },
@@ -1079,8 +1106,8 @@ const DATA = {
     },
     "HIGH": {
       "wins": 3,
-      "losses": 4,
-      "wr": 42.9
+      "losses": 5,
+      "wr": 37.5
     }
   },
   "open_trades": []
