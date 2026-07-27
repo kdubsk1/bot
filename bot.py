@@ -4409,7 +4409,35 @@ def get_smart_interval(active_markets, frames_by_market) -> tuple:
     else:                      return (max(base, 10), "🌙 Quiet hours")
 
 # ── Market bias / briefs ──────────────────────────────────────────
+# === Wave 200 (_WAVE200_STARTUP) ====================================
 def build_startup_state():
+    """A short professional 'system online' notice.
+
+    The original printed a full operator dump - trend scores, structure bias per
+    timeframe, N/A markers where a frame was short - and with CONTROL_CHAT_ID
+    unset it went to the PUBLIC channel. It is kept below as the fallback.
+    """
+    try:
+        import w200_edge as _w200
+        _mk = [m for m in ALL_MARKETS if SETTINGS["markets"].get(m)]
+        try:
+            _when = _now_et().strftime("%a %d %b, %I:%M %p ET")
+        except Exception:
+            _when = None
+        _card = _w200.build_startup_card(
+            markets=_mk, timeframes=["15m", "1h", "4h"], when=_when)
+        if _card:
+            return _card
+    except Exception as _w200_e:
+        try:
+            log.warning("w200: startup card failed (%s) - using the old one",
+                        _w200_e)
+        except Exception:
+            pass
+    return _w200_startup_state_full()
+
+
+def _w200_startup_state_full():
     log.info("Building startup market state...")
     active = [m for m in ALL_MARKETS if SETTINGS["markets"].get(m)]
     lines = [

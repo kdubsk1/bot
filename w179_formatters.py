@@ -131,6 +131,25 @@ def format_alert_public(market, tf, setup, tier, target, rr, size_line=""):
         ]
         if size_line:
             lines.append("   %s" % size_line.replace("\U0001f4e6 *Size:* ", "Size     "))
+
+        # Wave 200: the setup's real track record, added HERE rather than in
+        # bot.py. This module is already called at the fire site, so the line
+        # needs no new anchor in a 402 KB file I cannot read from the dev side -
+        # which is what caused two failed deploys earlier today.
+        #
+        # It returns None whenever the evidence is thin or the setup's history
+        # is built on broken stops, and None simply means the line is omitted.
+        try:
+            import os as _os
+            import w200_edge as _w200
+            _edge = _w200.edge_line(
+                _os.path.dirname(_os.path.abspath(__file__)),
+                market, setup.get("type", ""))
+            if _edge:
+                lines.append(_edge)
+        except Exception:
+            pass
+
         lines.append(bar)
         return "\n".join(lines)
     except Exception as e:
