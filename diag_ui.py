@@ -1,30 +1,29 @@
 """
-diag_ui.py v2 - READ ONLY. Sends nothing, writes nothing, changes nothing.
+diag_ui.py - READ ONLY diagnostic. Sends nothing, writes nothing, changes nothing.
 
-v1 answered the routing question (CONTROL_CHAT_ID is NOT SET) and read the real
-ledger (415 closed trades across 62 files, 55 setups). It failed on one thing:
-it looked for the setup scorecard as a module-level dict on outcome_tracker, and
-there isn't one. The only module dicts are HOLD_BY_TIER, LEV_BY_TIER,
-MIN_RISK_PCT_BY_MARKET, SETUP_RR_FLOORS, VOLUME_DIRECTION and a dedup cache.
+ANSWERS TWO QUESTIONS
+=====================
+1. Why does the channel still look the same, when Waves 177 and 179 are live?
+2. Why are the wins/losses on every alert wrong or not updating?
 
-So the performance numbers live somewhere else - a JSON file on disk, or behind
-a function. v2 hunts all three places instead of assuming one.
+Both need the LIVE code and the LIVE data. The copies on the Desktop are from
+April and predate every July wave, so nothing can be diagnosed from them - the
+fields involved did not exist yet.
 
-It also checks which of the bot's own modules are actually importable, because
-v1 turned up something worse than a wrong number: w179_formatters could not be
-imported at all, which means the clean public alert cards from Wave 179 have
-never been running.
+It imports the bot's own modules and reports what they actually hold. It opens
+no trade, sends no Telegram message, and writes no file.
+
+USAGE (Railway console):
+    python diag_ui.py
 """
 
 import os
 import sys
 import csv
 import json
-import inspect
 import traceback
 
 SEP = "=" * 74
-BASE = os.path.dirname(os.path.abspath(__file__))
 
 
 def section(t):
@@ -34,224 +33,194 @@ def section(t):
     print(SEP)
 
 
-def looks_like_scorecard(obj):
-    """A dict of setup -> {wins/losses/...}."""
-    if not isinstance(obj, dict) or not obj:
-        return False
-    for k, v in list(obj.items())[:8]:
-        if isinstance(v, dict) and any(
-                f in v for f in ("wins", "losses", "total", "win_rate",
-                                 "real_wins", "real_total")):
-            return True
-    return False
+def safe(fn, *a, **k):
+    try:
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, "%s: %s" % (type(e).__name__, e)
 
 
-def dump_scorecard(label, d, limit=20):
-    keys = set()
-    for v in d.values():
-        if isinstance(v, dict):
-            keys |= set(v)
-    print("  %s  (%d entries)" % (label, len(d)))
-    print("     fields: %s" % ", ".join(sorted(keys)))
-    has_real = any(str(k).startswith("real") for k in keys)
-    print("     separates real from paper: %s" % ("YES" if has_real else "NO"))
-    print()
-    print("     %-32s %6s %6s %6s %7s %7s %8s"
-          % ("setup", "wins", "losses", "total", "real_w", "real_l", "real_tot"))
-    n = 0
-    for k in sorted(d):
-        v = d[k]
-        if not isinstance(v, dict):
-            continue
-        print("     %-32s %6s %6s %6s %7s %7s %8s"
-              % (str(k)[:32], v.get("wins", "-"), v.get("losses", "-"),
-                 v.get("total", "-"), v.get("real_wins", "-"),
-                 v.get("real_losses", "-"), v.get("real_total", "-")))
-        n += 1
-        if n >= limit:
-            print("     ... (%d more)" % (len(d) - n))
-            break
-    return has_real
-
-
-# --------------------------------------------------------------- 1. routing
+# ----------------------------------------------------------------- 1. routing
 def check_routing():
     section("1. WHERE ARE MESSAGES ACTUALLY GOING?")
     pub = os.getenv("CHAT_ID") or ""
     ctl = os.getenv("CONTROL_CHAT_ID") or ""
-    print("  CHAT_ID (public)         : %s" % ("SET" if pub else "NOT SET"))
+    print("  CHAT_ID (public)        : %s" % ("SET" if pub else "NOT SET"))
     print("  CONTROL_CHAT_ID (private): %s" % ("SET" if ctl else "NOT SET"))
     if not ctl:
-        print("  >>> Split is DORMANT. Everything still goes to the public channel.")
-        print("      Fix: Railway -> Variables -> CONTROL_CHAT_ID = <private chat id>")
+        print()
+        print("  >>> THIS IS WHY THE CHANNEL LOOKS THE SAME.")
+        print("      Wave 177 routes internal messages to CONTROL_CHAT_ID, but the")
+        print("      code reads:  CONTROL_CHAT_ID = os.getenv(...) or CHAT_ID")
+        print("      With the variable unset it falls back to the PUBLIC channel,")
+        print("      so every internal message still lands there. The split is")
+        print("      deployed but dormant - that is the safety design, not a bug.")
+        print()
+        print("      FIX (no deploy needed): Railway -> Variables ->")
+        print("      add CONTROL_CHAT_ID = <your private chat id>, then redeploy.")
     elif ctl == pub:
-        print("  >>> Set, but EQUAL to the public channel - so it has no effect.")
-    else:
-        print("  >>> Split is ACTIVE.")
-
-
-# ------------------------------------------------- 2. which modules even load
-def check_modules():
-    section("2. WHICH OF THE BOT'S MODULES ACTUALLY IMPORT?")
-    mods = ["outcome_tracker", "sim_account", "crypto_sim", "strategy_log",
-            "data_layer", "regime_classifier", "filter_ledger",
-            "learned_overrides", "w179_formatters", "w189_levels",
-            "session_projection", "conviction_boosts"]
-    missing = []
-    for m in mods:
-        try:
-            __import__(m)
-            print("     %-22s OK" % m)
-        except Exception as e:
-            print("     %-22s FAILED: %s" % (m, e))
-            missing.append(m)
-    if "w179_formatters" in missing:
         print()
-        print("  >>> w179_formatters IS MISSING. This is why your alerts still look")
-        print("      the same. Wave 179 built the clean public cards, and the fire")
-        print("      site calls format_alert_public() inside a try/except that falls")
-        print("      back to the OLD full card when the import fails. It has been")
-        print("      silently falling back this whole time.")
-    # Wave 198: if the public cards silently fell back, say why.
-    try:
-        import w179_formatters as _wf
-        err = getattr(_wf, "_W179_LAST_ERROR", "n/a")
-        print()
-        print("  w179_formatters last failure reason: %s" % (err or "none - cards rendering"))
-        setup = {"direction": "LONG", "entry": 28306.5, "raw_stop": 28230.0,
-                 "type": "VWAP_BOUNCE_BULL"}
-        card = _wf.format_alert_public("NQ", "1h", setup, "HIGH", 28460.0, 2.0)
-        print("  sample public entry card: %s"
-              % ("RENDERS" if card else "RETURNS None -> caller uses the OLD card"))
-        if card:
-            for line in str(card).splitlines():
-                print("     | %s" % line)
-    except Exception as e:
-        print("  (w179_formatters check skipped: %s)" % e)
-
-    print()
-    print("  files present next to bot.py:")
-    try:
-        for f in sorted(os.listdir(BASE)):
-            if f.endswith(".py") and (f.startswith("w1") or f.startswith("diag")):
-                print("     %-30s %d bytes" % (f, os.path.getsize(os.path.join(BASE, f))))
-    except Exception as e:
-        print("     could not list: %s" % e)
-
-
-# ------------------------------------------------------- 3. hunt the scorecard
-def check_scorecard():
-    section("3. WHERE DO THE WIN/LOSS NUMBERS ON A CARD COME FROM?")
-    found_any = False
-
-    # (a) JSON files on disk
-    print("  (a) JSON files under data/")
-    ddir = os.path.join(BASE, "data")
-    if os.path.isdir(ddir):
-        for f in sorted(os.listdir(ddir)):
-            if not f.endswith(".json"):
-                continue
-            p = os.path.join(ddir, f)
-            try:
-                with open(p, "r", encoding="utf-8") as fh:
-                    obj = json.load(fh)
-            except Exception:
-                continue
-            cands = [("", obj)]
-            if isinstance(obj, dict):
-                for k, v in obj.items():
-                    cands.append((k, v))
-            for label, cand in cands:
-                if looks_like_scorecard(cand):
-                    print()
-                    found_any = True
-                    dump_scorecard("data/%s%s" % (f, ("  ->  " + label) if label else ""), cand)
-                    break
-        if not found_any:
-            print("     (no scorecard-shaped JSON found)")
-            for f in sorted(os.listdir(ddir))[:30]:
-                print("     %-42s %d bytes" % (f, os.path.getsize(os.path.join(ddir, f))))
+        print("  >>> CONTROL_CHAT_ID is set but EQUALS the public channel, so the")
+        print("      split still has no effect. They must be different chats.")
     else:
-        print("     no data/ directory at %s" % ddir)
+        print()
+        print("  >>> Split is ACTIVE. Internal messages go to the private chat.")
 
-    # (b) zero-argument functions on outcome_tracker
-    print()
-    print("  (b) zero-argument functions on outcome_tracker that return one")
+    for name in ("MORNING_BRIEF", "ASIA_BRIEF"):
+        v = os.getenv(name)
+        print("  %-22s: %s" % (name, v if v is not None else "(unset - using default)"))
+
+
+# --------------------------------------------------------- 2. what a card shows
+def check_alert_numbers():
+    section("2. THE WIN/LOSS NUMBERS ON AN ALERT")
     try:
         import outcome_tracker as ot
     except Exception as e:
-        print("     cannot import outcome_tracker: %s" % e)
+        print("  could not import outcome_tracker: %s" % e)
         return
-    names = [n for n in dir(ot)
-             if not n.startswith("__") and callable(getattr(ot, n, None))
-             and any(w in n.lower() for w in
-                     ("perf", "stat", "score", "record", "setup", "load", "get"))]
-    for n in names[:40]:
-        fn = getattr(ot, n)
-        try:
-            sig = inspect.signature(fn)
-            if any(p.default is inspect.Parameter.empty
-                   and p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
-                   for p in sig.parameters.values()):
+
+    # find the performance/scorecard structure without assuming its name
+    store = None
+    for attr in ("SETUP_PERF", "setup_perf", "PERF", "_PERF", "performance",
+                 "SETUP_STATS", "setup_stats"):
+        if hasattr(ot, attr):
+            v = getattr(ot, attr)
+            if isinstance(v, dict) and v:
+                store = (attr, v)
+                break
+    if store is None:
+        for attr in dir(ot):
+            if attr.startswith("__"):
                 continue
-        except Exception:
+            v = getattr(ot, attr, None)
+            if isinstance(v, dict) and v:
+                k0 = list(v)[0]
+                if isinstance(v[k0], dict) and (
+                        "wins" in v[k0] or "losses" in v[k0]):
+                    store = (attr, v)
+                    break
+    if store is None:
+        print("  no setup scorecard dict found on outcome_tracker.")
+        print("  attributes that are dicts:")
+        for attr in dir(ot):
+            if not attr.startswith("__") and isinstance(getattr(ot, attr, None), dict):
+                print("     %s (%d keys)" % (attr, len(getattr(ot, attr))))
+        return
+
+    name, perf = store
+    print("  scorecard found: outcome_tracker.%s  (%d setups)" % (name, len(perf)))
+    keys = set()
+    for v in perf.values():
+        if isinstance(v, dict):
+            keys |= set(v)
+    print("  fields present per setup: %s" % ", ".join(sorted(keys)))
+    print()
+    blended_only = not any(k.startswith("real") for k in keys)
+    if blended_only:
+        print("  >>> There are NO real_* fields. Every number shown on a card is the")
+        print("      BLENDED paper+real counter. That is why the record looks wrong:")
+        print("      it is mostly simulated trades, and it moves when no real trade")
+        print("      happened.")
+    else:
+        print("  real_* fields exist, so real and blended can be told apart.")
+    print()
+    hdr = ("setup", "wins", "losses", "total", "real_w", "real_l", "real_tot")
+    print("  %-34s %6s %6s %6s %7s %7s %8s" % hdr)
+    rows = 0
+    for k in sorted(perf):
+        v = perf[k]
+        if not isinstance(v, dict):
             continue
-        try:
-            out = fn()
-        except Exception:
-            continue
-        if looks_like_scorecard(out):
-            print()
-            found_any = True
-            dump_scorecard("outcome_tracker.%s()" % n, out)
-    if not found_any:
-        print("     (none returned a scorecard)")
-        print("     zero-arg candidates tried: %s" % ", ".join(names[:20]))
+        print("  %-34s %6s %6s %6s %7s %7s %8s"
+              % (k[:34], v.get("wins", "-"), v.get("losses", "-"),
+                 v.get("total", "-"), v.get("real_wins", "-"),
+                 v.get("real_losses", "-"), v.get("real_total", "-")))
+        rows += 1
+        if rows >= 25:
+            print("  ... (%d more)" % (len(perf) - rows))
+            break
 
 
-# ------------------------------------------------------------ 4. ground truth
-def check_ledger():
-    section("4. GROUND TRUTH - REAL CLOSED TRADES")
-    paths = [os.path.join(BASE, "data", "outcomes.csv"),
-             os.path.join(BASE, "outcomes.csv")]
-    arch = os.path.join(BASE, "data", "archive")
+# ------------------------------------------------------- 3. truth from the ledger
+def check_ledger_truth():
+    section("3. WHAT THE REAL TRADE LEDGER SAYS (the ground truth)")
+    base = os.path.dirname(os.path.abspath(__file__))
+    paths = [os.path.join(base, "data", "outcomes.csv"),
+             os.path.join(base, "outcomes.csv")]
+    arch = os.path.join(base, "data", "archive")
     if os.path.isdir(arch):
         for f in sorted(os.listdir(arch)):
             if f.startswith("outcomes_") and f.endswith(".csv"):
                 paths.append(os.path.join(arch, f))
-    tally, rows = {}, 0
-    for p in [x for x in paths if os.path.exists(x)]:
+    found = [p for p in paths if os.path.exists(p)]
+    if not found:
+        print("  no outcomes.csv found. Looked in:")
+        for p in paths[:2]:
+            print("     %s" % p)
+        return
+    tally = {}
+    total_rows = 0
+    for p in found:
         try:
             with open(p, "r", encoding="utf-8", errors="replace") as f:
                 for row in csv.DictReader(f):
-                    rows += 1
+                    total_rows += 1
                     res = (row.get("result") or "").strip().upper()
                     if res not in ("WIN", "LOSS"):
                         continue
-                    k = "%s:%s" % (row.get("market", "?"), row.get("setup", "?"))
-                    d = tally.setdefault(k, {"WIN": 0, "LOSS": 0})
+                    key = "%s:%s" % (row.get("market", "?"), row.get("setup", "?"))
+                    d = tally.setdefault(key, {"WIN": 0, "LOSS": 0})
                     d[res] += 1
-        except Exception:
-            pass
-    tw = sum(v["WIN"] for v in tally.values())
-    tl = sum(v["LOSS"] for v in tally.values())
-    print("  %d rows, %d setups, %d wins / %d losses overall (%.1f%%)"
-          % (rows, len(tally), tw, tl, 100.0 * tw / max(1, tw + tl)))
+        except Exception as e:
+            print("  could not read %s: %s" % (os.path.basename(p), e))
+    print("  files read: %d,  rows: %d,  setups with closed trades: %d"
+          % (len(found), total_rows, len(tally)))
     print()
-    print("  WORST PERFORMERS with 5+ trades - candidates for attention:")
-    bad = [(k, v) for k, v in tally.items() if v["WIN"] + v["LOSS"] >= 5]
-    bad.sort(key=lambda kv: kv[1]["WIN"] / max(1, kv[1]["WIN"] + kv[1]["LOSS"]))
-    for k, v in bad[:10]:
-        n = v["WIN"] + v["LOSS"]
-        print("     %-32s %2dW %2dL  %5.1f%%  (n=%d)"
-              % (k[:32], v["WIN"], v["LOSS"], 100.0 * v["WIN"] / n, n))
+    print("  %-34s %6s %6s %8s" % ("setup", "WIN", "LOSS", "win%"))
+    tw = tl = 0
+    for k in sorted(tally, key=lambda x: -(tally[x]["WIN"] + tally[x]["LOSS"]))[:25]:
+        w, l = tally[k]["WIN"], tally[k]["LOSS"]
+        tw += w; tl += l
+        print("  %-34s %6d %6d %7.1f%%"
+              % (k[:34], w, l, 100.0 * w / max(1, w + l)))
+    print()
+    print("  These are REAL closed trades. If the numbers in section 2 are much")
+    print("  larger, the cards are showing simulated trades as if they were real.")
+
+
+# --------------------------------------------------------------- 4. the card itself
+def check_card():
+    section("4. WHAT A LIVE ALERT CARD LOOKS LIKE RIGHT NOW")
+    try:
+        import w179_formatters as w
+    except Exception as e:
+        print("  w179_formatters not importable: %s" % e)
+        return
+    demo = {"market": "NQ", "setup": "VWAP_BOUNCE_BULL", "side": "LONG",
+            "entry": 28306.5, "stop": 28230.0, "target": 28460.0,
+            "conviction": 62, "tier": "HIGH", "rr": 2.0}
+    for fn in ("format_alert_public", "format_exit_public"):
+        f = getattr(w, fn, None)
+        if not f:
+            print("  %s: not present" % fn)
+            continue
+        out, err = safe(f, demo)
+        print("  --- %s ---" % fn)
+        if err:
+            print("     ERROR %s" % err)
+        elif not out:
+            print("     returned nothing (caller falls back to the full card)")
+        else:
+            for line in str(out).splitlines():
+                print("     | %s" % line)
 
 
 def main():
     print(SEP)
-    print("UI DIAGNOSTIC v2 - read only. Nothing sent, written, or changed.")
+    print("UI DIAGNOSTIC - read only. Nothing is sent, written, or changed.")
     print(SEP)
-    for fn in (check_routing, check_modules, check_scorecard, check_ledger):
+    for fn in (check_routing, check_alert_numbers, check_ledger_truth, check_card):
         try:
             fn()
         except Exception:
