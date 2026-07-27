@@ -46,7 +46,19 @@ _W189_REPORT = "extreme_projection_report.json"
 _W189_VIEWS = [
     ([1, 2, 3], "NEXT FEW HOURS"),
     ([4, 6, 8], "REST OF THE DAY"),
+    # Crypto only. Nothing else has a daily feed deep enough to support these,
+    # so this section simply does not appear for NQ or Gold - no special-casing
+    # needed, the rows are absent and absent rows are skipped.
+    ([24, 72], "NEXT FEW DAYS"),
 ]
+
+# How to label a horizon in the last column.
+def _w189_hlabel(h):
+    h = int(h)
+    if h < 24:
+        return "%dh" % h
+    d = h // 24
+    return "%dd" % d
 
 # Public-facing market names. "GOLD" reads better than "GC" to a subscriber.
 _W189_NAMES = {"NQ": "NQ", "GC": "GOLD", "BTC": "BTC", "SOL": "SOL"}
@@ -176,7 +188,7 @@ def build_levels_block(base_dir, markets, price_lookup):
             cells.append((_W189_NAMES.get(mkt, mkt),
                           _w189_fmt(lo, px), _w189_fmt(hi, px),
                           "%.0f%%" % rate,
-                          "%dh" % hrs if hrs else ""))
+                          _w189_hlabel(hrs) if hrs else ""))
         if not cells:
             continue
         wn = max(len(c[0]) for c in cells)
