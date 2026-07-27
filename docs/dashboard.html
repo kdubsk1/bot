@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-26T18:19:24.964109+00:00",
+  "generated_at": "2026-07-27T00:19:31.993675+00:00",
   "topstep": {
     "balance": 50591.16,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -798,6 +798,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-07-27 00:14",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "28657.0",
+      "stop": "28600.267",
+      "target": "28782.0",
+      "rr": "2.2",
+      "conv": "64",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-07-25 09:44",
       "market": "BTC",
       "setup": "EMA21_PULLBACK_BEAR",
@@ -973,6 +989,11 @@ const DATA = {
       "key": "SOL:VWAP_BOUNCE_BULL",
       "reason": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades",
       "suspended_at": "2026-07-26T04:07:53.950257+00:00"
+    },
+    {
+      "key": "NQ:EMA21_PULLBACK_BEAR",
+      "reason": "probation failed: 1W/24L (4.0% WR, expectancy -1.00R) on 25 live trades",
+      "suspended_at": "2026-07-26T22:10:34.581356+00:00"
     }
   ],
   "by_market": {
@@ -1018,7 +1039,21 @@ const DATA = {
       "wr": 75.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "28657.0",
+      "target": "28782.0",
+      "stop": "28600.267",
+      "conviction": 64,
+      "last_rescore_conviction": 64,
+      "tier": "HIGH",
+      "timestamp": "2026-07-27T00:14:38.527738+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

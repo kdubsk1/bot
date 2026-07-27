@@ -1,0 +1,2 @@
+{"ts": "2026-07-27T00:14:41.868376+00:00", "market": "NQ", "alert_id": "683a77849b", "outcome": "attempt", "detail": "tier=HIGH"}
+{"ts": "2026-07-27T00:14:41.870775+00:00", "market": "NQ", "alert_id": "683a77849b", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}

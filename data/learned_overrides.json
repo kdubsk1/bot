@@ -229,6 +229,18 @@
     "adx_min|BTC|BREAK_RETEST_BULL": {
       "base": 14.0,
       "seeded_at": "2026-07-26T16:54:01.416706+00:00"
+    },
+    "adx_min|SOL|EMA21_PULLBACK_BULL": {
+      "base": 22.0,
+      "seeded_at": "2026-07-26T20:41:37.858648+00:00"
+    },
+    "adx_min|BTC|STOCH_REVERSAL_BULL": {
+      "base": 16.0,
+      "seeded_at": "2026-07-26T21:10:47.338319+00:00"
+    },
+    "adx_min|SOL|MACD_CROSS_BULL": {
+      "base": 22.0,
+      "seeded_at": "2026-07-26T21:25:55.120824+00:00"
     }
   }
 }

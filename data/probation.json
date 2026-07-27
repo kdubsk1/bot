@@ -87,17 +87,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "NQ:EMA21_PULLBACK_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-24T18:39:24.291573+00:00",
-    "wins_at_start": 27,
-    "losses_at_start": 62,
-    "shadow_n": 88,
-    "shadow_wr": 30.7,
-    "shadow_expectancy": 0.014,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/8L (0.0% WR, expectancy -1.00R) on 8 live trades"
-  },
   "GC:VWAP_BOUNCE_BULL": {
     "state": "SERVING",
     "granted_at": "2026-07-24T18:54:28.003011+00:00",

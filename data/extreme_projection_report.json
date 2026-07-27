@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T18:14:18.960917+00:00",
+  "generated_at": "2026-07-26T21:16:24.238395+00:00",
   "target": 68,
   "results": [
     {
@@ -1605,63 +1605,63 @@
       "ladder": [
         {
           "q": 0.55,
-          "up": 131.34,
-          "dn": 128.16,
-          "width": 259.5,
-          "rate": 36.7,
+          "up": 125.03,
+          "dn": 121.37,
+          "width": 246.4,
+          "rate": 35.0,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.401
+          "width_pct": 0.381
         },
         {
           "q": 0.6,
-          "up": 155.22,
-          "dn": 146.44,
-          "width": 301.65999999999997,
+          "up": 153.89,
+          "dn": 145.49,
+          "width": 299.38,
           "rate": 46.7,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.467
+          "width_pct": 0.463
         },
         {
           "q": 0.65,
-          "up": 177.76,
-          "dn": 161.06,
-          "width": 338.82,
-          "rate": 53.3,
+          "up": 176.96,
+          "dn": 160.87,
+          "width": 337.83000000000004,
+          "rate": 54.2,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.524
+          "width_pct": 0.523
         },
         {
           "q": 0.7,
-          "up": 190.98,
+          "up": 186.8,
           "dn": 185.86,
-          "width": 376.84000000000003,
+          "width": 372.66,
           "rate": 58.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.583
+          "width_pct": 0.577
         },
         {
           "q": 0.75,
-          "up": 219.93,
+          "up": 213.44,
           "dn": 205.72,
-          "width": 425.65,
+          "width": 419.15999999999997,
           "rate": 68.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.658
+          "width_pct": 0.648
         },
         {
           "q": 0.8,
-          "up": 254.3,
+          "up": 244.95,
           "dn": 233.72,
-          "width": 488.02,
-          "rate": 76.7,
+          "width": 478.66999999999996,
+          "rate": 75.8,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.755
+          "width_pct": 0.741
         },
         {
           "q": 0.85,
@@ -1694,18 +1694,18 @@
           "width_pct": 1.44
         }
       ],
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 1,
       "side": "HIGH",
       "n": 299,
-      "band": 185.07,
+      "band": 185.03,
       "band_pct": 0.286,
-      "measured": 80.8,
+      "measured": 81.7,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -1716,7 +1716,7 @@
       "band_pct": 0.27,
       "measured": 73.3,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -1724,131 +1724,131 @@
       "side": "RANGE",
       "n": 149,
       "n_test": 60,
-      "band": 502.45,
-      "dn_band": 546.92,
-      "width": 1049.37,
-      "width_pct": 1.623,
+      "band": 537.18,
+      "dn_band": 491.12,
+      "width": 1028.3,
+      "width_pct": 1.591,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 82.0,
-      "measured": 95.0,
+      "measured": 88.3,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": [
         {
           "q": 0.55,
-          "up": 183.54,
-          "dn": 161.23,
-          "width": 344.77,
-          "rate": 35.0,
+          "up": 201.01,
+          "dn": 160.31,
+          "width": 361.32,
+          "rate": 40.0,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.533
+          "width_pct": 0.559
         },
         {
           "q": 0.6,
-          "up": 193.7,
-          "dn": 188.62,
-          "width": 382.32,
-          "rate": 43.3,
-          "n_test": 60,
-          "n_total": 149,
-          "width_pct": 0.591
-        },
-        {
-          "q": 0.65,
-          "up": 232.98,
-          "dn": 198.87,
-          "width": 431.85,
+          "up": 220.0,
+          "dn": 203.45,
+          "width": 423.45,
           "rate": 48.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.668
+          "width_pct": 0.655
+        },
+        {
+          "q": 0.65,
+          "up": 248.6,
+          "dn": 233.55,
+          "width": 482.15,
+          "rate": 61.7,
+          "n_test": 60,
+          "n_total": 149,
+          "width_pct": 0.746
         },
         {
           "q": 0.7,
-          "up": 296.28,
-          "dn": 239.74,
-          "width": 536.02,
-          "rate": 56.7,
+          "up": 354.23,
+          "dn": 266.03,
+          "width": 620.26,
+          "rate": 76.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.829
+          "width_pct": 0.96
         },
         {
           "q": 0.75,
-          "up": 339.25,
-          "dn": 268.4,
-          "width": 607.65,
-          "rate": 70.0,
+          "up": 369.37,
+          "dn": 302.91,
+          "width": 672.28,
+          "rate": 76.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.94
+          "width_pct": 1.04
         },
         {
           "q": 0.8,
-          "up": 368.97,
-          "dn": 360.6,
-          "width": 729.57,
-          "rate": 83.3,
+          "up": 421.95,
+          "dn": 332.8,
+          "width": 754.75,
+          "rate": 76.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.128
+          "width_pct": 1.168
         },
         {
           "q": 0.85,
-          "up": 383.93,
-          "dn": 398.93,
-          "width": 782.86,
-          "rate": 86.7,
+          "up": 442.12,
+          "dn": 369.39,
+          "width": 811.51,
+          "rate": 81.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.211
+          "width_pct": 1.255
         },
         {
           "q": 0.9,
-          "up": 502.45,
-          "dn": 546.92,
-          "width": 1049.37,
-          "rate": 95.0,
+          "up": 537.18,
+          "dn": 491.12,
+          "width": 1028.3,
+          "rate": 88.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.623
+          "width_pct": 1.591
         },
         {
           "q": 0.95,
-          "up": 849.44,
-          "dn": 763.98,
-          "width": 1613.42,
-          "rate": 98.3,
+          "up": 776.35,
+          "dn": 585.46,
+          "width": 1361.81,
+          "rate": 96.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 2.496
+          "width_pct": 2.107
         }
       ],
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 2,
       "side": "HIGH",
       "n": 149,
-      "band": 258.56,
-      "band_pct": 0.4,
-      "measured": 81.7,
+      "band": 307.91,
+      "band_pct": 0.476,
+      "measured": 88.3,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 2,
       "side": "LOW",
       "n": 149,
-      "band": 222.02,
-      "band_pct": 0.343,
-      "measured": 68.3,
+      "band": 247.08,
+      "band_pct": 0.382,
+      "measured": 81.7,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -1859,7 +1859,7 @@
       "band": 776.35,
       "dn_band": 491.72,
       "width": 1268.07,
-      "width_pct": 1.961,
+      "width_pct": 1.962,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 83.1,
@@ -1869,73 +1869,73 @@
       "ladder": [
         {
           "q": 0.55,
-          "up": 264.26,
-          "dn": 225.72,
-          "width": 489.98,
-          "rate": 37.5,
-          "n_test": 40,
-          "n_total": 99,
-          "width_pct": 0.758
-        },
-        {
-          "q": 0.6,
-          "up": 315.74,
-          "dn": 243.0,
-          "width": 558.74,
+          "up": 250.52,
+          "dn": 233.52,
+          "width": 484.04,
           "rate": 40.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 0.864
+          "width_pct": 0.749
+        },
+        {
+          "q": 0.6,
+          "up": 302.08,
+          "dn": 247.08,
+          "width": 549.16,
+          "rate": 42.5,
+          "n_test": 40,
+          "n_total": 99,
+          "width_pct": 0.85
         },
         {
           "q": 0.65,
-          "up": 363.13,
-          "dn": 263.0,
-          "width": 626.13,
-          "rate": 52.5,
+          "up": 355.19,
+          "dn": 266.03,
+          "width": 621.22,
+          "rate": 57.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 0.968
+          "width_pct": 0.961
         },
         {
           "q": 0.7,
           "up": 369.37,
-          "dn": 303.66,
-          "width": 673.03,
-          "rate": 62.5,
+          "dn": 307.43,
+          "width": 676.8,
+          "rate": 65.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.041
+          "width_pct": 1.047
         },
         {
           "q": 0.75,
           "up": 501.98,
-          "dn": 317.54,
-          "width": 819.52,
-          "rate": 75.0,
+          "dn": 333.36,
+          "width": 835.34,
+          "rate": 77.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.268
+          "width_pct": 1.292
         },
         {
           "q": 0.8,
           "up": 512.63,
-          "dn": 365.34,
-          "width": 877.97,
-          "rate": 75.0,
+          "dn": 366.77,
+          "width": 879.4,
+          "rate": 80.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.358
+          "width_pct": 1.36
         },
         {
           "q": 0.85,
           "up": 575.56,
-          "dn": 444.03,
-          "width": 1019.5899999999999,
-          "rate": 77.5,
+          "dn": 467.41,
+          "width": 1042.97,
+          "rate": 85.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.577
+          "width_pct": 1.614
         },
         {
           "q": 0.9,
@@ -1945,7 +1945,7 @@
           "rate": 85.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.961
+          "width_pct": 1.962
         },
         {
           "q": 0.95,
@@ -1955,10 +1955,10 @@
           "rate": 92.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 2.792
+          "width_pct": 2.793
         }
       ],
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -1969,18 +1969,18 @@
       "band_pct": 0.571,
       "measured": 85.0,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 3,
       "side": "LOW",
       "n": 99,
-      "band": 268.4,
-      "band_pct": 0.415,
-      "measured": 70.0,
+      "band": 303.66,
+      "band_pct": 0.47,
+      "measured": 77.5,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -1988,10 +1988,10 @@
       "side": "RANGE",
       "n": 74,
       "n_test": 30,
-      "band": 691.69,
-      "dn_band": 720.18,
-      "width": 1411.87,
-      "width_pct": 2.184,
+      "band": 794.38,
+      "dn_band": 667.2,
+      "width": 1461.58,
+      "width_pct": 2.261,
       "chosen_q": 89,
       "target_pct": 80.0,
       "train_pct": 81.8,
@@ -2001,118 +2001,118 @@
       "ladder": [
         {
           "q": 0.55,
-          "up": 300.61,
-          "dn": 295.18,
-          "width": 595.79,
-          "rate": 43.3,
+          "up": 350.22,
+          "dn": 233.09,
+          "width": 583.3100000000001,
+          "rate": 50.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 0.922
+          "width_pct": 0.902
         },
         {
           "q": 0.6,
-          "up": 368.97,
-          "dn": 301.47,
-          "width": 670.44,
+          "up": 359.69,
+          "dn": 291.56,
+          "width": 651.25,
           "rate": 56.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.037
+          "width_pct": 1.008
         },
         {
           "q": 0.65,
-          "up": 382.37,
-          "dn": 345.22,
-          "width": 727.59,
-          "rate": 63.3,
+          "up": 481.7,
+          "dn": 302.91,
+          "width": 784.61,
+          "rate": 70.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.125
+          "width_pct": 1.214
         },
         {
           "q": 0.7,
-          "up": 406.25,
-          "dn": 398.93,
-          "width": 805.1800000000001,
-          "rate": 76.7,
+          "up": 512.52,
+          "dn": 323.55,
+          "width": 836.0699999999999,
+          "rate": 70.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.245
+          "width_pct": 1.293
         },
         {
           "q": 0.75,
-          "up": 512.63,
-          "dn": 453.65,
-          "width": 966.28,
-          "rate": 76.7,
+          "up": 542.92,
+          "dn": 366.77,
+          "width": 909.6899999999999,
+          "rate": 70.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.495
+          "width_pct": 1.407
         },
         {
           "q": 0.8,
-          "up": 551.51,
-          "dn": 531.73,
-          "width": 1083.24,
+          "up": 646.75,
+          "dn": 475.65,
+          "width": 1122.4,
           "rate": 83.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.676
+          "width_pct": 1.736
         },
         {
           "q": 0.85,
-          "up": 647.44,
-          "dn": 563.4,
-          "width": 1210.8400000000001,
-          "rate": 86.7,
-          "n_test": 30,
-          "n_total": 74,
-          "width_pct": 1.873
-        },
-        {
-          "q": 0.9,
-          "up": 691.69,
-          "dn": 720.18,
-          "width": 1411.87,
+          "up": 775.74,
+          "dn": 586.54,
+          "width": 1362.28,
           "rate": 93.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.184
+          "width_pct": 2.107
+        },
+        {
+          "q": 0.9,
+          "up": 794.38,
+          "dn": 667.2,
+          "width": 1461.58,
+          "rate": 93.3,
+          "n_test": 30,
+          "n_total": 74,
+          "width_pct": 2.261
         },
         {
           "q": 0.95,
-          "up": 880.18,
-          "dn": 866.95,
-          "width": 1747.13,
-          "rate": 96.7,
+          "up": 1241.56,
+          "dn": 790.75,
+          "width": 2032.31,
+          "rate": 93.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.702
+          "width_pct": 3.144
         }
       ],
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 4,
       "side": "HIGH",
       "n": 74,
-      "band": 383.93,
-      "band_pct": 0.594,
+      "band": 494.05,
+      "band_pct": 0.764,
       "measured": 96.7,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 4,
       "side": "LOW",
       "n": 74,
-      "band": 371.25,
-      "band_pct": 0.574,
+      "band": 315.59,
+      "band_pct": 0.488,
       "measured": 73.3,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -2120,40 +2120,40 @@
       "side": "RANGE",
       "n": 49,
       "n_test": 20,
-      "band": 1261.45,
-      "dn_band": 807.54,
-      "width": 2068.99,
-      "width_pct": 3.2,
+      "band": 953.51,
+      "dn_band": 763.46,
+      "width": 1716.97,
+      "width_pct": 2.656,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 86.2,
-      "measured": 95.0,
+      "measured": 90.0,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 6,
       "side": "HIGH",
       "n": 49,
-      "band": 609.31,
-      "band_pct": 0.942,
-      "measured": 95.0,
+      "band": 547.95,
+      "band_pct": 0.848,
+      "measured": 100.0,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 6,
       "side": "LOW",
       "n": 49,
-      "band": 359.56,
-      "band_pct": 0.556,
-      "measured": 65.0,
-      "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "band": 384.73,
+      "band_pct": 0.595,
+      "measured": 50.0,
+      "verdict": "HOLD",
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
@@ -2161,40 +2161,40 @@
       "side": "RANGE",
       "n": 37,
       "n_test": 15,
-      "band": 1057.71,
-      "dn_band": 969.76,
-      "width": 2027.47,
-      "width_pct": 3.136,
+      "band": 1233.84,
+      "dn_band": 842.08,
+      "width": 2075.92,
+      "width_pct": 3.212,
       "chosen_q": 86,
       "target_pct": 80.0,
       "train_pct": 81.8,
-      "measured": 93.3,
+      "measured": 86.7,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 8,
       "side": "HIGH",
       "n": 37,
-      "band": 689.13,
-      "band_pct": 1.066,
+      "band": 681.71,
+      "band_pct": 1.055,
       "measured": 93.3,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "BTC",
       "hours": 8,
       "side": "LOW",
       "n": 37,
-      "band": 453.65,
-      "band_pct": 0.702,
+      "band": 366.77,
+      "band_pct": 0.567,
       "measured": 66.7,
       "verdict": "PUBLISH",
-      "ref_price": 64650.15
+      "ref_price": 64639.84
     },
     {
       "market": "SOL",
@@ -2205,7 +2205,7 @@
       "band": 0.59,
       "dn_band": 0.55,
       "width": 1.14,
-      "width_pct": 1.515,
+      "width_pct": 1.513,
       "chosen_q": 89,
       "target_pct": 80.0,
       "train_pct": 81.0,
@@ -2218,10 +2218,10 @@
           "up": 0.21,
           "dn": 0.23,
           "width": 0.44,
-          "rate": 33.3,
+          "rate": 35.0,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.585
+          "width_pct": 0.584
         },
         {
           "q": 0.6,
@@ -2231,7 +2231,7 @@
           "rate": 43.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.638
+          "width_pct": 0.637
         },
         {
           "q": 0.65,
@@ -2245,43 +2245,43 @@
         },
         {
           "q": 0.7,
-          "up": 0.29,
+          "up": 0.28,
           "dn": 0.32,
-          "width": 0.61,
+          "width": 0.6000000000000001,
           "rate": 58.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.81
+          "width_pct": 0.796
         },
         {
           "q": 0.75,
-          "up": 0.34,
+          "up": 0.33,
           "dn": 0.35,
-          "width": 0.69,
-          "rate": 66.7,
+          "width": 0.6799999999999999,
+          "rate": 63.3,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 0.917
+          "width_pct": 0.902
         },
         {
           "q": 0.8,
-          "up": 0.42,
+          "up": 0.41,
           "dn": 0.39,
-          "width": 0.81,
-          "rate": 75.0,
+          "width": 0.8,
+          "rate": 74.2,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 1.076
+          "width_pct": 1.062
         },
         {
           "q": 0.85,
-          "up": 0.51,
+          "up": 0.5,
           "dn": 0.47,
-          "width": 0.98,
+          "width": 0.97,
           "rate": 85.0,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 1.302
+          "width_pct": 1.287
         },
         {
           "q": 0.9,
@@ -2291,7 +2291,7 @@
           "rate": 91.7,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 1.515
+          "width_pct": 1.513
         },
         {
           "q": 0.95,
@@ -2301,21 +2301,21 @@
           "rate": 96.7,
           "n_test": 120,
           "n_total": 299,
-          "width_pct": 1.926
+          "width_pct": 1.924
         }
       ],
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 1,
       "side": "HIGH",
       "n": 299,
-      "band": 0.28,
-      "band_pct": 0.372,
-      "measured": 80.8,
+      "band": 0.26,
+      "band_pct": 0.345,
+      "measured": 79.2,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2323,10 +2323,10 @@
       "side": "LOW",
       "n": 299,
       "band": 0.31,
-      "band_pct": 0.412,
+      "band_pct": 0.411,
       "measured": 71.7,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2334,131 +2334,131 @@
       "side": "RANGE",
       "n": 149,
       "n_test": 60,
-      "band": 0.79,
-      "dn_band": 0.88,
-      "width": 1.67,
-      "width_pct": 2.219,
+      "band": 0.86,
+      "dn_band": 0.8,
+      "width": 1.66,
+      "width_pct": 2.203,
       "chosen_q": 90,
       "target_pct": 80.0,
-      "train_pct": 82.0,
-      "measured": 91.7,
+      "train_pct": 83.1,
+      "measured": 86.7,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": [
         {
           "q": 0.55,
-          "up": 0.33,
-          "dn": 0.3,
-          "width": 0.63,
-          "rate": 41.7,
+          "up": 0.3,
+          "dn": 0.32,
+          "width": 0.62,
+          "rate": 33.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.837
+          "width_pct": 0.823
         },
         {
           "q": 0.6,
-          "up": 0.36,
-          "dn": 0.35,
-          "width": 0.71,
-          "rate": 43.3,
+          "up": 0.34,
+          "dn": 0.36,
+          "width": 0.7,
+          "rate": 50.0,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 0.943
+          "width_pct": 0.929
         },
         {
           "q": 0.65,
           "up": 0.38,
-          "dn": 0.38,
-          "width": 0.76,
-          "rate": 48.3,
+          "dn": 0.42,
+          "width": 0.8,
+          "rate": 56.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.01
+          "width_pct": 1.062
         },
         {
           "q": 0.7,
-          "up": 0.45,
-          "dn": 0.41,
-          "width": 0.86,
-          "rate": 55.0,
+          "up": 0.44,
+          "dn": 0.48,
+          "width": 0.9199999999999999,
+          "rate": 61.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.143
+          "width_pct": 1.221
         },
         {
           "q": 0.75,
-          "up": 0.5,
-          "dn": 0.45,
-          "width": 0.95,
+          "up": 0.58,
+          "dn": 0.5,
+          "width": 1.08,
           "rate": 66.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.262
+          "width_pct": 1.433
         },
         {
           "q": 0.8,
-          "up": 0.52,
-          "dn": 0.58,
-          "width": 1.1,
-          "rate": 76.7,
+          "up": 0.73,
+          "dn": 0.56,
+          "width": 1.29,
+          "rate": 78.3,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.461
+          "width_pct": 1.712
         },
         {
           "q": 0.85,
-          "up": 0.57,
-          "dn": 0.64,
-          "width": 1.21,
-          "rate": 86.7,
+          "up": 0.8,
+          "dn": 0.62,
+          "width": 1.42,
+          "rate": 81.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 1.608
+          "width_pct": 1.884
         },
         {
           "q": 0.9,
-          "up": 0.79,
-          "dn": 0.88,
-          "width": 1.67,
-          "rate": 91.7,
+          "up": 0.86,
+          "dn": 0.8,
+          "width": 1.6600000000000001,
+          "rate": 86.7,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 2.219
+          "width_pct": 2.203
         },
         {
           "q": 0.95,
-          "up": 0.99,
-          "dn": 1.0,
-          "width": 1.99,
-          "rate": 96.7,
+          "up": 0.91,
+          "dn": 0.96,
+          "width": 1.87,
+          "rate": 90.0,
           "n_test": 60,
           "n_total": 149,
-          "width_pct": 2.644
+          "width_pct": 2.481
         }
       ],
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 2,
       "side": "HIGH",
       "n": 149,
-      "band": 0.42,
-      "band_pct": 0.558,
-      "measured": 80.0,
+      "band": 0.4,
+      "band_pct": 0.531,
+      "measured": 86.7,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 2,
       "side": "LOW",
       "n": 149,
-      "band": 0.4,
-      "band_pct": 0.531,
-      "measured": 71.7,
+      "band": 0.46,
+      "band_pct": 0.61,
+      "measured": 73.3,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2469,7 +2469,7 @@
       "band": 0.89,
       "dn_band": 0.81,
       "width": 1.7,
-      "width_pct": 2.259,
+      "width_pct": 2.256,
       "chosen_q": 90,
       "target_pct": 80.0,
       "train_pct": 83.1,
@@ -2479,73 +2479,73 @@
       "ladder": [
         {
           "q": 0.55,
-          "up": 0.47,
-          "dn": 0.34,
-          "width": 0.81,
-          "rate": 35.0,
+          "up": 0.44,
+          "dn": 0.38,
+          "width": 0.8200000000000001,
+          "rate": 32.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.076
+          "width_pct": 1.088
         },
         {
           "q": 0.6,
-          "up": 0.52,
-          "dn": 0.38,
+          "up": 0.5,
+          "dn": 0.4,
           "width": 0.9,
-          "rate": 37.5,
-          "n_test": 40,
-          "n_total": 99,
-          "width_pct": 1.196
-        },
-        {
-          "q": 0.65,
-          "up": 0.56,
-          "dn": 0.43,
-          "width": 0.99,
           "rate": 42.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.315
+          "width_pct": 1.194
+        },
+        {
+          "q": 0.65,
+          "up": 0.55,
+          "dn": 0.47,
+          "width": 1.02,
+          "rate": 47.5,
+          "n_test": 40,
+          "n_total": 99,
+          "width_pct": 1.354
         },
         {
           "q": 0.7,
           "up": 0.66,
           "dn": 0.49,
           "width": 1.15,
-          "rate": 52.5,
+          "rate": 55.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.528
+          "width_pct": 1.526
         },
         {
           "q": 0.75,
           "up": 0.72,
-          "dn": 0.51,
-          "width": 1.23,
-          "rate": 57.5,
+          "dn": 0.53,
+          "width": 1.25,
+          "rate": 62.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.634
+          "width_pct": 1.659
         },
         {
           "q": 0.8,
           "up": 0.77,
-          "dn": 0.57,
-          "width": 1.3399999999999999,
-          "rate": 65.0,
+          "dn": 0.59,
+          "width": 1.3599999999999999,
+          "rate": 70.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.78
+          "width_pct": 1.805
         },
         {
           "q": 0.85,
           "up": 0.81,
-          "dn": 0.69,
-          "width": 1.5,
-          "rate": 77.5,
+          "dn": 0.74,
+          "width": 1.55,
+          "rate": 82.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 1.993
+          "width_pct": 2.057
         },
         {
           "q": 0.9,
@@ -2555,7 +2555,7 @@
           "rate": 82.5,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 2.259
+          "width_pct": 2.256
         },
         {
           "q": 0.95,
@@ -2565,21 +2565,21 @@
           "rate": 90.0,
           "n_test": 40,
           "n_total": 99,
-          "width_pct": 3.547
+          "width_pct": 3.543
         }
       ],
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 3,
       "side": "HIGH",
       "n": 99,
-      "band": 0.62,
-      "band_pct": 0.824,
-      "measured": 87.5,
+      "band": 0.57,
+      "band_pct": 0.756,
+      "measured": 85.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2587,10 +2587,10 @@
       "side": "LOW",
       "n": 99,
       "band": 0.49,
-      "band_pct": 0.651,
-      "measured": 62.5,
+      "band_pct": 0.65,
+      "measured": 65.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2598,131 +2598,131 @@
       "side": "RANGE",
       "n": 74,
       "n_test": 30,
-      "band": 1.02,
-      "dn_band": 1.1,
-      "width": 2.12,
-      "width_pct": 2.817,
+      "band": 1.3,
+      "dn_band": 1.07,
+      "width": 2.37,
+      "width_pct": 3.145,
       "chosen_q": 89,
       "target_pct": 80.0,
-      "train_pct": 84.1,
-      "measured": 86.7,
+      "train_pct": 81.8,
+      "measured": 90.0,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": [
         {
           "q": 0.55,
-          "up": 0.5,
-          "dn": 0.45,
-          "width": 0.95,
-          "rate": 36.7,
+          "up": 0.43,
+          "dn": 0.5,
+          "width": 0.9299999999999999,
+          "rate": 40.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.262
+          "width_pct": 1.234
         },
         {
           "q": 0.6,
-          "up": 0.59,
-          "dn": 0.49,
-          "width": 1.08,
-          "rate": 50.0,
+          "up": 0.45,
+          "dn": 0.52,
+          "width": 0.97,
+          "rate": 43.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.435
+          "width_pct": 1.287
         },
         {
           "q": 0.65,
-          "up": 0.6,
-          "dn": 0.55,
-          "width": 1.15,
-          "rate": 53.3,
+          "up": 0.58,
+          "dn": 0.53,
+          "width": 1.1099999999999999,
+          "rate": 60.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.528
+          "width_pct": 1.473
         },
         {
           "q": 0.7,
-          "up": 0.67,
-          "dn": 0.59,
-          "width": 1.26,
-          "rate": 63.3,
+          "up": 0.62,
+          "dn": 0.56,
+          "width": 1.1800000000000002,
+          "rate": 66.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.674
+          "width_pct": 1.566
         },
         {
           "q": 0.75,
-          "up": 0.7,
-          "dn": 0.74,
-          "width": 1.44,
+          "up": 0.83,
+          "dn": 0.59,
+          "width": 1.42,
           "rate": 70.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 1.913
+          "width_pct": 1.884
         },
         {
           "q": 0.8,
-          "up": 0.79,
-          "dn": 0.79,
-          "width": 1.58,
+          "up": 0.89,
+          "dn": 0.71,
+          "width": 1.6,
           "rate": 76.7,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.099
+          "width_pct": 2.123
         },
         {
           "q": 0.85,
-          "up": 0.83,
-          "dn": 0.88,
-          "width": 1.71,
-          "rate": 80.0,
+          "up": 1.1,
+          "dn": 0.8,
+          "width": 1.9000000000000001,
+          "rate": 83.3,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 2.272
+          "width_pct": 2.521
         },
         {
           "q": 0.9,
-          "up": 1.02,
-          "dn": 1.1,
-          "width": 2.12,
-          "rate": 86.7,
-          "n_test": 30,
-          "n_total": 74,
-          "width_pct": 2.817
-        },
-        {
-          "q": 0.95,
-          "up": 1.04,
-          "dn": 1.29,
-          "width": 2.33,
+          "up": 1.3,
+          "dn": 1.07,
+          "width": 2.37,
           "rate": 90.0,
           "n_test": 30,
           "n_total": 74,
-          "width_pct": 3.096
+          "width_pct": 3.145
+        },
+        {
+          "q": 0.95,
+          "up": 1.65,
+          "dn": 1.41,
+          "width": 3.0599999999999996,
+          "rate": 93.3,
+          "n_test": 30,
+          "n_total": 74,
+          "width_pct": 4.061
         }
       ],
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 4,
       "side": "HIGH",
       "n": 74,
-      "band": 0.62,
-      "band_pct": 0.824,
-      "measured": 86.7,
+      "band": 0.58,
+      "band_pct": 0.77,
+      "measured": 80.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 4,
       "side": "LOW",
       "n": 74,
-      "band": 0.58,
-      "band_pct": 0.771,
-      "measured": 70.0,
+      "band": 0.53,
+      "band_pct": 0.703,
+      "measured": 76.7,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2730,40 +2730,40 @@
       "side": "RANGE",
       "n": 49,
       "n_test": 20,
-      "band": 1.61,
-      "dn_band": 0.96,
-      "width": 2.57,
-      "width_pct": 3.414,
-      "chosen_q": 90,
+      "band": 1.3,
+      "dn_band": 1.04,
+      "width": 2.34,
+      "width_pct": 3.105,
+      "chosen_q": 86,
       "target_pct": 80.0,
-      "train_pct": 86.2,
+      "train_pct": 82.8,
       "measured": 80.0,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 6,
       "side": "HIGH",
       "n": 49,
-      "band": 0.89,
-      "band_pct": 1.182,
-      "measured": 90.0,
+      "band": 0.7,
+      "band_pct": 0.929,
+      "measured": 80.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 6,
       "side": "LOW",
       "n": 49,
-      "band": 0.49,
-      "band_pct": 0.651,
+      "band": 0.58,
+      "band_pct": 0.77,
       "measured": 55.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2771,18 +2771,18 @@
       "side": "RANGE",
       "n": 37,
       "n_test": 15,
-      "band": 1.61,
-      "dn_band": 1.1,
-      "width": 2.71,
-      "width_pct": 3.6,
+      "band": 1.65,
+      "dn_band": 1.41,
+      "width": 3.06,
+      "width_pct": 4.061,
       "chosen_q": 86,
       "target_pct": 80.0,
       "train_pct": 81.8,
-      "measured": 66.7,
+      "measured": 86.7,
       "why": "narrowest width that held 80% in training",
       "verdict": "PUBLISH",
       "ladder": null,
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
@@ -2790,21 +2790,21 @@
       "side": "HIGH",
       "n": 37,
       "band": 0.83,
-      "band_pct": 1.103,
-      "measured": 93.3,
+      "band_pct": 1.101,
+      "measured": 80.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     },
     {
       "market": "SOL",
       "hours": 8,
       "side": "LOW",
       "n": 37,
-      "band": 0.82,
-      "band_pct": 1.089,
-      "measured": 60.0,
+      "band": 0.8,
+      "band_pct": 1.062,
+      "measured": 80.0,
       "verdict": "PUBLISH",
-      "ref_price": 75.27
+      "ref_price": 75.36
     }
   ]
 }

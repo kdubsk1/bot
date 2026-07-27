@@ -25,5 +25,12 @@
     "total_at_suspension": 193,
     "wr_at_suspension": 24.4,
     "bleed_at_suspension": 0.0
+  },
+  "NQ:EMA21_PULLBACK_BEAR": {
+    "reason": "probation failed: 1W/24L (4.0% WR, expectancy -1.00R) on 25 live trades",
+    "suspended_at": "2026-07-26T22:10:34.581356+00:00",
+    "total_at_suspension": 114,
+    "wr_at_suspension": 24.6,
+    "bleed_at_suspension": 0.0
   }
 }
