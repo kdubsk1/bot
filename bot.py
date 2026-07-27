@@ -8328,6 +8328,52 @@ def main():
             await u.message.reply_text(txt)
 
     app.add_handler(CommandHandler("range", cmd_w194_range))
+    # === Wave 203 (_WAVE203_CHATID): find the control channel id =======
+    async def cmd_w203_chatid(u, c):
+        """Reply with this chat's id, so it can be pasted into Railway."""
+        try:
+            _cid = u.effective_chat.id
+            _title = getattr(u.effective_chat, "title", None) or "this chat"
+            _kind = getattr(u.effective_chat, "type", "?")
+            _pub = str(CHAT_ID) if "CHAT_ID" in globals() else ""
+            _is_pub = (str(_cid) == _pub)
+            _lines = [
+                "*CHAT ID*",
+                "",
+                "`%s`" % _cid,
+                "",
+                "_%s  (%s)_" % (_title, _kind),
+                "",
+            ]
+            if _is_pub:
+                _lines += [
+                    "\u26a0\ufe0f This is your *PUBLIC* channel.",
+                    "",
+                    "Do NOT use this one for CONTROL_CHAT_ID - it would",
+                    "leave both message streams in the same place, which",
+                    "is the situation you are trying to fix.",
+                    "",
+                    "Run /chatid in a PRIVATE chat instead.",
+                ]
+            else:
+                _lines += [
+                    "This is *not* your public channel, so it is a valid",
+                    "control channel.",
+                    "",
+                    "Railway \u2192 Variables \u2192 add:",
+                    "`CONTROL_CHAT_ID` = `%s`" % _cid,
+                    "",
+                    "Then redeploy. That stops the duplicate messages,",
+                    "the balance leak and the operator spam.",
+                ]
+            await u.message.reply_text("\n".join(_lines), parse_mode="Markdown")
+        except Exception as _e:
+            try:
+                await u.message.reply_text("Chat id: %s" % u.effective_chat.id)
+            except Exception:
+                pass
+
+    app.add_handler(CommandHandler("chatid", cmd_w203_chatid))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
