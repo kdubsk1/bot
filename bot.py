@@ -8223,6 +8223,38 @@ def main():
                    ("suspended",cmd_suspended),  # Wave 20: visibility into auto-suspended setups
                    ("commands",cmd_commands),("combine",cmd_combine)]:
         app.add_handler(CommandHandler(cmd,fn))
+    # === Wave 194 (_WAVE194_RANGE_CMD): /range on demand ===============
+    async def cmd_w194_range(u, c):
+        """Post the validated EXPECTED RANGE card when asked for it."""
+        txt = ""
+        try:
+            import os as _w194_os
+            _w194_dir = _w194_os.path.dirname(_w194_os.path.abspath(__file__))
+            import w189_levels as _w194_wl
+            txt = _w194_wl.build_levels_block(
+                _w194_dir, ["NQ", "GC", "BTC", "SOL"], _w189_price_of)
+        except Exception as _w194_e:
+            try:
+                log.warning("w194: /range failed (%s)", _w194_e)
+            except Exception:
+                pass
+            txt = ""
+        if not txt:
+            # Saying nothing is the correct answer here, but a blank reply looks
+            # broken - so explain WHY there is nothing, in plain English.
+            txt = ("*No validated range right now.*\n\n"
+                   "This bot only posts a range it has measured on price data "
+                   "it had never seen before. Nothing has passed that test yet, "
+                   "so it is saying nothing rather than guessing.\n\n"
+                   "It re-checks itself every week.")
+        try:
+            await u.message.reply_text(txt, parse_mode="Markdown")
+        except Exception:
+            # Markdown can fail on an unescaped character; the numbers matter
+            # more than the formatting, so fall back to plain text.
+            await u.message.reply_text(txt)
+
+    app.add_handler(CommandHandler("range", cmd_w194_range))
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
