@@ -4502,7 +4502,52 @@ def analyze_market_bias(market):
     except Exception as e:
         log.error(f"analyze_market_bias {market}: {e}"); return None
 
+# === Wave 196 (_WAVE196_FRAME_PRICES) ===============================
 def get_price_change(market):
+    """Current price and change, from the bot's OWN frames.
+
+    This used to go straight to yfinance, which Yahoo rate-limits on Railway's
+    datacenter IP - the live log shows "Too Many Requests" on every call. That
+    is why the public morning brief printed "unavailable" for NQ and Gold while
+    this same process was holding 797 NQ bars and 1,025 Gold bars in memory,
+    about a minute old.
+
+    The frames are already fetched and cost nothing extra here. yfinance is kept
+    below as a fallback, so nothing that works today can stop working.
+    """
+    try:
+        _w196_fr = get_frames(market) or {}
+        _w196_cur = None
+        for _w196_tf in ("15m", "1h", "4h", "1d"):
+            _w196_df = _w196_fr.get(_w196_tf)
+            if _w196_df is not None and len(_w196_df):
+                _w196_cur = float(_w196_df["Close"].iloc[-1])
+                break
+        if _w196_cur is not None:
+            # Yesterday's close if the daily frame has one; otherwise 24 hours
+            # back on the hourly frame; otherwise the oldest bar available.
+            _w196_prev = None
+            _w196_d1 = _w196_fr.get("1d")
+            if _w196_d1 is not None and len(_w196_d1) >= 2:
+                _w196_prev = float(_w196_d1["Close"].iloc[-2])
+            if _w196_prev is None:
+                _w196_h1 = _w196_fr.get("1h")
+                if _w196_h1 is not None and len(_w196_h1) >= 25:
+                    _w196_prev = float(_w196_h1["Close"].iloc[-25])
+                elif _w196_h1 is not None and len(_w196_h1) >= 2:
+                    _w196_prev = float(_w196_h1["Close"].iloc[0])
+            if _w196_prev and _w196_prev > 0:
+                return _w196_cur, round(((_w196_cur - _w196_prev) / _w196_prev) * 100.0, 2)
+    except Exception as _w196_e:
+        try:
+            log.warning("w196: frame price failed for %s (%s) - trying yfinance",
+                        market, _w196_e)
+        except Exception:
+            pass
+    return _w196_price_change_yfinance(market)
+
+
+def _w196_price_change_yfinance(market):
     try:
         df = fetch_yfinance({"NQ":"NQ=F","GC":"GC=F","BTC":"BTC-USD","SOL":"SOL-USD"}[market], "1d")
         if df is None or len(df)<2: return None,None
