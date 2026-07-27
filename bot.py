@@ -871,7 +871,114 @@ def _w179_bar(rr):
     return "\u2588" * filled + "\u2591" * (10 - filled)
 
 
+# === Wave 204 (_WAVE204_LADDER) =====================================
+# The ladder entry card, patched where the code actually lives.
+#
+# Wave 202 wrote this layout into w179_formatters.py - but the live bot.py
+# defines format_alert_public itself and never imports that module, so the
+# separate file was dead code and the ladder never ran. Reading the live file
+# instead of a four-month-old desktop copy is what surfaced that.
+#
+# The original is kept below as _w204_alert_classic and is returned on any
+# failure, so a formatting bug can never kill a live alert.
+
+def _w204_state_path():
+    import os as _o
+    return _o.path.join(_o.path.dirname(_o.path.abspath(__file__)),
+                        "data", "notify_state.json")
+
+
+def _w204_load(key, default=None):
+    """Restart-proof memory for once-per-day / once-per-week sends."""
+    try:
+        import json as _j, os as _o
+        p = _w204_state_path()
+        if not _o.path.exists(p):
+            return default
+        with open(p, "r", encoding="utf-8") as f:
+            return (_j.load(f) or {}).get(key, default)
+    except Exception:
+        return default
+
+
+def _w204_save(key, value):
+    """Merge one key. Never rewrites the rest of the file."""
+    try:
+        import json as _j, os as _o
+        p = _w204_state_path()
+        _o.makedirs(_o.path.dirname(p), exist_ok=True)
+        cur = {}
+        if _o.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    cur = _j.load(f) or {}
+            except Exception:
+                cur = {}
+        cur[key] = value
+        tmp = p + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            _j.dump(cur, f, indent=2)
+        _o.replace(tmp, p)
+    except Exception:
+        pass
+
+
 def format_alert_public(market, tf, setup, tier, target, rr, size_line=""):
+    """The LADDER card: target, entry and stop stacked in price order."""
+    try:
+        direction = setup.get("direction", "")
+        is_long = "LONG" in direction
+        is_watch = "WATCH" in direction
+        entry = float(setup.get("entry", 0))
+        stop = float(setup.get("raw_stop", 0))
+        tgt = float(target)
+        risk_pts = abs(entry - stop)
+        rew_pts = abs(tgt - entry)
+        icon = "\U0001f7e2" if is_long else "\U0001f534"
+        side = "LONG" if is_long else "SHORT"
+        if is_watch:
+            icon = "\U0001f440"
+            side = "WATCH " + side
+        dp = _w179_decimals(entry)
+        name = _md(_w179_setup_name(setup.get("type", "")))
+        bar = "\u2501" * 23
+
+        hi = "\U0001f3af `%s`   target      `+%s`" % (_w179_num(tgt, dp),
+                                                     _w179_num(rew_pts, dp))
+        lo = "\u26d4 `%s`   stop        `-%s`" % (_w179_num(stop, dp),
+                                                 _w179_num(risk_pts, dp))
+        mid = "\u25cf `%s`   *entry now*" % _w179_num(entry, dp)
+
+        lines = ["%s *%s %s*  \u00b7  %s  \u00b7  %s     `%s`"
+                 % (icon, market, side, name, tf, tier), bar, ""]
+        lines += ([hi, "`\u2502`", mid, "`\u2502`", lo] if is_long
+                  else [lo, "`\u2502`", mid, "`\u2502`", hi])
+        lines += ["", "   Risk 1  :  Reward *%.1f*   %s" % (float(rr), _w179_bar(rr))]
+        if size_line:
+            lines.append("   %s" % size_line.replace("\U0001f4e6 *Size:* ", "Size  "))
+
+        # The setup's own measured record, when there is enough of one.
+        try:
+            import os as _o, w200_edge as _w200
+            _e = _w200.edge_line(_o.path.dirname(_o.path.abspath(__file__)),
+                                 market, setup.get("type", ""))
+            if _e:
+                lines.append(_e.replace("   History  ", "   Wins  "))
+        except Exception:
+            pass
+
+        lines.append(bar)
+        return "\n".join(lines)
+    except Exception as _w204_e:
+        try:
+            log.warning("w204: ladder card failed (%s) - using the classic card",
+                        _w204_e)
+        except Exception:
+            pass
+        return _w204_alert_classic(market, tf, setup, tier, target, rr, size_line)
+
+
+def _w204_alert_classic(market, tf, setup, tier, target, rr, size_line=""):
     """
     Wave 179: the PUBLIC entry card. Direction, setup, the three prices, the
     risk/reward and the size. No conviction score, no W7 internals, no Read
@@ -4695,7 +4802,7 @@ _LAST_SESSION_CLOSE_FIRED = None   # session_date string that was already closed
 _W94_WATCH_FAILS = [0]   # Wave 94: consecutive watch_open_trades failures (list to avoid a global decl)
 _LAST_DAILY_REPORT_DATE   = None   # date string for which report was sent
 # Pre-Batch Follow-up Part B 2026-04-21: weekly recap deduplication
-_LAST_WEEKLY_RECAP_DATE   = None   # Monday isoformat for which weekly recap was sent
+_LAST_WEEKLY_RECAP_DATE = _w204_load("weekly_recap")   # Wave 204: survives restart (was None)
 _LAST_SCAN_TIMESTAMP      = None   # Wave 19: UTC timestamp of most recent completed scan cycle
 
 # ── Scan loop ─────────────────────────────────────────────────────
@@ -4940,6 +5047,7 @@ async def scan_loop(app):
                             md_path, tg_text = generate_weekly_recap(last_week_monday)
                             await tg_send(app, tg_text)
                             _LAST_WEEKLY_RECAP_DATE = this_monday.isoformat()
+                            _w204_save("weekly_recap", _LAST_WEEKLY_RECAP_DATE)
                             log.info(f"Weekly recap sent for week of {last_week_monday}, file: {md_path}")
                         except Exception as e:
                             log.error(f"Weekly recap generation/send: {e}")
