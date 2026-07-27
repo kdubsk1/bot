@@ -33,6 +33,40 @@
       "exit_price": 28600.267,
       "result": "LOSS",
       "closed_at": "2026-07-27T02:51:17.333600"
+    },
+    {
+      "alert_id": "6c47237601",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 28743.75,
+      "stop": 28718.25511452983,
+      "target": 28782.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-07-27T08:55:47.717312",
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 28743.75,
+      "result": "LOSS",
+      "closed_at": "2026-07-27T08:55:48.887519"
+    },
+    {
+      "alert_id": "864325e027",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 28740.75,
+      "stop": 28719.655966594873,
+      "target": 28782.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-07-27T09:38:01.602203",
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 28740.75,
+      "result": "LOSS",
+      "closed_at": "2026-07-27T09:38:02.889316"
     }
   ],
   "open_sim_trades": []

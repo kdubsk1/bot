@@ -245,6 +245,14 @@
     "adx_min|GC|BREAK_RETEST_BULL": {
       "base": 14.0,
       "seeded_at": "2026-07-27T02:51:19.122964+00:00"
+    },
+    "adx_min|BTC|MACD_CROSS_BULL": {
+      "base": 16.0,
+      "seeded_at": "2026-07-27T04:25:30.549127+00:00"
+    },
+    "adx_min|GC|EMA21_PULLBACK_BULL": {
+      "base": 18.0,
+      "seeded_at": "2026-07-27T09:53:08.819115+00:00"
     }
   }
 }

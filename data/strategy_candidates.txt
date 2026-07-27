@@ -1,9 +1,9 @@
 📊 STRATEGY ANALYSIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OVERVIEW
-  Scans logged    118,636
-  Fired           211  ·  29% WR (36W/90L)
-  Missed winners  20263   (filtered, would've won)
+  Scans logged    122,753
+  Fired           212  ·  28% WR (36W/91L)
+  Missed winners  22876   (filtered, would've won)
 
   Best   GC:BB_REVERSION_BULL   67%  (n9)
   Worst  BTC:STOCH_REVERSAL_BEAR 18%  (n22)
@@ -13,22 +13,22 @@ OVERVIEW
     avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.51x) — insufficient participation
   BTC:VWAP_REJECT_BEAR · 1h  941x
     avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.76x) — insufficient participation
+  BTC:EMA21_PULLBACK_BULL · 15m 911x
+    avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
+  NQ:BB_REVERSION_BULL · 1h  893x
+    avg conv 0 · blocked by side edge negative (last40 graded -0.92R <= -0.15R) — insufficient participation
   NQ:VWAP_REJECT_BEAR · 1h   871x
     avg conv 0 · blocked by Wave 74 trend-alignment guard: counter-trend vs MIXED (0/465 historical)
-  GC:VWAP_REJECT_BEAR · 4h   870x
-    avg conv 0 · blocked by dead market (vol_ratio=0.19x < 0.30x floor) — insufficient participation
-  BTC:EMA21_PULLBACK_BULL · 15m 859x
-    avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔬 WINNING-TRADE PATTERNS
-  ADX      win 25.4   loss 28.1
-  RSI      win 50.4   loss 53.9
+  ADX      win 25.4   loss 28.2
+  RSI      win 50.4   loss 54.0
   Trend    win -2.1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ LOOSEN-FILTER CANDIDATES
   GC:VWAP_BOUNCE_BULL      3202x missed
   GC:VWAP_REJECT_BEAR      1376x missed
-  NQ:VWAP_REJECT_BEAR      1254x missed
+  NQ:VWAP_REJECT_BEAR      1255x missed
+  BTC:EMA21_PULLBACK_BULL  1018x missed
   BTC:VWAP_REJECT_BEAR     1000x missed
-  BTC:EMA21_PULLBACK_BULL  966x missed
-  NQ:EMA21_PULLBACK_BEAR   886x missed
+  NQ:BB_REVERSION_BULL     969x missed
