@@ -118,27 +118,39 @@ def format_alert_public(market, tf, setup, tier, target, rr, size_line=""):
             side = "WATCH " + side
         dp = _w179_decimals(entry)
         setup_name = _md(_w179_setup_name(setup.get("type", "")))
-        bar = "━" * 23
-        lines = [
-            "%s *%s %s*          `%s`" % (icon, market, side, tier),
-            bar,
-            "   %s  ·  %s" % (setup_name, tf),
-            "",
-            "   Entry    `%s`" % _w179_num(entry, dp),
-            "   Stop     `%s`   ⛔ %s" % (_w179_num(stop, dp), _w179_num(-risk_pts, dp)),
-            "   Target   `%s`   \U0001f3af +%s" % (_w179_num(tgt, dp), _w179_num(rew_pts, dp)),
-            "   R:R      *%.1f*  %s" % (float(rr), _w179_bar(rr)),
-        ]
-        if size_line:
-            lines.append("   %s" % size_line.replace("\U0001f4e6 *Size:* ", "Size     "))
+        bar = "\u2501" * 23
 
-        # Wave 200: the setup's real track record, added HERE rather than in
-        # bot.py. This module is already called at the fire site, so the line
-        # needs no new anchor in a 402 KB file I cannot read from the dev side -
-        # which is what caused two failed deploys earlier today.
+        # Wave 202: the LADDER layout.
         #
-        # It returns None whenever the evidence is thin or the setup's history
-        # is built on broken stops, and None simply means the line is omitted.
+        # Target, entry and stop are stacked in PRICE order rather than listed
+        # as rows, so the distance between them is visible rather than something
+        # the reader has to work out. On a long the target sits at the top; on a
+        # short it sits at the bottom - the card is drawn the way the trade
+        # actually looks on a chart.
+        rung_hi = ("\U0001f3af `%s`   target      `+%s`"
+                   % (_w179_num(tgt, dp), _w179_num(rew_pts, dp)))
+        rung_lo = ("\u26d4 `%s`   stop        `-%s`"
+                   % (_w179_num(stop, dp), _w179_num(risk_pts, dp)))
+        rung_mid = "\u25cf `%s`   *entry now*" % _w179_num(entry, dp)
+
+        lines = [
+            "%s *%s %s*  \u00b7  %s  \u00b7  %s     `%s`"
+            % (icon, market, side, setup_name, tf, tier),
+            bar,
+            "",
+        ]
+        if is_long:
+            lines += [rung_hi, "`\u2502`", rung_mid, "`\u2502`", rung_lo]
+        else:
+            lines += [rung_lo, "`\u2502`", rung_mid, "`\u2502`", rung_hi]
+        lines += ["", "   Risk 1  :  Reward *%.1f*   %s" % (float(rr), _w179_bar(rr))]
+
+        if size_line:
+            lines.append("   %s" % size_line.replace("\U0001f4e6 *Size:* ", "Size  "))
+
+        # The setup's own measured record. Added here rather than in bot.py,
+        # which this module is already called from - no new anchor needed in a
+        # 402 KB file that cannot be read from the dev side.
         try:
             import os as _os
             import w200_edge as _w200
@@ -146,7 +158,7 @@ def format_alert_public(market, tf, setup, tier, target, rr, size_line=""):
                 _os.path.dirname(_os.path.abspath(__file__)),
                 market, setup.get("type", ""))
             if _edge:
-                lines.append(_edge)
+                lines.append(_edge.replace("   History  ", "   Wins  "))
         except Exception:
             pass
 
