@@ -192,3 +192,113 @@ def build_startup_card(markets=None, timeframes=None, session=None,
         return "\n".join([bar, "⚡ *SYSTEM ONLINE*", "", body, bar])
     except Exception:
         return "⚡ *SYSTEM ONLINE*"
+
+
+# ==================================================================
+# Wave 201: per-market health on the startup card.
+#
+# Wayne asked for a green tick per market, and an X if a feed is delayed by
+# over a minute. The minute part cannot be taken literally: these feeds deliver
+# BARS, not ticks, so a 15-minute bar is only "new" every 15 minutes. On a
+# perfectly healthy run his own log showed ages of 1.4, 6.8 and 14.3 minutes on
+# the same feed - a one-minute rule would have failed all three.
+#
+# The honest test is whether the newest bar is older than one full bar plus a
+# little grace. Past that, data genuinely stopped arriving.
+#
+# And a market that is CLOSED is not a fault. His Sunday run showed NQ at 2,706
+# minutes old because CME was shut. Flagging that red every weekend would teach
+# him to ignore the indicator, which makes it useless on the day it matters. So
+# a closed market gets its own symbol, not a failure.
+# ==================================================================
+
+_TF_MIN = {"15m": 15, "30m": 30, "1h": 60, "4h": 240, "1d": 1440}
+_GRACE_MIN = 2.0          # allowance for fetch + clock skew
+_STALE_MULT = 1.0         # one full bar beyond the bar itself
+
+
+def market_health(age_minutes, timeframe="15m", market_open=True):
+    """
+    Return (symbol, word) for one market.
+
+      OK      data arriving on schedule
+      SLOW    late, but not yet broken
+      STALE   data has genuinely stopped
+      CLOSED  market is shut - not a fault
+      NO DATA nothing came back at all
+    """
+    tf_min = _TF_MIN.get(timeframe, 15)
+    if age_minutes is None:
+        return "\u274c", "NO DATA"
+    if not market_open:
+        return "\U0001f319", "CLOSED"
+    limit = tf_min + _GRACE_MIN
+    if age_minutes <= limit:
+        return "\u2705", "OK"
+    if age_minutes <= limit + tf_min * _STALE_MULT:
+        return "\u26a0\ufe0f", "SLOW"
+    return "\u274c", "STALE"
+
+
+def build_startup_card_v2(feeds=None, timeframes=None, when=None, version=None,
+                          only_show_problems=False):
+    """
+    The system-online card, with a health mark per market.
+
+    `feeds` is a list of (market, age_minutes, timeframe, market_open).
+
+    With only_show_problems=True the healthy markets collapse to a single line
+    and only the troubled ones are listed - which is what Wayne asked for when
+    he said the X matters more than the tick.
+    """
+    try:
+        bar = "\u2501" * 22
+        pretty = {"GC": "GOLD"}
+        rows = []
+        bad = []
+        good = []
+        for f in (feeds or []):
+            try:
+                mkt, age, tf, is_open = (list(f) + [None, "15m", True])[:4]
+            except Exception:
+                continue
+            sym, word = market_health(age, tf or "15m", bool(is_open))
+            name = pretty.get(mkt, mkt)
+            if word == "OK":
+                good.append("%s %s" % (sym, name))
+            else:
+                bad.append((sym, name, word, age))
+
+        lines = [bar, "\u26a1 *SYSTEM ONLINE*", ""]
+        if only_show_problems and good and not bad:
+            lines.append("`Feeds`      all %d markets OK  \u2705" % len(good))
+        else:
+            if good:
+                lines.append("`Feeds`      " + "   ".join(good))
+            for sym, name, word, age in bad:
+                extra = ""
+                if age is not None and word in ("SLOW", "STALE"):
+                    extra = "  (%s old)" % _age_text(age)
+                lines.append("`     `      %s %s \u2014 %s%s" % (sym, name, word, extra))
+        if timeframes:
+            lines.append("`Scanning`   " + "  \u00b7  ".join(timeframes))
+        if when:
+            lines.append("`Started `   %s" % when)
+        if version:
+            lines.append("`Build   `   %s" % version)
+        lines.append(bar)
+        return "\n".join(lines)
+    except Exception:
+        return "\u26a1 *SYSTEM ONLINE*"
+
+
+def _age_text(mins):
+    try:
+        m = float(mins)
+    except Exception:
+        return str(mins)
+    if m < 90:
+        return "%.0f min" % m
+    if m < 60 * 36:
+        return "%.1f h" % (m / 60.0)
+    return "%.1f days" % (m / 1440.0)
