@@ -78,7 +78,12 @@ def load_rows():
                     if e is None or s is None:
                         continue
                     r["_entry"], r["_stop"] = e, s
-                    r["_setup"] = _s(r, "setup", "type", "setup_name")
+                    # strategy_log.py writes "setup_type", not "setup" - v1
+                    # looked only for the latter, so every strategy_log row came
+                    # back with a blank setup name and the whole attribution was
+                    # useless. Read from the source, not from memory.
+                    r["_setup"] = _s(r, "setup_type", "setup", "type", "setup_name")
+                    r["_decision"] = _s(r, "decision", "status", "action").upper()
                     r["_market"] = _s(r, "market") or "?"
                     r["_side"] = _s(r, "side", "direction").upper()
                     r["_result"] = _s(r, "result").upper()
@@ -112,6 +117,14 @@ def main():
         print(SEP)
         return
 
+    # THE question: are the broken rows real trades, or scan noise?
+    # strategy_log records every SCAN, most of which never fire. A zero-risk
+    # stop on a rejected scan costs nothing. On a FIRED row it costs money.
+    fired = [r for r in rows if "FIRED" in (r.get("_decision") or "")]
+    print()
+    print("  rows marked FIRED : %d" % len(fired))
+    print("  everything else   : %d  (scans, rejects, shadows)" % (len(rows) - len(fired)))
+
     bad, good, zero_risk = [], [], []
     for r in rows:
         e, s = r["_entry"], r["_stop"]
@@ -122,7 +135,47 @@ def main():
         else:
             good.append(r)
 
+    def split(rs):
+        b = z = g = 0
+        for r in rs:
+            if r["_entry"] == r["_stop"]:
+                z += 1
+            elif (r["_stop"] > r["_entry"]) if is_long(r) else (r["_stop"] < r["_entry"]):
+                b += 1
+            else:
+                g += 1
+        return g, b, z
+
+    if fired:
+        fg, fb, fz = split(fired)
+        n = len(fired)
+        print()
+        print("  " + "=" * 62)
+        print("  FIRED ROWS ONLY - these are the ones that cost real money")
+        print("  " + "=" * 62)
+        print("     valid stop        : %d  (%.1f%%)" % (fg, 100.0 * fg / n))
+        print("     INVERTED stop     : %d  (%.1f%%)" % (fb, 100.0 * fb / n))
+        print("     ZERO RISK         : %d  (%.1f%%)" % (fz, 100.0 * fz / n))
+        if fz + fb == 0:
+            print("     >>> EVERY FIRED TRADE HAS A VALID STOP.")
+            print("         The broken rows are scan/reject noise and cost nothing.")
+        else:
+            print("     >>> %d fired trades went out with a broken stop." % (fz + fb))
+            print("         Those are real money. This is the fix that matters.")
+        bysetup = {}
+        for r in fired:
+            if r["_entry"] == r["_stop"] or (
+                    (r["_stop"] > r["_entry"]) if is_long(r) else (r["_stop"] < r["_entry"])):
+                k = "%s:%s" % (r["_market"], r["_setup"] or "?")
+                bysetup[k] = bysetup.get(k, 0) + 1
+        if bysetup:
+            print()
+            print("     which FIRED setups:")
+            for k in sorted(bysetup, key=lambda x: -bysetup[x])[:12]:
+                print("        %-34s %d" % (k[:34], bysetup[k]))
+
     print()
+    print("  ALL ROWS (scans included)")
     print("  valid stop        : %d" % len(good))
     print("  INVERTED stop     : %d   (stop on the wrong side of entry)" % len(bad))
     print("  zero risk (s==e)  : %d" % len(zero_risk))
