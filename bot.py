@@ -7731,7 +7731,30 @@ async def _post_init(app):
             log.warning("Wave 166 boot-quiet check failed (sending anyway): %r"
                         % _w166_e)
             _w166_send = True
-        if _w166_send:
+        # === Wave 205 (_WAVE205_QUIET_BOOT) =========================
+        # A clean restart says nothing at all.
+        #
+        # Wave 166's quiet window only suppresses restarts close together, so
+        # deploys hours apart each sent a banner. The banner is only worth
+        # reading when something is wrong, so that is now the condition.
+        #
+        # If this check itself fails it errs toward SENDING: a monitoring
+        # message that goes silent because its own guard broke is worse than
+        # one extra message.
+        try:
+            _w205_problem = bool(
+                (open_carried or 0) > 0
+                or (expired_count or 0) > 0
+                or not (tsx_result or {}).get("auth")
+            )
+            if not _w205_problem:
+                log.info("w205: clean boot - banner suppressed "
+                         "(no carried trades, none expired, feed authenticated)")
+        except Exception as _w205_e:
+            log.warning("w205: boot health check failed (%r) - sending anyway",
+                        _w205_e)
+            _w205_problem = True
+        if _w166_send and _w205_problem:
             await tg_send(app, _build_boot_banner(tsx_result, open_carried, expired_count,
                                                   suspended_count, _w83_mkt, short_sha, time_str))
             try:
