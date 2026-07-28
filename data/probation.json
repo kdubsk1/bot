@@ -87,17 +87,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "GC:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-24T18:54:28.003011+00:00",
-    "wins_at_start": 21,
-    "losses_at_start": 54,
-    "shadow_n": 159,
-    "shadow_wr": 65.4,
-    "shadow_expectancy": 1.706,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
-  },
   "NQ:VWAP_REJECT_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-24T19:24:35.471093+00:00",
@@ -119,28 +108,6 @@
     "shadow_expectancy": 0.061,
     "judge_after_trades": 5,
     "was_suspended_for": "3W/6L (33.3% WR)"
-  },
-  "BTC:EMA21_PULLBACK_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-25T09:04:39.565354+00:00",
-    "wins_at_start": 29,
-    "losses_at_start": 31,
-    "shadow_n": 70,
-    "shadow_wr": 50.0,
-    "shadow_expectancy": 0.628,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 12W/1L (92.3% WR, expectancy -1.00R) on 13 live trades"
-  },
-  "SOL:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-25T14:03:03.687671+00:00",
-    "wins_at_start": 24,
-    "losses_at_start": 35,
-    "shadow_n": 91,
-    "shadow_wr": 28.6,
-    "shadow_expectancy": 0.025,
-    "judge_after_trades": 5,
-    "was_suspended_for": "REAL evidence: 0W/10L over 10 real trades, avg 0.00R, expectancy -1.000R/trade"
   },
   "NQ:EMA21_PULLBACK_BULL": {
     "state": "SERVING",
@@ -174,5 +141,27 @@
     "shadow_expectancy": 0.337,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "SOL:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-28T09:34:27.886186+00:00",
+    "wins_at_start": 24,
+    "losses_at_start": 40,
+    "shadow_n": 2630,
+    "shadow_wr": 34.3,
+    "shadow_expectancy": 0.218,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "GC:VWAP_BOUNCE_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-07-28T09:44:32.475031+00:00",
+    "wins_at_start": 21,
+    "losses_at_start": 61,
+    "shadow_n": 8764,
+    "shadow_wr": 37.7,
+    "shadow_expectancy": 0.54,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/7L (0.0% WR, expectancy -1.00R) on 7 live trades"
   }
 }

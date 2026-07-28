@@ -6,3 +6,5 @@
 {"ts": "2026-07-27T09:38:01.603308+00:00", "market": "NQ", "alert_id": "864325e027", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
 {"ts": "2026-07-27T19:05:42.648668+00:00", "market": "GC", "alert_id": "ea97fad44f", "outcome": "attempt", "detail": "tier=HIGH"}
 {"ts": "2026-07-27T19:05:42.653654+00:00", "market": "GC", "alert_id": "ea97fad44f", "outcome": "opened", "detail": "contracts=1 dir=SHORT", "contracts": 1, "direction": "SHORT"}
+{"ts": "2026-07-28T06:59:12.109315+00:00", "market": "NQ", "alert_id": "3f1553c80f", "outcome": "attempt", "detail": "tier=HIGH"}
+{"ts": "2026-07-28T06:59:12.114338+00:00", "market": "NQ", "alert_id": "3f1553c80f", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
