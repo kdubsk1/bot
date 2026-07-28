@@ -297,6 +297,26 @@
     "adx_min|BTC|MACD_CROSS_BEAR": {
       "base": 20.0,
       "seeded_at": "2026-07-28T10:26:03.317020+00:00"
+    },
+    "adx_min|SOL|STOCH_REVERSAL_BEAR": {
+      "base": 22.0,
+      "seeded_at": "2026-07-28T15:56:42.682856+00:00"
+    },
+    "adx_min|SOL|EMA21_PULLBACK_BEAR": {
+      "base": 22.0,
+      "seeded_at": "2026-07-28T17:36:23.374638+00:00"
+    },
+    "adx_min|GC|VWAP_REJECT_BEAR": {
+      "base": 16.0,
+      "seeded_at": "2026-07-28T17:51:49.361159+00:00"
+    },
+    "adx_min|GC|EMA21_PULLBACK_BEAR": {
+      "base": 16.0,
+      "seeded_at": "2026-07-28T17:51:49.376045+00:00"
+    },
+    "adx_min|BTC|RSI_DIV_BEAR": {
+      "base": 14.0,
+      "seeded_at": "2026-07-28T18:13:36.504791+00:00"
     }
   }
 }
