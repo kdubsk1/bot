@@ -57577,3 +57577,9 @@
 {"timestamp": "2026-07-28T10:45:49.896409+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4024.0, "stop": null, "target": null, "rr": null}
 {"timestamp": "2026-07-28T10:46:21.997437+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4016.5, "stop": null, "target": null, "rr": null}
 {"timestamp": "2026-07-28T10:46:22.017131+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4024.0, "stop": null, "target": null, "rr": null}
+{"timestamp": "2026-07-28T14:39:45.863415+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4011.1, "stop": 4004.105854033866, "target": null, "rr": null}
+{"timestamp": "2026-07-28T14:39:45.892680+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4011.1, "stop": 3996.5493466215844, "target": null, "rr": null}
+{"timestamp": "2026-07-28T14:41:47.633723+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4011.1, "stop": 4004.105854033866, "target": null, "rr": null}
+{"timestamp": "2026-07-28T14:41:47.647757+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4011.1, "stop": 3996.5493466215844, "target": null, "rr": null}
+{"timestamp": "2026-07-28T14:43:48.739665+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4011.1, "stop": 4004.105854033866, "target": null, "rr": null}
+{"timestamp": "2026-07-28T14:43:48.752380+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 4011.1, "stop": 3996.5493466215844, "target": null, "rr": null}

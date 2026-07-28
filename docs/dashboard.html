@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-28T10:48:08.153574+00:00",
+  "generated_at": "2026-07-28T14:44:46.020965+00:00",
   "topstep": {
     "balance": 50346.69,
     "starting_balance": 50000,
@@ -329,6 +329,10 @@ const DATA = {
       {
         "time": "2026-07-27 19:05",
         "balance": 51369.76
+      },
+      {
+        "time": "2026-07-28 06:59",
+        "balance": 50599.21
       }
     ]
   },
@@ -747,15 +751,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 3,
-    "losses": 7,
-    "wr": 30.0,
-    "total_trades": 10
+    "losses": 8,
+    "wr": 27.3,
+    "total_trades": 11
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -799,6 +803,13 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "NQ:MACD_CROSS_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
@@ -814,9 +825,9 @@ const DATA = {
       "rr": "1.62",
       "conv": "60",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "27874.8851"
     },
     {
       "time": "2026-07-27 19:05",
@@ -1004,9 +1015,9 @@ const DATA = {
   "by_market": {
     "NQ": {
       "wins": 3,
-      "losses": 3,
-      "total_pnl_r": 3.96,
-      "wr": 50.0
+      "losses": 4,
+      "total_pnl_r": 2.96,
+      "wr": 42.9
     },
     "BTC": {
       "wins": 0,
@@ -1024,8 +1035,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 3,
-      "losses": 4,
-      "wr": 42.9
+      "losses": 5,
+      "wr": 37.5
     },
     "LOW": {
       "wins": 0,
@@ -1033,21 +1044,7 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "NQ",
-      "setup": "MACD_CROSS_BULL",
-      "tf": "15m",
-      "direction": "LONG",
-      "entry": "27949.5",
-      "target": "28070.5",
-      "stop": "27874.8851",
-      "conviction": 60,
-      "last_rescore_conviction": 60,
-      "tier": "HIGH",
-      "timestamp": "2026-07-28T06:59:08.617514+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
