@@ -1329,7 +1329,13 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                 if (broke_above and near_level and holding_above and
                         float(prev["Low"]) <= old_high * 1.003 and  # dipped to retest
                         rsi_v > 40 and rsi_v < 68):
-                    stop = old_high - atr_v * 0.4
+                    # Wave 209: clamp to the ENTRY as well as the level.
+                    # holding_above allows close to sit up to 0.2% BELOW
+                    # old_high while the stop sits only 0.4 ATR under it,
+                    # so whenever that drift exceeds 0.4 ATR the stop
+                    # lands ABOVE the entry. 455 rows did exactly that.
+                    # min() can only widen the stop, never tighten it.
+                    stop = min(old_high - atr_v * 0.4, close - atr_v * 0.4)
                     setups.append({
                         "type":      "BREAK_RETEST_BULL",
                         "direction": "LONG",
@@ -1358,7 +1364,9 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                 if (broke_below and near_level and holding_below and
                         float(prev["High"]) >= old_low * 0.997 and
                         rsi_v > 32 and rsi_v < 60):
-                    stop = old_low + atr_v * 0.4
+                    # Wave 209: clamp to the ENTRY as well as the level -
+                    # the mirror of the BULL case. max() can only widen.
+                    stop = max(old_low + atr_v * 0.4, close + atr_v * 0.4)
                     setups.append({
                         "type":      "BREAK_RETEST_BEAR",
                         "direction": "SHORT",
@@ -1852,7 +1860,7 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                     "setup":     st,
                     "direction": s.get("direction", ""),
                     "entry":     s.get("entry"),
-                    "stop":      s.get("stop"),
+                    "stop":      s.get("raw_stop", s.get("stop")),
                     "target":    s.get("target"),
                     "rr":        s.get("rr"),
                 }
@@ -1871,7 +1879,12 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
         # for future backtest analysis (Wayne's data preservation rule).
         try:
             _entry_p = float(s.get("entry", 0))
-            _stop_p  = float(s.get("stop", 0))
+            # Wave 209 (_W209_STOP_GUARD): read the key the setups
+            # actually write. Every setup dict writes "raw_stop"; this
+            # line read "stop", so the value was always 0, the test
+            # below was always False, and Wave 16's tight-stop guard
+            # has never executed once since May 8.
+            _stop_p  = float(s.get("raw_stop", s.get("stop", 0)) or 0)
             if _entry_p > 0 and _stop_p > 0:
                 _risk_pct = abs(_entry_p - _stop_p) / _entry_p
                 _min_pct  = MIN_RISK_PCT_BY_MARKET.get(s.get("market", ""), 0.0050)
@@ -1990,10 +2003,27 @@ SETUP_RR_FLOORS = {
 #   SOL - 0.80%: most volatile of the four, needs most room
 # ============================================================
 MIN_RISK_PCT_BY_MARKET = {
-    "NQ":  0.0025,  # 0.25%
-    "GC":  0.0030,  # 0.30%
-    "BTC": 0.0050,  # 0.50%
-    "SOL": 0.0080,  # 0.80%
+    # Wave 209: recalibrated, and deliberately PERMISSIVE.
+    #
+    # The old values (NQ 0.25 / GC 0.30 / BTC 0.50 / SOL 0.80) were
+    # written from six SOL trades in May and never tested, because the
+    # guard enforcing them never ran. Measured against 124,663 real
+    # rows, BTC 0.50% sits ABOVE that market's 0.381% median stop and
+    # SOL 0.80% above its 0.514% - so enabling the guard at those
+    # values would have suppressed most crypto setups.
+    #
+    # 0.05% sits 5-12x below every market's typical stop (NQ 0.279,
+    # GC 0.616, BTC 0.381, SOL 0.514) so it cannot block normal
+    # setups, and 3.4x above the worst broken stop seen (0.0145%) so
+    # it catches every proven case.
+    #
+    # This is the FIRST floor ever actually enforced. Start where it
+    # can only catch what is provably broken; tighten later from
+    # diag_floors.py output, with evidence.
+    "NQ":  0.0005,  # 0.05%   (was 0.0025, never enforced)
+    "GC":  0.0005,  # 0.05%   (was 0.0030, never enforced)
+    "BTC": 0.0005,  # 0.05%   (was 0.0050, never enforced)
+    "SOL": 0.0005,  # 0.05%   (was 0.0080, never enforced)
 }
 
 
