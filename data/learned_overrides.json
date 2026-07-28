@@ -281,6 +281,10 @@
     "adx_min|GC|MACD_CROSS_BEAR": {
       "base": 14.0,
       "seeded_at": "2026-07-27T19:05:39.636575+00:00"
+    },
+    "adx_min|NQ|BREAK_RETEST_BEAR": {
+      "base": 16.0,
+      "seeded_at": "2026-07-28T04:42:56.782667+00:00"
     }
   }
 }

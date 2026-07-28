@@ -664,13 +664,13 @@
   },
   "NQ:EMA21_PULLBACK_BEAR": {
     "wins": 28,
-    "losses": 88,
-    "total": 116,
-    "win_rate": 24.1,
-    "last_updated": "2026-07-27T19:10:44.769303",
-    "paper_total": 83,
-    "paper_losses": 63,
-    "paper_win_rate": 24.1,
+    "losses": 89,
+    "total": 117,
+    "win_rate": 23.9,
+    "last_updated": "2026-07-28T04:42:54.808011",
+    "paper_total": 84,
+    "paper_losses": 64,
+    "paper_win_rate": 23.8,
     "paper_wins": 20,
     "real_wins": 0,
     "real_losses": 1,
@@ -873,15 +873,15 @@
     "paper_wins": 5
   },
   "NQ:BREAK_RETEST_BEAR": {
-    "wins": 8,
+    "wins": 9,
     "losses": 44,
-    "total": 52,
-    "win_rate": 15.4,
-    "last_updated": "2026-07-27T17:08:22.129793",
-    "paper_total": 19,
+    "total": 53,
+    "win_rate": 17.0,
+    "last_updated": "2026-07-28T04:42:54.801793",
+    "paper_total": 20,
     "paper_losses": 14,
-    "paper_win_rate": 26.3,
-    "paper_wins": 5
+    "paper_win_rate": 30.0,
+    "paper_wins": 6
   },
   "NQ:VWAP_REJECT_BEAR": {
     "wins": 42,
@@ -1031,13 +1031,13 @@
   },
   "NQ:LAB|EMA21_PULLBACK_BEAR": {
     "wins": 14,
-    "losses": 53,
-    "total": 67,
-    "win_rate": 20.9,
-    "paper_total": 67,
-    "paper_losses": 53,
-    "paper_win_rate": 20.9,
-    "last_updated": "2026-07-27T19:10:44.765555",
+    "losses": 54,
+    "total": 68,
+    "win_rate": 20.6,
+    "paper_total": 68,
+    "paper_losses": 54,
+    "paper_win_rate": 20.6,
+    "last_updated": "2026-07-28T04:42:54.804914",
     "paper_wins": 14
   },
   "BTC:LAB|RSI_DIV_BULL": {
@@ -1137,15 +1137,15 @@
     "paper_losses": 1
   },
   "NQ:LAB|BREAK_RETEST_BEAR": {
-    "wins": 4,
+    "wins": 5,
     "losses": 10,
-    "total": 14,
-    "win_rate": 28.6,
-    "paper_total": 14,
+    "total": 15,
+    "win_rate": 33.3,
+    "paper_total": 15,
     "paper_losses": 10,
-    "paper_win_rate": 28.6,
-    "last_updated": "2026-07-27T17:08:22.126447",
-    "paper_wins": 4
+    "paper_win_rate": 33.3,
+    "last_updated": "2026-07-28T04:42:54.798346",
+    "paper_wins": 5
   },
   "NQ:LAB|EMA50_BREAKDOWN": {
     "wins": 1,
