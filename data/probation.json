@@ -87,17 +87,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "NQ:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-24T19:24:35.471093+00:00",
-    "wins_at_start": 42,
-    "losses_at_start": 95,
-    "shadow_n": 118,
-    "shadow_wr": 35.6,
-    "shadow_expectancy": 0.35,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 5W/1L (83.3% WR, expectancy -1.00R) on 6 live trades"
-  },
   "SOL:EMA50_BREAKDOWN": {
     "state": "SERVING",
     "granted_at": "2026-07-25T04:27:17.636227+00:00",
@@ -119,17 +108,6 @@
     "shadow_expectancy": 0.122,
     "judge_after_trades": 5,
     "was_suspended_for": "REAL evidence: 2W/7L over 9 real trades, avg 2.37R, expectancy -0.252R/trade"
-  },
-  "SOL:BB_REVERSION_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-26T03:22:38.089974+00:00",
-    "wins_at_start": 38,
-    "losses_at_start": 97,
-    "shadow_n": 407,
-    "shadow_wr": 52.6,
-    "shadow_expectancy": 0.827,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 4W/1L (80.0% WR, expectancy -1.00R) on 5 live trades"
   },
   "SOL:STOCH_REVERSAL_BEAR": {
     "state": "SERVING",
@@ -163,5 +141,27 @@
     "shadow_expectancy": 0.54,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/7L (0.0% WR, expectancy -1.00R) on 7 live trades"
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-29T00:07:18.841169+00:00",
+    "wins_at_start": 42,
+    "losses_at_start": 100,
+    "shadow_n": 3450,
+    "shadow_wr": 38.3,
+    "shadow_expectancy": 0.443,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
+  },
+  "SOL:BB_REVERSION_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-29T02:17:50.535001+00:00",
+    "wins_at_start": 42,
+    "losses_at_start": 99,
+    "shadow_n": 421,
+    "shadow_wr": 52.0,
+    "shadow_expectancy": 0.81,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 4W/2L (66.7% WR, expectancy -1.00R) on 6 live trades"
   }
 }

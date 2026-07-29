@@ -49,3 +49,4 @@
 {"event":"seed_base","bucket":"adx_min|GC|VWAP_REJECT_BEAR","base":16.0,"ts":"2026-07-28T17:51:49.365148+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|EMA21_PULLBACK_BEAR","base":16.0,"ts":"2026-07-28T17:51:49.380052+00:00"}
 {"event":"seed_base","bucket":"adx_min|BTC|RSI_DIV_BEAR","base":14.0,"ts":"2026-07-28T18:13:36.509377+00:00"}
+{"event":"seed_base","bucket":"adx_min|NQ|BB_REVERSION_BEAR","base":22.0,"ts":"2026-07-29T00:28:40.627423+00:00"}
