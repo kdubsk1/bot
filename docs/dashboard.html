@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-29T02:45:14.469944+00:00",
+  "generated_at": "2026-07-29T04:41:12.918865+00:00",
   "topstep": {
     "balance": 50346.69,
     "starting_balance": 50000,
@@ -299,40 +299,28 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-07-21 07:55",
-        "balance": 52032.5
-      },
-      {
-        "time": "2026-07-21 13:57",
-        "balance": 53562.26
-      },
-      {
-        "time": "2026-07-21 14:40",
-        "balance": 55402.12
-      },
-      {
         "time": "2026-07-24 14:12",
-        "balance": 54571.09
+        "balance": 49250.0
       },
       {
         "time": "2026-07-27 00:14",
-        "balance": 53752.52
+        "balance": 48511.25
       },
       {
         "time": "2026-07-27 08:55",
-        "balance": 52946.23
+        "balance": 47783.58
       },
       {
         "time": "2026-07-27 09:38",
-        "balance": 52152.04
+        "balance": 47066.83
       },
       {
         "time": "2026-07-27 19:05",
-        "balance": 51369.76
+        "balance": 46360.83
       },
       {
         "time": "2026-07-28 06:59",
-        "balance": 50599.21
+        "balance": 45665.41
       }
     ]
   },
@@ -750,10 +738,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 3,
-    "losses": 8,
-    "wr": 27.3,
-    "total_trades": 11
+    "wins": 0,
+    "losses": 7,
+    "wr": 0.0,
+    "total_trades": 7
   },
   "today": {
     "wins": 0,
@@ -764,23 +752,9 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 4,
-      "wins": 1,
-      "losses": 3,
-      "wr": 25.0
-    },
-    {
-      "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 2,
-      "wins": 2,
-      "losses": 0,
-      "wr": 100.0
-    },
-    {
-      "setup": "BTC:BB_REVERSION_BULL",
-      "fires": 1,
+      "fires": 3,
       "wins": 0,
-      "losses": 1,
+      "losses": 3,
       "wr": 0.0
     },
     {
@@ -924,70 +898,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "4076.8547"
-    },
-    {
-      "time": "2026-07-21 18:16",
-      "market": "BTC",
-      "setup": "BB_REVERSION_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "66261.08",
-      "stop": "65963.2073",
-      "target": "66923.95",
-      "rr": "2.23",
-      "conv": "50",
-      "tier": "LOW",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "65963.2073"
-    },
-    {
-      "time": "2026-07-21 14:40",
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29200.0",
-      "stop": "29054.9047",
-      "target": "29532.0",
-      "rr": "2.29",
-      "conv": "61",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29333.75"
-    },
-    {
-      "time": "2026-07-21 13:57",
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29097.0",
-      "stop": "29085.7861",
-      "target": "29119.0",
-      "rr": "1.96",
-      "conv": "61",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29119.0"
-    },
-    {
-      "time": "2026-07-21 07:55",
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "29105.25",
-      "stop": "29073.006",
-      "target": "29192.5",
-      "rr": "2.71",
-      "conv": "65",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29192.5"
     }
   ],
   "suspended_setups": [
@@ -1013,34 +923,34 @@ const DATA = {
     }
   ],
   "by_market": {
-    "NQ": {
-      "wins": 3,
-      "losses": 4,
-      "total_pnl_r": 2.96,
-      "wr": 42.9
-    },
-    "BTC": {
-      "wins": 0,
-      "losses": 2,
-      "total_pnl_r": -2.0,
-      "wr": 0.0
-    },
     "GC": {
       "wins": 0,
       "losses": 2,
       "total_pnl_r": -2.0,
       "wr": 0.0
+    },
+    "BTC": {
+      "wins": 0,
+      "losses": 1,
+      "total_pnl_r": -1.0,
+      "wr": 0.0
+    },
+    "NQ": {
+      "wins": 0,
+      "losses": 4,
+      "total_pnl_r": -4.0,
+      "wr": 0.0
     }
   },
   "by_tier": {
-    "HIGH": {
-      "wins": 3,
-      "losses": 5,
-      "wr": 37.5
-    },
     "LOW": {
       "wins": 0,
-      "losses": 3,
+      "losses": 2,
+      "wr": 0.0
+    },
+    "HIGH": {
+      "wins": 0,
+      "losses": 5,
       "wr": 0.0
     }
   },
