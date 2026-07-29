@@ -2853,8 +2853,8 @@ async def scan_market(app, market, frames):
             # never below Wayne's signed floors (0.2x / 0.6x). The reason text
             # carries the LIVE threshold - Wave 142's classifier parses it at
             # any value, so the eyes stay open after every move.
-            _w143_floor = _w143_get("vol_floor", market, stp["type"], 0.15)  # _W214_VOL_GATE
-            _w143_conf = _w143_get("vol_confirm", market, stp["type"], 0.45)
+            _w143_floor = _w143_get("vol_floor", market, stp["type"], 0.05)  # _W214_VOL_GATE _W218_VOL_OFF
+            _w143_conf = _w143_get("vol_confirm", market, stp["type"], 0.05)
             if vol_ratio < _w143_floor:
                 _reject_reason = f"dead market (vol_ratio={vol_ratio:.2f}x < {_w143_floor:.2f}x floor)"
             elif _vol_dir == "confirm" and vol_ratio < _w143_conf:
@@ -2872,8 +2872,8 @@ async def scan_market(app, market, frames):
                                       f"graded {_w161_exp:+.2f}R <= {_W161_GATE_EXP:+.2f}R)")
             if _reject_reason is None:
                 if _vol_dir == "confirm":
-                    _w143_mark_via(stp, "vol_confirm", market, vol_ratio, 0.45)
-                _w143_mark_via(stp, "vol_floor", market, vol_ratio, 0.15)
+                    _w143_mark_via(stp, "vol_confirm", market, vol_ratio, 0.05)
+                _w143_mark_via(stp, "vol_floor", market, vol_ratio, 0.05)
             if _reject_reason:
                 try:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
