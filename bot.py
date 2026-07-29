@@ -104,7 +104,7 @@ SETTINGS = {
     "morning_brief": os.getenv("MORNING_BRIEF", "1").strip().lower() not in ("0", "false", "no"),
     "asia_brief": os.getenv("ASIA_BRIEF", "0").strip().lower() not in ("0", "false", "no"),
     "rescore_on": True,
-    "markets": {"NQ": True, "GC": True, "BTC": True, "SOL": True}
+    "markets": {"NQ": True, "GC": True, "BTC": True, "SOL": False}  # _W215_SOL_OFF
 }
 ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
 
