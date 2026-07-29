@@ -1,0 +1,1567 @@
+{
+  "generated_at": "2026-07-29T05:50:20.474843+00:00",
+  "columns": [
+    "adx",
+    "alert_id",
+    "atr",
+    "bars_to_resolution",
+    "conviction",
+    "direction",
+    "entry",
+    "exit_price",
+    "hour",
+    "htf_bias",
+    "last_rescore_conviction",
+    "leverage",
+    "market",
+    "method",
+    "news_flag",
+    "partial_exit_done",
+    "result",
+    "rr",
+    "rsi",
+    "session_id",
+    "setup",
+    "status",
+    "stop",
+    "suggested_hold",
+    "target",
+    "tf",
+    "tier",
+    "timestamp",
+    "trend_score",
+    "vol_ratio",
+    "w7_applied_layers",
+    "w7_market_mult",
+    "w7_setup_boost"
+  ],
+  "trades": 379,
+  "setups": {
+    "GC:STOCH_REVERSAL_BEAR": {
+      "n": 18,
+      "wins": 4,
+      "losses": 14,
+      "win_rate": 22.2,
+      "r_available": 18,
+      "r_sources": {
+        "from entry/stop/exit": 18
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 4,
+          "L": 14
+        }
+      },
+      "median_target_rr": 2.39,
+      "expectancy_r": -0.364,
+      "avg_win_r": 0.8,
+      "avg_loss_r": 0.7,
+      "breakeven_wr": 55.6,
+      "exp_ci_low": -0.714,
+      "exp_ci_high": 0.029,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.364R but the interval straddles zero (-0.714 to +0.029) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "BTC:EMA21_PULLBACK_BEAR": {
+      "n": 13,
+      "wins": 7,
+      "losses": 6,
+      "win_rate": 53.8,
+      "r_available": 13,
+      "r_sources": {
+        "from entry/stop/exit": 13
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 7,
+          "L": 6
+        }
+      },
+      "median_target_rr": 2.73,
+      "expectancy_r": 0.993,
+      "avg_win_r": 2.7,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 27.0,
+      "exp_ci_low": -0.011,
+      "exp_ci_high": 2.037,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.993R, interval straddles zero (-0.011 to +2.037).",
+      "suggested_fixes": []
+    },
+    "NQ:BREAK_RETEST_BULL": {
+      "n": 37,
+      "wins": 12,
+      "losses": 25,
+      "win_rate": 32.4,
+      "r_available": 37,
+      "r_sources": {
+        "from entry/stop/exit": 37
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 12,
+          "L": 25
+        }
+      },
+      "median_target_rr": 2.57,
+      "expectancy_r": 0.147,
+      "avg_win_r": 2.37,
+      "avg_loss_r": 0.92,
+      "breakeven_wr": 29.7,
+      "exp_ci_low": -0.359,
+      "exp_ci_high": 0.709,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.147R, interval straddles zero (-0.359 to +0.709).",
+      "suggested_fixes": []
+    },
+    "GC:MACD_CROSS_BEAR": {
+      "n": 7,
+      "wins": 4,
+      "losses": 3,
+      "win_rate": 57.1,
+      "r_available": 7,
+      "r_sources": {
+        "from entry/stop/exit": 7
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 4,
+          "L": 3
+        }
+      },
+      "median_target_rr": 2.06,
+      "expectancy_r": 0.425,
+      "avg_win_r": 1.06,
+      "avg_loss_r": 0.41,
+      "breakeven_wr": 48.5,
+      "exp_ci_low": -0.207,
+      "exp_ci_high": 1.071,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.425R, interval straddles zero (-0.207 to +1.071).",
+      "suggested_fixes": []
+    },
+    "NQ:MACD_CROSS_BULL": {
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "win_rate": 0.0,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 3
+        }
+      },
+      "median_target_rr": 1.62,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:VWAP_REJECT_BEAR": {
+      "n": 5,
+      "wins": 0,
+      "losses": 5,
+      "win_rate": 0.0,
+      "r_available": 5,
+      "r_sources": {
+        "from entry/stop/exit": 5
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 5
+        }
+      },
+      "median_target_rr": 2.5,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -1.000R and the whole 95% interval is below zero (-1.000 to -1.000). This is not a thin-sample artefact.",
+      "suggested_fixes": []
+    },
+    "SOL:EMA50_BREAKDOWN": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 2
+        }
+      },
+      "median_target_rr": 3.25,
+      "expectancy_r": -1.012,
+      "avg_win_r": null,
+      "avg_loss_r": 1.01,
+      "exp_ci_low": -1.024,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:VWAP_REJECT_BEAR": {
+      "n": 10,
+      "wins": 0,
+      "losses": 10,
+      "win_rate": 0.0,
+      "r_available": 10,
+      "r_sources": {
+        "from entry/stop/exit": 10
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 10
+        }
+      },
+      "median_target_rr": 2.5,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -1.000R and the whole 95% interval is below zero (-1.000 to -1.000). This is not a thin-sample artefact.",
+      "suggested_fixes": []
+    },
+    "NQ:VWAP_BOUNCE_BULL": {
+      "n": 35,
+      "wins": 15,
+      "losses": 20,
+      "win_rate": 42.9,
+      "r_available": 35,
+      "r_sources": {
+        "from entry/stop/exit": 35
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 15,
+          "L": 20
+        }
+      },
+      "median_target_rr": 2.19,
+      "expectancy_r": 0.19,
+      "avg_win_r": 1.73,
+      "avg_loss_r": 0.97,
+      "breakeven_wr": 36.6,
+      "exp_ci_low": -0.272,
+      "exp_ci_high": 0.67,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.190R, interval straddles zero (-0.272 to +0.670).",
+      "suggested_fixes": []
+    },
+    "BTC:VWAP_BOUNCE_BULL": {
+      "n": 11,
+      "wins": 4,
+      "losses": 7,
+      "win_rate": 36.4,
+      "r_available": 11,
+      "r_sources": {
+        "from entry/stop/exit": 11
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 4,
+          "L": 7
+        }
+      },
+      "median_target_rr": 2.5,
+      "expectancy_r": 0.273,
+      "avg_win_r": 2.5,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 28.6,
+      "exp_ci_low": -0.682,
+      "exp_ci_high": 1.227,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.273R, interval straddles zero (-0.682 to +1.227).",
+      "suggested_fixes": []
+    },
+    "SOL:APPROACH_RESIST": {
+      "n": 7,
+      "wins": 2,
+      "losses": 5,
+      "win_rate": 28.6,
+      "r_available": 7,
+      "r_sources": {
+        "from entry/stop/exit": 7
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 5
+        }
+      },
+      "median_target_rr": 5.87,
+      "expectancy_r": 0.189,
+      "avg_win_r": 3.16,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 24.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 1.898,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.189R, interval straddles zero (-1.000 to +1.898).",
+      "suggested_fixes": [
+        "median target is 5.9R - measured rr4+ runs -0.753R; cap nearer 2-3R"
+      ]
+    },
+    "BTC:APPROACH_RESIST": {
+      "n": 6,
+      "wins": 2,
+      "losses": 4,
+      "win_rate": 33.3,
+      "r_available": 6,
+      "r_sources": {
+        "from entry/stop/exit": 6
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 4
+        }
+      },
+      "median_target_rr": 5.12,
+      "expectancy_r": 0.975,
+      "avg_win_r": 4.92,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 16.9,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 3.905,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.975R, interval straddles zero (-1.000 to +3.905).",
+      "suggested_fixes": [
+        "median target is 5.1R - measured rr4+ runs -0.753R; cap nearer 2-3R"
+      ]
+    },
+    "GC:VWAP_BOUNCE_BULL": {
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "win_rate": 100.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 0
+        }
+      },
+      "median_target_rr": 2.5,
+      "expectancy_r": 2.5,
+      "avg_win_r": 2.5,
+      "avg_loss_r": null,
+      "breakeven_wr": 28.6,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "GC:VWAP_REJECT_BEAR": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 2
+        }
+      },
+      "median_target_rr": 2.5,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:EMA21_PULLBACK_BULL": {
+      "n": 5,
+      "wins": 1,
+      "losses": 4,
+      "win_rate": 20.0,
+      "r_available": 5,
+      "r_sources": {
+        "from entry/stop/exit": 5
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 4
+        }
+      },
+      "median_target_rr": 2.9,
+      "expectancy_r": -0.06,
+      "avg_win_r": 3.7,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 21.3,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 1.82,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.060R but the interval straddles zero (-1.000 to +1.820) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "NQ:EMA21_PULLBACK_BULL": {
+      "n": 9,
+      "wins": 2,
+      "losses": 7,
+      "win_rate": 22.2,
+      "r_available": 9,
+      "r_sources": {
+        "from entry/stop/exit": 9
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 7
+        }
+      },
+      "median_target_rr": 2.44,
+      "expectancy_r": 0.704,
+      "avg_win_r": 6.67,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 13.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 3.646,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.704R, interval straddles zero (-1.000 to +3.646).",
+      "suggested_fixes": []
+    },
+    "BTC:BREAK_RETEST_BULL": {
+      "n": 7,
+      "wins": 0,
+      "losses": 7,
+      "win_rate": 0.0,
+      "r_available": 7,
+      "r_sources": {
+        "from entry/stop/exit": 7
+      },
+      "invalid_stops": 1,
+      "invalid_stop_pct": 14.3,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 7
+        }
+      },
+      "median_target_rr": 3.35,
+      "expectancy_r": -0.714,
+      "avg_win_r": 1.0,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 50.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -0.143,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -0.714R and the whole 95% interval is below zero (-1.000 to -0.143). This is not a thin-sample artefact.",
+      "suggested_fixes": [
+        "1 trade(s) have an invalid stop - fix the stop calculation"
+      ]
+    },
+    "BTC:EMA50_RECLAIM": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 2
+        }
+      },
+      "median_target_rr": 6.09,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": [
+        "median target is 6.1R - measured rr4+ runs -0.753R; cap nearer 2-3R"
+      ]
+    },
+    "BTC:APPROACH_SUPPORT": {
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "win_rate": 0.0,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 3
+        }
+      },
+      "median_target_rr": 8.27,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": [
+        "median target is 8.3R - measured rr4+ runs -0.753R; cap nearer 2-3R"
+      ]
+    },
+    "NQ:APPROACH_SUPPORT": {
+      "n": 5,
+      "wins": 0,
+      "losses": 5,
+      "win_rate": 0.0,
+      "r_available": 5,
+      "r_sources": {
+        "from entry/stop/exit": 5
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 5
+        }
+      },
+      "median_target_rr": 2.58,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -1.000R and the whole 95% interval is below zero (-1.000 to -1.000). This is not a thin-sample artefact.",
+      "suggested_fixes": []
+    },
+    "BTC:BREAK_RETEST_BEAR": {
+      "n": 9,
+      "wins": 2,
+      "losses": 7,
+      "win_rate": 22.2,
+      "r_available": 9,
+      "r_sources": {
+        "from entry/stop/exit": 9
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 7
+        }
+      },
+      "median_target_rr": 2.87,
+      "expectancy_r": 0.071,
+      "avg_win_r": 3.82,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 20.7,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 1.662,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.071R, interval straddles zero (-1.000 to +1.662).",
+      "suggested_fixes": []
+    },
+    "SOL:BREAK_RETEST_BEAR": {
+      "n": 7,
+      "wins": 0,
+      "losses": 7,
+      "win_rate": 0.0,
+      "r_available": 7,
+      "r_sources": {
+        "from entry/stop/exit": 7
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 7
+        }
+      },
+      "median_target_rr": 3.96,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -1.000R and the whole 95% interval is below zero (-1.000 to -1.000). This is not a thin-sample artefact.",
+      "suggested_fixes": []
+    },
+    "SOL:EMA21_PULLBACK_BEAR": {
+      "n": 7,
+      "wins": 2,
+      "losses": 5,
+      "win_rate": 28.6,
+      "r_available": 7,
+      "r_sources": {
+        "from entry/stop/exit": 7
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 5
+        }
+      },
+      "median_target_rr": 2.22,
+      "expectancy_r": -0.092,
+      "avg_win_r": 2.18,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 31.4,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 0.877,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.092R but the interval straddles zero (-1.000 to +0.877) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "SOL:RSI_DIV_BEAR": {
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "win_rate": 0.0,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 3
+        }
+      },
+      "median_target_rr": 2.0,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:STOCH_REVERSAL_BEAR": {
+      "n": 21,
+      "wins": 5,
+      "losses": 16,
+      "win_rate": 23.8,
+      "r_available": 21,
+      "r_sources": {
+        "from entry/stop/exit": 21
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 5,
+          "L": 16
+        }
+      },
+      "median_target_rr": 2.19,
+      "expectancy_r": -0.188,
+      "avg_win_r": 2.41,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 29.3,
+      "exp_ci_low": -0.782,
+      "exp_ci_high": 0.471,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.188R but the interval straddles zero (-0.782 to +0.471) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "NQ:BB_REVERSION_BULL": {
+      "n": 13,
+      "wins": 6,
+      "losses": 7,
+      "win_rate": 46.2,
+      "r_available": 13,
+      "r_sources": {
+        "from entry/stop/exit": 13
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 6,
+          "L": 7
+        }
+      },
+      "median_target_rr": 2.49,
+      "expectancy_r": 0.34,
+      "avg_win_r": 1.9,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 34.5,
+      "exp_ci_low": -0.482,
+      "exp_ci_high": 1.218,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.340R, interval straddles zero (-0.482 to +1.218).",
+      "suggested_fixes": []
+    },
+    "BTC:RSI_DIV_BEAR": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 1
+        }
+      },
+      "median_target_rr": 2.23,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "GC:APPROACH_RESIST": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 2
+        }
+      },
+      "median_target_rr": 3.0,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "GC:BB_REVERSION_BEAR": {
+      "n": 9,
+      "wins": 4,
+      "losses": 5,
+      "win_rate": 44.4,
+      "r_available": 9,
+      "r_sources": {
+        "from entry/stop/exit": 9
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 4,
+          "L": 5
+        }
+      },
+      "median_target_rr": 2.48,
+      "expectancy_r": 0.112,
+      "avg_win_r": 1.23,
+      "avg_loss_r": 0.78,
+      "breakeven_wr": 44.8,
+      "exp_ci_low": -0.577,
+      "exp_ci_high": 1.009,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.112R, interval straddles zero (-0.577 to +1.009).",
+      "suggested_fixes": []
+    },
+    "BTC:BB_REVERSION_BULL": {
+      "n": 8,
+      "wins": 1,
+      "losses": 7,
+      "win_rate": 12.5,
+      "r_available": 8,
+      "r_sources": {
+        "from entry/stop/exit": 8
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 7
+        }
+      },
+      "median_target_rr": 2.83,
+      "expectancy_r": -0.585,
+      "avg_win_r": 2.32,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 30.1,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 0.245,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.585R but the interval straddles zero (-1.000 to +0.245) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "SOL:VWAP_BOUNCE_BULL": {
+      "n": 13,
+      "wins": 2,
+      "losses": 11,
+      "win_rate": 15.4,
+      "r_available": 13,
+      "r_sources": {
+        "from entry/stop/exit": 13
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 11
+        }
+      },
+      "median_target_rr": 2.25,
+      "expectancy_r": -0.566,
+      "avg_win_r": 1.82,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 35.5,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 0.065,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.566R but the interval straddles zero (-1.000 to +0.065) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "NQ:STOCH_REVERSAL_BULL": {
+      "n": 10,
+      "wins": 4,
+      "losses": 6,
+      "win_rate": 40.0,
+      "r_available": 10,
+      "r_sources": {
+        "from entry/stop/exit": 10
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 4,
+          "L": 6
+        }
+      },
+      "median_target_rr": 2.2,
+      "expectancy_r": 0.104,
+      "avg_win_r": 1.76,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 36.2,
+      "exp_ci_low": -0.698,
+      "exp_ci_high": 1.042,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.104R, interval straddles zero (-0.698 to +1.042).",
+      "suggested_fixes": []
+    },
+    "SOL:BREAK_RETEST_BULL": {
+      "n": 6,
+      "wins": 2,
+      "losses": 4,
+      "win_rate": 33.3,
+      "r_available": 6,
+      "r_sources": {
+        "from entry/stop/exit": 6
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 4
+        }
+      },
+      "median_target_rr": 2.88,
+      "expectancy_r": 0.173,
+      "avg_win_r": 2.52,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 28.4,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 1.487,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.173R, interval straddles zero (-1.000 to +1.487).",
+      "suggested_fixes": []
+    },
+    "BTC:STOCH_REVERSAL_BULL": {
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "win_rate": 0.0,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 3
+        }
+      },
+      "median_target_rr": 2.01,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:BB_REVERSION_BULL": {
+      "n": 5,
+      "wins": 0,
+      "losses": 5,
+      "win_rate": 0.0,
+      "r_available": 5,
+      "r_sources": {
+        "from entry/stop/exit": 5
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 5
+        }
+      },
+      "median_target_rr": 2.42,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -1.000R and the whole 95% interval is below zero (-1.000 to -1.000). This is not a thin-sample artefact.",
+      "suggested_fixes": []
+    },
+    "GC:BREAK_RETEST_BULL": {
+      "n": 4,
+      "wins": 0,
+      "losses": 4,
+      "win_rate": 0.0,
+      "r_available": 4,
+      "r_sources": {
+        "from entry/stop/exit": 4
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 4
+        }
+      },
+      "median_target_rr": 2.09,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 4 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:EMA21_PULLBACK_BULL": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 1
+        }
+      },
+      "median_target_rr": 2.53,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:APPROACH_SUPPORT": {
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "win_rate": 0.0,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 3
+        }
+      },
+      "median_target_rr": 3.62,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:STOCH_REVERSAL_BULL": {
+      "n": 5,
+      "wins": 0,
+      "losses": 5,
+      "win_rate": 0.0,
+      "r_available": 5,
+      "r_sources": {
+        "from entry/stop/exit": 5
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 5
+        }
+      },
+      "median_target_rr": 2.68,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "LOSING - REAL",
+      "why": "expectancy -1.000R and the whole 95% interval is below zero (-1.000 to -1.000). This is not a thin-sample artefact.",
+      "suggested_fixes": []
+    },
+    "GC:BB_REVERSION_BULL": {
+      "n": 11,
+      "wins": 7,
+      "losses": 4,
+      "win_rate": 63.6,
+      "r_available": 11,
+      "r_sources": {
+        "from entry/stop/exit": 11
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 7,
+          "L": 4
+        }
+      },
+      "median_target_rr": 2.54,
+      "expectancy_r": 0.868,
+      "avg_win_r": 1.81,
+      "avg_loss_r": 0.78,
+      "breakeven_wr": 35.6,
+      "exp_ci_low": 0.043,
+      "exp_ci_high": 1.631,
+      "verdict": "PROFITABLE - REAL",
+      "why": "expectancy +0.868R with the whole 95% interval above zero (+0.043 to +1.631).",
+      "suggested_fixes": []
+    },
+    "NQ:RSI_DIV_BULL": {
+      "n": 5,
+      "wins": 2,
+      "losses": 3,
+      "win_rate": 40.0,
+      "r_available": 5,
+      "r_sources": {
+        "from entry/stop/exit": 5
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 2,
+          "L": 3
+        }
+      },
+      "median_target_rr": 2.2,
+      "expectancy_r": 0.25,
+      "avg_win_r": 1.63,
+      "avg_loss_r": 0.67,
+      "breakeven_wr": 38.0,
+      "exp_ci_low": -0.8,
+      "exp_ci_high": 1.301,
+      "verdict": "POSITIVE - UNPROVEN",
+      "why": "expectancy +0.250R, interval straddles zero (-0.800 to +1.301).",
+      "suggested_fixes": []
+    },
+    "GC:BREAK_RETEST_BEAR": {
+      "n": 3,
+      "wins": 1,
+      "losses": 2,
+      "win_rate": 33.3,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 2
+        }
+      },
+      "median_target_rr": 2.84,
+      "expectancy_r": -0.588,
+      "avg_win_r": 0.23,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 81.3,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 0.235,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:BB_REVERSION_BEAR": {
+      "n": 7,
+      "wins": 1,
+      "losses": 6,
+      "win_rate": 14.3,
+      "r_available": 7,
+      "r_sources": {
+        "from entry/stop/exit": 7
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 6
+        }
+      },
+      "median_target_rr": 2.67,
+      "expectancy_r": -0.199,
+      "avg_win_r": 4.61,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 17.8,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 1.404,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.199R but the interval straddles zero (-1.000 to +1.404) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "SOL:BB_REVERSION_BEAR": {
+      "n": 13,
+      "wins": 4,
+      "losses": 9,
+      "win_rate": 30.8,
+      "r_available": 13,
+      "r_sources": {
+        "from entry/stop/exit": 13
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 4,
+          "L": 9
+        }
+      },
+      "median_target_rr": 2.16,
+      "expectancy_r": -0.017,
+      "avg_win_r": 2.19,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 31.3,
+      "exp_ci_low": -0.757,
+      "exp_ci_high": 0.752,
+      "verdict": "LOSING - UNPROVEN",
+      "why": "expectancy -0.017R but the interval straddles zero (-0.757 to +0.752) - more trades needed before acting.",
+      "suggested_fixes": []
+    },
+    "BTC:MACD_CROSS_BEAR": {
+      "n": 3,
+      "wins": 1,
+      "losses": 2,
+      "win_rate": 33.3,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 2
+        }
+      },
+      "median_target_rr": 2.42,
+      "expectancy_r": 0.139,
+      "avg_win_r": 2.42,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 29.2,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 2.416,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "GC:EMA21_PULLBACK_BEAR": {
+      "n": 4,
+      "wins": 1,
+      "losses": 3,
+      "win_rate": 25.0,
+      "r_available": 4,
+      "r_sources": {
+        "from entry/stop/exit": 4
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 3
+        }
+      },
+      "median_target_rr": 2.91,
+      "expectancy_r": -0.365,
+      "avg_win_r": 0.54,
+      "avg_loss_r": 0.67,
+      "breakeven_wr": 64.9,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 0.27,
+      "verdict": "TOO THIN",
+      "why": "only 4 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:STOCH_REVERSAL_BEAR": {
+      "n": 2,
+      "wins": 1,
+      "losses": 1,
+      "win_rate": 50.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 1
+        }
+      },
+      "median_target_rr": 2.41,
+      "expectancy_r": 0.705,
+      "avg_win_r": 2.41,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 29.3,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 2.409,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "SOL:MACD_CROSS_BEAR": {
+      "n": 2,
+      "wins": 1,
+      "losses": 1,
+      "win_rate": 50.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 1
+        }
+      },
+      "median_target_rr": 2.68,
+      "expectancy_r": 0.757,
+      "avg_win_r": 2.51,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 28.5,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 2.514,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:MACD_CROSS_BULL": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 1
+        }
+      },
+      "median_target_rr": 2.47,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:EMA50_BREAKDOWN": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 2
+        }
+      },
+      "median_target_rr": 2.54,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "NQ:EMA21_PULLBACK_BEAR": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 1
+        }
+      },
+      "median_target_rr": 3.04,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "GC:EMA50_BREAKDOWN": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 1
+        }
+      },
+      "median_target_rr": 2.03,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "NQ:VWAP_REJECT_BEAR": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "r_available": 1,
+      "r_sources": {
+        "from entry/stop/exit": 1
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 1
+        }
+      },
+      "median_target_rr": 3.49,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": null,
+      "exp_ci_high": null,
+      "verdict": "TOO THIN",
+      "why": "only 1 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "BTC:RSI_DIV_BULL": {
+      "n": 3,
+      "wins": 1,
+      "losses": 2,
+      "win_rate": 33.3,
+      "r_available": 3,
+      "r_sources": {
+        "from entry/stop/exit": 3
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 1,
+          "L": 2
+        }
+      },
+      "median_target_rr": 2.57,
+      "expectancy_r": 0.189,
+      "avg_win_r": 2.57,
+      "avg_loss_r": 1.0,
+      "breakeven_wr": 28.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": 2.566,
+      "verdict": "TOO THIN",
+      "why": "only 3 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    },
+    "NQ:OPENING_RANGE_BREAKOUT": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "r_available": 2,
+      "r_sources": {
+        "from entry/stop/exit": 2
+      },
+      "invalid_stops": 0,
+      "invalid_stop_pct": 0.0,
+      "sessions": {
+        "unknown": {
+          "W": 0,
+          "L": 2
+        }
+      },
+      "median_target_rr": 2.1,
+      "expectancy_r": -1.0,
+      "avg_win_r": null,
+      "avg_loss_r": 1.0,
+      "exp_ci_low": -1.0,
+      "exp_ci_high": -1.0,
+      "verdict": "TOO THIN",
+      "why": "only 2 closed trades - no verdict is honest yet",
+      "suggested_fixes": []
+    }
+  }
+}
