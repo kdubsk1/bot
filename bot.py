@@ -923,6 +923,39 @@ def _w204_save(key, value):
         pass
 
 
+def _w217_size(conv, base=100.0):
+    """Position size as a multiple of base risk, from the conviction score.
+
+    Measured on the held-out 40% of the ledger (May 29 - Jul 28), which was
+    never used to choose anything:
+
+        take everything, flat size    152 trades   -0.107R/day
+        block below conviction 70      62 trades   +0.574R/day
+        SIZE on conviction, take more 132 trades   +0.696R/day   <- this
+
+    Sizing beats blocking on both counts at once: 2.1x more alerts AND 21%
+    more R per day. A gate throws the score away after using it once; a ramp
+    keeps using it.
+
+    Ramp is linear from 50 to 90 and caps at 1.5x. Nothing below 50 - the
+    bottom of the range never stopped losing money, and 'no restrictions'
+    cannot mean 'take the trades that are known to lose'.
+    """
+    try:
+        c = float(conv)
+    except Exception:
+        return ""
+    if c < 50:
+        return ""
+    mult = (c - 50.0) / 40.0 * 1.5
+    if mult > 1.5:
+        mult = 1.5
+    if mult <= 0:
+        return ""
+    return "SIZE  %.2fx   (conviction %d  ->  $%d at a $%d base)" % (
+        mult, int(c), int(round(mult * base)), int(base))
+
+
 def format_alert_public(market, tf, setup, tier, target, rr, size_line=""):
     """The LADDER card: target, entry and stop stacked in price order."""
     try:
@@ -3160,13 +3193,13 @@ async def scan_market(app, market, frames):
             # variable is hoisted ABOVE the ladder and both use it, so a
             # learned 46 genuinely fires as LOW tier. HIGH/MEDIUM cuts (60/53)
             # are untouched - only the floor between LOW and REJECT moves.
-            _WAVE60_MIN_CONV = _w143_get("conv_min", market, stp["type"], 70)  # _W216_CONV70
+            _WAVE60_MIN_CONV = _w143_get("conv_min", market, stp["type"], 50)  # _W216_CONV70 _W217_SIZED
             if   conv>=60: tier="HIGH"   # Wave 60: tiers on the evidence (win-rate) scale
             elif conv>=53: tier="MEDIUM"
             elif conv>=_WAVE60_MIN_CONV: tier="LOW"
             else:          tier="REJECT"
             if tier == "LOW":
-                _w143_mark_via(stp, "conv_min", market, conv, 70)
+                _w143_mark_via(stp, "conv_min", market, conv, 50)
             if tier=="REJECT" or conv < _WAVE60_MIN_CONV:
                 decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
                 _conv_reason = (
@@ -3454,7 +3487,7 @@ async def scan_market(app, market, frames):
                                              tgt, rr, method, adx_v, rsi_v, lev, risk_pct, hold,
                                              extra_footer=footer, alert_id=alert_id)
             # Wave 179: clean card to the public channel, full diagnostics to control.
-            _w179_pub = format_alert_public(market, entry_tf, stp, tier, tgt, rr)
+            _w179_pub = format_alert_public(market, entry_tf, stp, tier, tgt, rr, _w217_size(conv))
             await tg_send_pub(app, _w179_pub or _w179_full)
             await tg_send(app, _w179_full)
             log.info(
