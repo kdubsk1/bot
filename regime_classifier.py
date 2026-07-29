@@ -94,14 +94,27 @@ def classify_regime(df: pd.DataFrame, market: str = "") -> dict:
     current_close = float(df["Close"].iloc[-1])
 
     # --- Classification ---
-    if atr_pct > 85:
+    # Wave 210 (_W210_REGIME): high volatility WITH direction is a TREND,
+    # not "expansion". This branch used to fire on any high-ATR state and
+    # sits BEFORE the trend branch, so it swallowed trends outright -
+    # simulated over 400 markets, 50.5% of strong trends trip atr_pct>85
+    # against 14.5% of choppy ones. ADX is what separates the two, and it
+    # is already computed above. TRENDING_BULL/BEAR appeared ZERO times in
+    # 94,000 rows, and this is why.
+    if atr_pct > 85 and current_adx <= 25:
         regime = "VOLATILE_EXPANSION"
         # Confidence scales with how extreme the ATR percentile is
         confidence = min(100, int(50 + (atr_pct - 85) * 3.33))
-    elif current_adx > 25 and ema50_slope_pct > 0.15 and current_close > ema50_now:
+    # Wave 210: 0.15%/bar was very nearly unreachable. An EMA50 moves by
+    # alpha*(price-ema) with alpha=2/51, so 0.15%/bar needs price to sit
+    # 3.82% above its own EMA50 - on NQ that is 1,082 points, sustained,
+    # which is a dislocation rather than a trend. Measured slope on this
+    # bot's rows: median 0.0084%, p90 0.0745%. p90 needs price 1.9% above
+    # the EMA50 - a real, and reachable, strong hourly trend.
+    elif current_adx > 25 and ema50_slope_pct > 0.0745 and current_close > ema50_now:
         regime = "TRENDING_BULL"
         confidence = min(100, int(current_adx * 2))
-    elif current_adx > 25 and ema50_slope_pct < -0.15 and current_close < ema50_now:
+    elif current_adx > 25 and ema50_slope_pct < -0.0745 and current_close < ema50_now:
         regime = "TRENDING_BEAR"
         confidence = min(100, int(current_adx * 2))
     else:
