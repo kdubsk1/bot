@@ -3160,13 +3160,13 @@ async def scan_market(app, market, frames):
             # variable is hoisted ABOVE the ladder and both use it, so a
             # learned 46 genuinely fires as LOW tier. HIGH/MEDIUM cuts (60/53)
             # are untouched - only the floor between LOW and REJECT moves.
-            _WAVE60_MIN_CONV = _w143_get("conv_min", market, stp["type"], 48)
+            _WAVE60_MIN_CONV = _w143_get("conv_min", market, stp["type"], 70)  # _W216_CONV70
             if   conv>=60: tier="HIGH"   # Wave 60: tiers on the evidence (win-rate) scale
             elif conv>=53: tier="MEDIUM"
             elif conv>=_WAVE60_MIN_CONV: tier="LOW"
             else:          tier="REJECT"
             if tier == "LOW":
-                _w143_mark_via(stp, "conv_min", market, conv, 48)
+                _w143_mark_via(stp, "conv_min", market, conv, 70)
             if tier=="REJECT" or conv < _WAVE60_MIN_CONV:
                 decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
                 _conv_reason = (
