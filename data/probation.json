@@ -10,17 +10,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "3W/30L (9.1% WR)"
   },
-  "BTC:STOCH_REVERSAL_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-22T14:14:44.980991+00:00",
-    "wins_at_start": 5,
-    "losses_at_start": 10,
-    "shadow_n": 10,
-    "shadow_wr": 50.0,
-    "shadow_expectancy": 0.779,
-    "judge_after_trades": 5,
-    "was_suspended_for": "1W/5L (16.7% WR)"
-  },
   "GC:RSI_DIV_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-22T14:29:48.670643+00:00",
@@ -131,17 +120,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "GC:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-07-28T09:44:32.475031+00:00",
-    "wins_at_start": 21,
-    "losses_at_start": 61,
-    "shadow_n": 8764,
-    "shadow_wr": 37.7,
-    "shadow_expectancy": 0.54,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/7L (0.0% WR, expectancy -1.00R) on 7 live trades"
-  },
   "NQ:VWAP_REJECT_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-29T00:07:18.841169+00:00",
@@ -163,5 +141,27 @@
     "shadow_expectancy": 0.81,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 4W/2L (66.7% WR, expectancy -1.00R) on 6 live trades"
+  },
+  "GC:VWAP_BOUNCE_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-07-29T18:11:33.298122+00:00",
+    "wins_at_start": 27,
+    "losses_at_start": 62,
+    "shadow_n": 8905,
+    "shadow_wr": 37.2,
+    "shadow_expectancy": 0.499,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 6W/1L (85.7% WR, expectancy -1.00R) on 7 live trades"
+  },
+  "BTC:STOCH_REVERSAL_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-07-29T20:17:16.963777+00:00",
+    "wins_at_start": 8,
+    "losses_at_start": 12,
+    "shadow_n": 812,
+    "shadow_wr": 66.9,
+    "shadow_expectancy": 1.308,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 3W/2L (60.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }
