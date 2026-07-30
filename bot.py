@@ -501,7 +501,7 @@ def _zone_locked(market: str, direction: str, entry_price: float) -> bool:
 # 6h; never raises - any failure disables the gate (fires as before).
 _W161_WINDOW = 40
 _W161_MIN_N = 30
-_W161_GATE_EXP = -0.15
+_W161_GATE_EXP = -0.85  # _W220_SIDE_CAL
 _W161_TTL_SEC = 6 * 3600
 _W161_SIDE_LIVE = {}
 _w161_state = {"built_at": 0.0}
