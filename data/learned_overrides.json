@@ -114,6 +114,25 @@
         "avg_rr": 1.97,
         "required_wr": 42.1
       }
+    },
+    "vol_floor|BTC|EMA21_PULLBACK_BULL": {
+      "filter": "vol_floor",
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BULL",
+      "base": 0.3,
+      "consecutive_reverts": 0,
+      "tagged": [],
+      "value": 0.25,
+      "state": "ACTIVE",
+      "applied_at": "2026-07-30T00:01:36.889448+00:00",
+      "evidence": {
+        "n": 302,
+        "w": 156,
+        "l": 146,
+        "wr": 51.7,
+        "avg_rr": 2.12,
+        "required_wr": 40.1
+      }
     }
   },
   "ready_history": {
@@ -125,7 +144,8 @@
       "2026-07-23",
       "2026-07-24",
       "2026-07-25",
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "conv_min|GC|MACD_CROSS_BEAR": [
       "2026-07-19",
@@ -135,118 +155,154 @@
       "2026-07-23",
       "2026-07-24",
       "2026-07-25",
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|BREAK_RETEST_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|BREAK_RETEST_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|SOL|VWAP_REJECT_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|BTC|VWAP_REJECT_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|VWAP_REJECT_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|EMA21_PULLBACK_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|VWAP_BOUNCE_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|BTC|MACD_CROSS_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|BREAK_RETEST_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|GC|STOCH_REVERSAL_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|STOCH_REVERSAL_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|NQ|VWAP_REJECT_BEAR": [
-      "2026-07-29"
-    ],
-    "vol_floor|NQ|RSI_DIV_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|EMA21_PULLBACK_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|BB_REVERSION_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|STOCH_REVERSAL_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|SOL|STOCH_REVERSAL_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|STOCH_REVERSAL_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|BB_REVERSION_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|EMA50_BREAKDOWN": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|NQ|MACD_CROSS_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|NQ|STOCH_REVERSAL_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|BTC|EMA21_PULLBACK_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|RSI_DIV_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|EMA21_PULLBACK_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|BB_REVERSION_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|NQ|MACD_CROSS_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|BTC|MACD_CROSS_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|GC|MACD_CROSS_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|SOL|EMA21_PULLBACK_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|NQ|MACD_CROSS_BULL": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|NQ|EMA21_PULLBACK_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|SOL|BB_REVERSION_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_floor|BTC|MACD_CROSS_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|GC|STOCH_REVERSAL_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
     ],
     "vol_confirm|GC|RSI_DIV_BEAR": [
-      "2026-07-29"
+      "2026-07-29",
+      "2026-07-30"
+    ],
+    "vol_floor|GC|VWAP_BOUNCE_BULL": [
+      "2026-07-30"
     ]
   },
-  "last_apply_date": "2026-07-21",
+  "last_apply_date": "2026-07-30",
   "seeds": {
     "adx_min|BTC|STOCH_REVERSAL_BEAR": {
       "base": 16.0,
@@ -431,6 +487,10 @@
     "adx_min|NQ|BB_REVERSION_BEAR": {
       "base": 22.0,
       "seeded_at": "2026-07-29T00:28:40.619793+00:00"
+    },
+    "adx_min|GC|MACD_CROSS_BULL": {
+      "base": 14.0,
+      "seeded_at": "2026-07-29T22:46:14.374817+00:00"
     }
   }
 }
