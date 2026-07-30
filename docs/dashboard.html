@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-30T02:25:38.290253+00:00",
+  "generated_at": "2026-07-30T05:15:13.815811+00:00",
   "topstep": {
     "balance": 50346.69,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -788,6 +788,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-07-30 05:09",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4100.3",
+      "stop": "4123.4376",
+      "target": "4053.9",
+      "rr": "2.01",
+      "conv": "81",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-07-28 06:59",
       "market": "NQ",
       "setup": "MACD_CROSS_BULL",
@@ -954,7 +970,21 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "4100.3",
+      "target": "4053.9",
+      "stop": "4123.4376",
+      "conviction": 81,
+      "last_rescore_conviction": 81,
+      "tier": "HIGH",
+      "timestamp": "2026-07-30T05:09:15.748653+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
