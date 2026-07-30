@@ -992,6 +992,15 @@ def format_alert_public(market, tf, setup, tier, target, rr, size_line=""):
 
         # The setup's own measured record, when there is enough of one.
         try:
+            import os as _o  # _W219_PNL
+            try:
+                import w219_pnl as _w219
+                _pl = _w219.pnl_line(
+                    _o.path.dirname(_o.path.abspath(__file__)))
+                if _pl:
+                    lines.append(_pl)
+            except Exception:
+                pass
             import os as _o, w200_edge as _w200
             _e = _w200.edge_line(_o.path.dirname(_o.path.abspath(__file__)),
                                  market, setup.get("type", ""))
