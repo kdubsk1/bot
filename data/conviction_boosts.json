@@ -9,7 +9,7 @@
       "EMA21_PULLBACK_BEAR": 0,
       "BREAK_RETEST_BULL": -5,
       "RSI_DIV_BEAR": -5,
-      "STOCH_REVERSAL_BEAR": -13,
+      "STOCH_REVERSAL_BEAR": -12,
       "BB_REVERSION_BULL": 2,
       "STOCH_REVERSAL_BULL": -6,
       "APPROACH_SUPPORT": -17,
@@ -83,14 +83,14 @@
     "wr_threshold_to_zero": 25.0,
     "penalty_threshold_wr": 30.0,
     "max_decay_penalty": -10,
-    "last_decay_check_at": "2026-07-29T10:02:58.567801+00:00",
+    "last_decay_check_at": "2026-07-30T10:01:16.120467+00:00",
     "last_decay_actions": [
       {
-        "setup": "BREAK_RETEST_BULL",
-        "action": "penalized",
-        "reason": "1W/4L = 20.0% WR < 30.0",
-        "boost_before": 0,
-        "boost_after": -5,
+        "setup": "STOCH_REVERSAL_BEAR",
+        "action": "relaxed",
+        "reason": "2W/4L = 33.3% WR >= 30.0",
+        "boost_before": -13,
+        "boost_after": -12,
         "window_days": 14
       }
     ],
@@ -103,7 +103,7 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-07-29T10:02:58.572249+00:00",
+    "last_run_at": "2026-07-30T10:01:16.134215+00:00",
     "last_run_summary": {
       "cycle_changes": 0,
       "decay_actions": 1,

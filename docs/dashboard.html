@@ -283,16 +283,16 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-30T05:15:13.815811+00:00",
+  "generated_at": "2026-07-30T11:15:23.878840+00:00",
   "topstep": {
-    "balance": 50346.69,
+    "balance": 50115.31,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 346.69,
+    "today_pnl": -231.38,
+    "total_pnl": 115.31,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 1,
+    "open_count": 0,
     "equity_curve": [
       {
         "time": "Start",
@@ -321,6 +321,10 @@ const DATA = {
       {
         "time": "2026-07-28 06:59",
         "balance": 45665.41
+      },
+      {
+        "time": "2026-07-30 05:09",
+        "balance": 44980.43
       }
     ]
   },
@@ -739,15 +743,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 0,
-    "losses": 7,
+    "losses": 8,
     "wr": 0.0,
-    "total_trades": 7
+    "total_trades": 8
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -755,6 +759,13 @@ const DATA = {
       "fires": 3,
       "wins": 0,
       "losses": 3,
+      "wr": 0.0
+    },
+    {
+      "setup": "GC:MACD_CROSS_BEAR",
+      "fires": 2,
+      "wins": 0,
+      "losses": 2,
       "wr": 0.0
     },
     {
@@ -766,13 +777,6 @@ const DATA = {
     },
     {
       "setup": "BTC:EMA21_PULLBACK_BEAR",
-      "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
-    },
-    {
-      "setup": "GC:MACD_CROSS_BEAR",
       "fires": 1,
       "wins": 0,
       "losses": 1,
@@ -799,9 +803,9 @@ const DATA = {
       "rr": "2.01",
       "conv": "81",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4123.4376"
     },
     {
       "time": "2026-07-28 06:59",
@@ -941,8 +945,8 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 0,
-      "losses": 2,
-      "total_pnl_r": -2.0,
+      "losses": 3,
+      "total_pnl_r": -3.0,
       "wr": 0.0
     },
     "BTC": {
@@ -966,25 +970,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 0,
-      "losses": 5,
+      "losses": 6,
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "MACD_CROSS_BEAR",
-      "tf": "1h",
-      "direction": "SHORT",
-      "entry": "4100.3",
-      "target": "4053.9",
-      "stop": "4123.4376",
-      "conviction": 81,
-      "last_rescore_conviction": 81,
-      "tier": "HIGH",
-      "timestamp": "2026-07-30T05:09:15.748653+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
