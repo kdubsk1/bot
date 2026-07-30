@@ -53,3 +53,4 @@
 {"event":"seed_base","bucket":"adx_min|GC|MACD_CROSS_BULL","base":14.0,"ts":"2026-07-29T22:46:14.377138+00:00"}
 {"event":"apply","bucket":"vol_floor|BTC|EMA21_PULLBACK_BULL","from":0.3,"to":0.25,"evidence":{"n":302,"w":156,"l":146,"wr":51.7,"avg_rr":2.12,"required_wr":40.1},"ts":"2026-07-30T00:01:38.636769+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|BB_REVERSION_BEAR","base":18.0,"ts":"2026-07-30T14:13:35.449739+00:00"}
+{"event":"seed_base","bucket":"adx_min|GC|STOCH_REVERSAL_BEAR","base":14.0,"ts":"2026-07-30T17:17:54.523276+00:00"}

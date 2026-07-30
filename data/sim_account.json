@@ -12,28 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": -231.38,
-  "today_date": "2026-07-30",
-  "session_date": "2026-07-30",
+  "today_pnl": 0.0,
+  "today_date": "2026-07-31",
+  "session_date": "2026-07-31",
   "total_pnl": 115.31,
-  "trades": [
-    {
-      "alert_id": "5e8ee11987",
-      "market": "GC",
-      "direction": "SHORT",
-      "entry": 4100.3,
-      "stop": 4123.437575501319,
-      "target": 4053.9,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "MACD_CROSS_BEAR",
-      "opened_at": "2026-07-30T05:10:11.620922",
-      "status": "CLOSED",
-      "pnl": -231.38,
-      "exit_price": 4123.4376,
-      "result": "LOSS",
-      "closed_at": "2026-07-30T08:29:44.603901"
-    }
-  ],
+  "trades": [],
   "open_sim_trades": []
 }

@@ -283,11 +283,11 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-30T17:15:40.017679+00:00",
+  "generated_at": "2026-07-30T23:15:52.049763+00:00",
   "topstep": {
     "balance": 50115.31,
     "starting_balance": 50000,
-    "today_pnl": -231.38,
+    "today_pnl": 0.0,
     "total_pnl": 115.31,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
@@ -325,6 +325,10 @@ const DATA = {
       {
         "time": "2026-07-30 05:09",
         "balance": 44980.43
+      },
+      {
+        "time": "2026-07-30 17:17",
+        "balance": 47274.43
       }
     ]
   },
@@ -742,24 +746,24 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 0,
+    "wins": 1,
     "losses": 8,
-    "wr": 0.0,
-    "total_trades": 8
+    "wr": 11.1,
+    "total_trades": 9
   },
   "today": {
-    "wins": 0,
+    "wins": 1,
     "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "wr": 50.0,
+    "total_trades": 2
   },
   "setup_stats": [
     {
       "setup": "NQ:BREAK_RETEST_BULL",
-      "fires": 3,
-      "wins": 0,
+      "fires": 4,
+      "wins": 1,
       "losses": 3,
-      "wr": 0.0
+      "wr": 25.0
     },
     {
       "setup": "GC:MACD_CROSS_BEAR",
@@ -791,6 +795,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-30 17:17",
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "28184.25",
+      "stop": "28030.5835",
+      "target": "28706.25",
+      "rr": "3.4",
+      "conv": "63",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "28224.5"
+    },
     {
       "time": "2026-07-30 05:09",
       "market": "GC",
@@ -956,10 +976,10 @@ const DATA = {
       "wr": 0.0
     },
     "NQ": {
-      "wins": 0,
+      "wins": 1,
       "losses": 4,
-      "total_pnl_r": -4.0,
-      "wr": 0.0
+      "total_pnl_r": -0.6,
+      "wr": 20.0
     }
   },
   "by_tier": {
@@ -969,9 +989,9 @@ const DATA = {
       "wr": 0.0
     },
     "HIGH": {
-      "wins": 0,
+      "wins": 1,
       "losses": 6,
-      "wr": 0.0
+      "wr": 14.3
     }
   },
   "open_trades": []
