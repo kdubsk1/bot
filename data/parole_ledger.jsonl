@@ -1452,3 +1452,13 @@
 {"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T11:09:57.854141+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T11:11:58.599169+00:00"}
 {"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T11:13:59.700984+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T14:36:37.939847+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:15:35.778285+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:20:38.363565+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:25:40.228614+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:30:43.139632+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:35:45.692161+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:40:47.771036+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:45:51.355559+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:50:53.614783+00:00"}
+{"event": "denied_no_partner", "market": "BTC", "setup": "BB_REVERSION_BULL", "direction": "LONG", "ts": "2026-07-31T16:55:55.066625+00:00"}

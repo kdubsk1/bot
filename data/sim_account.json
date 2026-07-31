@@ -2,8 +2,8 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50115.31,
-  "peak_balance": 50727.27,
+  "balance": 50784.31,
+  "peak_balance": 50784.31,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
   "max_drawdown": 2000,
@@ -12,12 +12,11 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 0.0,
+  "today_pnl": 669.0,
   "today_date": "2026-07-31",
   "session_date": "2026-07-31",
-  "total_pnl": 115.31,
-  "trades": [],
-  "open_sim_trades": [
+  "total_pnl": 784.31,
+  "trades": [
     {
       "alert_id": "b619c3e158",
       "market": "GC",
@@ -29,6 +28,25 @@
       "tier": "HIGH",
       "setup_type": "MACD_CROSS_BEAR",
       "opened_at": "2026-07-31T00:36:11.914013",
+      "status": "CLOSED",
+      "pnl": 669.0,
+      "exit_price": 4085.0,
+      "result": "WIN",
+      "closed_at": "2026-07-31T13:41:30.920576"
+    }
+  ],
+  "open_sim_trades": [
+    {
+      "alert_id": "3b95c4e0ed",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4105.4,
+      "stop": 4072.423781242117,
+      "target": 4176.8,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-07-31T14:58:53.555365",
       "status": "OPEN",
       "pnl": 0.0
     }

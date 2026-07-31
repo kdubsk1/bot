@@ -512,8 +512,8 @@
       "seeded_at": "2026-07-28T06:59:08.609798+00:00"
     },
     "adx_min|BTC|MACD_CROSS_BEAR": {
-      "base": 20.0,
-      "seeded_at": "2026-07-28T10:26:03.317020+00:00"
+      "base": 16.0,
+      "seeded_at": "2026-07-31T13:45:09.182720+00:00"
     },
     "adx_min|SOL|STOCH_REVERSAL_BEAR": {
       "base": 22.0,
@@ -550,6 +550,10 @@
     "adx_min|BTC|EMA50_RECLAIM": {
       "base": 20.0,
       "seeded_at": "2026-07-31T01:09:25.035771+00:00"
+    },
+    "adx_min|GC|BB_REVERSION_BULL": {
+      "base": 18.0,
+      "seeded_at": "2026-07-31T14:27:22.979934+00:00"
     }
   }
 }

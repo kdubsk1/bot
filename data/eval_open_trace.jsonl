@@ -14,3 +14,7 @@
 {"ts": "2026-07-30T17:17:53.141668+00:00", "market": "NQ", "alert_id": "dbca26e337", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
 {"ts": "2026-07-31T00:36:11.912634+00:00", "market": "GC", "alert_id": "b619c3e158", "outcome": "attempt", "detail": "tier=HIGH"}
 {"ts": "2026-07-31T00:36:11.928061+00:00", "market": "GC", "alert_id": "b619c3e158", "outcome": "opened", "detail": "contracts=1 dir=SHORT", "contracts": 1, "direction": "SHORT"}
+{"ts": "2026-07-31T14:58:53.554890+00:00", "market": "GC", "alert_id": "3b95c4e0ed", "outcome": "attempt", "detail": "tier=HIGH"}
+{"ts": "2026-07-31T14:58:53.557749+00:00", "market": "GC", "alert_id": "3b95c4e0ed", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
+{"ts": "2026-07-31T16:35:44.056369+00:00", "market": "NQ", "alert_id": "f370457bb6", "outcome": "attempt", "detail": "tier=MEDIUM"}
+{"ts": "2026-07-31T16:35:44.056741+00:00", "market": "NQ", "alert_id": "f370457bb6", "outcome": "blocked_sizer", "detail": "kelly_no_edge (WR=25%)", "contracts": 0, "rejected": true}
