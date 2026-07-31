@@ -43,17 +43,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "BTC:STOCH_REVERSAL_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-07-24T03:16:32.018419+00:00",
-    "wins_at_start": 55,
-    "losses_at_start": 121,
-    "shadow_n": 125,
-    "shadow_wr": 34.4,
-    "shadow_expectancy": 0.228,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 2W/10L (16.7% WR, expectancy -1.00R) on 12 live trades"
-  },
   "SOL:BREAK_RETEST_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-07-24T12:58:17.618766+00:00",
@@ -163,5 +152,16 @@
     "shadow_expectancy": 0.501,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 19W/0L (100.0% WR, expectancy -1.00R) on 19 live trades"
+  },
+  "BTC:STOCH_REVERSAL_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-07-31T01:34:21.892332+00:00",
+    "wins_at_start": 56,
+    "losses_at_start": 125,
+    "shadow_n": 802,
+    "shadow_wr": 43.3,
+    "shadow_expectancy": 0.54,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 1W/4L (20.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }

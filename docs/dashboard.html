@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-07-30T23:15:52.049763+00:00",
+  "generated_at": "2026-07-31T05:16:11.362483+00:00",
   "topstep": {
     "balance": 50115.31,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -752,10 +752,10 @@ const DATA = {
     "total_trades": 9
   },
   "today": {
-    "wins": 1,
-    "losses": 1,
-    "wr": 50.0,
-    "total_trades": 2
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -795,6 +795,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-07-31 00:36",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4151.9",
+      "stop": "4176.4293",
+      "target": "4085.0",
+      "rr": "2.73",
+      "conv": "79",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-07-30 17:17",
       "market": "NQ",
@@ -942,11 +958,6 @@ const DATA = {
   ],
   "suspended_setups": [
     {
-      "key": "BTC:STOCH_REVERSAL_BEAR",
-      "reason": "REAL evidence: 5W/16L over 21 real trades, avg 2.41R, expectancy -0.188R/trade",
-      "suspended_at": "2026-07-25T14:02:55.539311+00:00"
-    },
-    {
       "key": "BTC:BB_REVERSION_BULL",
       "reason": "REAL evidence: 1W/8L over 9 real trades, avg 2.32R, expectancy -0.631R/trade",
       "suspended_at": "2026-07-25T14:02:55.539332+00:00"
@@ -994,7 +1005,21 @@ const DATA = {
       "wr": 14.3
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "4151.9",
+      "target": "4085.0",
+      "stop": "4176.4293",
+      "conviction": 79,
+      "last_rescore_conviction": 79,
+      "tier": "HIGH",
+      "timestamp": "2026-07-31T00:36:06.853477+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

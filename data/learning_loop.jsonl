@@ -54,3 +54,5 @@
 {"event":"apply","bucket":"vol_floor|BTC|EMA21_PULLBACK_BULL","from":0.3,"to":0.25,"evidence":{"n":302,"w":156,"l":146,"wr":51.7,"avg_rr":2.12,"required_wr":40.1},"ts":"2026-07-30T00:01:38.636769+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|BB_REVERSION_BEAR","base":18.0,"ts":"2026-07-30T14:13:35.449739+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|STOCH_REVERSAL_BEAR","base":14.0,"ts":"2026-07-30T17:17:54.523276+00:00"}
+{"event":"apply","bucket":"vol_floor|SOL|VWAP_BOUNCE_BULL","from":0.3,"to":0.25,"evidence":{"n":296,"w":120,"l":176,"wr":40.5,"avg_rr":2.11,"required_wr":40.2},"ts":"2026-07-31T00:05:53.526518+00:00"}
+{"event":"seed_base","bucket":"adx_min|BTC|EMA50_RECLAIM","base":20.0,"ts":"2026-07-31T01:09:25.038093+00:00"}

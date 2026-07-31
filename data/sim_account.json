@@ -17,5 +17,20 @@
   "session_date": "2026-07-31",
   "total_pnl": 115.31,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "b619c3e158",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4151.9,
+      "stop": 4176.429299209129,
+      "target": 4085.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "MACD_CROSS_BEAR",
+      "opened_at": "2026-07-31T00:36:11.914013",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
