@@ -155,13 +155,13 @@
   },
   "BTC:STOCH_REVERSAL_BEAR": {
     "state": "SERVING",
-    "granted_at": "2026-07-31T01:34:21.892332+00:00",
+    "granted_at": "2026-08-02T21:57:05.579249+00:00",
     "wins_at_start": 56,
-    "losses_at_start": 125,
-    "shadow_n": 802,
-    "shadow_wr": 43.3,
-    "shadow_expectancy": 0.54,
+    "losses_at_start": 132,
+    "shadow_n": 809,
+    "shadow_wr": 42.9,
+    "shadow_expectancy": 0.519,
     "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 1W/4L (20.0% WR, expectancy -1.00R) on 5 live trades"
+    "was_suspended_for": "probation failed: 0W/7L (0.0% WR, expectancy -1.00R) on 7 live trades"
   }
 }
