@@ -2,7 +2,7 @@
   "layer_1_setup_boosts": {
     "enabled": true,
     "boosts": {
-      "VWAP_BOUNCE_BULL": 8,
+      "VWAP_BOUNCE_BULL": 13,
       "APPROACH_RESIST": -10,
       "VWAP_REJECT_BEAR": -15,
       "EMA21_PULLBACK_BULL": -19,
@@ -68,7 +68,7 @@
     "rolling_window_days": 28,
     "max_adjustment_per_cycle": 5,
     "min_trades_to_adjust": 10,
-    "last_run_at": "2026-07-27T00:02:21.076458+00:00",
+    "last_run_at": "2026-08-03T00:01:02.620402+00:00",
     "last_run_summary": {
       "cycle_changes": 1,
       "l3_changed": false,
