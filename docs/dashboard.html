@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-03T05:18:46.220974+00:00",
+  "generated_at": "2026-08-03T11:18:58.538934+00:00",
   "topstep": {
     "balance": 50777.31,
     "starting_balance": 50000,
@@ -348,7 +348,7 @@ const DATA = {
     "balance": 882.57,
     "starting_balance": 1000.0,
     "total_pnl": -117.43,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 100,
     "equity_curve": [
       {
@@ -822,6 +822,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-08-03 09:46",
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "62645.57",
+      "stop": "62301.8464",
+      "target": "63474.0",
+      "rr": "2.41",
+      "conv": "75",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-07-31 16:35",
       "market": "NQ",
       "setup": "VWAP_BOUNCE_BULL",
@@ -1068,7 +1084,21 @@ const DATA = {
       "wr": 100.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "62645.57",
+      "target": "63474.0",
+      "stop": "62301.8464",
+      "conviction": 75,
+      "last_rescore_conviction": 75,
+      "tier": "HIGH",
+      "timestamp": "2026-08-03T09:46:40.297565+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

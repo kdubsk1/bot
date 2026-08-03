@@ -7,7 +7,36 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "dc20809e52",
+      "market": "BTC",
+      "direction": "LONG",
+      "entry": 62645.57,
+      "stop": 62301.84642682131,
+      "target": 63474.0,
+      "leverage": 3,
+      "position_size_usd": 2412.8,
+      "notional_usd": 7238.4,
+      "risk_dollars": 13.24,
+      "opened_at": "2026-08-03T09:46:44.422112+00:00",
+      "max_hold_until": "2026-08-10T09:46:44.422112+00:00",
+      "tier": "HIGH",
+      "conviction": 75,
+      "context": {
+        "suggested_lev": 3,
+        "trend_score": -10,
+        "rsi": 48.58,
+        "adx": 46.73,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "London Session",
+        "news_flag": false,
+        "chart_read": "Bullish RSI divergence: price lower low (62346.96) but RSI higher low (36.4 vs 29.4). Sellers exhausted. Reversal likely."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "bbfdb919f6",
