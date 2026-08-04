@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-04T11:20:03.225272+00:00",
+  "generated_at": "2026-08-04T17:20:14.791532+00:00",
   "topstep": {
-    "balance": 50777.31,
+    "balance": 51890.31,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 777.31,
+    "today_pnl": 1113.0,
+    "total_pnl": 1890.31,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -341,6 +341,14 @@ const DATA = {
       {
         "time": "2026-08-03 14:07",
         "balance": 54918.93
+      },
+      {
+        "time": "2026-08-04 11:56",
+        "balance": 57167.86
+      },
+      {
+        "time": "2026-08-04 14:44",
+        "balance": 56310.34
       }
     ]
   },
@@ -758,16 +766,16 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 6,
-    "losses": 7,
-    "wr": 46.2,
-    "total_trades": 13
+    "wins": 7,
+    "losses": 8,
+    "wr": 46.7,
+    "total_trades": 15
   },
   "today": {
-    "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "wins": 1,
+    "losses": 1,
+    "wr": 50.0,
+    "total_trades": 2
   },
   "setup_stats": [
     {
@@ -785,6 +793,13 @@ const DATA = {
       "wr": 33.3
     },
     {
+      "setup": "NQ:MACD_CROSS_BULL",
+      "fires": 2,
+      "wins": 1,
+      "losses": 1,
+      "wr": 50.0
+    },
+    {
       "setup": "NQ:VWAP_BOUNCE_BULL",
       "fires": 2,
       "wins": 2,
@@ -793,13 +808,6 @@ const DATA = {
     },
     {
       "setup": "BTC:EMA21_PULLBACK_BEAR",
-      "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
-    },
-    {
-      "setup": "NQ:MACD_CROSS_BULL",
       "fires": 1,
       "wins": 0,
       "losses": 1,
@@ -818,9 +826,48 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "GC:STOCH_REVERSAL_BEAR",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-08-04 14:44",
+      "market": "GC",
+      "setup": "STOCH_REVERSAL_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4136.8",
+      "stop": "4158.1888",
+      "target": "4085.0",
+      "rr": "2.42",
+      "conv": "72",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4158.1888"
+    },
+    {
+      "time": "2026-08-04 11:56",
+      "market": "NQ",
+      "setup": "MACD_CROSS_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "29240.5",
+      "stop": "29036.9629",
+      "target": "29797.0",
+      "rr": "2.73",
+      "conv": "55",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "29797.0"
+    },
     {
       "time": "2026-08-03 14:07",
       "market": "NQ",
@@ -1055,16 +1102,16 @@ const DATA = {
       "wr": 50.0
     },
     "NQ": {
-      "wins": 3,
+      "wins": 4,
       "losses": 4,
-      "total_pnl_r": 3.64,
-      "wr": 42.9
+      "total_pnl_r": 6.37,
+      "wr": 50.0
     },
     "GC": {
       "wins": 2,
-      "losses": 2,
-      "total_pnl_r": 2.9,
-      "wr": 50.0
+      "losses": 3,
+      "total_pnl_r": 1.9,
+      "wr": 40.0
     }
   },
   "by_tier": {
@@ -1075,11 +1122,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 4,
-      "losses": 6,
-      "wr": 40.0
+      "losses": 7,
+      "wr": 36.4
     },
     "MEDIUM": {
-      "wins": 2,
+      "wins": 3,
       "losses": 0,
       "wr": 100.0
     }

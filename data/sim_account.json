@@ -2,8 +2,8 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 50777.31,
-  "peak_balance": 50784.31,
+  "balance": 51890.31,
+  "peak_balance": 51890.31,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
   "max_drawdown": 2000,
@@ -12,10 +12,28 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": 0.0,
+  "today_pnl": 1113.0,
   "today_date": "2026-08-04",
   "session_date": "2026-08-04",
-  "total_pnl": 777.31,
-  "trades": [],
+  "total_pnl": 1890.31,
+  "trades": [
+    {
+      "alert_id": "b2b65f7896",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29240.5,
+      "stop": 29036.962880850333,
+      "target": 29797.0,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "MACD_CROSS_BULL",
+      "opened_at": "2026-08-04T11:56:15.788310",
+      "status": "CLOSED",
+      "pnl": 1113.0,
+      "exit_price": 29797.0,
+      "result": "WIN",
+      "closed_at": "2026-08-04T17:12:25.647214"
+    }
+  ],
   "open_sim_trades": []
 }
