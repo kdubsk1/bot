@@ -62,3 +62,5 @@
 {"event":"apply","bucket":"vol_floor|NQ|VWAP_REJECT_BEAR","from":0.3,"to":0.25,"evidence":{"n":288,"w":141,"l":147,"wr":49.0,"avg_rr":2.1,"required_wr":40.4},"ts":"2026-08-02T00:01:47.694966+00:00"}
 {"event":"apply","bucket":"vol_floor|NQ|EMA21_PULLBACK_BEAR","from":0.3,"to":0.25,"evidence":{"n":285,"w":142,"l":143,"wr":49.8,"avg_rr":2.26,"required_wr":38.3},"ts":"2026-08-03T00:01:06.124515+00:00"}
 {"event":"seed_base","bucket":"adx_min|BTC|RSI_DIV_BULL","base":20.0,"ts":"2026-08-03T09:46:40.290090+00:00"}
+{"event":"apply","bucket":"vol_floor|BTC|VWAP_REJECT_BEAR","from":0.3,"to":0.25,"evidence":{"n":252,"w":120,"l":132,"wr":47.6,"avg_rr":2.47,"required_wr":36.0},"ts":"2026-08-04T00:01:51.869471+00:00"}
+{"event":"seed_base","bucket":"adx_min|NQ|EMA21_PULLBACK_BULL","base":20.0,"ts":"2026-08-04T02:35:26.037327+00:00"}
