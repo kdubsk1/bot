@@ -283,11 +283,11 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-05T17:21:20.308429+00:00",
+  "generated_at": "2026-08-05T23:21:38.387158+00:00",
   "topstep": {
     "balance": 51662.68,
     "starting_balance": 50000,
-    "today_pnl": -227.63,
+    "today_pnl": 0.0,
     "total_pnl": 1662.68,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
@@ -299,44 +299,40 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-07-28 06:59",
+        "time": "2026-07-30 05:09",
         "balance": 49250.0
       },
       {
-        "time": "2026-07-30 05:09",
-        "balance": 48511.25
-      },
-      {
         "time": "2026-07-30 17:17",
-        "balance": 50985.32
+        "balance": 51761.75
       },
       {
         "time": "2026-07-31 00:36",
-        "balance": 53073.17
+        "balance": 53881.39
       },
       {
         "time": "2026-07-31 14:58",
-        "balance": 54800.7
+        "balance": 55635.23
       },
       {
         "time": "2026-07-31 16:35",
-        "balance": 56518.71
+        "balance": 57379.4
       },
       {
         "time": "2026-08-03 14:07",
-        "balance": 58341.43
+        "balance": 59229.88
       },
       {
         "time": "2026-08-04 11:56",
-        "balance": 60730.52
+        "balance": 61655.35
       },
       {
         "time": "2026-08-04 14:44",
-        "balance": 59819.56
+        "balance": 60730.52
       },
       {
         "time": "2026-08-04 23:29",
-        "balance": 58922.27
+        "balance": 59819.56
       }
     ]
   },
@@ -755,9 +751,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 7,
-    "losses": 4,
-    "wr": 63.6,
-    "total_trades": 11
+    "losses": 3,
+    "wr": 70.0,
+    "total_trades": 10
   },
   "today": {
     "wins": 0,
@@ -772,13 +768,6 @@ const DATA = {
       "wins": 1,
       "losses": 2,
       "wr": 33.3
-    },
-    {
-      "setup": "NQ:MACD_CROSS_BULL",
-      "fires": 2,
-      "wins": 1,
-      "losses": 1,
-      "wr": 50.0
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
@@ -803,6 +792,13 @@ const DATA = {
     },
     {
       "setup": "BTC:RSI_DIV_BULL",
+      "fires": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
+    },
+    {
+      "setup": "NQ:MACD_CROSS_BULL",
       "fires": 1,
       "wins": 1,
       "losses": 0,
@@ -976,22 +972,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "4123.4376"
-    },
-    {
-      "time": "2026-07-28 06:59",
-      "market": "NQ",
-      "setup": "MACD_CROSS_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "27949.5",
-      "stop": "27874.8851",
-      "target": "28070.5",
-      "rr": "1.62",
-      "conv": "60",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "27874.8851"
     }
   ],
   "suspended_setups": [
@@ -1012,17 +992,17 @@ const DATA = {
     }
   ],
   "by_market": {
-    "NQ": {
-      "wins": 4,
-      "losses": 1,
-      "total_pnl_r": 9.37,
-      "wr": 80.0
-    },
     "GC": {
       "wins": 2,
       "losses": 3,
       "total_pnl_r": 1.9,
       "wr": 40.0
+    },
+    "NQ": {
+      "wins": 4,
+      "losses": 0,
+      "total_pnl_r": 10.37,
+      "wr": 100.0
     },
     "BTC": {
       "wins": 1,
@@ -1034,8 +1014,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 4,
-      "losses": 4,
-      "wr": 50.0
+      "losses": 3,
+      "wr": 57.1
     },
     "MEDIUM": {
       "wins": 3,

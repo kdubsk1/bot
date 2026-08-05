@@ -1,0 +1,2 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+94977ee009,2026-08-04T23:29:43.917924+00:00,GC,1h,MACD_CROSS_BEAR,SHORT,4123.7,4146.4632,4076.4,2.08,swing_level_sweet,-1,78,HIGH,,intraday (1-4 hours) - flat by 4PM ET,48.67,14.544,27.97,MIXED,23,0.49,0,CLOSED,LOSS,0,4146.4632,78,,2026-08-05,0,0,
