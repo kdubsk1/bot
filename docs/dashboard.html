@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-04T23:20:35.454054+00:00",
+  "generated_at": "2026-08-05T05:20:49.727643+00:00",
   "topstep": {
-    "balance": 51890.31,
+    "balance": 51662.68,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 1890.31,
+    "today_pnl": -227.63,
+    "total_pnl": 1662.68,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -333,6 +333,10 @@ const DATA = {
       {
         "time": "2026-08-04 14:44",
         "balance": 59819.56
+      },
+      {
+        "time": "2026-08-04 23:29",
+        "balance": 58922.27
       }
     ]
   },
@@ -751,26 +755,26 @@ const DATA = {
   },
   "all_time": {
     "wins": 7,
-    "losses": 3,
-    "wr": 70.0,
-    "total_trades": 10
+    "losses": 4,
+    "wr": 63.6,
+    "total_trades": 11
   },
   "today": {
-    "wins": 1,
-    "losses": 1,
-    "wr": 50.0,
-    "total_trades": 2
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
-      "setup": "NQ:MACD_CROSS_BULL",
-      "fires": 2,
+      "setup": "GC:MACD_CROSS_BEAR",
+      "fires": 3,
       "wins": 1,
-      "losses": 1,
-      "wr": 50.0
+      "losses": 2,
+      "wr": 33.3
     },
     {
-      "setup": "GC:MACD_CROSS_BEAR",
+      "setup": "NQ:MACD_CROSS_BULL",
       "fires": 2,
       "wins": 1,
       "losses": 1,
@@ -813,6 +817,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-08-04 23:29",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4123.7",
+      "stop": "4146.4632",
+      "target": "4076.4",
+      "rr": "2.08",
+      "conv": "78",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4146.4632"
+    },
     {
       "time": "2026-08-04 14:44",
       "market": "GC",
@@ -1000,9 +1020,9 @@ const DATA = {
     },
     "GC": {
       "wins": 2,
-      "losses": 2,
-      "total_pnl_r": 2.9,
-      "wr": 50.0
+      "losses": 3,
+      "total_pnl_r": 1.9,
+      "wr": 40.0
     },
     "BTC": {
       "wins": 1,
@@ -1014,8 +1034,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 4,
-      "losses": 3,
-      "wr": 57.1
+      "losses": 4,
+      "wr": 50.0
     },
     "MEDIUM": {
       "wins": 3,

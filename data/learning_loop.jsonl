@@ -65,3 +65,4 @@
 {"event":"apply","bucket":"vol_floor|BTC|VWAP_REJECT_BEAR","from":0.3,"to":0.25,"evidence":{"n":252,"w":120,"l":132,"wr":47.6,"avg_rr":2.47,"required_wr":36.0},"ts":"2026-08-04T00:01:51.869471+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|EMA21_PULLBACK_BULL","base":20.0,"ts":"2026-08-04T02:35:26.037327+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|BB_REVERSION_BEAR","base":14.0,"ts":"2026-08-04T18:28:06.938862+00:00"}
+{"event":"apply","bucket":"vol_floor|SOL|BREAK_RETEST_BEAR","from":0.3,"to":0.25,"evidence":{"n":249,"w":105,"l":144,"wr":42.2,"avg_rr":2.18,"required_wr":39.3},"ts":"2026-08-05T00:03:00.319256+00:00"}
