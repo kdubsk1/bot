@@ -2,5 +2,9 @@
   "BTC:mean_rev_long": {
     "expiry": "2026-08-03T14:59:40.510539+00:00",
     "reason": "WIN"
+  },
+  "NQ:mean_rev_long": {
+    "expiry": "2026-08-06T12:32:07.264609+00:00",
+    "reason": "LOSS"
   }
 }

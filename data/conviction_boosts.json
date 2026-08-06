@@ -103,7 +103,7 @@
     "min_trades_to_adjust": 5,
     "max_adjustment_per_cycle": 3,
     "min_dollar_threshold": 30.0,
-    "last_run_at": "2026-08-05T10:02:03.979016+00:00",
+    "last_run_at": "2026-08-06T10:01:33.778383+00:00",
     "last_run_summary": {
       "cycle_changes": 0,
       "decay_actions": 0,
