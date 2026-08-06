@@ -1,14 +1,4 @@
 {
-  "BTC:BB_REVERSION_BULL": {
-    "reason": "REAL evidence: 1W/8L over 9 real trades, avg 2.32R, expectancy -0.631R/trade",
-    "suspended_at": "2026-07-25T14:02:55.539332+00:00",
-    "wave170_evidence": {
-      "real_total": 9,
-      "real_win_rate": 11.1,
-      "real_avg_rr_win": 2.32,
-      "real_expectancy": -0.6311
-    }
-  },
   "SOL:VWAP_BOUNCE_BULL": {
     "reason": "probation failed: 2W/3L (40.0% WR, expectancy -1.00R) on 5 live trades",
     "suspended_at": "2026-07-26T04:07:53.950257+00:00",
