@@ -6759,6 +6759,87 @@ async def cmd_review(u,c):
     except Exception as e:
         await u.message.reply_text(f"❌ Review error: {e}")
 
+def _w221_snap_from(frames):
+    """Pull close / ema50 / ema200 / adx out of whatever get_frames returns.
+
+    The frame shape is not assumed - dict of timeframes, single frame, either
+    casing of column names. Anything missing degrades the read rather than
+    raising, because a news card must never be able to break the bot.
+    """
+    out = {}
+    try:
+        df = None
+        if isinstance(frames, dict):
+            for k in ("1h", "15m", "4h", "30m", "5m"):
+                v = frames.get(k)
+                if v is not None and len(v):
+                    df = v
+                    break
+            if df is None:
+                for v in frames.values():
+                    if v is not None and len(v):
+                        df = v
+                        break
+        else:
+            df = frames
+        if df is None or not len(df):
+            return out
+        last = df.iloc[-1]
+        cols = set(getattr(df, "columns", []))
+        for key, names in (("close", ("close", "Close")),
+                           ("ema50", ("ema50", "EMA50")),
+                           ("ema200", ("ema200", "EMA200")),
+                           ("adx", ("adx", "ADX"))):
+            for n in names:
+                if n in cols:
+                    try:
+                        out[key] = float(last[n])
+                    except Exception:
+                        pass
+                    break
+    except Exception:
+        pass
+    return out
+
+
+async def cmd_w221_news(u, c):
+    """
+    The morning read.
+
+    GOES TO CONTROL ONLY. tg_send defaults to CONTROL_CHAT_ID (line 742), and
+    this deliberately never calls tg_send_pub. Wayne's rule: news belongs in
+    Clocked Signals, never in NQ CALLS.
+    """
+    try:
+        await u.message.reply_text("Reading the tape...")
+    except Exception:
+        pass
+    try:
+        import w221_news as _w221
+    except Exception as _e:
+        try:
+            await u.message.reply_text("news module not available: %s" % _e)
+        except Exception:
+            pass
+        return
+    snaps = {}
+    for _m in ("NQ", "GC", "BTC", "SOL"):
+        try:
+            snaps[_m] = _w221_snap_from(get_frames(_m))
+        except Exception:
+            pass
+    try:
+        card = _w221.build_card(snaps)
+        if card:
+            await tg_send(c.application, card)
+    except Exception as _e:
+        try:
+            log.warning("w221 news card failed: %s", _e)
+            await u.message.reply_text("news card failed: %s" % _e)
+        except Exception:
+            pass
+
+
 async def cmd_brief(u,c):
     await u.message.reply_text("⏳ Scanning markets...")
     try:
@@ -8547,6 +8628,7 @@ def main():
                 pass
 
     app.add_handler(CommandHandler("chatid", cmd_w203_chatid))
+    app.add_handler(CommandHandler("news", cmd_w221_news))  # _W221_NEWS
     app.add_handler(CallbackQueryHandler(on_button))
     log.info("Bot ready. Open Telegram and type /start")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
