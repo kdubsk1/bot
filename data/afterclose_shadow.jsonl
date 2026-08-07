@@ -32,3 +32,4 @@
 {"kind": "resolved", "alert_id": "3b95c4e0ed", "market": "GC", "verdict": "SHADOW_NEITHER_36H", "bars_15m_after_close": 4, "settle_result": "WIN", "ts": "2026-08-02T07:55:40.494953+00:00"}
 {"kind": "pending", "alert_id": "37ba1368a6", "market": "NQ", "direction": "LONG", "setup": "VWAP_BOUNCE_BULL", "entry": "28575.25", "stop": "28287.9427", "target": "29192.5", "settle_price": 28931.0, "settle_result": "WIN", "settle_ts": "2026-08-03T19:55:29.727505+00:00"}
 {"kind": "resolved", "alert_id": "37ba1368a6", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 59, "settle_result": "WIN", "ts": "2026-08-04T11:45:01.782757+00:00"}
+{"kind": "pending", "alert_id": "0e72784123", "market": "NQ", "direction": "LONG", "setup": "VWAP_BOUNCE_BULL", "entry": "29477.5", "stop": "29228.669", "target": "29990.0", "settle_price": 29478.75, "settle_result": "WIN", "settle_ts": "2026-08-06T19:55:21.642702+00:00"}
