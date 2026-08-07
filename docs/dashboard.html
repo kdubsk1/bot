@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-07T13:20:16.790993+00:00",
+  "generated_at": "2026-08-07T19:20:33.726914+00:00",
   "topstep": {
-    "balance": 51662.68,
+    "balance": 51253.68,
     "starting_balance": 50000,
-    "today_pnl": 0.0,
-    "total_pnl": 1662.68,
+    "today_pnl": -409.0,
+    "total_pnl": 1253.68,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -345,6 +345,10 @@ const DATA = {
       {
         "time": "2026-08-07 01:46",
         "balance": 62200.79
+      },
+      {
+        "time": "2026-08-07 14:10",
+        "balance": 61267.78
       }
     ]
   },
@@ -763,15 +767,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 9,
-    "losses": 4,
-    "wr": 69.2,
-    "total_trades": 13
+    "losses": 5,
+    "wr": 64.3,
+    "total_trades": 14
   },
   "today": {
     "wins": 1,
-    "losses": 0,
-    "wr": 100.0,
-    "total_trades": 1
+    "losses": 1,
+    "wr": 50.0,
+    "total_trades": 2
   },
   "setup_stats": [
     {
@@ -829,9 +833,32 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "NQ:OPENING_RANGE_BREAKOUT",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-08-07 14:10",
+      "market": "NQ",
+      "setup": "OPENING_RANGE_BREAKOUT",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "29629.5",
+      "stop": "29833.999",
+      "target": "29036.5",
+      "rr": "2.9",
+      "conv": "74",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29833.999"
+    },
     {
       "time": "2026-08-07 01:46",
       "market": "GC",
@@ -1051,6 +1078,11 @@ const DATA = {
       "key": "NQ:EMA21_PULLBACK_BEAR",
       "reason": "probation failed: 1W/24L (4.0% WR, expectancy -1.00R) on 25 live trades",
       "suspended_at": "2026-07-26T22:10:34.581356+00:00"
+    },
+    {
+      "key": "NQ:EMA21_PULLBACK_BULL",
+      "reason": "probation failed: 2W/42L (4.5% WR, expectancy -1.00R) on 44 live trades",
+      "suspended_at": "2026-08-07T14:16:37.516541+00:00"
     }
   ],
   "by_market": {
@@ -1062,9 +1094,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 5,
-      "losses": 1,
-      "total_pnl_r": 11.43,
-      "wr": 83.3
+      "losses": 2,
+      "total_pnl_r": 10.43,
+      "wr": 71.4
     },
     "BTC": {
       "wins": 1,
@@ -1076,8 +1108,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 4,
-      "losses": 3,
-      "wr": 57.1
+      "losses": 4,
+      "wr": 50.0
     },
     "MEDIUM": {
       "wins": 5,

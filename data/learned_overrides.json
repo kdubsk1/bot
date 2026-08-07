@@ -949,6 +949,14 @@
     "adx_min|NQ|EMA21_PULLBACK_BULL": {
       "base": 20.0,
       "seeded_at": "2026-08-04T02:35:26.032207+00:00"
+    },
+    "adx_min|NQ|STOCH_REVERSAL_BEAR": {
+      "base": 22.0,
+      "seeded_at": "2026-08-07T13:26:59.407394+00:00"
+    },
+    "adx_min|NQ|OPENING_RANGE_BREAKOUT": {
+      "base": 22.0,
+      "seeded_at": "2026-08-07T14:10:02.074512+00:00"
     }
   }
 }

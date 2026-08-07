@@ -12,5 +12,12 @@
     "total_at_suspension": 114,
     "wr_at_suspension": 24.6,
     "bleed_at_suspension": 0.0
+  },
+  "NQ:EMA21_PULLBACK_BULL": {
+    "reason": "probation failed: 2W/42L (4.5% WR, expectancy -1.00R) on 44 live trades",
+    "suspended_at": "2026-08-07T14:16:37.516541+00:00",
+    "total_at_suspension": 61,
+    "wr_at_suspension": 8.2,
+    "bleed_at_suspension": 0.0
   }
 }
