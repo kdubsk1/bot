@@ -70,3 +70,4 @@
 {"event":"apply","bucket":"vol_floor|BTC|BREAK_RETEST_BULL","from":0.3,"to":0.25,"evidence":{"n":180,"w":94,"l":86,"wr":52.2,"avg_rr":2.05,"required_wr":41.0},"ts":"2026-08-07T00:02:36.643775+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|STOCH_REVERSAL_BEAR","base":22.0,"ts":"2026-08-07T13:26:59.411390+00:00"}
 {"event":"seed_base","bucket":"adx_min|NQ|OPENING_RANGE_BREAKOUT","base":22.0,"ts":"2026-08-07T14:10:02.078778+00:00"}
+{"event":"apply","bucket":"vol_floor|BTC|BREAK_RETEST_BEAR","from":0.3,"to":0.25,"evidence":{"n":120,"w":46,"l":74,"wr":38.3,"avg_rr":2.34,"required_wr":37.5},"ts":"2026-08-08T00:02:22.409222+00:00"}

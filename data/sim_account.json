@@ -12,28 +12,10 @@
   "max_contracts_GC": 5,
   "use_mnq": true,
   "account_risk_pct": 1.5,
-  "today_pnl": -409.0,
-  "today_date": "2026-08-07",
-  "session_date": "2026-08-07",
+  "today_pnl": 0.0,
+  "today_date": "2026-08-10",
+  "session_date": "2026-08-10",
   "total_pnl": 1253.68,
-  "trades": [
-    {
-      "alert_id": "98dc3e30ac",
-      "market": "NQ",
-      "direction": "SHORT",
-      "entry": 29629.5,
-      "stop": 29833.998953122144,
-      "target": 29036.5,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "OPENING_RANGE_BREAKOUT",
-      "opened_at": "2026-08-07T14:10:04.518180",
-      "status": "CLOSED",
-      "pnl": -409.0,
-      "exit_price": 29833.999,
-      "result": "LOSS",
-      "closed_at": "2026-08-07T15:31:24.251988"
-    }
-  ],
+  "trades": [],
   "open_sim_trades": []
 }
