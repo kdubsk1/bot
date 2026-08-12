@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-12T07:24:22.373833+00:00",
+  "generated_at": "2026-08-12T13:24:32.642104+00:00",
   "topstep": {
     "balance": 51253.68,
     "starting_balance": 50000,
@@ -329,6 +329,10 @@ const DATA = {
       {
         "time": "2026-08-10 04:55",
         "balance": 53008.17
+      },
+      {
+        "time": "2026-08-12 00:46",
+        "balance": 54916.46
       }
     ]
   },
@@ -746,31 +750,31 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 4,
+    "wins": 5,
     "losses": 4,
-    "wr": 50.0,
-    "total_trades": 8
+    "wr": 55.6,
+    "total_trades": 9
   },
   "today": {
-    "wins": 0,
+    "wins": 1,
     "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "wr": 100.0,
+    "total_trades": 1
   },
   "setup_stats": [
+    {
+      "setup": "GC:VWAP_BOUNCE_BULL",
+      "fires": 3,
+      "wins": 3,
+      "losses": 0,
+      "wr": 100.0
+    },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
       "fires": 2,
       "wins": 1,
       "losses": 1,
       "wr": 50.0
-    },
-    {
-      "setup": "GC:VWAP_BOUNCE_BULL",
-      "fires": 2,
-      "wins": 2,
-      "losses": 0,
-      "wr": 100.0
     },
     {
       "setup": "NQ:MACD_CROSS_BULL",
@@ -814,9 +818,9 @@ const DATA = {
       "rr": "2.4",
       "conv": "58",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "4495.0"
     },
     {
       "time": "2026-08-10 04:55",
@@ -972,17 +976,17 @@ const DATA = {
       "wr": 50.0
     },
     "GC": {
-      "wins": 2,
+      "wins": 3,
       "losses": 2,
-      "total_pnl_r": 1.26,
-      "wr": 50.0
+      "total_pnl_r": 3.66,
+      "wr": 60.0
     }
   },
   "by_tier": {
     "MEDIUM": {
-      "wins": 4,
+      "wins": 5,
       "losses": 1,
-      "wr": 80.0
+      "wr": 83.3
     },
     "HIGH": {
       "wins": 0,
@@ -990,21 +994,7 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "4440.8",
-      "target": "4495.0",
-      "stop": "4418.2446",
-      "conviction": 58,
-      "last_rescore_conviction": 58,
-      "tier": "MEDIUM",
-      "timestamp": "2026-08-12T00:46:11.721571+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
