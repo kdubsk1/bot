@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-11T19:23:51.730692+00:00",
+  "generated_at": "2026-08-12T01:24:08.426713+00:00",
   "topstep": {
     "balance": 51253.68,
     "starting_balance": 50000,
@@ -299,40 +299,36 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-08-03 14:07",
-        "balance": 51612.5
-      },
-      {
         "time": "2026-08-04 11:56",
-        "balance": 53726.03
+        "balance": 52047.5
       },
       {
         "time": "2026-08-04 14:44",
-        "balance": 52920.14
+        "balance": 51266.79
       },
       {
         "time": "2026-08-04 23:29",
-        "balance": 52126.34
+        "balance": 50497.79
       },
       {
         "time": "2026-08-06 02:50",
-        "balance": 51344.44
+        "balance": 49740.32
       },
       {
         "time": "2026-08-06 13:46",
-        "balance": 52930.99
+        "balance": 51277.29
       },
       {
         "time": "2026-08-07 01:46",
-        "balance": 54201.33
+        "balance": 52507.95
       },
       {
         "time": "2026-08-07 14:10",
-        "balance": 53388.31
+        "balance": 51720.33
       },
       {
         "time": "2026-08-10 04:55",
-        "balance": 54717.68
+        "balance": 53008.17
       }
     ]
   },
@@ -750,10 +746,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 6,
+    "wins": 4,
     "losses": 4,
-    "wr": 60.0,
-    "total_trades": 10
+    "wr": 50.0,
+    "total_trades": 8
   },
   "today": {
     "wins": 0,
@@ -764,22 +760,15 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 3,
-      "wins": 2,
+      "fires": 2,
+      "wins": 1,
       "losses": 1,
-      "wr": 66.7
+      "wr": 50.0
     },
     {
       "setup": "GC:VWAP_BOUNCE_BULL",
       "fires": 2,
       "wins": 2,
-      "losses": 0,
-      "wr": 100.0
-    },
-    {
-      "setup": "BTC:RSI_DIV_BULL",
-      "fires": 1,
-      "wins": 1,
       "losses": 0,
       "wr": 100.0
     },
@@ -813,6 +802,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-08-12 00:46",
+      "market": "GC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4440.8",
+      "stop": "4418.2446",
+      "target": "4495.0",
+      "rr": "2.4",
+      "conv": "58",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-08-10 04:55",
       "market": "GC",
@@ -940,38 +945,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "29797.0"
-    },
-    {
-      "time": "2026-08-03 14:07",
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "28575.25",
-      "stop": "28287.9427",
-      "target": "29192.5",
-      "rr": "2.15",
-      "conv": "57",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "28931.0"
-    },
-    {
-      "time": "2026-08-03 09:46",
-      "market": "BTC",
-      "setup": "RSI_DIV_BULL",
-      "tf": "15m",
-      "dir": "LONG",
-      "entry": "62645.57",
-      "stop": "62301.8464",
-      "target": "63474.0",
-      "rr": "2.41",
-      "conv": "75",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "63474.0"
     }
   ],
   "suspended_setups": [
@@ -992,17 +965,11 @@ const DATA = {
     }
   ],
   "by_market": {
-    "BTC": {
-      "wins": 1,
-      "losses": 0,
-      "total_pnl_r": 2.41,
-      "wr": 100.0
-    },
     "NQ": {
-      "wins": 3,
+      "wins": 2,
       "losses": 2,
-      "total_pnl_r": 4.94,
-      "wr": 60.0
+      "total_pnl_r": 2.79,
+      "wr": 50.0
     },
     "GC": {
       "wins": 2,
@@ -1012,18 +979,32 @@ const DATA = {
     }
   },
   "by_tier": {
-    "HIGH": {
-      "wins": 1,
-      "losses": 3,
-      "wr": 25.0
-    },
     "MEDIUM": {
-      "wins": 5,
+      "wins": 4,
       "losses": 1,
-      "wr": 83.3
+      "wr": 80.0
+    },
+    "HIGH": {
+      "wins": 0,
+      "losses": 3,
+      "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "4440.8",
+      "target": "4495.0",
+      "stop": "4418.2446",
+      "conviction": 58,
+      "last_rescore_conviction": 58,
+      "tier": "MEDIUM",
+      "timestamp": "2026-08-12T00:46:11.721571+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
