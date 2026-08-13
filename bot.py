@@ -525,8 +525,9 @@ def _w161_refresh_side_exp(force=False):
         seq = {}
         for r in rows:
             try:
-                res = (r.get("result") or "").strip()
-                if res not in ("WOULD_WIN", "WOULD_LOSE"):
+                res = (r.get("result") or "").strip().upper()
+                # _W223_REAL_SIDE: REAL outcomes, not shadows.
+                if res not in ("WIN", "LOSS"):
                     continue
                 if "LAB|" in (r.get("setup_type") or r.get("setup") or ""):
                     continue
@@ -539,7 +540,7 @@ def _w161_refresh_side_exp(force=False):
                 except (TypeError, ValueError):
                     rr = 0.0
                 seq.setdefault(mk + ":" + d, []).append(
-                    (1 if res == "WOULD_WIN" else 0, rr))
+                    (1 if res == "WIN" else 0, rr))
             except Exception:
                 continue
         fresh = {}
