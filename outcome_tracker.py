@@ -267,8 +267,24 @@ def _save_probation(data: dict):
 def _expectancy(wins: int, losses: int, avg_rr: float) -> float:
     """Expected R per trade - the one measure that cannot flatter a setup."""
     n = wins + losses
-    if n <= 0 or avg_rr <= 0:
-        return -1.0
+    if n <= 0:
+        return -1.0  # _W222_EXP_FIX: genuinely no trades
+    if avg_rr <= 0:
+        # Unknown R:R is NOT evidence of a bad setup. This used to
+        # return -1.0, the worst possible score, so any setup whose
+        # average R:R could not be computed was condemned on the
+        # spot no matter how it had actually traded. It benched
+        # GC:VWAP_BOUNCE_BULL at 39W/1L - a 97.5% win rate - and
+        # again at 19W/0L, both logged as "expectancy -1.00R".
+        #
+        # With no R:R data the only honest read is the win rate, so
+        # assume a 1:1 payoff: expectancy = 2*wr - 1. That is
+        # positive above a 50% win rate and negative below it, which
+        # separates real winners from real losers instead of
+        # condemning everything. It is deliberately conservative -
+        # most setups here run above 1:1, so this understates a good
+        # setup rather than flattering it.
+        return (2.0 * (wins / float(n))) - 1.0
     wr = wins / n
     return wr * avg_rr - (1.0 - wr)
 
