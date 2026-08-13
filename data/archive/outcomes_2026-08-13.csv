@@ -1,0 +1,2 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+33ba06ad33,2026-08-13T17:12:09.933405+00:00,GC,1h,BB_REVERSION_BULL,LONG,4430.3,4401.5931,4495.0,2.25,swing_level_sweet,4,73,HIGH,,intraday (1-4 hours) - flat by 4PM ET,43.67,19.6895,16.58,HH_HL,17,0.21,0,CLOSED,LOSS,0,4401.5931,73,,2026-08-13,0,0,

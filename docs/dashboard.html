@@ -283,12 +283,12 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-13T15:42:51.435256+00:00",
+  "generated_at": "2026-08-13T21:43:02.871612+00:00",
   "topstep": {
-    "balance": 51253.68,
+    "balance": 50966.61,
     "starting_balance": 50000,
     "today_pnl": 0.0,
-    "total_pnl": 1253.68,
+    "total_pnl": 966.61,
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
@@ -321,6 +321,10 @@ const DATA = {
       {
         "time": "2026-08-12 00:46",
         "balance": 54375.12
+      },
+      {
+        "time": "2026-08-13 17:12",
+        "balance": 53559.49
       }
     ]
   },
@@ -739,15 +743,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 4,
-    "losses": 2,
-    "wr": 66.7,
-    "total_trades": 6
+    "losses": 3,
+    "wr": 57.1,
+    "total_trades": 7
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -770,9 +774,32 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "GC:BB_REVERSION_BULL",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-08-13 17:12",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4430.3",
+      "stop": "4401.5931",
+      "target": "4495.0",
+      "rr": "2.25",
+      "conv": "73",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4401.5931"
+    },
     {
       "time": "2026-08-12 00:46",
       "market": "GC",
@@ -896,9 +923,9 @@ const DATA = {
     },
     "GC": {
       "wins": 3,
-      "losses": 0,
-      "total_pnl_r": 5.66,
-      "wr": 100.0
+      "losses": 1,
+      "total_pnl_r": 4.66,
+      "wr": 75.0
     }
   },
   "by_tier": {
@@ -909,7 +936,7 @@ const DATA = {
     },
     "HIGH": {
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "wr": 0.0
     }
   },

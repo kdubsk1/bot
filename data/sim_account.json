@@ -2,7 +2,7 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 51253.68,
+  "balance": 50966.61,
   "peak_balance": 51890.31,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
@@ -13,9 +13,9 @@
   "use_mnq": true,
   "account_risk_pct": 1.5,
   "today_pnl": 0.0,
-  "today_date": "2026-08-13",
-  "session_date": "2026-08-13",
-  "total_pnl": 1253.68,
+  "today_date": "2026-08-14",
+  "session_date": "2026-08-14",
+  "total_pnl": 966.61,
   "trades": [],
   "open_sim_trades": []
 }
