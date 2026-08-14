@@ -195,21 +195,21 @@
     "real_expectancy": -1.0
   },
   "GC:BB_REVERSION_BULL": {
-    "wins": 36,
+    "wins": 37,
     "losses": 13,
-    "total": 49,
-    "win_rate": 73.5,
-    "last_updated": "2026-08-13T19:16:12.945465",
-    "paper_total": 8,
+    "total": 50,
+    "win_rate": 74.0,
+    "last_updated": "2026-08-14T13:43:28.783740",
+    "paper_total": 9,
     "paper_losses": 6,
-    "paper_win_rate": 25.0,
+    "paper_win_rate": 33.3,
     "real_wins": 8,
     "real_losses": 5,
     "real_total": 13,
     "real_win_rate": 61.5,
     "real_avg_rr_win": 2.543,
     "real_expectancy": 1.2545,
-    "paper_wins": 2
+    "paper_wins": 3
   },
   "NQ:VWAP_BOUNCE_BULL": {
     "wins": 161,
@@ -945,15 +945,15 @@
     "paper_win_rate": 100.0
   },
   "GC:STOCH_REVERSAL_BULL": {
-    "wins": 8,
+    "wins": 10,
     "losses": 37,
-    "total": 45,
-    "win_rate": 17.8,
-    "last_updated": "2026-08-13T15:40:28.262279",
-    "paper_total": 16,
+    "total": 47,
+    "win_rate": 21.3,
+    "last_updated": "2026-08-14T12:20:53.710347",
+    "paper_total": 18,
     "paper_losses": 8,
-    "paper_win_rate": 50.0,
-    "paper_wins": 8
+    "paper_win_rate": 55.6,
+    "paper_wins": 10
   },
   "SOL:RSI_DIV_BULL": {
     "wins": 4,
