@@ -72219,3 +72219,14 @@
 {"timestamp": "2026-08-14T17:51:49.165986+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 30028.5, "stop": 30010.43029741637, "target": null, "rr": null}
 {"timestamp": "2026-08-14T17:52:19.539657+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 30028.5, "stop": 30010.43029741637, "target": null, "rr": null}
 {"timestamp": "2026-08-14T17:52:49.994005+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 30028.5, "stop": 30010.43029741637, "target": null, "rr": null}
+{"timestamp": "2026-08-15T01:26:19.909630+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63017.99, "stop": 63053.20846288751, "target": null, "rr": null}
+{"timestamp": "2026-08-15T01:36:20.806973+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63017.99, "stop": 63051.6046951275, "target": null, "rr": null}
+{"timestamp": "2026-08-15T01:46:22.152776+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 62998.99, "stop": 63030.370252622735, "target": null, "rr": null}
+{"timestamp": "2026-08-15T01:56:23.039226+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 62998.99, "stop": 63030.72918119416, "target": null, "rr": null}
+{"timestamp": "2026-08-15T02:06:24.126854+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 62998.99, "stop": 63029.56245396291, "target": null, "rr": null}
+{"timestamp": "2026-08-15T02:26:26.086557+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63048.94, "stop": 63079.6928909228, "target": null, "rr": null}
+{"timestamp": "2026-08-15T02:36:26.863022+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63064.13, "stop": 63093.82702116322, "target": null, "rr": null}
+{"timestamp": "2026-08-15T02:46:28.118282+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63071.3, "stop": 63099.291800267776, "target": null, "rr": null}
+{"timestamp": "2026-08-15T02:56:29.023018+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63072.39, "stop": 63101.10501455349, "target": null, "rr": null}
+{"timestamp": "2026-08-15T03:06:30.122113+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63083.24, "stop": 63110.65929923286, "target": null, "rr": null}
+{"timestamp": "2026-08-15T03:16:31.155283+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 63105.17, "stop": 63131.65103295232, "target": null, "rr": null}
