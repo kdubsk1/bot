@@ -80,3 +80,4 @@
 {"event":"apply","bucket":"vol_floor|BTC|BB_REVERSION_BEAR","from":0.3,"to":0.25,"evidence":{"n":87,"w":46,"l":41,"wr":52.9,"avg_rr":1.93,"required_wr":42.7},"ts":"2026-08-14T00:05:28.084015+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|STOCH_REVERSAL_BULL","base":14.0,"ts":"2026-08-14T03:43:11.039079+00:00"}
 {"event":"apply","bucket":"vol_floor|SOL|VWAP_BOUNCE_BULL","from":0.25,"to":0.2,"evidence":{"n":296,"w":120,"l":176,"wr":40.5,"avg_rr":2.11,"required_wr":40.2},"ts":"2026-08-15T00:05:59.981360+00:00"}
+{"event":"apply","bucket":"vol_floor|SOL|EMA21_PULLBACK_BEAR","from":0.25,"to":0.2,"evidence":{"n":289,"w":118,"l":171,"wr":40.8,"avg_rr":2.09,"required_wr":40.4},"ts":"2026-08-16T00:00:43.811762+00:00"}
