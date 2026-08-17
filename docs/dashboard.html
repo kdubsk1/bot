@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-17T15:46:04.549672+00:00",
+  "generated_at": "2026-08-17T21:46:22.434925+00:00",
   "topstep": {
     "balance": 50966.61,
     "starting_balance": 50000,
@@ -299,28 +299,24 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-08-07 01:46",
-        "balance": 51200.0
-      },
-      {
-        "time": "2026-08-07 14:10",
-        "balance": 50432.0
-      },
-      {
         "time": "2026-08-10 04:55",
-        "balance": 51687.76
+        "balance": 51245.0
       },
       {
         "time": "2026-08-12 00:46",
-        "balance": 53548.52
+        "balance": 53089.82
       },
       {
         "time": "2026-08-13 17:12",
-        "balance": 52745.29
+        "balance": 52293.47
       },
       {
         "time": "2026-08-14 06:12",
-        "balance": 54921.03
+        "balance": 54450.58
+      },
+      {
+        "time": "2026-08-17 00:25",
+        "balance": 56198.44
       }
     ]
   },
@@ -739,15 +735,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 4,
-    "losses": 2,
-    "wr": 66.7,
-    "total_trades": 6
+    "losses": 1,
+    "wr": 80.0,
+    "total_trades": 5
   },
   "today": {
-    "wins": 0,
+    "wins": 1,
     "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "wr": 100.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -756,13 +752,6 @@ const DATA = {
       "wins": 4,
       "losses": 0,
       "wr": 100.0
-    },
-    {
-      "setup": "NQ:OPENING_RANGE_BREAKOUT",
-      "fires": 1,
-      "wins": 0,
-      "losses": 1,
-      "wr": 0.0
     },
     {
       "setup": "GC:BB_REVERSION_BULL",
@@ -785,9 +774,9 @@ const DATA = {
       "rr": "2.14",
       "conv": "58",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "4474.1"
     },
     {
       "time": "2026-08-14 06:12",
@@ -852,38 +841,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "4432.3"
-    },
-    {
-      "time": "2026-08-07 14:10",
-      "market": "NQ",
-      "setup": "OPENING_RANGE_BREAKOUT",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "29629.5",
-      "stop": "29833.999",
-      "target": "29036.5",
-      "rr": "2.9",
-      "conv": "74",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "29833.999"
-    },
-    {
-      "time": "2026-08-07 01:46",
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "4314.7",
-      "stop": "4284.013",
-      "target": "4363.7",
-      "rr": "1.6",
-      "conv": "57",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "4363.7"
     }
   ],
   "suspended_setups": [
@@ -907,14 +864,8 @@ const DATA = {
     "GC": {
       "wins": 4,
       "losses": 1,
-      "total_pnl_r": 7.41,
+      "total_pnl_r": 7.95,
       "wr": 80.0
-    },
-    "NQ": {
-      "wins": 0,
-      "losses": 1,
-      "total_pnl_r": -1.0,
-      "wr": 0.0
     }
   },
   "by_tier": {
@@ -925,25 +876,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 0,
-      "losses": 2,
+      "losses": 1,
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "4443.3",
-      "target": "4495.0",
-      "stop": "4419.1627",
-      "conviction": 58,
-      "last_rescore_conviction": 58,
-      "tier": "MEDIUM",
-      "timestamp": "2026-08-17T00:25:55.353189+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {

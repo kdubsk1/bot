@@ -110,15 +110,12 @@
     "was_suspended_for": "probation failed: 0W/12L (0.0% WR, expectancy -1.00R) on 12 live trades"
   },
   "GC:VWAP_BOUNCE_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-08-05T02:49:45.938164+00:00",
-    "wins_at_start": 85,
-    "losses_at_start": 63,
-    "shadow_n": 9238,
-    "shadow_wr": 39.3,
-    "shadow_expectancy": 0.433,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 39W/1L (97.5% WR, expectancy -1.00R) on 40 live trades"
+    "state": "GRADUATED",
+    "graduated_at": "2026-08-17T19:56:57.334043+00:00",
+    "wins_at_graduation": 90,
+    "losses_at_graduation": 63,
+    "trial_record": "5W/0L",
+    "trial_expectancy": 2.11
   },
   "BTC:BB_REVERSION_BULL": {
     "state": "SERVING",
