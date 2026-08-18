@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-18T03:46:36.878384+00:00",
+  "generated_at": "2026-08-18T09:46:55.132843+00:00",
   "topstep": {
     "balance": 50966.61,
     "starting_balance": 50000,
@@ -317,6 +317,10 @@ const DATA = {
       {
         "time": "2026-08-17 00:25",
         "balance": 56198.44
+      },
+      {
+        "time": "2026-08-17 22:49",
+        "balance": 55355.47
       }
     ]
   },
@@ -735,9 +739,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 4,
-    "losses": 1,
-    "wr": 80.0,
-    "total_trades": 5
+    "losses": 2,
+    "wr": 66.7,
+    "total_trades": 6
   },
   "today": {
     "wins": 0,
@@ -748,10 +752,10 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "GC:VWAP_BOUNCE_BULL",
-      "fires": 4,
+      "fires": 5,
       "wins": 4,
-      "losses": 0,
-      "wr": 100.0
+      "losses": 1,
+      "wr": 80.0
     },
     {
       "setup": "GC:BB_REVERSION_BULL",
@@ -774,9 +778,9 @@ const DATA = {
       "rr": "1.54",
       "conv": "59",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4448.259"
     },
     {
       "time": "2026-08-17 00:25",
@@ -879,16 +883,16 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 4,
-      "losses": 1,
-      "total_pnl_r": 7.95,
-      "wr": 80.0
+      "losses": 2,
+      "total_pnl_r": 6.95,
+      "wr": 66.7
     }
   },
   "by_tier": {
     "MEDIUM": {
       "wins": 4,
-      "losses": 0,
-      "wr": 100.0
+      "losses": 1,
+      "wr": 80.0
     },
     "HIGH": {
       "wins": 0,
@@ -896,21 +900,7 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "4h",
-      "direction": "LONG",
-      "entry": "4472.2",
-      "target": "4509.1",
-      "stop": "4448.259",
-      "conviction": 59,
-      "last_rescore_conviction": 59,
-      "tier": "MEDIUM",
-      "timestamp": "2026-08-17T22:49:30.608370+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
