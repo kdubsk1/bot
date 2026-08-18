@@ -82,3 +82,4 @@
 {"event":"apply","bucket":"vol_floor|SOL|VWAP_BOUNCE_BULL","from":0.25,"to":0.2,"evidence":{"n":296,"w":120,"l":176,"wr":40.5,"avg_rr":2.11,"required_wr":40.2},"ts":"2026-08-15T00:05:59.981360+00:00"}
 {"event":"apply","bucket":"vol_floor|SOL|EMA21_PULLBACK_BEAR","from":0.25,"to":0.2,"evidence":{"n":289,"w":118,"l":171,"wr":40.8,"avg_rr":2.09,"required_wr":40.4},"ts":"2026-08-16T00:00:43.811762+00:00"}
 {"event":"apply","bucket":"vol_floor|NQ|VWAP_REJECT_BEAR","from":0.25,"to":0.2,"evidence":{"n":288,"w":141,"l":147,"wr":49.0,"avg_rr":2.1,"required_wr":40.4},"ts":"2026-08-17T00:05:47.767570+00:00"}
+{"event":"apply","bucket":"vol_floor|NQ|EMA21_PULLBACK_BEAR","from":0.25,"to":0.2,"evidence":{"n":285,"w":142,"l":143,"wr":49.8,"avg_rr":2.26,"required_wr":38.3},"ts":"2026-08-18T00:01:47.318370+00:00"}
