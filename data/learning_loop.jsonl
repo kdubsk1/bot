@@ -84,3 +84,4 @@
 {"event":"apply","bucket":"vol_floor|NQ|VWAP_REJECT_BEAR","from":0.25,"to":0.2,"evidence":{"n":288,"w":141,"l":147,"wr":49.0,"avg_rr":2.1,"required_wr":40.4},"ts":"2026-08-17T00:05:47.767570+00:00"}
 {"event":"apply","bucket":"vol_floor|NQ|EMA21_PULLBACK_BEAR","from":0.25,"to":0.2,"evidence":{"n":285,"w":142,"l":143,"wr":49.8,"avg_rr":2.26,"required_wr":38.3},"ts":"2026-08-18T00:01:47.318370+00:00"}
 {"event":"apply","bucket":"vol_floor|BTC|VWAP_REJECT_BEAR","from":0.25,"to":0.2,"evidence":{"n":252,"w":120,"l":132,"wr":47.6,"avg_rr":2.47,"required_wr":36.0},"ts":"2026-08-19T00:05:49.650276+00:00"}
+{"event":"apply","bucket":"vol_floor|SOL|BREAK_RETEST_BEAR","from":0.25,"to":0.2,"evidence":{"n":249,"w":105,"l":144,"wr":42.2,"avg_rr":2.18,"required_wr":39.3},"ts":"2026-08-20T00:01:35.993394+00:00"}
