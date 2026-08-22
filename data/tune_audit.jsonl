@@ -19,3 +19,4 @@
 {"ts":"2026-08-10T00:01:39.530048+00:00","layer":"weekly_auto_tune","setup":"BREAK_RETEST_BULL","delta":5,"verdict":"APPLY","why":"holdout agrees (+)","stats":{"n":12,"holdout_n":5,"holdout_avg_dollar":62.2}}
 {"ts":"2026-08-20T10:00:22.899684+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":2,"verdict":"REJECT","why":"insufficient sample for holdout (n=7)","stats":{"n":7}}
 {"ts":"2026-08-21T10:00:36.820427+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":2,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
+{"ts":"2026-08-22T10:02:12.077032+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":2,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
