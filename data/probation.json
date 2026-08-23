@@ -106,17 +106,6 @@
     "trial_record": "5W/0L",
     "trial_expectancy": 2.11
   },
-  "BTC:BB_REVERSION_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-08-06T15:19:39.660189+00:00",
-    "wins_at_start": 13,
-    "losses_at_start": 30,
-    "shadow_n": 696,
-    "shadow_wr": 72.6,
-    "shadow_expectancy": 1.532,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 3W/2L (60.0% WR, expectancy -1.00R) on 5 live trades"
-  },
   "NQ:VWAP_REJECT_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-08-07T15:36:56.365098+00:00",
@@ -149,5 +138,16 @@
     "shadow_expectancy": 0.485,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 3W/3L (50.0% WR, expectancy +0.00R) on 6 live trades"
+  },
+  "BTC:BB_REVERSION_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-08-23T05:19:04.026021+00:00",
+    "wins_at_start": 13,
+    "losses_at_start": 35,
+    "shadow_n": 730,
+    "shadow_wr": 71.5,
+    "shadow_expectancy": 1.443,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   }
 }

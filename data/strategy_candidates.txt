@@ -1,34 +1,34 @@
 📊 STRATEGY ANALYSIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OVERVIEW
-  Scans logged    124,117
-  Fired           215  ·  28% WR (36W/93L)
-  Missed winners  22909   (filtered, would've won)
+  Scans logged    143,510
+  Fired           240  ·  33% WR (51W/104L)
+  Missed winners  24683   (filtered, would've won)
 
-  Best   GC:BB_REVERSION_BULL   67%  (n9)
+  Best   GC:VWAP_BOUNCE_BULL    88%  (n8)
   Worst  BTC:STOCH_REVERSAL_BEAR 18%  (n22)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 TOP MISSED WINNERS
-  GC:VWAP_BOUNCE_BULL · 4h   2791x
+  GC:VWAP_BOUNCE_BULL · 4h   3004x
     avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.51x) — insufficient participation
-  BTC:VWAP_REJECT_BEAR · 1h  941x
-    avg conv 0 · blocked by confirm setup needs vol_ratio >= 0.8x (got 0.76x) — insufficient participation
-  BTC:EMA21_PULLBACK_BULL · 15m 923x
+  BTC:VWAP_REJECT_BEAR · 1h  1011x
+    avg conv 0 · blocked by side edge negative (last40 graded -1.00R <= -0.85R) — insufficient participation
+  GC:VWAP_REJECT_BEAR · 4h   997x
+    avg conv 0 · blocked by dead market (vol_ratio=0.19x < 0.30x floor) — insufficient participation
+  BTC:EMA21_PULLBACK_BULL · 15m 935x
     avg conv 0 · blocked by No real swing target available — nearest structural level too close for minimum R:R
-  NQ:BB_REVERSION_BULL · 1h  893x
+  NQ:BB_REVERSION_BULL · 1h  903x
     avg conv 0 · blocked by side edge negative (last40 graded -0.92R <= -0.15R) — insufficient participation
-  NQ:VWAP_REJECT_BEAR · 1h   871x
-    avg conv 0 · blocked by Wave 74 trend-alignment guard: counter-trend vs MIXED (0/465 historical)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔬 WINNING-TRADE PATTERNS
-  ADX      win 25.4   loss 28.2
-  RSI      win 50.4   loss 54.2
-  Trend    win -2.1
+  ADX      win 25.8   loss 28.2
+  RSI      win 51.2   loss 53.6
+  Trend    win -1.1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ LOOSEN-FILTER CANDIDATES
-  GC:VWAP_BOUNCE_BULL      3202x missed
-  GC:VWAP_REJECT_BEAR      1376x missed
-  NQ:VWAP_REJECT_BEAR      1255x missed
-  BTC:EMA21_PULLBACK_BULL  1030x missed
-  BTC:VWAP_REJECT_BEAR     1000x missed
-  NQ:BB_REVERSION_BULL     969x missed
+  GC:VWAP_BOUNCE_BULL      3552x missed
+  GC:VWAP_REJECT_BEAR      1504x missed
+  NQ:VWAP_REJECT_BEAR      1257x missed
+  BTC:EMA21_PULLBACK_BULL  1095x missed
+  BTC:VWAP_REJECT_BEAR     1083x missed
+  NQ:STOCH_REVERSAL_BULL   1027x missed
