@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-08-23T21:52:20.148315+00:00",
+  "generated_at": "2026-08-24T03:52:31.790357+00:00",
   "topstep": {
     "balance": 50966.61,
     "starting_balance": 50000,
@@ -325,6 +325,10 @@ const DATA = {
       {
         "time": "2026-08-19 14:41",
         "balance": 54748.89
+      },
+      {
+        "time": "2026-08-23 23:35",
+        "balance": 53927.66
       }
     ]
   },
@@ -332,7 +336,7 @@ const DATA = {
     "balance": 914.48,
     "starting_balance": 1000.0,
     "total_pnl": -85.52,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 100,
     "equity_curve": [
       {
@@ -743,9 +747,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 4,
-    "losses": 3,
-    "wr": 57.1,
-    "total_trades": 7
+    "losses": 4,
+    "wr": 50.0,
+    "total_trades": 8
   },
   "today": {
     "wins": 0,
@@ -763,13 +767,45 @@ const DATA = {
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 2,
+      "fires": 3,
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-08-24 03:05",
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "77320.63",
+      "stop": "76750.8624",
+      "target": "78750.0",
+      "rr": "2.51",
+      "conv": "76",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-08-23 23:35",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "29439.0",
+      "stop": "29283.6115",
+      "target": "29757.25",
+      "rr": "2.05",
+      "conv": "56",
+      "tier": "MEDIUM",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29283.6115"
+    },
     {
       "time": "2026-08-19 14:41",
       "market": "NQ",
@@ -909,19 +945,33 @@ const DATA = {
     },
     "NQ": {
       "wins": 0,
-      "losses": 2,
-      "total_pnl_r": -2.0,
+      "losses": 3,
+      "total_pnl_r": -3.0,
       "wr": 0.0
     }
   },
   "by_tier": {
     "MEDIUM": {
       "wins": 4,
-      "losses": 3,
-      "wr": 57.1
+      "losses": 4,
+      "wr": 50.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "77320.63",
+      "target": "78750.0",
+      "stop": "76750.8624",
+      "conviction": 76,
+      "last_rescore_conviction": 76,
+      "tier": "HIGH",
+      "timestamp": "2026-08-24T03:05:47.451513+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {

@@ -61,9 +61,9 @@
   },
   "VWAP_BOUNCE_BULL|||ALL": {
     "wins": 13,
-    "losses": 38,
+    "losses": 39,
     "total_win_r": 26.662922244056507,
-    "total_loss_r": 38.0
+    "total_loss_r": 39.0
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 7,
@@ -217,9 +217,9 @@
   },
   "VWAP_BOUNCE_BULL|||MIXED": {
     "wins": 6,
-    "losses": 16,
+    "losses": 17,
     "total_win_r": 11.724490945999674,
-    "total_loss_r": 16.0
+    "total_loss_r": 17.0
   },
   "STOCH_REVERSAL_BULL|||UNKNOWN": {
     "wins": 0,
