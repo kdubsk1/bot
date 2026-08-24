@@ -2,10 +2,10 @@
   "newly_suspended": [
     {
       "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "losses": 3,
-      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+      "setup": "VWAP_BOUNCE_BULL",
+      "losses": 4,
+      "reason": "Wave 47 auto: 0W/4L over last 30 days"
     }
   ],
-  "ts": "2026-07-29T20:00:22.320211+00:00"
+  "ts": "2026-08-24T20:00:03.331642+00:00"
 }
