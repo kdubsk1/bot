@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 50904.11,
+  "peak_balance": 51890.31,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": -62.5,
+  "today_date": "2026-08-25",
+  "session_date": "2026-08-25",
+  "total_pnl": 904.11,
+  "trades": [
+    {
+      "alert_id": "cce5215188",
+      "market": "NQ",
+      "direction": "SHORT",
+      "entry": 29254.5,
+      "stop": 29424.91143841088,
+      "target": 28946.75,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "OPENING_RANGE_BREAKOUT",
+      "opened_at": "2026-08-25T14:04:43.985409",
+      "status": "CLOSED",
+      "pnl": -62.5,
+      "exit_price": 29285.75,
+      "result": "LOSS",
+      "closed_at": "2026-08-25T19:55:29.078880"
+    }
+  ],
+  "open_sim_trades": []
+}
