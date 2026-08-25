@@ -95,17 +95,6 @@
     "trial_record": "5W/0L",
     "trial_expectancy": 2.11
   },
-  "NQ:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-08-07T15:36:56.365098+00:00",
-    "wins_at_start": 43,
-    "losses_at_start": 123,
-    "shadow_n": 3517,
-    "shadow_wr": 37.6,
-    "shadow_expectancy": 0.4,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/19L (0.0% WR, expectancy -1.00R) on 19 live trades"
-  },
   "NQ:MACD_CROSS_BEAR": {
     "state": "SERVING",
     "granted_at": "2026-08-07T15:36:56.365098+00:00",
@@ -143,5 +132,16 @@
     "losses_at_graduation": 16,
     "trial_record": "24W/0L",
     "trial_expectancy": 1.0
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-08-25T06:37:19.619406+00:00",
+    "wins_at_start": 44,
+    "losses_at_start": 128,
+    "shadow_n": 3577,
+    "shadow_wr": 37.0,
+    "shadow_expectancy": 0.367,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 1W/5L (16.7% WR, expectancy -0.67R) on 6 live trades"
   }
 }
