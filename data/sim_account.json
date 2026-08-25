@@ -17,5 +17,20 @@
   "session_date": "2026-08-25",
   "total_pnl": 966.61,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "cce5215188",
+      "market": "NQ",
+      "direction": "SHORT",
+      "entry": 29254.5,
+      "stop": 29424.91143841088,
+      "target": 28946.75,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "OPENING_RANGE_BREAKOUT",
+      "opened_at": "2026-08-25T14:04:43.985409",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }
