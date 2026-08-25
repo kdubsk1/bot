@@ -137,14 +137,11 @@
     "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   },
   "BTC:STOCH_REVERSAL_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-08-24T12:53:53.832309+00:00",
-    "wins_at_start": 9,
-    "losses_at_start": 16,
-    "shadow_n": 944,
-    "shadow_wr": 63.3,
-    "shadow_expectancy": 1.218,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 1W/4L (20.0% WR, expectancy -0.60R) on 5 live trades"
+    "state": "GRADUATED",
+    "graduated_at": "2026-08-25T01:14:52.675461+00:00",
+    "wins_at_graduation": 33,
+    "losses_at_graduation": 16,
+    "trial_record": "24W/0L",
+    "trial_expectancy": 1.0
   }
 }

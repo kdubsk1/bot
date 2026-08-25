@@ -1166,3 +1166,4 @@
 {"timestamp": "2026-08-24T00:18:15.780977+00:00", "action": "PROBATION", "key": "GC:RSI_DIV_BEAR", "reason": "earned probation on shadow proof: 331W/318L (51% WR, avg rr 1.9, expectancy +0.48R over 649 paper trades)"}
 {"timestamp": "2026-08-24T12:48:52.771429+00:00", "action": "PROBATION_FAILED", "key": "BTC:STOCH_REVERSAL_BULL", "reason": "probation failed: 1W/4L (20.0% WR, expectancy -0.60R) on 5 live trades", "total_at_suspension": 25, "wr_at_suspension": 36.0, "bleed_at_suspension": 0.0, "suspended_at": "2026-08-24T12:48:52.769902+00:00"}
 {"timestamp": "2026-08-24T12:53:55.931619+00:00", "action": "PROBATION", "key": "BTC:STOCH_REVERSAL_BULL", "reason": "earned probation on shadow proof: 598W/346L (63% WR, avg rr 2.5, expectancy +1.22R over 944 paper trades)"}
+{"timestamp": "2026-08-25T01:14:52.677333+00:00", "action": "GRADUATED", "key": "BTC:STOCH_REVERSAL_BULL", "reason": "graduated: 24W/0L (100.0% WR, avg rr 0.0, expectancy +1.00R) on 24 live trades"}
