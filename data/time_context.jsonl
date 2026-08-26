@@ -107,3 +107,4 @@
 {"ts": "2026-08-25T15:05:43.894456+00:00", "alert_id": "eb3b1f3fb4", "market": "BTC", "tf": "15m", "hour": 15, "time_edge_score": 29, "time_expected_R": -0.13, "time_label": "dead"}
 {"ts": "2026-08-25T15:31:53.849950+00:00", "alert_id": "2da4f83457", "market": "GC", "tf": "1h", "hour": 15, "time_edge_score": 29, "time_expected_R": -0.13, "time_label": "dead"}
 {"ts": "2026-08-25T21:17:28.380893+00:00", "alert_id": "e4dce44445", "market": "BTC", "tf": "1h", "hour": 21, "time_edge_score": 45, "time_expected_R": 0.353, "time_label": "good"}
+{"ts": "2026-08-26T03:50:50.015507+00:00", "alert_id": "cecb90a62a", "market": "NQ", "tf": "1h", "hour": 3, "time_edge_score": 29, "time_expected_R": -0.143, "time_label": "dead"}
