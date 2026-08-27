@@ -94,3 +94,4 @@
 {"event":"apply","bucket":"vol_floor|SOL|BB_REVERSION_BULL","from":0.25,"to":0.2,"evidence":{"n":101,"w":49,"l":52,"wr":48.5,"avg_rr":2.16,"required_wr":39.6},"ts":"2026-08-25T00:01:56.700950+00:00"}
 {"event":"seed_base","bucket":"adx_min|GC|RSI_DIV_BEAR","base":12.0,"ts":"2026-08-25T05:16:42.402684+00:00"}
 {"event":"apply","bucket":"vol_floor|NQ|STOCH_REVERSAL_BEAR","from":0.25,"to":0.2,"evidence":{"n":89,"w":41,"l":48,"wr":46.1,"avg_rr":2.18,"required_wr":39.3},"ts":"2026-08-26T00:01:33.213407+00:00"}
+{"event":"apply","bucket":"vol_floor|BTC|STOCH_REVERSAL_BEAR","from":0.25,"to":0.2,"evidence":{"n":89,"w":57,"l":32,"wr":64.0,"avg_rr":2.49,"required_wr":35.8},"ts":"2026-08-27T00:01:28.648705+00:00"}
