@@ -17,5 +17,20 @@
   "session_date": "2026-08-27",
   "total_pnl": 904.11,
   "trades": [],
-  "open_sim_trades": []
+  "open_sim_trades": [
+    {
+      "alert_id": "c065101037",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4644.6,
+      "stop": 4613.615969270929,
+      "target": 4730.9,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-08-27T11:16:02.952677",
+      "status": "OPEN",
+      "pnl": 0.0
+    }
+  ]
 }

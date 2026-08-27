@@ -21,3 +21,4 @@
 {"ts":"2026-08-21T10:00:36.820427+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":2,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
 {"ts":"2026-08-22T10:02:12.077032+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":2,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
 {"ts":"2026-08-23T10:00:54.172391+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":2,"verdict":"REJECT","why":"insufficient sample for holdout (n=6)","stats":{"n":6}}
+{"ts":"2026-08-27T10:02:31.857977+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":-3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
