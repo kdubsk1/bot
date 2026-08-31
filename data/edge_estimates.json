@@ -228,9 +228,9 @@
     "total_loss_r": 0.0
   },
   "STOCH_REVERSAL_BULL|||ALL": {
-    "wins": 5,
+    "wins": 6,
     "losses": 19,
-    "total_win_r": 12.053045155149205,
+    "total_win_r": 14.469958270082275,
     "total_loss_r": 19.0
   },
   "STOCH_REVERSAL_BULL|||HH_HL": {
@@ -378,9 +378,9 @@
     "total_loss_r": 0.0
   },
   "STOCH_REVERSAL_BULL|||LH_LL": {
-    "wins": 1,
+    "wins": 2,
     "losses": 1,
-    "total_win_r": 2.114187570946777,
+    "total_win_r": 4.5311006858798475,
     "total_loss_r": 1.0
   },
   "MACD_CROSS_BEAR|||LH_LL": {
