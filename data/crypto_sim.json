@@ -7,7 +7,36 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "2e687c8e90",
+      "market": "BTC",
+      "direction": "LONG",
+      "entry": 77655.68,
+      "stop": 77183.80953769782,
+      "target": 78796.15,
+      "leverage": 2,
+      "position_size_usd": 1716.3,
+      "notional_usd": 3432.6,
+      "risk_dollars": 10.43,
+      "opened_at": "2026-08-30T23:57:11.267848+00:00",
+      "max_hold_until": "2026-09-06T23:57:11.267848+00:00",
+      "tier": "LOW",
+      "conviction": 51,
+      "context": {
+        "suggested_lev": 2,
+        "trend_score": 4,
+        "rsi": 28.78,
+        "adx": 38.78,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Late US/Early Asia",
+        "news_flag": false,
+        "chart_read": "Stochastic %K crossed up through %D from oversold (10.3\u219234.8 vs D 16.0). Early reversal trigger."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "a2a3e25a38",

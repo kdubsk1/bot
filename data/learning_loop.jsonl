@@ -98,3 +98,4 @@
 {"event":"apply","bucket":"vol_confirm|SOL|EMA21_PULLBACK_BULL","from":0.8,"to":0.75,"evidence":{"n":84,"w":35,"l":49,"wr":41.7,"avg_rr":2.08,"required_wr":40.6},"ts":"2026-08-28T00:02:01.254587+00:00"}
 {"event":"apply","bucket":"vol_floor|BTC|BB_REVERSION_BEAR","from":0.25,"to":0.2,"evidence":{"n":87,"w":46,"l":41,"wr":52.9,"avg_rr":1.93,"required_wr":42.7},"ts":"2026-08-29T00:01:56.077700+00:00"}
 {"event":"apply","bucket":"vol_floor|BTC|STOCH_REVERSAL_BULL","from":0.3,"to":0.25,"evidence":{"n":83,"w":45,"l":38,"wr":54.2,"avg_rr":2.33,"required_wr":37.6},"ts":"2026-08-30T00:01:37.009801+00:00"}
+{"event":"apply","bucket":"vol_floor|SOL|STOCH_REVERSAL_BEAR","from":0.3,"to":0.25,"evidence":{"n":82,"w":37,"l":45,"wr":45.1,"avg_rr":2.88,"required_wr":32.2},"ts":"2026-08-31T00:00:18.005179+00:00"}
