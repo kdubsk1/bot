@@ -24,3 +24,4 @@
 {"ts":"2026-08-27T10:02:31.857977+00:00","layer":"daily_soft_tune","setup":"VWAP_BOUNCE_BULL","delta":-3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
 {"ts":"2026-08-29T10:04:05.044325+00:00","layer":"daily_soft_tune","setup":"STOCH_REVERSAL_BULL","delta":-3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
 {"ts":"2026-08-30T10:03:12.058387+00:00","layer":"daily_soft_tune","setup":"STOCH_REVERSAL_BULL","delta":-3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
+{"ts":"2026-08-31T10:01:01.401464+00:00","layer":"daily_soft_tune","setup":"STOCH_REVERSAL_BULL","delta":-3,"verdict":"REJECT","why":"insufficient sample for holdout (n=5)","stats":{"n":5}}
