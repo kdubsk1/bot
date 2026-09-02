@@ -1191,3 +1191,4 @@
 {"timestamp": "2026-09-02T10:07:22.327494+00:00", "action": "PROBATION", "key": "BTC:BB_REVERSION_BULL", "reason": "earned probation on shadow proof: 541W/283L (66% WR, avg rr 2.3, expectancy +1.20R over 824 paper trades)"}
 {"timestamp": "2026-09-02T11:02:52.926325+00:00", "action": "SUSPENDED", "key": "BTC:STOCH_REVERSAL_BULL", "reason": "0W/12L (0.0% WR) since graduating", "total_at_suspension": 80, "wr_at_suspension": 43.8, "bleed_at_suspension": -58.0, "suspended_at": "2026-09-02T11:02:52.924085+00:00"}
 {"timestamp": "2026-09-02T11:07:56.019618+00:00", "action": "PROBATION", "key": "BTC:STOCH_REVERSAL_BULL", "reason": "earned probation on shadow proof: 622W/357L (64% WR, avg rr 2.3, expectancy +1.11R over 979 paper trades)"}
+{"timestamp": "2026-09-02T16:30:43.598955+00:00", "action": "GRADUATED", "key": "BTC:STOCH_REVERSAL_BEAR", "reason": "graduated: 3W/2L (60.0% WR, avg rr 0.0, expectancy +0.20R) on 5 live trades"}
