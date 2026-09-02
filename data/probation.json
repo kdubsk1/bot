@@ -135,16 +135,5 @@
     "shadow_expectancy": 0.46,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
-  },
-  "BTC:BB_REVERSION_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-09-01T16:48:29.373912+00:00",
-    "wins_at_start": 32,
-    "losses_at_start": 100,
-    "shadow_n": 814,
-    "shadow_wr": 66.5,
-    "shadow_expectancy": 1.217,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/15L (0.0% WR, expectancy -1.00R) on 15 live trades"
   }
 }

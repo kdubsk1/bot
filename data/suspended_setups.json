@@ -19,5 +19,12 @@
     "total_at_suspension": 61,
     "wr_at_suspension": 8.2,
     "bleed_at_suspension": 0.0
+  },
+  "BTC:BB_REVERSION_BULL": {
+    "reason": "probation failed: 0W/10L (0.0% WR, expectancy -1.00R) on 10 live trades",
+    "suspended_at": "2026-09-02T10:02:18.673662+00:00",
+    "total_at_suspension": 142,
+    "wr_at_suspension": 22.5,
+    "bleed_at_suspension": 0.0
   }
 }
