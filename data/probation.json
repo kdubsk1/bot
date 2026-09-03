@@ -126,25 +126,19 @@
     "trial_expectancy": 0.2
   },
   "BTC:BB_REVERSION_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-09-02T10:07:19.204694+00:00",
-    "wins_at_start": 32,
-    "losses_at_start": 110,
-    "shadow_n": 824,
-    "shadow_wr": 65.7,
-    "shadow_expectancy": 1.196,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 0W/10L (0.0% WR, expectancy -1.00R) on 10 live trades"
+    "state": "GRADUATED",
+    "graduated_at": "2026-09-03T07:07:56.522903+00:00",
+    "wins_at_graduation": 71,
+    "losses_at_graduation": 113,
+    "trial_record": "39W/3L",
+    "trial_expectancy": 0.857
   },
   "BTC:STOCH_REVERSAL_BULL": {
-    "state": "SERVING",
-    "granted_at": "2026-09-02T11:07:53.338211+00:00",
-    "wins_at_start": 35,
-    "losses_at_start": 45,
-    "shadow_n": 979,
-    "shadow_wr": 63.5,
-    "shadow_expectancy": 1.113,
-    "judge_after_trades": 5,
-    "was_suspended_for": "0W/12L (0.0% WR) since graduating"
+    "state": "GRADUATED",
+    "graduated_at": "2026-09-03T07:07:56.518448+00:00",
+    "wins_at_graduation": 67,
+    "losses_at_graduation": 45,
+    "trial_record": "32W/0L",
+    "trial_expectancy": 1.0
   }
 }
