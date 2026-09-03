@@ -1,0 +1,2 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+27a9b45a74,2026-09-03T13:16:38.208043+00:00,NQ,1h,VWAP_BOUNCE_BULL,LONG,29240.0,29087.7984,29571.25,2.18,swing_level_sweet,0,55,MEDIUM,,intraday (1-4 hours) - flat by 4PM ET,56.98,81.0079,14.5,HH_HL,13,0.54,0,CLOSED,WIN,0,29571.25,55,True,2026-09-03,0,0,
