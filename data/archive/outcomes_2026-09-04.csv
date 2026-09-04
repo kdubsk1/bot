@@ -1,0 +1,3 @@
+alert_id,timestamp,market,tf,setup,direction,entry,stop,target,rr,method,trend_score,conviction,tier,leverage,suggested_hold,rsi,atr,adx,htf_bias,hour,vol_ratio,news_flag,status,result,bars_to_resolution,exit_price,last_rescore_conviction,partial_exit_done,session_id,w7_setup_boost,w7_market_mult,w7_applied_layers
+07de13b8b3,2026-09-04T13:04:09.878918+00:00,BTC,15m,STOCH_REVERSAL_BULL,LONG,79489.06,79033.5493,81283.0,3.94,swing_level,8,59,MEDIUM,3,scalp (1-6 hours),23.66,329.9768,22.89,HH_HL,13,0.26,0,CLOSED,LOSS,0,79033.5493,59,,2026-09-04,0,0,
+52f0c7bae8,2026-09-04T15:10:42.355199+00:00,BTC,15m,STOCH_REVERSAL_BULL,LONG,79135.01,78467.293,81283.0,3.22,swing_level,8,59,MEDIUM,2,scalp (1-6 hours),29.13,396.7675,38.4,HH_HL,15,1.39,0,OPEN,,,,59,True,2026-09-04,0,0,

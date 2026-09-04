@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-04T16:07:21.335797+00:00",
+  "generated_at": "2026-09-04T22:07:42.372985+00:00",
   "topstep": {
     "balance": 51062.11,
     "starting_balance": 50000,
@@ -299,36 +299,24 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-08-26 23:30",
+        "time": "2026-08-27 22:00",
         "balance": 49250.0
       },
       {
-        "time": "2026-08-27 07:15",
-        "balance": 50801.38
-      },
-      {
-        "time": "2026-08-27 11:16",
-        "balance": 52927.41
-      },
-      {
-        "time": "2026-08-27 22:00",
-        "balance": 52133.5
-      },
-      {
         "time": "2026-08-28 15:14",
-        "balance": 51351.5
+        "balance": 48511.25
       },
       {
         "time": "2026-08-31 05:26",
-        "balance": 52953.67
+        "balance": 50024.8
       },
       {
         "time": "2026-09-01 15:31",
-        "balance": 52159.36
+        "balance": 49274.43
       },
       {
         "time": "2026-09-03 13:16",
-        "balance": 53864.97
+        "balance": 50885.7
       }
     ]
   },
@@ -746,10 +734,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 5,
-    "losses": 8,
-    "wr": 38.5,
-    "total_trades": 13
+    "wins": 3,
+    "losses": 7,
+    "wr": 30.0,
+    "total_trades": 10
   },
   "today": {
     "wins": 0,
@@ -759,13 +747,6 @@ const DATA = {
   },
   "setup_stats": [
     {
-      "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 5,
-      "wins": 3,
-      "losses": 2,
-      "wr": 60.0
-    },
-    {
       "setup": "BTC:STOCH_REVERSAL_BULL",
       "fires": 5,
       "wins": 1,
@@ -773,18 +754,18 @@ const DATA = {
       "wr": 20.0
     },
     {
-      "setup": "GC:VWAP_BOUNCE_BULL",
-      "fires": 2,
-      "wins": 0,
+      "setup": "NQ:VWAP_BOUNCE_BULL",
+      "fires": 4,
+      "wins": 2,
       "losses": 2,
-      "wr": 0.0
+      "wr": 50.0
     },
     {
-      "setup": "GC:BB_REVERSION_BULL",
+      "setup": "GC:VWAP_BOUNCE_BULL",
       "fires": 1,
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
@@ -963,54 +944,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "4614.1006"
-    },
-    {
-      "time": "2026-08-27 11:16",
-      "market": "GC",
-      "setup": "BB_REVERSION_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "4644.6",
-      "stop": "4613.616",
-      "target": "4730.9",
-      "rr": "2.79",
-      "conv": "72",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "4660.4"
-    },
-    {
-      "time": "2026-08-27 07:15",
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "29537.5",
-      "stop": "29383.2151",
-      "target": "29861.75",
-      "rr": "2.1",
-      "conv": "56",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29683.0"
-    },
-    {
-      "time": "2026-08-26 23:30",
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "4674.4",
-      "stop": "4644.6134",
-      "target": "4738.5",
-      "rr": "2.15",
-      "conv": "59",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4644.6134"
     }
   ],
   "suspended_setups": [
@@ -1032,34 +965,29 @@ const DATA = {
   ],
   "by_market": {
     "GC": {
-      "wins": 1,
-      "losses": 2,
-      "total_pnl_r": 0.79,
-      "wr": 33.3
-    },
-    "NQ": {
-      "wins": 3,
-      "losses": 2,
-      "total_pnl_r": 4.36,
-      "wr": 60.0
+      "wins": 0,
+      "losses": 1,
+      "total_pnl_r": -1.0,
+      "wr": 0.0
     },
     "BTC": {
       "wins": 1,
       "losses": 4,
       "total_pnl_r": -1.58,
       "wr": 20.0
+    },
+    "NQ": {
+      "wins": 2,
+      "losses": 2,
+      "total_pnl_r": 2.26,
+      "wr": 50.0
     }
   },
   "by_tier": {
     "MEDIUM": {
-      "wins": 3,
-      "losses": 6,
-      "wr": 33.3
-    },
-    "HIGH": {
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
+      "wins": 2,
+      "losses": 5,
+      "wr": 28.6
     },
     "LOW": {
       "wins": 1,
