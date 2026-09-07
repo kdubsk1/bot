@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-07T10:09:44.186796+00:00",
+  "generated_at": "2026-09-07T16:09:59.053160+00:00",
   "topstep": {
     "balance": 51062.11,
     "starting_balance": 50000,
@@ -317,6 +317,10 @@ const DATA = {
       {
         "time": "2026-09-03 13:16",
         "balance": 50885.7
+      },
+      {
+        "time": "2026-09-07 08:08",
+        "balance": 50122.42
       }
     ]
   },
@@ -735,15 +739,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 3,
-    "losses": 7,
-    "wr": 30.0,
-    "total_trades": 10
+    "losses": 8,
+    "wr": 27.3,
+    "total_trades": 11
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -762,13 +766,29 @@ const DATA = {
     },
     {
       "setup": "GC:VWAP_BOUNCE_BULL",
-      "fires": 1,
+      "fires": 2,
       "wins": 0,
-      "losses": 1,
+      "losses": 2,
       "wr": 0.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-07 13:27",
+      "market": "GC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "4h",
+      "dir": "LONG",
+      "entry": "4449.3",
+      "stop": "4422.4707",
+      "target": "4509.1",
+      "rr": "2.23",
+      "conv": "58",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-07 08:08",
       "market": "GC",
@@ -781,9 +801,9 @@ const DATA = {
       "rr": "2.08",
       "conv": "58",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4434.1729"
     },
     {
       "time": "2026-09-04 15:10",
@@ -982,8 +1002,8 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 0,
-      "losses": 1,
-      "total_pnl_r": -1.0,
+      "losses": 2,
+      "total_pnl_r": -2.0,
       "wr": 0.0
     },
     "BTC": {
@@ -1002,8 +1022,8 @@ const DATA = {
   "by_tier": {
     "MEDIUM": {
       "wins": 2,
-      "losses": 5,
-      "wr": 28.6
+      "losses": 6,
+      "wr": 25.0
     },
     "LOW": {
       "wins": 1,
@@ -1015,15 +1035,15 @@ const DATA = {
     {
       "market": "GC",
       "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
+      "tf": "4h",
       "direction": "LONG",
-      "entry": "4458.5",
+      "entry": "4449.3",
       "target": "4509.1",
-      "stop": "4434.1729",
+      "stop": "4422.4707",
       "conviction": 58,
       "last_rescore_conviction": 58,
       "tier": "MEDIUM",
-      "timestamp": "2026-09-07T08:08:06.563375+00:00"
+      "timestamp": "2026-09-07T13:27:17.056598+00:00"
     },
     {
       "market": "BTC",
