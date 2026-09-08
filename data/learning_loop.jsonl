@@ -106,3 +106,4 @@
 {"event":"apply","bucket":"vol_floor|NQ|MACD_CROSS_BEAR","from":0.3,"to":0.25,"evidence":{"n":61,"w":50,"l":11,"wr":82.0,"avg_rr":2.03,"required_wr":41.3},"ts":"2026-09-05T00:01:45.116243+00:00"}
 {"event":"apply","bucket":"vol_floor|SOL|BB_REVERSION_BEAR","from":0.3,"to":0.25,"evidence":{"n":57,"w":37,"l":20,"wr":64.9,"avg_rr":2.5,"required_wr":35.7},"ts":"2026-09-06T00:00:58.070439+00:00"}
 {"event":"apply","bucket":"vol_confirm|GC|RSI_DIV_BEAR","from":0.8,"to":0.75,"evidence":{"n":55,"w":52,"l":3,"wr":94.5,"avg_rr":2.82,"required_wr":32.7},"ts":"2026-09-07T00:00:06.185226+00:00"}
+{"event":"apply","bucket":"vol_floor|BTC|BB_REVERSION_BULL","from":0.3,"to":0.25,"evidence":{"n":53,"w":43,"l":10,"wr":81.1,"avg_rr":2.29,"required_wr":38.1},"ts":"2026-09-08T00:01:04.797854+00:00"}
