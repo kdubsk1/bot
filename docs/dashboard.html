@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-08T04:10:28.745846+00:00",
+  "generated_at": "2026-09-08T10:10:44.862020+00:00",
   "topstep": {
     "balance": 51062.11,
     "starting_balance": 50000,
@@ -317,6 +317,10 @@ const DATA = {
       {
         "time": "2026-09-07 13:27",
         "balance": 53388.66
+      },
+      {
+        "time": "2026-09-07 23:44",
+        "balance": 52587.83
       }
     ]
   },
@@ -735,9 +739,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 4,
-    "losses": 4,
-    "wr": 50.0,
-    "total_trades": 8
+    "losses": 5,
+    "wr": 44.4,
+    "total_trades": 9
   },
   "today": {
     "wins": 0,
@@ -762,10 +766,10 @@ const DATA = {
     },
     {
       "setup": "GC:VWAP_BOUNCE_BULL",
-      "fires": 2,
+      "fires": 3,
       "wins": 1,
-      "losses": 1,
-      "wr": 50.0
+      "losses": 2,
+      "wr": 33.3
     }
   ],
   "recent_alerts": [
@@ -781,9 +785,9 @@ const DATA = {
       "rr": "2.69",
       "conv": "58",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4441.9085"
     },
     {
       "time": "2026-09-07 13:27",
@@ -962,9 +966,9 @@ const DATA = {
     },
     "GC": {
       "wins": 1,
-      "losses": 1,
-      "total_pnl_r": 1.23,
-      "wr": 50.0
+      "losses": 2,
+      "total_pnl_r": 0.23,
+      "wr": 33.3
     }
   },
   "by_tier": {
@@ -975,25 +979,11 @@ const DATA = {
     },
     "MEDIUM": {
       "wins": 3,
-      "losses": 3,
-      "wr": 50.0
+      "losses": 4,
+      "wr": 42.9
     }
   },
-  "open_trades": [
-    {
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "4h",
-      "direction": "LONG",
-      "entry": "4473.5",
-      "target": "4558.5",
-      "stop": "4441.9085",
-      "conviction": 58,
-      "last_rescore_conviction": 58,
-      "tier": "MEDIUM",
-      "timestamp": "2026-09-07T23:44:50.236524+00:00"
-    }
-  ]
+  "open_trades": []
 };
 
 function fmtMoney(n) {
