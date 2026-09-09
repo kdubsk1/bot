@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-08T22:11:17.444666+00:00",
+  "generated_at": "2026-09-09T04:11:37.063637+00:00",
   "topstep": {
     "balance": 51062.11,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -748,10 +748,10 @@ const DATA = {
     "total_trades": 11
   },
   "today": {
-    "wins": 1,
-    "losses": 3,
-    "wr": 25.0,
-    "total_trades": 4
+    "wins": 0,
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -777,6 +777,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-08 23:31",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "4h",
+      "dir": "LONG",
+      "entry": "4403.0",
+      "stop": "4370.8805",
+      "target": "4488.8",
+      "rr": "2.67",
+      "conv": "73",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-08 15:15",
       "market": "GC",
@@ -1019,7 +1035,21 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "4h",
+      "direction": "LONG",
+      "entry": "4403.0",
+      "target": "4488.8",
+      "stop": "4370.8805",
+      "conviction": 73,
+      "last_rescore_conviction": 73,
+      "tier": "HIGH",
+      "timestamp": "2026-09-08T23:31:44.920271+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
