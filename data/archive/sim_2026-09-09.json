@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 51473.11,
+  "peak_balance": 51890.31,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": 411.0,
+  "today_date": "2026-09-09",
+  "session_date": "2026-09-09",
+  "total_pnl": 1473.11,
+  "trades": [
+    {
+      "alert_id": "f4816e5345",
+      "market": "GC",
+      "direction": "LONG",
+      "entry": 4403.0,
+      "stop": 4370.880527591295,
+      "target": 4488.8,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BB_REVERSION_BULL",
+      "opened_at": "2026-09-08T23:31:50.344281",
+      "status": "CLOSED",
+      "pnl": 411.0,
+      "exit_price": 4444.1,
+      "result": "WIN",
+      "closed_at": "2026-09-09T19:55:06.642688"
+    }
+  ],
+  "open_sim_trades": []
+}
