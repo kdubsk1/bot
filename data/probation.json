@@ -98,17 +98,6 @@
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/5L (0.0% WR, expectancy -1.00R) on 5 live trades"
   },
-  "NQ:VWAP_REJECT_BEAR": {
-    "state": "SERVING",
-    "granted_at": "2026-08-25T06:37:19.619406+00:00",
-    "wins_at_start": 44,
-    "losses_at_start": 128,
-    "shadow_n": 3577,
-    "shadow_wr": 37.0,
-    "shadow_expectancy": 0.367,
-    "judge_after_trades": 5,
-    "was_suspended_for": "probation failed: 1W/5L (16.7% WR, expectancy -0.67R) on 6 live trades"
-  },
   "BTC:STOCH_REVERSAL_BEAR": {
     "state": "GRADUATED",
     "graduated_at": "2026-09-02T16:30:43.597095+00:00",
@@ -116,14 +105,6 @@
     "losses_at_graduation": 151,
     "trial_record": "3W/2L",
     "trial_expectancy": 0.2
-  },
-  "BTC:STOCH_REVERSAL_BULL": {
-    "state": "GRADUATED",
-    "graduated_at": "2026-09-03T07:07:56.518448+00:00",
-    "wins_at_graduation": 67,
-    "losses_at_graduation": 45,
-    "trial_record": "32W/0L",
-    "trial_expectancy": 1.0
   },
   "GC:VWAP_BOUNCE_BULL": {
     "state": "SERVING",
@@ -146,5 +127,27 @@
     "shadow_expectancy": 1.172,
     "judge_after_trades": 5,
     "was_suspended_for": "probation failed: 0W/6L (0.0% WR, expectancy -1.00R) on 6 live trades"
+  },
+  "BTC:STOCH_REVERSAL_BULL": {
+    "state": "SERVING",
+    "granted_at": "2026-09-10T12:42:05.069614+00:00",
+    "wins_at_start": 69,
+    "losses_at_start": 49,
+    "shadow_n": 1011,
+    "shadow_wr": 64.7,
+    "shadow_expectancy": 1.105,
+    "judge_after_trades": 5,
+    "was_suspended_for": "2W/4L (33.3% WR) since graduating"
+  },
+  "NQ:VWAP_REJECT_BEAR": {
+    "state": "SERVING",
+    "granted_at": "2026-09-10T13:02:15.872865+00:00",
+    "wins_at_start": 45,
+    "losses_at_start": 132,
+    "shadow_n": 3582,
+    "shadow_wr": 37.0,
+    "shadow_expectancy": 0.359,
+    "judge_after_trades": 5,
+    "was_suspended_for": "probation failed: 1W/4L (20.0% WR, expectancy -0.60R) on 5 live trades"
   }
 }

@@ -16,6 +16,24 @@
   "today_date": "2026-09-10",
   "session_date": "2026-09-10",
   "total_pnl": 1473.11,
-  "trades": [],
+  "trades": [
+    {
+      "alert_id": "eef4736845",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29228.75,
+      "stop": 29044.088274329086,
+      "target": 29622.0,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "OPENING_RANGE_BREAKOUT",
+      "opened_at": "2026-09-10T14:24:57.302521",
+      "status": "CLOSED",
+      "pnl": 0.0,
+      "exit_price": 29228.75,
+      "result": "LOSS",
+      "closed_at": "2026-09-10T14:24:58.387636"
+    }
+  ],
   "open_sim_trades": []
 }
