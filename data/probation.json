@@ -138,13 +138,13 @@
   },
   "BTC:BB_REVERSION_BULL": {
     "state": "SERVING",
-    "granted_at": "2026-09-09T20:00:11.616230+00:00",
+    "granted_at": "2026-09-09T22:25:05.841035+00:00",
     "wins_at_start": 72,
-    "losses_at_start": 118,
-    "shadow_n": 872,
-    "shadow_wr": 66.6,
-    "shadow_expectancy": 1.19,
+    "losses_at_start": 124,
+    "shadow_n": 878,
+    "shadow_wr": 66.2,
+    "shadow_expectancy": 1.172,
     "judge_after_trades": 5,
-    "was_suspended_for": "1W/5L (16.7% WR) since graduating"
+    "was_suspended_for": "probation failed: 0W/6L (0.0% WR, expectancy -1.00R) on 6 live trades"
   }
 }

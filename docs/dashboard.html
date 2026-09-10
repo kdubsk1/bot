@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-09T22:12:33.349125+00:00",
+  "generated_at": "2026-09-10T04:12:51.022145+00:00",
   "topstep": {
     "balance": 51473.11,
     "starting_balance": 50000,
@@ -336,7 +336,7 @@ const DATA = {
     "balance": 840.72,
     "starting_balance": 1000.0,
     "total_pnl": -159.28,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 100,
     "equity_curve": [
       {
@@ -753,9 +753,9 @@ const DATA = {
   },
   "today": {
     "wins": 0,
-    "losses": 2,
-    "wr": 0.0,
-    "total_trades": 2
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -788,6 +788,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-09 23:21",
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "78138.28",
+      "stop": "77547.7797",
+      "target": "79394.55",
+      "rr": "2.13",
+      "conv": "59",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-09 15:17",
       "market": "BTC",
@@ -1046,7 +1062,21 @@ const DATA = {
       "wr": 100.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "78138.28",
+      "target": "79394.55",
+      "stop": "77547.7797",
+      "conviction": 59,
+      "last_rescore_conviction": 59,
+      "tier": "MEDIUM",
+      "timestamp": "2026-09-09T23:21:33.921033+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
