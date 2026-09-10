@@ -1,8 +1,8 @@
 {
-  "total_sessions": 101,
-  "total_trades": 128,
+  "total_sessions": 102,
+  "total_trades": 129,
   "total_wins": 43,
-  "total_losses": 85,
+  "total_losses": 86,
   "total_pnl_dollars": 2881.01,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -511.95,
@@ -120,11 +120,11 @@
     },
     "NQ:OPENING_RANGE_BREAKOUT": {
       "wins": 0,
-      "losses": 4,
+      "losses": 5,
       "pnl": -804.0
     }
   },
-  "last_updated": "2026-09-09T20:00:11.495311+00:00",
+  "last_updated": "2026-09-10T20:00:19.259150+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
   "lifetime_balance": 52881.01,

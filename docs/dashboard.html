@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-10T16:13:19.742346+00:00",
+  "generated_at": "2026-09-10T22:13:37.515681+00:00",
   "topstep": {
     "balance": 51473.11,
     "starting_balance": 50000,
@@ -329,6 +329,10 @@ const DATA = {
       {
         "time": "2026-09-09 14:01",
         "balance": 51459.91
+      },
+      {
+        "time": "2026-09-10 14:24",
+        "balance": 50688.01
       }
     ]
   },
@@ -747,15 +751,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 4,
-    "losses": 9,
-    "wr": 30.8,
-    "total_trades": 13
+    "losses": 10,
+    "wr": 28.6,
+    "total_trades": 14
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
     {
@@ -785,6 +789,13 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "NQ:OPENING_RANGE_BREAKOUT",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
@@ -800,9 +811,9 @@ const DATA = {
       "rr": "2.13",
       "conv": "62",
       "tier": "HIGH",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "29129.75"
     },
     {
       "time": "2026-09-10 13:06",
@@ -1065,9 +1076,9 @@ const DATA = {
   "by_market": {
     "NQ": {
       "wins": 1,
-      "losses": 2,
-      "total_pnl_r": 0.18,
-      "wr": 33.3
+      "losses": 3,
+      "total_pnl_r": -0.82,
+      "wr": 25.0
     },
     "BTC": {
       "wins": 1,
@@ -1090,24 +1101,11 @@ const DATA = {
     },
     "HIGH": {
       "wins": 1,
-      "losses": 0,
-      "wr": 100.0
+      "losses": 1,
+      "wr": 50.0
     }
   },
   "open_trades": [
-    {
-      "market": "NQ",
-      "setup": "OPENING_RANGE_BREAKOUT",
-      "tf": "15m",
-      "direction": "LONG",
-      "entry": "29228.75",
-      "target": "29622.0",
-      "stop": "29044.0883",
-      "conviction": 62,
-      "last_rescore_conviction": 62,
-      "tier": "HIGH",
-      "timestamp": "2026-09-10T14:24:57.100412+00:00"
-    },
     {
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BULL",
