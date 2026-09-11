@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-11T16:14:22.638766+00:00",
+  "generated_at": "2026-09-11T22:14:43.521790+00:00",
   "topstep": {
     "balance": 51473.11,
     "starting_balance": 50000,
@@ -299,40 +299,36 @@ const DATA = {
         "balance": 50000
       },
       {
-        "time": "2026-09-03 13:16",
-        "balance": 51635.0
-      },
-      {
         "time": "2026-09-07 08:08",
-        "balance": 50860.47
+        "balance": 49250.0
       },
       {
         "time": "2026-09-07 13:27",
-        "balance": 52561.76
+        "balance": 50897.41
       },
       {
         "time": "2026-09-07 23:44",
-        "balance": 51773.33
+        "balance": 50133.95
       },
       {
         "time": "2026-09-08 15:15",
-        "balance": 50996.73
+        "balance": 49381.94
       },
       {
         "time": "2026-09-08 15:15",
-        "balance": 50231.78
+        "balance": 48641.21
       },
       {
         "time": "2026-09-08 23:31",
-        "balance": 52243.56
+        "balance": 50589.29
       },
       {
         "time": "2026-09-09 14:01",
-        "balance": 51459.91
+        "balance": 49830.45
       },
       {
         "time": "2026-09-10 14:24",
-        "balance": 50688.01
+        "balance": 49083.0
       }
     ]
   },
@@ -340,7 +336,7 @@ const DATA = {
     "balance": 817.75,
     "starting_balance": 1000.0,
     "total_pnl": -182.25,
-    "open_count": 0,
+    "open_count": 1,
     "closed_count": 100,
     "equity_curve": [
       {
@@ -750,10 +746,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 4,
+    "wins": 3,
     "losses": 11,
-    "wr": 26.7,
-    "total_trades": 15
+    "wr": 21.4,
+    "total_trades": 14
   },
   "today": {
     "wins": 0,
@@ -778,10 +774,10 @@ const DATA = {
     },
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 3,
-      "wins": 1,
+      "fires": 2,
+      "wins": 0,
       "losses": 2,
-      "wr": 33.3
+      "wr": 0.0
     },
     {
       "setup": "GC:BB_REVERSION_BULL",
@@ -799,6 +795,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-11 19:06",
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "15m",
+      "dir": "LONG",
+      "entry": "77207.33",
+      "stop": "76767.5099",
+      "target": "78199.74",
+      "rr": "2.26",
+      "conv": "58",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-10 14:24",
       "market": "NQ",
@@ -1038,22 +1050,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "79033.5493"
-    },
-    {
-      "time": "2026-09-03 13:16",
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "29240.0",
-      "stop": "29087.7984",
-      "target": "29571.25",
-      "rr": "2.18",
-      "conv": "55",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "WIN",
-      "exit": "29571.25"
     }
   ],
   "suspended_setups": [
@@ -1074,12 +1070,6 @@ const DATA = {
     }
   ],
   "by_market": {
-    "NQ": {
-      "wins": 1,
-      "losses": 3,
-      "total_pnl_r": -0.82,
-      "wr": 25.0
-    },
     "BTC": {
       "wins": 1,
       "losses": 5,
@@ -1091,13 +1081,19 @@ const DATA = {
       "losses": 3,
       "total_pnl_r": 1.9,
       "wr": 40.0
+    },
+    "NQ": {
+      "wins": 0,
+      "losses": 3,
+      "total_pnl_r": -3.0,
+      "wr": 0.0
     }
   },
   "by_tier": {
     "MEDIUM": {
-      "wins": 3,
+      "wins": 2,
       "losses": 10,
-      "wr": 23.1
+      "wr": 16.7
     },
     "HIGH": {
       "wins": 1,
@@ -1105,7 +1101,21 @@ const DATA = {
       "wr": 50.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BULL",
+      "tf": "15m",
+      "direction": "LONG",
+      "entry": "77207.33",
+      "target": "78199.74",
+      "stop": "76767.5099",
+      "conviction": 58,
+      "last_rescore_conviction": 58,
+      "tier": "MEDIUM",
+      "timestamp": "2026-09-11T19:06:22.988111+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
