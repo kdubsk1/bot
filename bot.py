@@ -20,6 +20,12 @@ All critical bugs from Opus review applied:
 """
 import asyncio, logging, os, traceback, json
 import time as _time
+# _WAVE224_ADAPTIVE_OFF: one switch, read from rules.py. Defensive import so a
+# missing rules.py can never crash the bot -- it just stays free.
+try:
+    from rules import ADAPTIVE_OFF
+except Exception:
+    ADAPTIVE_OFF = True
 import random as _rnd  # Pre-Batch 2026-04-20: for sampled REJECTED logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -2875,7 +2881,7 @@ async def scan_market(app, market, frames):
             # thin data (<30 in the window). Self-correcting: gated
             # rejects still log + grade via Wave 140, so the window keeps
             # updating and the gate lifts when the side recovers.
-            if _reject_reason is None:
+            if _reject_reason is None and not ADAPTIVE_OFF:
                 _w161_exp = _w161_side_exp(market, stp.get("direction"))
                 if _w161_exp is not None and _w161_exp <= _W161_GATE_EXP:
                     _reject_reason = (f"side edge negative (last{_W161_WINDOW} "
@@ -2950,7 +2956,7 @@ async def scan_market(app, market, frames):
             # "trend present" threshold). Longs are deliberately NOT gated this way -- 3 of
             # 9 winning longs were counter-trend (trend_score <= -2), so gating longs would
             # kill working trades. Edit the 2 below to tune the short trend gate.
-            _w74_counter = (htf_bias == "LH_LL" and _w74_dir == "LONG") or (htf_bias == "HH_HL" and _w74_dir == "SHORT") or (_w74_dir == "SHORT" and isinstance(trend, (int, float)) and trend >= 2)
+            _w74_counter = (not ADAPTIVE_OFF) and ((htf_bias == "LH_LL" and _w74_dir == "LONG") or (htf_bias == "HH_HL" and _w74_dir == "SHORT") or (_w74_dir == "SHORT" and isinstance(trend, (int, float)) and trend >= 2))
             if _w74_counter:
                 try:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
@@ -3122,7 +3128,7 @@ async def scan_market(app, market, frames):
                 continue
 
             sim_risk = sim.check_risk_limits()
-            if sim_risk.get("dd_left", 9999) <= 500:
+            if (not ADAPTIVE_OFF) and sim_risk.get("dd_left", 9999) <= 500:
                 log.info(f"[{market}] Near max drawdown — all entries blocked")
                 await tg_send(app,
                     "🚨 *Near max drawdown limit*\n"
@@ -3248,7 +3254,7 @@ async def scan_market(app, market, frames):
                     _sample_reject_log(market, entry_tf, stp["type"], f"news floor {conv}<{_news_floor}")
                     continue
 
-            dd_pct = sim_risk.get("daily_used_pct", 0)
+            dd_pct = 0 if ADAPTIVE_OFF else sim_risk.get("daily_used_pct", 0)
             if dd_pct > 75:
                 if conv < 90:
                     sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
@@ -3275,7 +3281,7 @@ async def scan_market(app, market, frames):
                     continue
 
             lev = risk_pct = hold = None
-            if market in ("BTC","SOL"):
+            if market in ("BTC","SOL") and not ADAPTIVE_OFF:
                 lev_cap = cfg.LEVERAGE_BY_TIER.get(tier,5)
                 # Wave 22: pass regime for trending-aware leverage scaling
                 _w22_regime = snapshot_context.get("regime", "UNKNOWN") if isinstance(snapshot_context, dict) else "UNKNOWN"

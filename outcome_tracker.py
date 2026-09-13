@@ -19,6 +19,12 @@ import csv, os, json, uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 import safe_io  # data-loss fix: atomic writes + cross-process locks
+# _WAVE224_ADAPTIVE_OFF: one switch, read from rules.py. Defensive import so a
+# missing rules.py can never crash the bot -- it just stays free.
+try:
+    from rules import ADAPTIVE_OFF
+except Exception:
+    ADAPTIVE_OFF = True
 try:
     from zoneinfo import ZoneInfo
     ET_ZONE = ZoneInfo("America/New_York")
@@ -427,6 +433,8 @@ def _log_suspension_event(action: str, key: str, reason: str, info: dict = None)
 
 def is_setup_suspended(market: str, setup: str) -> bool:
     """Returns True if this market:setup combo is currently suspended."""
+    if ADAPTIVE_OFF:
+        return False
     key = f"{market}:{setup}"
     suspended = get_suspended_setups()
     return key in suspended
@@ -443,6 +451,8 @@ def check_and_update_suspensions() -> list[str]:
     Restores if win_rate climbs back above 50%.
     Returns list of change strings for logging/Telegram.
     """
+    if ADAPTIVE_OFF:
+        return []
     perf = _load_performance()
     suspended = get_suspended_setups()
     changes: list[str] = []
@@ -818,6 +828,8 @@ def _performance_bonus(market: str, setup_type: str) -> int:
     # purely for a low hit rate. Win rate alone cannot separate a profitable
     # low-hit-rate setup from a losing one - that is the Wave 170 lesson, now
     # applied to scoring as well as benching.
+    if ADAPTIVE_OFF:
+        return 0
     perf = _load_performance()
     key  = f"{market}:{setup_type}"
     data = perf.get(key, {})
@@ -2091,6 +2103,8 @@ def _directional_bias_penalty(setup: dict, trend: int,
     Composite bias = (trend_score × 5) + structure_bias bonus, clamped ±100.
     Penalty curve below. SHORT-against-strong-bull is the exact bug we're fixing.
     """
+    if ADAPTIVE_OFF:
+        return 0, "adaptive_off"
     direction = setup.get("direction", "")
     is_long  = "LONG"  in direction
     is_short = "SHORT" in direction

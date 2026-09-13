@@ -60,6 +60,12 @@ import json
 import logging
 from datetime import datetime, timezone
 from typing import Optional
+# _WAVE224_ADAPTIVE_OFF: one switch, read from rules.py. Defensive import so a
+# missing rules.py can never crash the bot -- it just stays free.
+try:
+    from rules import ADAPTIVE_OFF
+except Exception:
+    ADAPTIVE_OFF = True
 
 _log = logging.getLogger("nqcalls.conviction_boosts")
 
@@ -222,6 +228,10 @@ def adjust_conviction(base_conviction: int, market: str, setup_type: str,
     The breakdown dict is included in alert metadata so users can see
     exactly why a setup was boosted/penalized.
     """
+    if ADAPTIVE_OFF:
+        b = int(base_conviction)
+        return b, {"base": b, "setup_boost": 0, "market_mult": 0,
+                   "final": b, "applied_layers": []}
     cfg = _load_config()
     breakdown = {
         "base": int(base_conviction),
@@ -274,6 +284,8 @@ def get_min_conviction_adjustment() -> int:
     Return the current Layer 3 floor adjustment. Added to cfg.MIN_CONVICTION
     when checking if a setup fires. Updated by recalibrate_bucket_floors().
     """
+    if ADAPTIVE_OFF:
+        return 0
     cfg = _load_config()
     l3 = cfg.get("layer_3_bucket_recalibration", {})
     if not l3.get("enabled"):
@@ -497,6 +509,8 @@ def run_auto_tune() -> dict:
     All adjustments are SMALL (5 points max per week) to avoid overfitting
     to noise. Multiple cycles compound over months.
     """
+    if ADAPTIVE_OFF:
+        return {"action": "skipped (adaptive_off)", "changes": []}
     cfg = _load_config()
     l5 = cfg.get("layer_5_auto_tune", {})
     if not l5.get("enabled"):
@@ -786,6 +800,9 @@ def check_edge_decay(force: bool = False) -> dict:
 
     Returns: {action, changed, decay_actions: [...]}
     """
+    if ADAPTIVE_OFF:
+        return {"action": "skipped (adaptive_off)", "changed": False,
+                "decay_actions": []}
     cfg = _load_config()
     l6 = cfg.get("layer_6_edge_decay", {})
     if not l6.get("enabled") and not force:
@@ -933,6 +950,8 @@ def run_daily_soft_tune() -> dict:
 
     Compounds with Layer 5 (Sunday) for fast adaptation.
     """
+    if ADAPTIVE_OFF:
+        return {"action": "skipped (adaptive_off)", "changes": [], "decay": {}}
     cfg = _load_config()
     l7 = cfg.get("layer_7_daily_soft_tune", {})
     if not l7.get("enabled"):
