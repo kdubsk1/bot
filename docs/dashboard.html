@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-13T20:55:45.703901+00:00",
+  "generated_at": "2026-09-14T02:55:57.264555+00:00",
   "topstep": {
     "balance": 51473.11,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -796,6 +796,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-09-13 22:07",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "4378.4",
+      "stop": "4400.3107",
+      "target": "4333.0",
+      "rr": "2.07",
+      "conv": "76",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-09-11 19:06",
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BULL",
@@ -1069,7 +1085,21 @@ const DATA = {
       "wr": 50.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "1h",
+      "direction": "SHORT",
+      "entry": "4378.4",
+      "target": "4333.0",
+      "stop": "4400.3107",
+      "conviction": 76,
+      "last_rescore_conviction": 76,
+      "tier": "HIGH",
+      "timestamp": "2026-09-13T22:07:16.166103+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
