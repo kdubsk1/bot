@@ -2289,6 +2289,20 @@ def _w143_get(filt, market, setup, base):
         return base
 
 
+def _w228_adx_min(market, setup, base):
+    """_WAVE228_ADX_FIXED: the ADX floor is the rulebook's, not the learner's.
+
+    Wave 225 closed the conviction floor's read of the learned-overrides
+    store; the ADX gate still read it through _w143_get, and two learned
+    loosenings were live (GC STOCH_REVERSAL_BULL 14->12, NQ VWAP_REJECT_BEAR
+    20->18, both on shadow-graded evidence). Under ADAPTIVE_OFF the gate uses
+    the base it computed itself (per-setup table, prime-session widening).
+    ADAPTIVE_OFF = False restores the old read exactly."""
+    if ADAPTIVE_OFF:
+        return base
+    return _w143_get("adx_min", market, setup, base)
+
+
 def _w143_mark_via(stp, filt, market, observed, base):
     """Wave 143: if this value passed ONLY because of a learned override,
     mark the setup so the trade (if it fires) is tagged for the revert
@@ -3098,7 +3112,7 @@ async def scan_market(app, market, frames):
             # Wave 149: tell the store what this gate actually requires, so the
             # daily decision can reason about adx like the other three filters.
             _w149_seed("adx_min", market, stp["type"], _w143_adx_base)
-            required_adx = _w143_get("adx_min", market, stp["type"], required_adx)
+            required_adx = _w228_adx_min(market, stp["type"], required_adx)  # _WAVE228_ADX_FIXED
             if adx_v >= required_adx:
                 _w143_mark_via(stp, "adx_min", market, adx_v, _w143_adx_base)
             if adx_v < required_adx:
