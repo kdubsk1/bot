@@ -4150,6 +4150,60 @@ async def _check_state_file_sizes(app):
         log.debug("state-size sentinel failed: %s" % _sse)
 
 
+# ---- _WAVE236_DATA_HYGIENE -------------------------------------------
+W236_DAILY_LOG = "watch_alerts_suppressed.jsonl"
+W236_KEEP_DAYS = 30
+
+
+def _w236_daily_rotate_watch_alerts(now=None):
+    """Rotate watch_alerts_suppressed.jsonl once its first line is from an
+    earlier UTC day; keep the newest 30 daily archives on disk (every rotated
+    file is also in the GitHub repo). Never raises. Returns the archive path or None."""
+    import json as _j
+    import re as _re
+    try:
+        now = now or datetime.now(timezone.utc)
+        live = os.path.join(BASE_DIR, "data", W236_DAILY_LOG)
+        adir = os.path.join(BASE_DIR, "data", "archive")
+        dest = None
+        if os.path.exists(live) and os.path.getsize(live) > 0:
+            with open(live, encoding="utf-8", errors="replace") as fh:
+                first = fh.readline()
+            ts = datetime.fromisoformat(str(_j.loads(first).get("timestamp")))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            day = ts.astimezone(timezone.utc).date()
+            if day < now.astimezone(timezone.utc).date():
+                os.makedirs(adir, exist_ok=True)
+                dest = os.path.join(adir, "watch_alerts_suppressed_%s.jsonl" % day.isoformat())
+                if os.path.exists(dest):
+                    tmp = live + ".w236"
+                    os.replace(live, tmp)
+                    open(live, "a", encoding="utf-8").close()
+                    with open(tmp, encoding="utf-8", errors="replace") as src, open(dest, "a", encoding="utf-8") as out:
+                        for line in src:
+                            out.write(line)
+                    os.remove(tmp)
+                else:
+                    os.replace(live, dest)
+                    open(live, "a", encoding="utf-8").close()
+                log.info("Wave 236: rotated %s to archive/%s" % (W236_DAILY_LOG, os.path.basename(dest)))
+        if os.path.isdir(adir):
+            pat = _re.compile(r"^watch_alerts_suppressed_\d{4}-\d{2}-\d{2}\.jsonl$")
+            daily = sorted(f for f in os.listdir(adir) if pat.match(f))
+            for old in daily[:-W236_KEEP_DAYS] if len(daily) > W236_KEEP_DAYS else []:
+                os.remove(os.path.join(adir, old))
+                log.info("Wave 236: trimmed archive/%s from disk (kept in the GitHub repo)" % old)
+        return dest
+    except Exception as _w236e:
+        try:
+            log.warning("Wave 236: daily rotate of %s skipped: %s" % (W236_DAILY_LOG, _w236e))
+        except Exception:
+            pass
+        return None
+# ---- end _WAVE236_DATA_HYGIENE ---------------------------------------
+
+
 def _rotate_data_logs():
     for _name, _mb in _ROTATE_DATA_LOGS:
         try:
@@ -5334,6 +5388,7 @@ async def scan_loop(app):
             now_et = _now_et()
             _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
             _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
+            _w236_daily_rotate_watch_alerts()  # _WAVE236_DATA_HYGIENE: daily, keep 30
             await _check_state_file_sizes(app)  # Wave 121: warn if a state file bloats
             # Wave 120 (_WAVE120_DROP_ALERT): surface any dropped write immediately
             # instead of losing data silently. get_dropped_writes()/reset come from
@@ -8407,7 +8462,11 @@ async def _post_init(app):
     # suspended setups, cooldowns, etc. With it, data persists across restarts.
     async def _auto_sync_notify(text):
         try:
-            await tg_send(app, text)
+            # _WAVE236_DATA_HYGIENE: a skipped (unsynced) file or a disabled sync is HEALTH;
+            # the routine 'Auto-sync @ time' notice stays a filed report.
+            _w236_t = str(text)
+            _w236_kind = "health" if ("SKIPPED oversized" in _w236_t or "Auto-Sync DISABLED" in _w236_t) else "report"
+            await tg_send(app, text, kind=_w236_kind)
         except Exception as e:
             log.warning(f"auto_sync telegram notify failed: {e}")
     asyncio.create_task(auto_sync.periodic_sync_loop(telegram_send=_auto_sync_notify))
