@@ -34,10 +34,10 @@ MIN_RR_DEFAULT = 2.5
 # Wave 75's values, moved here unchanged. They were previously hardcoded in
 # TWO places that had to be kept in sync by hand.
 #
-# FLAG FOR A LATER WAVE, not changed here: on real rows the 3.0R+ bucket is
-# POSITIVE in every market that has one (NQ +0.203 n=19, GC +1.024 n=10,
-# BTC +0.295 n=33). GC's 3.0 cap is cutting off GC's best bucket. Samples are
-# thin, so this wave moves the numbers without touching them.
+# _WAVE234_HOLIDAYS comment correction (no value change): an earlier note here said
+# the 3.0R+ bucket is positive and GC's cap cuts its best bucket. That was
+# NOMINAL R. On actual exits GC 3.0R+ is -0.318R (0 of 4 wins reached target)
+# and the cap blocks 0.19% of rejections. Don't raise the caps: WAVE_227_CASE.md.
 RR_CAP = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}
 RR_CAP_DEFAULT = 3.5
 
@@ -47,10 +47,10 @@ RR_CAP_DEFAULT = 3.5
 # None means "behave exactly as the bot does today". The wiring ships now so
 # that setting a number later is a one-line change instead of a new wave.
 #
-# Monday's ledger under Wave 224 gives the RAW conviction distribution: every
-# DETECT/REJECT row's score_breakdown JSON carries learning_bonus,
-# directional_bias, w7_setup_boost and w7_market_mult -- subtract them from
-# conviction to get the raw score. The chat sends the numbers Tuesday.
+# _WAVE234_HOLIDAYS comment correction (no value change): score_breakdown has had no
+# learning_bonus / directional_bias / w7 fields since Wave 60 -- conviction IS
+# the setup's learned win rate, and it is still fed by shadow grades
+# (QUESTIONS_FOR_WAYNE Q1). Proposal per market: Q2. Not chosen yet.
 #
 # Until then this stays None and the conviction gate is unchanged.
 CONVICTION_MIN = {"NQ": None, "GC": None, "BTC": None, "SOL": None}
@@ -61,3 +61,24 @@ CONVICTION_MIN_DEFAULT = None
 # This gates the fire-path call alert ONLY. Exit notices and the daily briefs
 # are outside Wave 225 and still go where they always did.
 PUBLIC_CALLS = False
+
+# _WAVE234_HOLIDAYS ----------------------------------------------------------
+# CME closures for NQ and GC. Key = ET calendar date.
+#   (None, ...)     full close: no new entries for that whole trade date,
+#                   6:00 PM ET the evening before -> 6:00 PM ET that day
+#   ("HH:MM", ...)  early close: no new entries from HH:MM ET to 6:00 PM ET
+# CONSERVATIVE ON PURPOSE: sources disagreed (CME's own pages could not be
+# fetched), so each entry uses the EARLIEST halt any source gave, and a day
+# any source called closed is blocked all day. Confirm against cmegroup.com
+# (QUESTIONS_FOR_WAYNE Q4); fixing a time here is a one-line edit.
+FUTURES_HOLIDAYS = {
+    "2026-11-26": (None,    "Thanksgiving",
+                   "sources disagree: halt 1:00 PM ET vs full close -> blocked all day"),
+    "2026-11-27": ("13:00", "Day after Thanksgiving (early close)",
+                   "sources: 1:15 PM ET vs 1:00 PM ET -> 1:00 PM"),
+    "2026-12-24": ("13:00", "Christmas Eve (early close)",
+                   "sources: 1:15 PM ET vs 1:00 PM ET -> 1:00 PM"),
+    "2026-12-25": (None,    "Christmas Day", "all sources: full close"),
+    "2027-01-01": (None,    "New Year's Day",
+                   "2027 not in the sources read; CME closes New Year's Day every year (2026: full close)"),
+}

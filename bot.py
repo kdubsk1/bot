@@ -3855,6 +3855,31 @@ FUTURES_CLOSED_ET  = (16, 10)   # 4:10 PM (was 4:00 PM)
 FUTURES_WEEKEND_CLOSE_ET  = (16, 0)    # Friday 4:00 PM ET
 FUTURES_WEEKEND_REOPEN_ET = (18, 0)    # Sunday 6:00 PM ET
 
+# _WAVE234_HOLIDAYS: CME holiday closures, from rules.FUTURES_HOLIDAYS.
+try:
+    from rules import FUTURES_HOLIDAYS as _R234_HOLIDAYS
+except Exception:
+    _R234_HOLIDAYS = {}
+
+
+def _w234_holiday_reason(now, hm):
+    """A reason string if `now` (ET-aware) falls in a CME holiday closure, else None."""
+    try:
+        reopen = FUTURES_REOPEN_ET[0] * 60 + FUTURES_REOPEN_ET[1]          # 6:00 PM ET
+        trade_day = (now + timedelta(days=1)) if hm >= reopen else now
+        full = _R234_HOLIDAYS.get(trade_day.strftime("%Y-%m-%d"))
+        if full and full[0] is None:
+            return "exchange holiday: %s (CME closed)" % full[1]
+        early = _R234_HOLIDAYS.get(now.strftime("%Y-%m-%d"))
+        if early and early[0]:
+            h, m = (int(x) for x in str(early[0]).split(":"))
+            if h * 60 + m <= hm < reopen:
+                return "exchange holiday: %s (closed from %s ET)" % (early[1], early[0])
+    except Exception:
+        return None
+    return None
+
+
 def _futures_block_reason(market: str, now=None):
     """
     None if NQ/GC may take a new entry right now, otherwise a short reason.
@@ -3868,6 +3893,9 @@ def _futures_block_reason(market: str, now=None):
         now = _now_et()
     wd  = now.weekday()                       # Mon=0 .. Sun=6
     hm  = now.hour * 60 + now.minute
+    _w234_why = _w234_holiday_reason(now, hm)  # _WAVE234_HOLIDAYS
+    if _w234_why:
+        return _w234_why
     wk_close  = FUTURES_WEEKEND_CLOSE_ET[0]  * 60 + FUTURES_WEEKEND_CLOSE_ET[1]
     wk_reopen = FUTURES_WEEKEND_REOPEN_ET[0] * 60 + FUTURES_WEEKEND_REOPEN_ET[1]
     if (wd == 4 and hm >= wk_close) or wd == 5 or (wd == 6 and hm < wk_reopen):
