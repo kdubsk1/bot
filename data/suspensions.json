@@ -78,5 +78,10 @@
     "reason": "Wave 47 auto: 0W/4L over last 30 days",
     "suspended_at": "2026-08-24T20:00:03.325698+00:00",
     "source": "wave47_auto"
+  },
+  "GC:VWAP_BOUNCE_BULL": {
+    "reason": "Wave 47 auto: 0W/4L over last 30 days",
+    "suspended_at": "2026-09-15T20:00:25.803460+00:00",
+    "source": "wave47_auto"
   }
 }

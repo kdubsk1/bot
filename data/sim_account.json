@@ -2,8 +2,8 @@
   "enabled": true,
   "mode": "eval",
   "preset": "50k",
-  "balance": 51693.42,
-  "peak_balance": 51927.11,
+  "balance": 52195.42,
+  "peak_balance": 52195.42,
   "starting_balance": 50000,
   "daily_loss_limit": 1000,
   "max_drawdown": 2000,
@@ -13,24 +13,9 @@
   "use_mnq": true,
   "account_risk_pct": 1.5,
   "today_pnl": 0.0,
-  "today_date": "2026-09-15",
-  "session_date": "2026-09-15",
-  "total_pnl": 1693.42,
+  "today_date": "2026-09-16",
+  "session_date": "2026-09-16",
+  "total_pnl": 2195.42,
   "trades": [],
-  "open_sim_trades": [
-    {
-      "alert_id": "2674451962",
-      "market": "NQ",
-      "direction": "SHORT",
-      "entry": 29369.0,
-      "stop": 29461.48701423361,
-      "target": 29118.0,
-      "contracts": 1,
-      "tier": "HIGH",
-      "setup_type": "OPENING_RANGE_BREAKOUT",
-      "opened_at": "2026-09-15T14:10:43.810920",
-      "status": "OPEN",
-      "pnl": 0.0
-    }
-  ]
+  "open_sim_trades": []
 }
