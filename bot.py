@@ -123,6 +123,28 @@ def _w225_conv_min(market, setup):
     return _w143_get("conv_min", market, setup, 50)
 # ---- end _WAVE225_RULEBOOK --------------------------------------------
 
+# ---- _WAVE239_CONVICTION_MIN -------------------------------------------
+# Wave 239: rules.CALLS_OFF_MARKETS never send a call; rules.CONTROL_ONLY_MARKETS
+# never reach the public channel. Defensive: a rules.py without them falls back
+# to exactly Wayne's decided values (15 Sep 2026).
+try:
+    from rules import CALLS_OFF_MARKETS as _R239_CALLS_OFF
+except Exception:
+    _R239_CALLS_OFF = ("SOL",)
+try:
+    from rules import CONTROL_ONLY_MARKETS as _R239_CONTROL_ONLY
+except Exception:
+    _R239_CONTROL_ONLY = ("BTC",)
+
+
+def _w239_public_ok(market):
+    """True when this market's calls and exits may go to the public channel."""
+    try:
+        return bool(_R225_PUBLIC_CALLS) and market not in _R239_CONTROL_ONLY
+    except Exception:
+        return False
+# ---- end _WAVE239_CONVICTION_MIN ---------------------------------------
+
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
 # level) or for its R:R, write one line saying which swing levels existed and
@@ -2608,7 +2630,7 @@ async def scan_market(app, market, frames):
         # public on the same rule as the call. The old diagnostic card (sim P&L,
         # balance) is written to data/bot_reports, not posted.
         _w231_card = _w231_exit_card(market, cfg, orig, exit_p, result)
-        if _R225_PUBLIC_CALLS:
+        if _w239_public_ok(market):  # _WAVE239_CONVICTION_MIN: BTC exits control-only too
             await tg_send_pub(app, _w231_card, kind="exit")
         await tg_send(app, _w231_card, kind="exit")
         await tg_send(app, msg)
@@ -3449,6 +3471,17 @@ async def scan_market(app, market, frames):
             # variable is hoisted ABOVE the ladder and both use it, so a
             # learned 46 genuinely fires as LOW tier. HIGH/MEDIUM cuts (60/53)
             # are untouched - only the floor between LOW and REJECT moves.
+            if market in _R239_CALLS_OFF:  # _WAVE239_CONVICTION_MIN: market off in rules.py
+                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                    cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                    sl.DECISION_REJECTED,
+                    f"Market {market} is off in rules.py (CALLS_OFF_MARKETS) - no calls",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    score_breakdown=bd_final)
+                _sample_reject_log(market, entry_tf, stp["type"], "market off in rules.py")
+                continue
             _WAVE60_MIN_CONV = _w225_conv_min(market, stp["type"])  # _WAVE225_RULEBOOK (was _w143_get conv_min 50)
             if   conv>=60: tier="HIGH"   # Wave 60: tiers on the evidence (win-rate) scale
             elif conv>=53: tier="MEDIUM"
@@ -3753,7 +3786,7 @@ async def scan_market(app, market, frames):
                 _w179_full = str(_w179_full) + "\nCall ID `%s`" % _w232_cid
                 if _w179_pub:
                     _w179_pub = str(_w179_pub) + "\nCall ID `%s`" % _w232_cid
-            if _R225_PUBLIC_CALLS:  # _WAVE225_RULEBOOK: False = control channel only
+            if _w239_public_ok(market):  # _WAVE225_RULEBOOK: False = control channel only; _WAVE239_CONVICTION_MIN: BTC control-only
                 await tg_send_pub(app, _w179_pub or _w179_full, kind="call")  # _WAVE231_CALLS_ONLY
             await tg_send(app, _w179_full, kind="call")  # _WAVE231_CALLS_ONLY: control ALWAYS gets every call
             log.info(
@@ -4623,7 +4656,7 @@ async def force_flatten_futures(app):
         icon = "✅" if result=="WIN" else "❌"
         # _WAVE231_CALLS_ONLY: the flatten exit is the same exit card, flagged as the 4:10 rule.
         _w231_card = _w231_exit_card(market, cfg, row, cur, result, reason="Closed by the 4:10 PM ET flatten")
-        if _R225_PUBLIC_CALLS:
+        if _w239_public_ok(market):  # _WAVE239_CONVICTION_MIN
             await tg_send_pub(app, _w231_card, kind="exit")
         await tg_send(app, _w231_card, kind="exit")
         await tg_send_pub(app,

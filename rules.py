@@ -41,20 +41,25 @@ MIN_RR_DEFAULT = 2.5
 RR_CAP = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}
 RR_CAP_DEFAULT = 3.5
 
-# ############################################################################
-# #  PLACEHOLDER -- NOT YET CHOSEN. DO NOT INVENT A NUMBER HERE.             #
-# ############################################################################
-# None means "behave exactly as the bot does today". The wiring ships now so
-# that setting a number later is a one-line change instead of a new wave.
-#
-# _WAVE234_HOLIDAYS comment correction (no value change): score_breakdown has had no
-# learning_bonus / directional_bias / w7 fields since Wave 60 -- conviction IS
-# the setup's learned win rate, and it is still fed by shadow grades
-# (QUESTIONS_FOR_WAYNE Q1). Proposal per market: Q2. Not chosen yet.
-#
-# Until then this stays None and the conviction gate is unchanged.
-CONVICTION_MIN = {"NQ": None, "GC": None, "BTC": None, "SOL": None}
+# _WAVE239_CONVICTION_MIN: CHOSEN by Wayne 15 Sep 2026 (QUESTIONS_FOR_WAYNE Q2), from
+# RESEARCH_NOTES section 12-I -- actual-exit R, real calls only, walk-forward
+# (picked 13 Apr-30 Jun, scored 1 Jul-14 Sep):
+#   NQ   50  raising it does not help (>=60 -0.004R OOS; >=70 5 OOS calls, all lost)
+#   GC   70  monotonic OOS: >=50 +0.341R, >=60 +0.363R, >=70 +0.513R (no CI clears 0)
+#   BTC  70  >=50 is -0.278R OOS; >=70 n=3. Near silent, and control channel only
+#   SOL  off every threshold negative (CALLS_OFF_MARKETS below)
+# Conviction is the setup's win rate in setup_performance.json. Wave 238 stopped
+# shadow grades moving it; what replaces it is QUESTIONS_FOR_WAYNE Q8.
+# None = the ladder floor of 50.
+CONVICTION_MIN = {"NQ": 50, "GC": 70, "BTC": 70, "SOL": None}
 CONVICTION_MIN_DEFAULT = None
+
+# A market listed here never sends a call (the scan still logs it, REJECTED).
+CALLS_OFF_MARKETS = ("SOL",)
+
+# Calls AND exit cards for these markets go to the CONTROL channel only, even
+# when PUBLIC_CALLS is True. The control channel always gets everything.
+CONTROL_ONLY_MARKETS = ("BTC",)
 
 # False = every fired call goes to the CONTROL channel only. Real subscribers
 # read NQ CALLS, so the rulebook gets proven on the control channel first.
@@ -63,6 +68,8 @@ CONVICTION_MIN_DEFAULT = None
 PUBLIC_CALLS = False
 
 # _WAVE234_HOLIDAYS ----------------------------------------------------------
+# _WAVE239_CONVICTION_MIN (Q4 answered 15 Sep 2026): the conservative times stand.
+# VERIFY AGAINST CME BEFORE 26 NOV 2026.
 # CME closures for NQ and GC. Key = ET calendar date.
 #   (None, ...)     full close: no new entries for that whole trade date,
 #                   6:00 PM ET the evening before -> 6:00 PM ET that day
