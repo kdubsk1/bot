@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-15T14:06:33.186984+00:00",
+  "generated_at": "2026-09-15T15:14:57.747518+00:00",
   "topstep": {
     "balance": 51693.42,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -815,6 +815,22 @@ const DATA = {
   ],
   "recent_alerts": [
     {
+      "time": "2026-09-15 14:10",
+      "market": "NQ",
+      "setup": "OPENING_RANGE_BREAKOUT",
+      "tf": "15m",
+      "dir": "SHORT",
+      "entry": "29369.0",
+      "stop": "29461.487",
+      "target": "29118.0",
+      "rr": "2.71",
+      "conv": "62",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
       "time": "2026-09-15 02:27",
       "market": "GC",
       "setup": "VWAP_BOUNCE_BULL",
@@ -1136,7 +1152,21 @@ const DATA = {
       "wr": 66.7
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "OPENING_RANGE_BREAKOUT",
+      "tf": "15m",
+      "direction": "SHORT",
+      "entry": "29369.0",
+      "target": "29118.0",
+      "stop": "29461.487",
+      "conviction": 62,
+      "last_rescore_conviction": 62,
+      "tier": "HIGH",
+      "timestamp": "2026-09-15T14:10:39.221825+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
