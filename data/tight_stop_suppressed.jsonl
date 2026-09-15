@@ -79189,3 +79189,5 @@
 {"timestamp": "2026-09-14T20:52:22.769393+00:00", "market": "", "tf": "", "setup": "MACD_CROSS_BEAR", "direction": "SHORT", "entry": 79230.24, "stop": 79564.37644951015, "target": null, "rr": null, "risk_pct": 0.4217, "min_pct": 0.5}
 {"timestamp": "2026-09-15T00:48:27.924490+00:00", "market": "", "tf": "", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 4333.1, "stop": 4323.773690361748, "target": null, "rr": null, "risk_pct": 0.2152, "min_pct": 0.5}
 {"timestamp": "2026-09-15T00:48:27.939517+00:00", "market": "", "tf": "", "setup": "EMA21_PULLBACK_BEAR", "direction": "SHORT", "entry": 4333.1, "stop": 4349.534913600308, "target": null, "rr": null, "risk_pct": 0.3793, "min_pct": 0.5}
+{"timestamp": "2026-09-15T02:28:37.536569+00:00", "market": "", "tf": "", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 78000.99, "stop": 77824.53618687569, "target": null, "rr": null, "risk_pct": 0.2262, "min_pct": 0.5}
+{"timestamp": "2026-09-15T02:28:37.572967+00:00", "market": "", "tf": "", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 78000.99, "stop": 77643.41466500261, "target": null, "rr": null, "risk_pct": 0.4584, "min_pct": 0.5}
