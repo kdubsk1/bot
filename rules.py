@@ -82,3 +82,9 @@ FUTURES_HOLIDAYS = {
     "2027-01-01": (None,    "New Year's Day",
                    "2027 not in the sources read; CME closes New Year's Day every year (2026: full close)"),
 }
+
+# _WAVE235_KEY_LEVELS: post the session-open key-levels card to the CONTROL channel?
+# False = levels are only written to data/key_levels_YYYY-MM-DD.json (and the
+# card is filed in data/bot_reports), keeping Telegram to calls, exits and
+# health. True = the card is also posted to control. QUESTIONS_FOR_WAYNE Q5.
+KEY_LEVELS_TO_TELEGRAM = False

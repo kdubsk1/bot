@@ -1001,7 +1001,7 @@ def _w231_stuck_threshold_min():
 
 async def tg_send(app, text, chat_id=None, kind="report"):
     # _WAVE231_CALLS_ONLY: only calls, exits and scanner health are posted.
-    if kind not in W231_TELEGRAM_KINDS:
+    if kind not in W231_TELEGRAM_KINDS and not (kind == "levels" and chat_id is None and _w235_levels_to_tg()):  # _WAVE235_KEY_LEVELS
         _w231_write_report(text, "public" if (chat_id is not None and chat_id == CHAT_ID) else "control", kind)
         return
     # Wave 177: default destination is the CONTROL channel.
@@ -5250,6 +5250,77 @@ async def _w163_scan_supervisor(app):
             raise
 
 
+# ---- _WAVE235_KEY_LEVELS ------------------------------------------------
+_K1_DONE = {}   # market -> trade date already published
+
+
+def _w235_levels_to_tg():
+    try:
+        from rules import KEY_LEVELS_TO_TELEGRAM as _v
+        return _v is True
+    except Exception:
+        return False
+
+
+def _w235_write_levels(trade_date, market, result):
+    import json as _j
+    folder = os.path.join(BASE_DIR, "data")
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, "key_levels_%s.json" % trade_date)
+    doc = {"trade_date": trade_date, "markets": {}}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            old = _j.load(fh)
+        if isinstance(old, dict) and isinstance(old.get("markets"), dict):
+            doc = old
+    except Exception:
+        pass
+    doc["markets"][market] = result
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        _j.dump(doc, fh, indent=2, sort_keys=True)
+    os.replace(tmp, path)
+    return path
+
+
+async def _k1_maybe_publish(app, frames_by_market, now_utc=None):
+    """Wave 235 (K1): key levels once per market per trade date. Information
+    only -- nothing that decides a call reads this. Never raises."""
+    try:
+        import key_levels as _k1
+    except Exception:
+        return []
+    now_utc = now_utc or datetime.now(timezone.utc)
+    done = []
+    for market, frames in (frames_by_market or {}).items():
+        try:
+            td = _k1.trade_date(now_utc).isoformat()
+            if _K1_DONE.get(market) == td:
+                continue
+            if market in FUTURES_MARKETS and _futures_block_reason(market, now_utc.astimezone(_k1.ET)):
+                continue                      # closed: publish at the next open
+            df = (frames or {}).get("1h")
+            if df is None or getattr(df, "empty", True):
+                continue
+            res = _k1.compute(df, now_utc)
+            if not res:
+                continue
+            _w235_write_levels(td, market, res)
+            _K1_DONE[market] = td
+            done.append(market)
+            try:
+                await tg_send(app, _k1.card(market, res), kind="levels")
+            except Exception:
+                pass
+        except Exception as _k1e:
+            try:
+                log.warning("K1 key levels %s failed (non-fatal): %s" % (market, _k1e))
+            except Exception:
+                pass
+    return done
+# ---- end _WAVE235_KEY_LEVELS --------------------------------------------
+
+
 async def scan_loop(app):
     global _FLATTEN_PENDING, _SESSION_CLOSE_SUMMARY, _SUSPENSION_CHANGES, _RECAP_PENDING
     global _LAST_SESSION_CLOSE_FIRED, _LAST_DAILY_REPORT_DATE, _LAST_WEEKLY_RECAP_DATE
@@ -5553,6 +5624,10 @@ async def scan_loop(app):
                 scan_interval, reason = get_smart_interval(active, frames_by_market)
                 log.info(f"--- Scanning {active} | {reason} ---")
                 _LAST_SCAN_TIMESTAMP = datetime.now(timezone.utc)  # Wave 19: track most recent scan
+                try:  # _WAVE235_KEY_LEVELS: session-open key levels (information only)
+                    await _k1_maybe_publish(app, frames_by_market)
+                except Exception as _k1_top:
+                    log.warning("K1 key levels failed (non-fatal): %s" % _k1_top)
 
                 try:
                     # Wave 140 (_WAVE140_LEARNABLE_REJECTS): rejected rows now
