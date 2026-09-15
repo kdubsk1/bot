@@ -298,7 +298,8 @@ def check_missed_setups(live_frames: dict):
             try:
                 target    = float(row.get("target", 0))
                 stop      = float(row.get("stop", 0))
-                direction = row.get("direction", "LONG")
+                # _WAVE230_GRADE_SIDE: WATCH_LONG grades as LONG (it took the SHORT branch).
+                direction = "LONG" if "LONG" in str(row.get("direction", "LONG")) else "SHORT"
                 if target == 0 or stop == 0:
                     continue
 

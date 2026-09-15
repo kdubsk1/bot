@@ -3305,7 +3305,7 @@ async def scan_market(app, market, frames):
                 try:
                     _min_stop_dist = 1.2 * atr_v
                     if abs(stp["entry"] - stp["raw_stop"]) < _min_stop_dist:
-                        if stp["direction"] == "LONG":
+                        if "LONG" in str(stp["direction"]):  # _WAVE230_GRADE_SIDE: WATCH_LONG widens downward
                             stp["raw_stop"] = stp["entry"] - _min_stop_dist
                         else:
                             stp["raw_stop"] = stp["entry"] + _min_stop_dist

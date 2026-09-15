@@ -2796,11 +2796,21 @@ def auto_check_outcomes(live_frames: dict):
             entry     = float(row.get("entry",  0))
             stop      = float(row.get("stop",   0))
             target    = float(row.get("target", 0))
-            direction = row.get("direction", "LONG")
+            # _WAVE230_GRADE_SIDE: WATCH_LONG / WATCH_SHORT grade as LONG / SHORT. The side
+            # tests below are `direction == "LONG"`, so WATCH_LONG used to take the
+            # SHORT branch and every one was a LOSS at its stop (11 of 11 in the ledger).
+            direction = "LONG" if "LONG" in str(row.get("direction", "LONG")) else "SHORT"
             alert_id  = row.get("alert_id")
             setup_type= row.get("setup", "")
             ts_str    = row.get("timestamp", "")
             if target == 0 or stop == 0:
+                continue
+            # _WAVE230_GRADE_SIDE: a stop on the wrong side of entry is not a stop. Grading it
+            # books an instant LOSS "at the stop" on the profitable side of entry
+            # (0275fc3d53, 14 Apr). Leave it OPEN; the 24h auto-expire closes it as SKIP.
+            if (entry - stop) * (1 if direction == "LONG" else -1) <= 0:
+                _log.warning(f"auto_check_outcomes: {alert_id} {market} {setup_type} {direction} "
+                             f"stop {stop} is on the wrong side of entry {entry} - not grading it")
                 continue
 
             # Wave 10 (May 4) - PHANTOM LOSS FIX:
