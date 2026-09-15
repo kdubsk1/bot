@@ -25,6 +25,13 @@ try:
     from rules import ADAPTIVE_OFF
 except Exception:
     ADAPTIVE_OFF = True
+# _WAVE225_RULEBOOK: per-market R cap moved into rules.py. Defensive -- a
+# missing rules.py falls back to Wave 75's values exactly.
+try:
+    from rules import RR_CAP as _R225_RR_CAP, RR_CAP_DEFAULT as _R225_RR_CAP_DEF
+except Exception:
+    _R225_RR_CAP = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}
+    _R225_RR_CAP_DEF = 3.5
 try:
     from zoneinfo import ZoneInfo
     ET_ZONE = ZoneInfo("America/New_York")
@@ -2230,8 +2237,11 @@ def structure_target(df: pd.DataFrame, direction: str,
     # Wave 75 (Jun 29, 2026): per-market R cap. Backtest showed 4R+ targets bleed
     # (3.8% WR over 702 trades, NQ worst). Each market has its own sweet spot -
     # GC tight, NQ medium, crypto (esp. SOL) higher. Replaces the global 5.0.
-    _W75_MAX_RR_BY_MARKET = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}
-    MAX_RR = _W75_MAX_RR_BY_MARKET.get(market, 3.5)
+    # _WAVE225_RULEBOOK: the table now lives in rules.py. bot._w148_reject_reason
+    # read a hand-synced copy of it; that copy is gone in the same wave.
+    _W75_MAX_RR_BY_MARKET = _R225_RR_CAP
+    _w225_cap = _R225_RR_CAP.get(market, _R225_RR_CAP_DEF)
+    MAX_RR = float(_R225_RR_CAP_DEF if _w225_cap is None else _w225_cap)
     SWEET_LO, SWEET_HI = 2.0, 3.0
 
     a = atr(df).iloc[-1]

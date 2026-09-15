@@ -26,6 +26,102 @@ try:
     from rules import ADAPTIVE_OFF
 except Exception:
     ADAPTIVE_OFF = True
+
+# ---- _WAVE225_RULEBOOK ------------------------------------------------
+# Wave 225: the rulebook read path. Defensive on every lookup -- a missing or
+# malformed rules.py must never break a scan, so every helper falls back to
+# what the bot did before this wave.
+try:
+    from rules import (MIN_RR as _R225_MIN_RR,
+                       MIN_RR_DEFAULT as _R225_MIN_RR_DEF,
+                       RR_CAP as _R225_RR_CAP,
+                       RR_CAP_DEFAULT as _R225_RR_CAP_DEF,
+                       CONVICTION_MIN as _R225_CONV_MIN,
+                       CONVICTION_MIN_DEFAULT as _R225_CONV_MIN_DEF,
+                       PUBLIC_CALLS as _R225_PUBLIC_CALLS)
+except Exception:
+    _R225_MIN_RR, _R225_MIN_RR_DEF = {}, 2.5
+    _R225_RR_CAP, _R225_RR_CAP_DEF = {}, 3.5
+    _R225_CONV_MIN, _R225_CONV_MIN_DEF = {}, None
+    _R225_PUBLIC_CALLS = False
+
+
+def _w225_min_rr(market):
+    """Per-market R:R floor from rules.py. One number, deterministic.
+
+    This replaces SETTINGS["min_rr"], which was a plain in-memory dict with no
+    persistence -- it reset to its code default of 1.5 on every restart, so
+    the floor silently flapped between 1.5 and whatever the menu button had
+    last been set to."""
+    try:
+        v = _R225_MIN_RR.get(market, _R225_MIN_RR_DEF)
+        return float(_R225_MIN_RR_DEF if v is None else v)
+    except Exception:
+        return 2.5
+
+
+def _w225_floor(setup_floor, market_floor):
+    """Wave 225 semantics: the per-setup floor GOVERNS when one exists; the
+    per-market floor is the fallback. This is a lookup-with-fallback, not a
+    max().
+
+    The old line was `min_rr = max(setup_floor, _global_min_rr)`. Because
+    get_rr_floor() clamps its result to [0.8, 2.5], a global of 2.5 made that
+    max() return 2.5 every single time and the per-setup floors were
+    arithmetically unreachable; a global of 1.5 (the post-restart default)
+    let floors in (1.5, 2.5] suddenly govern. Same line, two rulebooks,
+    depending on which side of a restart you looked.
+
+    Under ADAPTIVE_OFF there is no learned per-setup floor to honour at all --
+    get_rr_floor() reads setup_performance.json, which is exactly the
+    self-learning Wave 224 switched off. So the answer is simply the
+    per-market number. (This closes RP-15: get_rr_floor was a fire-path
+    adaptive read-point that Wave 224 missed.)"""
+    if ADAPTIVE_OFF:
+        return market_floor
+    try:
+        if setup_floor is not None and float(setup_floor) > 0:
+            return float(setup_floor)
+    except Exception:
+        pass
+    return market_floor
+
+
+def _w225_rr_cap(market):
+    """Per-market R cap from rules.py. Was hardcoded in two places that had to
+    be hand-synced: outcome_tracker.structure_target and bot._w148_reject_reason."""
+    try:
+        v = _R225_RR_CAP.get(market, _R225_RR_CAP_DEF)
+        return float(_R225_RR_CAP_DEF if v is None else v)
+    except Exception:
+        return 3.5
+
+
+def _w225_conv_min(market, setup):
+    """Conviction floor from rules.py.
+
+    CONVICTION_MIN is a MARKED PLACEHOLDER -- None means "keep exactly what
+    the bot does today", so this wave ships the wiring without inventing a
+    number. Monday's ledger decides the value.
+
+    When it is still None and ADAPTIVE_OFF is on, this returns the hardcoded
+    ladder floor of 50 WITHOUT consulting learned_overrides. (This closes
+    RP-16: _w143_get is the read path into the learned-overrides store -- the
+    hands of the learning loop -- and Wave 224 missed it, so conv_min was
+    still being learned after 224 went live.)"""
+    try:
+        v = _R225_CONV_MIN.get(market, _R225_CONV_MIN_DEF)
+    except Exception:
+        v = None
+    if v is not None:
+        try:
+            return int(v)
+        except Exception:
+            pass
+    if ADAPTIVE_OFF:
+        return 50
+    return _w143_get("conv_min", market, setup, 50)
+# ---- end _WAVE225_RULEBOOK --------------------------------------------
 import random as _rnd  # Pre-Batch 2026-04-20: for sampled REJECTED logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -2081,7 +2177,7 @@ def _w148_reject_reason(method, market):
     audit that read it was misled. The cap mirrors Wave 75's per-market table
     (GC 3.0 / NQ 3.5 / BTC 4.0 / SOL 4.0, default 3.5) - if that table moves,
     move this one in the same commit."""
-    cap = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}.get(market, 3.5)
+    cap = _w225_rr_cap(market)  # _WAVE225_RULEBOOK: was a hand-synced copy of Wave 75's table
     if method == "rr_too_high":
         return ("No usable swing target \u2014 every candidate level prices ABOVE "
                 "the %.1fR cap for %s (stop is tight, so real structure sits too "
@@ -3149,8 +3245,10 @@ async def scan_market(app, market, frames):
             # calibrated on inflated shadow stats (the "83% WR" setup's real
             # record was 1W/20L).
             setup_floor = ot.get_rr_floor(stp["type"], market)
-            _global_min_rr = cfg.NEWS_MIN_RR if news_flag else SETTINGS["min_rr"]
-            min_rr = max(setup_floor, _global_min_rr)
+            _w225_market_rr = _w225_min_rr(market)
+            _global_min_rr = (max(cfg.NEWS_MIN_RR, _w225_market_rr)
+                              if news_flag else _w225_market_rr)
+            min_rr = _w225_floor(setup_floor, _global_min_rr)  # _WAVE225_RULEBOOK
             if rr < min_rr:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, 0, "REJECT",
@@ -3209,7 +3307,7 @@ async def scan_market(app, market, frames):
             # variable is hoisted ABOVE the ladder and both use it, so a
             # learned 46 genuinely fires as LOW tier. HIGH/MEDIUM cuts (60/53)
             # are untouched - only the floor between LOW and REJECT moves.
-            _WAVE60_MIN_CONV = _w143_get("conv_min", market, stp["type"], 50)  # _W216_CONV70 _W217_SIZED
+            _WAVE60_MIN_CONV = _w225_conv_min(market, stp["type"])  # _WAVE225_RULEBOOK (was _w143_get conv_min 50)
             if   conv>=60: tier="HIGH"   # Wave 60: tiers on the evidence (win-rate) scale
             elif conv>=53: tier="MEDIUM"
             elif conv>=_WAVE60_MIN_CONV: tier="LOW"
@@ -3504,7 +3602,8 @@ async def scan_market(app, market, frames):
                                              extra_footer=footer, alert_id=alert_id)
             # Wave 179: clean card to the public channel, full diagnostics to control.
             _w179_pub = format_alert_public(market, entry_tf, stp, tier, tgt, rr, _w217_size(conv))
-            await tg_send_pub(app, _w179_pub or _w179_full)
+            if _R225_PUBLIC_CALLS:  # _WAVE225_RULEBOOK: False = control channel only
+                await tg_send_pub(app, _w179_pub or _w179_full)
             await tg_send(app, _w179_full)
             log.info(
                 f"[{market}] [{entry_tf}] FIRED: {stp['type']} {stp['direction']} "
