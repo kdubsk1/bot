@@ -19,6 +19,13 @@ from datetime import datetime, timezone
 from typing import Optional
 import pandas as pd
 import safe_io  # data-loss fix: atomic writes + cross-process locks
+# _WAVE238_CONVICTION_FROZEN: under rules.ADAPTIVE_OFF graded shadow rows no longer feed
+# setup_performance.json, the table conviction_score reads. Defensive: a missing
+# rules.py keeps the bot frozen, the same default as outcome_tracker and bot.py.
+try:
+    from rules import ADAPTIVE_OFF as _W238_ADAPTIVE_OFF
+except Exception:
+    _W238_ADAPTIVE_OFF = True
 
 _BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 _DATA_DIR    = os.path.join(_BASE_DIR, "data")
@@ -408,7 +415,7 @@ def check_missed_setups(live_frames: dict):
     # WOULD_WIN/WOULD_LOSE updates the same market:setup stats that the
     # evidence-based conviction score reads, so unproven buckets can
     # earn (or lose) a track record without ever firing live.
-    if updated_log:
+    if updated_log and not _W238_ADAPTIVE_OFF:  # _WAVE238_CONVICTION_FROZEN: shadow never judges a setup
         try:
             import outcome_tracker as _ot
             for _r in updated_log:
