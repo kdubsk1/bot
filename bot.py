@@ -281,7 +281,7 @@ _HEARTBEAT_INTERVAL_SEC = 2 * 60 * 60  # 2 hours
 
 SETTINGS = {
     "scanner_on": False, "scan_interval_min": 5, "cooldown_min": 60,
-    "min_rr": 1.5,
+    # _WAVE237_CLEANUP: inert min_rr key removed
     "min_conviction": 65, "account_risk_pct": 1.5,
     # Wave 181 (_WAVE181_BRIEF_CONTROL): brief scheduling is controlled by
     # Railway environment variables instead of needing a code deploy to change.
@@ -419,7 +419,7 @@ YF_MAP       = {"NQ": "NQ=F", "GC": "GC=F"}
 CRYPTO_MAP   = {"BTC": "BTC/USDT", "SOL": "SOL/USDT"}
 MARKET_NAMES = {"NQ":"NQ Futures (Nasdaq 100)","GC":"Gold Futures","BTC":"Bitcoin","SOL":"Solana"}
 CYCLE_CONV   = [50,60,65,70,80]
-CYCLE_RR     = [1.5,2.0,2.5,3.0]
+# _WAVE237_CLEANUP: CYCLE_RR removed with the inert min_rr button (the floor lives in rules.MIN_RR).
 CYCLE_INT    = [1,3,5,10,15]
 CYCLE_CD     = [15,30,60,120]
 CYCLE_RISK   = [0.5,1.0,1.5,2.0,3.0]
@@ -838,54 +838,9 @@ DAILY_TRADE_COUNT = 0         # Incremented on each fired alert
 MAX_DAILY_TRADES = 3
 PROFIT_LOCK_THRESHOLD = 150.0
 
-def _on_session_close(event, now_et):
-    """
-    FUTURES_SESSION_CLOSE (4 PM ET) handler.
-    Clears halts for NQ/GC, resets sim, updates suspensions, queues Telegram summary.
-    """
-    for m in ("NQ", "GC"):
-        MARKET_HALTED.pop(m, None)
-        CONSECUTIVE_LOSSES.pop(m, None)
-
-    # Build session summary BEFORE resetting sim
-    global _SESSION_CLOSE_SUMMARY
-    try:
-        sid = get_session_date()  # still returns the closing session at this point
-        summary = ot.build_session_summary(sid)
-        st = sim.load_state()
-        risk = sim.check_risk_limits(st)
-        _SESSION_CLOSE_SUMMARY = {
-            "sid": sid,
-            "summary": summary,
-            "sim_pnl": risk["daily_pnl"],
-            "sim_balance": risk["balance"],
-        }
-    except Exception as e:
-        log.error(f"Session close summary build: {e}")
-        _SESSION_CLOSE_SUMMARY = None
-
-    # Update setup suspensions
-    global _SUSPENSION_CHANGES
-    try:
-        changes = ot.check_and_update_suspensions()
-        _SUSPENSION_CHANGES = changes
-        if changes:
-            log.info(f"Suspension changes at session close: {changes}")
-    except Exception as e:
-        log.error(f"Suspension check at session close: {e}")
-        _SUSPENSION_CHANGES = []
-
-    # Reset sim
-    try:
-        sim.on_session_close()
-        log.info("Sim session reset at futures close")
-    except Exception as e:
-        log.error(f"Sim session close reset: {e}")
-
-    log.info("Futures session close: halts cleared for NQ/GC")
-
+# _WAVE237_CLEANUP: the first _on_session_close (dead - the definition further down replaced it at
+# import, and only that one is registered with SESSION_CLOCK) and a duplicate _SUSPENSION_CHANGES were removed.
 _SESSION_CLOSE_SUMMARY = None
-_SUSPENSION_CHANGES = []
 
 
 def _on_crypto_day(event, now_et):
@@ -5973,85 +5928,9 @@ async def cmd_leverage(u, c):
         log.error(f"/leverage failed: {e}")
         await u.message.reply_text(f"Leverage command failed: {e}")
 
-async def cmd_wave7(u, c):
-    """
-    Wave 7: /wave7 shows the Iron Robot conviction adjustment status.
-    All 5 layers (setup boosts, market multipliers, bucket recalibration,
-    priority lane, auto-tune) with current values.
-    """
-    try:
-        await u.message.reply_text(cb.get_status_text(), parse_mode="Markdown")
-    except Exception as e:
-        log.error(f"/wave7 failed: {e}")
-        await u.message.reply_text(f"Wave7 status failed: {e}")
+# _WAVE237_CLEANUP: /wave7 removed (never registered).
 
-async def cmd_tune(u, c):
-    """
-    Wave 7: /tune manually triggers the auto-tune cycle.
-    Same as the Sunday 8 PM auto-run but on demand. Posts the diff
-    of what changed (or 'no changes needed').
-
-    Usage:
-        /tune          - run full auto-tune (Layer 1 setup nudges + Layer 3)
-        /tune l3       - only Layer 3 bucket recalibration
-    """
-    try:
-        only_l3 = bool(c and c.args and c.args[0].lower() in ("l3", "layer3", "buckets"))
-
-        await u.message.reply_text(
-            "\U0001f527 Running auto-tune" + (" (L3 only)..." if only_l3 else "..."),
-            parse_mode="Markdown"
-        )
-
-        if only_l3:
-            result = await asyncio.to_thread(cb.recalibrate_bucket_floors, True)
-        else:
-            result = await asyncio.to_thread(cb.run_auto_tune)
-
-        # Format the result for Telegram
-        lines = ["\U0001f527 *Auto-Tune Result*", "\u2501" * 16]
-
-        if only_l3:
-            lines.append(f"*Action:* {result.get('action', '?')}")
-            lines.append(f"*Floor:* {result.get('floor_before', 0)} \u2192 {result.get('floor_after', 0)}")
-            lines.append(f"*Reason:* {result.get('reason', '?')}")
-            buckets = result.get("buckets", {})
-            if buckets:
-                lines.append("")
-                lines.append("*Buckets:*")
-                for bn in ["HIGH (80+)", "UPPER-MID (70-79)", "MID (65-69)", "LOW (50-64)"]:
-                    b = buckets.get(bn, {})
-                    if b.get("total", 0) > 0:
-                        lines.append(f"  `{bn}` {b['wins']}W/{b['losses']}L "
-                                     f"({b['wr']}% WR)")
-        else:
-            changes = result.get("changes", [])
-            n_analyzed = result.get("n_setups_analyzed", 0)
-            window = result.get("window_days", 28)
-            lines.append(f"*Analyzed:* {n_analyzed} setups (last {window}d)")
-            lines.append(f"*Changes:* {len(changes)}")
-            if changes:
-                lines.append("")
-                for ch in changes:
-                    icon = "\U0001f7e2" if ch["boost_after"] > ch["boost_before"] else "\U0001f534"
-                    lines.append(
-                        f"  {icon} `{ch['setup']}` {ch['wr']:.0f}% WR "
-                        f"(${ch['avg_dollar']:+.0f}/trade, {ch['trades']}t): "
-                        f"{ch['boost_before']:+d} \u2192 {ch['boost_after']:+d}"
-                    )
-            l3 = result.get("l3_recalibration", {})
-            if l3.get("changed"):
-                lines.append("")
-                lines.append(f"*L3 Floor:* {l3.get('floor_before', 0)} \u2192 {l3.get('floor_after', 0)}")
-                lines.append(f"  ({l3.get('reason', '?')})")
-
-        msg = "\n".join(lines)
-        await u.message.reply_text(msg, parse_mode="Markdown")
-    except Exception as e:
-        log.error(f"/tune failed: {e}")
-        import traceback as _tb
-        log.error(_tb.format_exc())
-        await u.message.reply_text(f"\u274c Auto-tune failed: {e}")
+# _WAVE237_CLEANUP: /tune removed (never registered).
 
 async def cmd_backtest(u, c):
     """
@@ -6235,58 +6114,7 @@ async def cmd_backtest(u, c):
         log.error(_tb.format_exc())
         await u.message.reply_text(f"\u274c Backtest command failed: {e}")
 
-async def cmd_recalibrate(u, c):
-    """
-    Wave 9 (May 4): /recalibrate - manually trigger Layer 6 edge-decay check
-    + Layer 7 daily soft tune. Same logic as the 6 AM auto-run, on demand.
-
-    Useful when:
-      - Wayne sees a suspended setup that should still be active
-      - Wayne wants to force a tune after a market regime change
-      - Wayne wants to verify the decay logic is working
-    """
-    try:
-        await u.message.reply_text("\U0001f504 Running Wave 9 recalibration (edge decay + soft tune)...")
-        result = await asyncio.to_thread(cb.run_daily_soft_tune)
-        soft_changes = result.get("changes", [])
-        decay_actions = result.get("decay", {}).get("decay_actions", [])
-        lines = [
-            "\U0001f527 *Wave 9 Manual Recalibration*",
-            "\u2501" * 16,
-            f"*Analyzed:* {result.get('n_setups_analyzed', 0)} setups "
-            f"(last {result.get('window_days', 7)}d)",
-            f"*Tune changes (L7):* {len(soft_changes)}",
-            f"*Edge-decay actions (L6):* {len(decay_actions)}",
-        ]
-        if decay_actions:
-            lines.append("")
-            lines.append("\U0001f6e1\ufe0f *Edge Decay (L6):*")
-            for da in decay_actions[:10]:
-                icon = ("\U0001f7e2" if da["action"] == "relaxed" else
-                        "\U0001f534" if da["action"] in ("zeroed", "penalized") else
-                        "\u26aa")
-                lines.append(
-                    f"  {icon} `{da['setup']}` {da['action']}: "
-                    f"{da['boost_before']:+d}\u2192{da['boost_after']:+d} — {da['reason']}"
-                )
-        if soft_changes:
-            lines.append("")
-            lines.append("\U0001f3af *Soft Tune (L7):*")
-            for ch in soft_changes[:10]:
-                icon = "\U0001f7e2" if ch["boost_after"] > ch["boost_before"] else "\U0001f534"
-                lines.append(
-                    f"  {icon} `{ch['setup']}` {ch['wr']:.0f}% WR "
-                    f"({ch['trades']}t): {ch['boost_before']:+d} \u2192 {ch['boost_after']:+d}"
-                )
-        if not decay_actions and not soft_changes:
-            lines.append("")
-            lines.append("_No changes — boosts already aligned with current data._")
-        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
-    except Exception as e:
-        log.error(f"/recalibrate failed: {e}")
-        import traceback as _tb
-        log.error(_tb.format_exc())
-        await u.message.reply_text(f"\u274c Recalibrate failed: {e}")
+# _WAVE237_CLEANUP: /recalibrate removed (never registered).
 
 async def cmd_pulldata(u, c):
     """
@@ -6325,7 +6153,7 @@ async def cmd_pulldata(u, c):
             "",
             "_The bot runs on Railway. Auto-sync pushes data→GitHub every 6h._",
             "_Your local Desktop files may be stale. Run `git pull` locally_",
-            "_to refresh, or just trust /backtest and /edge for live truth._",
+            "_to refresh, or just trust /backtest for live truth._",
         ]
         await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
     except Exception as e:
@@ -6531,7 +6359,7 @@ def _build_status_text() -> str:
     lines.append("━" * 18)
     news_str = "⚠️ Active window" if news else "✅ Clear"
     lines.append(f"*News:* {news_str}")
-    lines.append(f"*Conv min:* {SETTINGS['min_conviction']} | *RR min:* {SETTINGS['min_rr']}")
+    lines.append(f"*Conv min:* {SETTINGS['min_conviction']} | *R:R floor (rules.py):* " + " ".join("%s %s" % (m, _w225_min_rr(m)) for m in ("NQ", "GC", "BTC", "SOL")))  # _WAVE237_CLEANUP
     if halted:
         lines.append(f"*Halted:* {', '.join(halted)}")
     return "\n".join(lines)
@@ -7098,7 +6926,7 @@ async def cmd_help(u,c):
         "📡 /brief anytime — live market analysis\n"
         "━━━━━━━━━━━━━━━━━━\n"
         "*Most-used:*\n"
-        "`/open`  `/stats`  `/session`  `/edge`  `/diag`\n"
+        "`/open`  `/stats`  `/session`  `/diag`\n"
         "\n"
         "*Full command list:*  /commands\n"
         "━━━━━━━━━━━━━━━━━━\n"
@@ -7158,7 +6986,6 @@ async def cmd_commands(u, c):
         "`/session`  — current session\n"
         "`/history [date]`  — past sessions\n"
         "`/lifetime`  — lifetime totals\n"
-        "`/edge`  — per-setup win rate\n"
         "`/setups`  — active setup catalog\n"
         "`/journal [N]`  — recent trade lessons\n"
         "`/detections [mkt]`  — recent detections\n"
@@ -7186,9 +7013,6 @@ async def cmd_commands(u, c):
         "`/cryptostatus`  — crypto sim\n"
         "\n"
         "🧠 *AUTO-TUNING*\n"
-        "`/tune [l3]`  — manual auto-tune\n"
-        "`/recalibrate`  — daily soft-tune\n"
-        "`/wave7`  — layer status\n"
         "\n"
         # Wave 155 (_WAVE155_UI_REFRESH): surface the learning + bench
         # commands that were registered but missing from this menu.
@@ -7362,7 +7186,6 @@ async def on_button(u, c):
     elif d in ("toggle_NQ","toggle_GC","toggle_BTC","toggle_SOL"):
         SETTINGS["markets"][d.split("_")[1]]=not SETTINGS["markets"][d.split("_")[1]]
     elif d=="set_conv":  SETTINGS["min_conviction"]    =_cycle(SETTINGS["min_conviction"],CYCLE_CONV)
-    elif d=="set_rr":    SETTINGS["min_rr"]            =_cycle(SETTINGS["min_rr"],CYCLE_RR)
     elif d=="set_int":   SETTINGS["scan_interval_min"] =_cycle(SETTINGS["scan_interval_min"],CYCLE_INT)
     elif d=="set_cd":    SETTINGS["cooldown_min"]      =_cycle(SETTINGS["cooldown_min"],CYCLE_CD)
     elif d=="set_risk":  SETTINGS["account_risk_pct"]  =_cycle(SETTINGS["account_risk_pct"],CYCLE_RISK); ot.set_account_risk_pct(SETTINGS["account_risk_pct"])
@@ -8399,7 +8222,6 @@ async def _post_init(app):
             BotCommand("stats",      "Overall trading stats"),
             BotCommand("session",    "Current session breakdown"),
             BotCommand("open",       "List open trades"),
-            BotCommand("edge",       "Per-setup win rate"),
             BotCommand("setups",     "Active setup catalog"),
             BotCommand("suspended",  "Suspended setups + countdown"),  # Wave 20
             BotCommand("brief",      "Live market brief"),
@@ -8491,75 +8313,7 @@ async def cmd_recap(u, c):
         log.error(f"/recap failed: {e}")
         await u.message.reply_text(f"❌ Recap failed: {e}")
 
-async def cmd_edge(u, c):
-    """
-    Apr 30 LATE: /edge — show real win-rate per setup based on actual closed trades.
-    Reads strategy_log.csv FIRED rows that have a WIN/LOSS result, groups by
-    market+setup, sorts by sample size. This is the truth: which setups have
-    real edge? Use it to decide which to keep tuning vs which to suspend.
-    """
-    try:
-        import strategy_log as sl
-        import csv as _csv
-        if not os.path.exists(sl.STRATEGY_LOG):
-            await u.message.reply_text("📊 No strategy log yet — keep running the bot.")
-            return
-        with open(sl.STRATEGY_LOG, newline="", encoding="utf-8") as f:
-            rows = list(_csv.DictReader(f))
-        fired = [r for r in rows
-                 if r.get("decision") == sl.DECISION_FIRED
-                 and r.get("result") in ("WIN", "LOSS")]
-        if len(fired) < 5:
-            await u.message.reply_text(
-                f"📊 *Edge Analysis*\n\n"
-                f"Need at least 5 closed trades to show meaningful edge.\n"
-                f"Currently: `{len(fired)}` closed FIRED rows in strategy_log.\n"
-                f"Keep the bot running and check back later.",
-                parse_mode="Markdown",
-            )
-            return
-        # Group by market:setup
-        by_setup: dict = {}
-        for r in fired:
-            key = f"{r.get('market','?')}:{r.get('setup_type','?')}"
-            d = by_setup.setdefault(key, {"W": 0, "L": 0, "avg_conv": 0.0})
-            if r["result"] == "WIN":
-                d["W"] += 1
-            else:
-                d["L"] += 1
-            try:
-                d["avg_conv"] += float(r.get("conviction", 0) or 0)
-            except Exception:
-                pass
-        # Compute WR
-        for d in by_setup.values():
-            tot = d["W"] + d["L"]
-            d["total"] = tot
-            d["wr"]    = d["W"] / max(1, tot) * 100.0
-            d["avg_conv"] = d["avg_conv"] / max(1, tot)
-        # Sort by sample size desc, then by WR desc
-        ordered = sorted(by_setup.items(),
-                         key=lambda x: (-x[1]["total"], -x[1]["wr"]))
-        lines = [
-            "📊 *Edge by Setup* (live data)",
-            "━━━━━━━━━━━━━━━━━━",
-        ]
-        for key, d in ordered:
-            wr = d["wr"]
-            icon = "🟢" if wr >= 60 else ("🔴" if wr < 45 else "🟡")
-            star = " ⭐" if d["total"] >= 10 and wr >= 60 else ""
-            warn = " ⚠\ufe0f" if d["total"] >= 5 and wr < 35 else ""
-            lines.append(
-                f"{icon} `{key}`{star}{warn}\n"
-                f"   {d['W']}W/{d['L']}L — *{wr:.0f}% WR*  (avg conv {d['avg_conv']:.0f})"
-            )
-        lines.append("━━━━━━━━━━━━━━━━━━")
-        lines.append(f"_Based on {len(fired)} closed FIRED rows._")
-        lines.append("_⭐ = 10+ trades & 60%+ WR. ⚠\ufe0f = 5+ trades & sub-35% WR._")
-        await u.message.reply_text("\n".join(lines), parse_mode="Markdown")
-    except Exception as e:
-        log.error(f"/edge failed: {e}")
-        await u.message.reply_text(f"❌ Edge command failed: {e}")
+# _WAVE237_CLEANUP: /edge removed (per-setup win rate; win rate is not the judge).
 
 async def cmd_diag(u, c):
     """
@@ -9041,7 +8795,7 @@ def main():
                    ("session",cmd_session),("history",cmd_history),("lifetime",cmd_lifetime),("eval",cmd_eval),("trend",cmd_trend),("journey",cmd_journey),("performance",cmd_performance),
                    ("rejected",cmd_rejected),("detections",cmd_detections),
                    ("sync",cmd_sync),("recap",cmd_recap),
-                   ("edge",cmd_edge),("setups",cmd_setups),("diag",cmd_diag),
+                   ("setups",cmd_setups),("diag",cmd_diag),  # _WAVE237_CLEANUP: /edge removed
                    ("journal",cmd_journal),
                    ("ledger",cmd_ledger),  # Wave 141: the filter ledger - the learning loop\'s eyes
                    ("overrides",cmd_overrides),  # Wave 143: the hands - learned overrides status
