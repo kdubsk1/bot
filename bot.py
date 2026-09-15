@@ -2711,7 +2711,8 @@ async def scan_market(app, market, frames):
         if already_in:
             log.info(f"[{market}] Already in position — skipping new entry scan")
         elif not futures_ok:
-            log.info(f"[{market}] 4PM-6PM settlement window — no new entries for {market}")
+            _w226_why = _futures_block_reason(market) or "futures session closed"  # _WAVE226_FRIDAY_CLOSE
+            log.info(f"[{market}] {_w226_why} — no new entries for {market}")
         else:
             log.info(f"[{market}] Crypto 2-5 AM ET dead zone — no new entries (audit #7)")
         return
@@ -3645,19 +3646,51 @@ FUTURES_REOPEN_ET        = (18, 0)    # 6:00 PM — futures trading reopens
 FUTURES_CLOSE_ET   = (16, 5)    # 4:05 PM (was 3:55 PM)
 FUTURES_CLOSED_ET  = (16, 10)   # 4:10 PM (was 4:00 PM)
 
-def _futures_session_ok(market: str) -> bool:
+# _WAVE226_FRIDAY_CLOSE: the weekend. CME futures close Friday 4:00 PM ET and
+# reopen Sunday 6:00 PM ET. Before this wave the entry gate had no weekday
+# term at all -- it blocked 3:30-6:00 PM every day and called every other
+# hour open, weekend included: 43.0 hours a week in which an NQ/GC entry
+# could be accepted with the market shut. Stale weekend bars stopped most of
+# it, not all: 3 real NQ calls fired inside the window (16, 29, 31 May 2026),
+# every one graded LOSS with exit == entry on a market that never moved.
+# Hours match session_clock._EVENT_SCHEDULE (FUTURES_SESSION_CLOSE 16:00
+# Mon-Fri, FUTURES_SESSION_OPEN 18:00 Sun-Thu). ET-native on purpose:
+# _w167_cme_closed tests UTC hours and is an hour wrong half the year.
+# Not handled: exchange holidays. That is its own wave.
+FUTURES_WEEKEND_CLOSE_ET  = (16, 0)    # Friday 4:00 PM ET
+FUTURES_WEEKEND_REOPEN_ET = (18, 0)    # Sunday 6:00 PM ET
+
+def _futures_block_reason(market: str, now=None):
+    """
+    None if NQ/GC may take a new entry right now, otherwise a short reason.
+    Crypto (BTC, SOL) is never blocked here.
+
+    `now` is an ET-aware datetime for tests; callers leave it out.
+    """
+    if market not in FUTURES_MARKETS:
+        return None
+    if now is None:
+        now = _now_et()
+    wd  = now.weekday()                       # Mon=0 .. Sun=6
+    hm  = now.hour * 60 + now.minute
+    wk_close  = FUTURES_WEEKEND_CLOSE_ET[0]  * 60 + FUTURES_WEEKEND_CLOSE_ET[1]
+    wk_reopen = FUTURES_WEEKEND_REOPEN_ET[0] * 60 + FUTURES_WEEKEND_REOPEN_ET[1]
+    if (wd == 4 and hm >= wk_close) or wd == 5 or (wd == 6 and hm < wk_reopen):
+        return "weekend close (Fri 4:00 PM ET -> Sun 6:00 PM ET)"
+    notrade_start = FUTURES_NOTRADE_START_ET[0] * 60 + FUTURES_NOTRADE_START_ET[1]
+    reopen        = FUTURES_REOPEN_ET[0]        * 60 + FUTURES_REOPEN_ET[1]
+    if notrade_start <= hm < reopen:
+        return "3:30-6:00 PM ET daily settlement window"
+    return None
+
+def _futures_session_ok(market: str, now=None) -> bool:
     """
     True if NQ/GC is open for new entries.
     Topstep: no new entries 3:30-4:10 PM ET, reopens 6:00 PM ET.
+    _WAVE226_FRIDAY_CLOSE: closed Fri 4:00 PM ET -> Sun 6:00 PM ET.
     Crypto (BTC, SOL) always True — 24/7.
     """
-    if market not in FUTURES_MARKETS:
-        return True
-    now = _now_et()
-    hm  = now.hour * 60 + now.minute
-    notrade_start = FUTURES_NOTRADE_START_ET[0] * 60 + FUTURES_NOTRADE_START_ET[1]
-    reopen        = FUTURES_REOPEN_ET[0]        * 60 + FUTURES_REOPEN_ET[1]
-    return not (notrade_start <= hm < reopen)
+    return _futures_block_reason(market, now) is None
 
 def _crypto_session_ok(market: str) -> bool:
     """
