@@ -2204,6 +2204,23 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
 # ------------------------------------------------------------------ #
 # Structure-aware target (DYNAMIC RR — Apr 30 update)
 # ------------------------------------------------------------------ #
+# _WAVE229_TARGET_CANDIDATES: log-only stash of the last structure_target call's swing
+# candidates, so the fire path can record whether a level inside the cap
+# existed when a target was rejected. Read once, then cleared. Never used to
+# decide anything.
+_W229_LAST = {}
+
+
+def w229_take_candidates():
+    """_WAVE229_TARGET_CANDIDATES: hand back and clear the last candidate stash."""
+    try:
+        d = dict(_W229_LAST)
+        _W229_LAST.clear()
+        return d
+    except Exception:
+        return {}
+
+
 def structure_target(df: pd.DataFrame, direction: str,
                      entry: float, stop: float, atr_val: float,
                      min_rr: float = 1.5, market: str = "",
@@ -2224,6 +2241,7 @@ def structure_target(df: pd.DataFrame, direction: str,
     Reason codes: 'no_target' (no swings), 'rr_too_high' (all >5R),
     'rr_too_low' (all <min_rr).
     """
+    _W229_LAST.clear()  # _WAVE229_TARGET_CANDIDATES
     risk = abs(entry - stop)
     if risk <= 0:
         return 0.0, 0.0, "no_target"
@@ -2263,6 +2281,11 @@ def structure_target(df: pd.DataFrame, direction: str,
                 candidates.append((lvl, rr))
         candidates.sort(key=lambda x: -x[0])  # nearest first (highest low first)
 
+    try:  # _WAVE229_TARGET_CANDIDATES: record only; nothing below reads this
+        _W229_LAST.update(candidates=[float(_c_rr) for _, _c_rr in candidates],
+                          cap=float(MAX_RR), picker_min=float(min_rr))
+    except Exception:
+        pass
     if not candidates:
         return 0.0, 0.0, "no_target"
 

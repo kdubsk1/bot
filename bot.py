@@ -122,6 +122,93 @@ def _w225_conv_min(market, setup):
         return 50
     return _w143_get("conv_min", market, setup, 50)
 # ---- end _WAVE225_RULEBOOK --------------------------------------------
+
+# ---- _WAVE229_TARGET_CANDIDATES -------------------------------
+# Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
+# level) or for its R:R, write one line saying which swing levels existed and
+# whether any sat inside [rulebook floor, cap]. structure_target screens at
+# 1.5R, not the rulebook floor, so it can pick a too-close level while a
+# viable one existed. Nothing here can raise into a scan or change a call.
+W229_SWEET_LO, W229_SWEET_HI = 2.0, 3.0
+
+
+def _w229_take():
+    try:
+        return ot.w229_take_candidates()
+    except Exception:
+        return {}
+
+
+def _w229_floor(market, cfg, stp, news_flag):
+    """The floor the R:R gate would apply to this setup, computed the same way."""
+    try:
+        f = _w225_min_rr(market)
+        if news_flag:
+            f = max(float(cfg.NEWS_MIN_RR), f)
+        if not ADAPTIVE_OFF:
+            f = _w225_floor(ot.get_rr_floor(stp["type"], market), f)
+        return float(f)
+    except Exception:
+        try:
+            return float(_w225_min_rr(market))
+        except Exception:
+            return None
+
+
+def _w229_classify(candidates, floor, cap):
+    """Pure. Which swing levels sat inside [floor, cap], and what a picker
+    screening at the floor would have chosen (first 2-3R level in band, else
+    the nearest in band) -- structure_target's own preference order."""
+    cands = [float(c) for c in (candidates or [])]
+    if floor is None or cap is None:
+        return {"verdict": "unknown_band", "n_in_band": None, "n_below_floor": None,
+                "n_above_cap": None, "would_pick_rr": None}
+    band = [c for c in cands if floor <= c <= cap]
+    below = sum(1 for c in cands if c < floor)
+    above = sum(1 for c in cands if c > cap)
+    sweet = [c for c in band if W229_SWEET_LO <= c <= W229_SWEET_HI]
+    would = sweet[0] if sweet else (band[0] if band else None)
+    if not cands:
+        verdict = "no_swing_levels"
+    elif band:
+        verdict = "viable_level_existed"
+    elif below and above:
+        verdict = "none_in_band_below_and_above"
+    elif above:
+        verdict = "none_in_band_all_above_cap"
+    else:
+        verdict = "none_in_band_all_below_floor"
+    return {"verdict": verdict, "n_in_band": len(band), "n_below_floor": below,
+            "n_above_cap": above, "would_pick_rr": (round(would, 3) if would is not None else None)}
+
+
+def _w229_log(where, market, tf, stp, method, picked_rr, floor, trend, news_flag, stash):
+    try:
+        stash = stash if isinstance(stash, dict) else {}
+        cands = stash.get("candidates")
+        cap = stash.get("cap")
+        if cap is None:
+            cap = _w225_rr_cap(market)
+        rec = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "where": where, "market": market, "tf": tf,
+            "setup": stp.get("type"), "direction": stp.get("direction"),
+            "entry": round(float(stp.get("entry")), 4), "stop": round(float(stp.get("raw_stop")), 4),
+            "method": method, "picked_rr": round(float(picked_rr or 0), 3),
+            "floor": floor, "cap": cap, "picker_min": stash.get("picker_min"),
+            "trend": trend, "news": int(bool(news_flag)),
+            "candidates_known": cands is not None,
+            "n_candidates": (len(cands) if cands is not None else None),
+            "candidates": [round(float(c), 3) for c in (cands or [])[:30]],
+        }
+        rec.update(_w229_classify(cands or [], floor, cap))
+        path = os.path.join(BASE_DIR, "data", "target_candidates.jsonl")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec) + "\n")
+    except Exception:
+        pass
+# ---- end _WAVE229_TARGET_CANDIDATES ---------------------------
 import random as _rnd  # Pre-Batch 2026-04-20: for sampled REJECTED logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -3226,6 +3313,7 @@ async def scan_market(app, market, frames):
                     pass
             tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
                                                    market=market, trend_score_val=trend)
+            _w229_c = _w229_take()  # _WAVE229_TARGET_CANDIDATES
 
             if method == "no_target" or tgt == 0:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
@@ -3236,6 +3324,7 @@ async def scan_market(app, market, frames):
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 _sample_reject_log(market, entry_tf, stp["type"], "No swing target available")
+                _w229_log("no_target", market, entry_tf, stp, method, 0.0, _w229_floor(market, cfg, stp, news_flag), trend, news_flag, _w229_c)  # _WAVE229_TARGET_CANDIDATES
                 continue
 
             sim_risk = sim.check_risk_limits()
@@ -3273,6 +3362,7 @@ async def scan_market(app, market, frames):
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 _sample_reject_log(market, entry_tf, stp["type"], f"RR {round(rr,2)} < {min_rr}")
+                _w229_log("rr_floor", market, entry_tf, stp, method, rr, min_rr, trend, news_flag, _w229_c)  # _WAVE229_TARGET_CANDIDATES
                 continue
 
             clean_path = abs(tgt-stp["entry"])/max(1e-9, atr_v)
