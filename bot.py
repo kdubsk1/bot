@@ -927,7 +927,81 @@ def get_frames(market):
     return dl_get_frames(market)
 
 # ── Telegram ──────────────────────────────────────────────────────
-async def tg_send(app, text, chat_id=None):
+# ---- _WAVE231_CALLS_ONLY -----------------------------------------------
+# Wave 231: Telegram carries only calls, exits and scanner health. Every
+# other message is written to data/bot_reports/telegram_YYYY-MM-DD.md for the
+# journal's Bot Reports tab instead of being posted.
+W231_TELEGRAM_KINDS = ("call", "exit", "health")
+
+
+def _w231_write_report(text, dest, kind):
+    try:
+        import sys as _w231_sys
+        caller = "?"
+        try:
+            fr = _w231_sys._getframe(1)
+            while fr is not None and fr.f_code.co_name in ("tg_send", "tg_send_pub", "_w231_write_report"):
+                fr = fr.f_back
+            if fr is not None:
+                caller = fr.f_code.co_name
+        except Exception:
+            pass
+        now = datetime.now(timezone.utc)
+        folder = os.path.join(BASE_DIR, "data", "bot_reports")
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, "telegram_%s.md" % now.strftime("%Y-%m-%d"))
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write("\n---\n### %s UTC | %s | %s | from `%s`\n\n%s\n" % (
+                now.strftime("%H:%M:%S"), dest, kind, caller, str(text)))
+    except Exception:
+        pass
+
+
+def _w231_exit_card(market, cfg, row, exit_price, result, reason=None):
+    """The one exit notice: result, market, setup, side, entry -> exit, points, R.
+    Never money, never contracts, never balance."""
+    try:
+        won = str(result).upper() == "WIN"
+        side = "LONG" if "LONG" in str(row.get("direction", "")) else "SHORT"
+        e = float(row.get("entry"))
+        x = float(exit_price)
+        sgn = 1 if side == "LONG" else -1
+        pts = (x - e) * sgn
+        try:
+            risk = abs(e - float(row.get("stop")))
+            r_txt = "%+.2fR" % (pts / risk) if risk > 0 else "R ?"
+        except Exception:
+            r_txt = "R ?"
+        dec = 2 if abs(e) >= 1000 else 4
+        name = str(row.get("setup", "")).replace("_", " ")
+        lines = [
+            "%s *%s* \u2014 %s *%s* %s" % ("\u2705" if won else "\u274c", "WIN" if won else "LOSS",
+                                        getattr(cfg, "EMOJI", ""), market, side),
+            "%s [%s]" % (name, row.get("tf", "")),
+            "Entry `%.*f` \u2192 Exit `%.*f`" % (dec, e, dec, x),
+            "Move `%+.*f pts` \u00b7 `%s`" % (dec, pts, r_txt),
+        ]
+        if reason:
+            lines.append(str(reason))
+        return "\n".join(lines)
+    except Exception:
+        return "%s %s closed: %s" % (market, row.get("direction", ""), result)
+
+
+def _w231_stuck_threshold_min():
+    """15 minutes without a scan, or the scan interval + 5 if the menu set a
+    longer one (quiet hours sleep max(interval, 10) between scans)."""
+    try:
+        return max(15.0, float(max(SETTINGS.get("scan_interval_min", 5), 10)) + 5.0)
+    except Exception:
+        return 15.0
+# ---- end _WAVE231_CALLS_ONLY -------------------------------------------
+
+async def tg_send(app, text, chat_id=None, kind="report"):
+    # _WAVE231_CALLS_ONLY: only calls, exits and scanner health are posted.
+    if kind not in W231_TELEGRAM_KINDS:
+        _w231_write_report(text, "public" if (chat_id is not None and chat_id == CHAT_ID) else "control", kind)
+        return
     # Wave 177: default destination is the CONTROL channel.
     _dest = chat_id or CONTROL_CHAT_ID
     # Wave 90 (M1 fix): Telegram hard limit is 4096 chars. Oversized messages
@@ -949,7 +1023,7 @@ async def tg_send(app, text, chat_id=None):
             if cur:
                 parts.append(cur)
             for p in parts:
-                await tg_send(app, p, chat_id=_dest)
+                await tg_send(app, p, chat_id=_dest, kind=kind)  # _WAVE231_CALLS_ONLY
             return
         except Exception as e:
             log.warning(f"W90 long-message split failed, sending as-is: {e}")
@@ -975,11 +1049,11 @@ async def tg_send(app, text, chat_id=None):
             await asyncio.sleep(wait)
     log.error("tg_send: all 3 attempts failed, dropping message")
 
-async def tg_send_pub(app, text):
+async def tg_send_pub(app, text, kind="report"):
     """Wave 177: PUBLIC broadcast channel (NQ CALLS).
-    Only entries, exits and the session briefs go here. Everything else
-    belongs in the control channel via tg_send()."""
-    await tg_send(app, text, chat_id=CHAT_ID)
+    _WAVE231_CALLS_ONLY: only calls and exits reach it; briefs are written to
+    data/bot_reports instead. Everything else belongs in control via tg_send()."""
+    await tg_send(app, text, chat_id=CHAT_ID, kind=kind)
 
 def _md(text):
     if not isinstance(text, str):
@@ -2573,7 +2647,13 @@ async def scan_market(app, market, frames):
         _w179_pub_exit = format_exit_public(market, tf_n, setup_n, dir_n, tier_n,
                                            result, entry_p, exit_p, pts_str, pct_str,
                                            day_w, day_l)
-        await tg_send_pub(app, _w179_pub_exit or msg)
+        # _WAVE231_CALLS_ONLY: one exit card for both channels (points and R, no money);
+        # public on the same rule as the call. The old diagnostic card (sim P&L,
+        # balance) is written to data/bot_reports, not posted.
+        _w231_card = _w231_exit_card(market, cfg, orig, exit_p, result)
+        if _R225_PUBLIC_CALLS:
+            await tg_send_pub(app, _w231_card, kind="exit")
+        await tg_send(app, _w231_card, kind="exit")
         await tg_send(app, msg)
 
         try:
@@ -3708,8 +3788,8 @@ async def scan_market(app, market, frames):
             # Wave 179: clean card to the public channel, full diagnostics to control.
             _w179_pub = format_alert_public(market, entry_tf, stp, tier, tgt, rr, _w217_size(conv))
             if _R225_PUBLIC_CALLS:  # _WAVE225_RULEBOOK: False = control channel only
-                await tg_send_pub(app, _w179_pub or _w179_full)
-            await tg_send(app, _w179_full)
+                await tg_send_pub(app, _w179_pub or _w179_full, kind="call")  # _WAVE231_CALLS_ONLY
+            await tg_send(app, _w179_full, kind="call")  # _WAVE231_CALLS_ONLY: control ALWAYS gets every call
             log.info(
                 f"[{market}] [{entry_tf}] FIRED: {stp['type']} {stp['direction']} "
                 f"Conv:{conv}/{tier} RR:{round(rr,2)} Entry:{round(stp['entry'],4)} "
@@ -4026,7 +4106,7 @@ async def _check_state_file_sizes(app):
             except Exception:
                 continue
         if _bloated:
-            await tg_send(app, "DATA ALERT: state file(s) bloating: " + "; ".join(_bloated) + ". Likely unbounded growth -- tell FABEL to add an array cap (like Wave 100).")
+            await tg_send(app, "DATA ALERT: state file(s) bloating: " + "; ".join(_bloated) + ". Likely unbounded growth -- tell FABEL to add an array cap (like Wave 100).", kind="health")  # _WAVE231_CALLS_ONLY
     except Exception as _sse:
         log.debug("state-size sentinel failed: %s" % _sse)
 
@@ -4493,6 +4573,11 @@ async def force_flatten_futures(app):
             pass
 
         icon = "✅" if result=="WIN" else "❌"
+        # _WAVE231_CALLS_ONLY: the flatten exit is the same exit card, flagged as the 4:10 rule.
+        _w231_card = _w231_exit_card(market, cfg, row, cur, result, reason="Closed by the 4:10 PM ET flatten")
+        if _R225_PUBLIC_CALLS:
+            await tg_send_pub(app, _w231_card, kind="exit")
+        await tg_send(app, _w231_card, kind="exit")
         await tg_send_pub(app,
             f"{icon} *Force Closed — 4:10 PM Rule*\n"
             f"{cfg.EMOJI} *{_md(cfg.FULL_NAME)}*\n"
@@ -5147,7 +5232,7 @@ async def scan_loop(app):
                 if hasattr(safe_io, "get_dropped_writes"):
                     _dw = safe_io.get_dropped_writes()
                     if _dw.get("count", 0) > 0:
-                        await tg_send(app, "DATA ALERT: %d write(s) were dropped (last: %s). Investigate - data may be incomplete." % (_dw["count"], _dw.get("last_path", "?")))
+                        await tg_send(app, "DATA ALERT: %d write(s) were dropped (last: %s). Investigate - data may be incomplete." % (_dw["count"], _dw.get("last_path", "?")), kind="health")  # _WAVE231_CALLS_ONLY
                         if hasattr(safe_io, "reset_dropped_writes"):
                             safe_io.reset_dropped_writes()
             except Exception as _dwe:
@@ -5456,7 +5541,7 @@ async def scan_loop(app):
                     log.error(f"watch: {e}\n{traceback.format_exc()}")  # Wave 94: full stack pinpoints the fault
                     if _W94_WATCH_FAILS[0] in (3, 12):  # ~15 min and ~1 hr at 5-min cadence
                         try:
-                            await tg_send(app, f"\u26a0\ufe0f *Open-trade watch failing* \u2014 {_W94_WATCH_FAILS[0]} cycles in a row. Check logs.")
+                            await tg_send(app, f"\u26a0\ufe0f *Open-trade watch failing* \u2014 {_W94_WATCH_FAILS[0]} cycles in a row. Check logs.", kind="health")  # _WAVE231_CALLS_ONLY
                         except Exception:
                             pass
 
@@ -8569,7 +8654,7 @@ async def scanner_watchdog(app):
                             await tg_send(app, "\U0001f504 Scanner self-healed: it "
                                           "had stalled for %d min, so I relaunched "
                                           "the scan loop. Back to hunting."
-                                          % int(_stale_min))
+                                          % int(_stale_min), kind="health")  # _WAVE231_CALLS_ONLY
                         except Exception:
                             pass
             except Exception as _w164e:
@@ -8599,7 +8684,7 @@ async def scanner_watchdog(app):
                         _save_scanner_state()
                         log.info("Wave 104: scanner self-healed ON after %.1fh OFF" % _off_h)
                         try:
-                            await tg_send(app, "Scanner self-healed: it had been OFF for %.1fh, so I turned it back ON. The bot should always be hunting -- pause it again if that was intentional." % _off_h)
+                            await tg_send(app, "Scanner self-healed: it had been OFF for %.1fh, so I turned it back ON. The bot should always be hunting -- pause it again if that was intentional." % _off_h, kind="health")  # _WAVE231_CALLS_ONLY
                         except Exception:
                             pass
                         _resumed = True
@@ -8641,7 +8726,7 @@ async def scanner_watchdog(app):
                 # Scanner ON — check if loop is alive
                 if _LAST_SCAN_TIMESTAMP is not None:
                     mins_since_scan = (now - _LAST_SCAN_TIMESTAMP).total_seconds() / 60.0
-                    if mins_since_scan >= _WATCHDOG_STUCK_THRESHOLD_MIN:
+                    if mins_since_scan >= _w231_stuck_threshold_min():  # _WAVE231_CALLS_ONLY: was 30 min
                         alert_msg = (
                             "⚠️ *SCANNER STUCK ALERT*\n"
                             "━━━━━━━━━━━━━━━━━━\n"
@@ -8652,7 +8737,7 @@ async def scanner_watchdog(app):
 
             if alert_msg:
                 try:
-                    await tg_send(app, alert_msg)
+                    await tg_send(app, alert_msg, kind="health")  # _WAVE231_CALLS_ONLY
                     _LAST_WATCHDOG_ALERT_AT = now
                     log.warning("Wave 22 watchdog: alert sent")
                 except Exception as _wd_send_err:
