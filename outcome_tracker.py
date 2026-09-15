@@ -109,6 +109,9 @@ CSV_COLS = [
     "w7_applied_layers",    # comma-separated string — which layers fired
     # _WAVE232_CALL_ID: appended, never renamed. #NQ-0915-K7 - how the journal matches fills.
     "call_id",
+    # _WAVE233_LEDGER_COMPLETE: L2 fired-call fields, then L3 outcome fields. Appended only.
+    "fired_at", "symbol", "session", "r_planned", "channel",
+    "outcome", "r_result", "r_actual", "points_result", "mfe_r", "mae_r", "duration_sec", "resolved_at",
 ]
 
 # ------------------------------------------------------------------ #
@@ -2897,6 +2900,11 @@ def auto_check_outcomes(live_frames: dict):
                 # Only resolve if current close is decisively past stop/target.
                 _log.debug(f"auto_check_outcomes: {alert_id} using current_close only ({cc_price})")
 
+            try:  # _WAVE233_LEDGER_COMPLETE: remember the excursion so the close can record MFE / MAE
+                if period_high != float("-inf") and period_low != float("inf"):
+                    _W233_EXCURSION[alert_id] = (float(period_high), float(period_low))
+            except Exception:
+                pass
             hit_target = hit_stop = False
             if direction == "LONG":
                 if period_high >= target: hit_target = True
@@ -3307,6 +3315,9 @@ def log_alert(row: dict) -> str:
         row["session_id"] = get_session_date()
     except Exception:
         row["session_id"] = datetime.now().strftime("%Y-%m-%d")
+    for _w233_k, _w233_v in _w233_fired_fields(row).items():  # _WAVE233_LEDGER_COMPLETE
+        if row.get(_w233_k) in (None, ""):
+            row[_w233_k] = _w233_v
     if not row.get("call_id"):  # _WAVE232_CALL_ID
         row["call_id"] = _w232_make_call_id(row)
     try:
@@ -3352,6 +3363,130 @@ def _safe_mutate_csv(mutator):
     rows that were appended between read and write."""
     return safe_io.safe_rewrite_csv(OUTCOMES_CSV, CSV_COLS, mutator)
 
+# ---- _WAVE233_LEDGER_COMPLETE ----------------------------------------------
+_W233_EXCURSION = {}   # alert_id -> (highest high, lowest low) since the alert, from auto_check_outcomes
+_W233_TF_SEC = {"1m": 60, "2m": 120, "3m": 180, "5m": 300, "10m": 600, "15m": 900, "30m": 1800,
+                "1h": 3600, "2h": 7200, "4h": 14400, "1d": 86400}
+
+
+def _w233_num(v, nd=4):
+    try:
+        f = float(v)
+        if f != f or f in (float("inf"), float("-inf")):
+            return "UNKNOWN"
+        return round(f, nd)
+    except Exception:
+        return "UNKNOWN"
+
+
+def _w233_session(ts):
+    try:
+        t = datetime.fromisoformat(str(ts))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        try:
+            from zoneinfo import ZoneInfo as _W233Z
+            e = t.astimezone(_W233Z("America/New_York"))
+        except Exception:
+            e = t - timedelta(hours=4)
+        h = e.hour + e.minute / 60.0
+        if h >= 18 or h < 2: return "Asia"
+        if h < 8: return "London"
+        if h < 9.5: return "NY pre"
+        if h < 11: return "NY open"
+        if h < 14: return "NY mid"
+        if h < 16: return "NY close"
+        return "Settle"
+    except Exception:
+        return "UNKNOWN"
+
+
+def _w233_fired_fields(row):
+    """fired_at, symbol, session, r_planned, channel for a new call. Never raises."""
+    out = {}
+    try:
+        out["fired_at"] = str(row.get("timestamp") or datetime.now(timezone.utc).isoformat())
+        market = str(row.get("market", ""))
+        sym = ""
+        try:
+            import data_layer as _w233_dl
+            c = getattr(_w233_dl, "_TOPSTEPX_CONTRACT_CACHE", {}).get(market)
+            if c:
+                sym = str(c[0] if isinstance(c, (tuple, list)) else c)
+        except Exception:
+            sym = ""
+        out["symbol"] = sym or {"BTC": "BTC/USD", "SOL": "SOL/USD"}.get(market, market or "UNKNOWN")
+        out["session"] = _w233_session(out["fired_at"])
+        out["r_planned"] = _w233_num(row.get("rr"), 3)
+        try:
+            from rules import PUBLIC_CALLS as _w233_pub
+        except Exception:
+            _w233_pub = False
+        out["channel"] = "control+public" if _w233_pub else "control"
+    except Exception:
+        for k in ("fired_at", "symbol", "session", "r_planned", "channel"):
+            out.setdefault(k, "UNKNOWN")
+    return out
+
+
+def _w233_outcome_fields(r, result, exit_price, bars=None, now=None):
+    """L3 outcome fields for ledger row r closing at exit_price. Never raises;
+    every field is a value or UNKNOWN."""
+    out = {}
+    now = now or datetime.now(timezone.utc)
+    res = str(result or "").upper()
+    out["outcome"] = res or "UNKNOWN"
+    out["resolved_at"] = now.isoformat()
+    try:
+        side = 1 if "LONG" in str(r.get("direction", "")) else -1
+    except Exception:
+        side = 1
+    try:
+        e = float(r.get("entry"))
+        x = float(exit_price)
+        out["points_result"] = _w233_num((x - e) * side, 4)
+    except Exception:
+        e = x = None
+        out["points_result"] = "UNKNOWN"
+    try:
+        s = float(r.get("stop"))
+        risk = (e - s) * side if e is not None else 0
+    except Exception:
+        risk = 0
+    if res == "WIN":
+        out["r_result"] = _w233_num(r.get("rr"), 3)
+    elif res == "LOSS":
+        out["r_result"] = -1.0
+    elif res == "SKIP":
+        out["r_result"] = 0.0
+    else:
+        out["r_result"] = "UNKNOWN"
+    out["r_actual"] = _w233_num((x - e) * side / risk, 3) if (risk and risk > 0 and x is not None) else "UNKNOWN"
+    exc = _W233_EXCURSION.get(r.get("alert_id"))
+    if exc and risk and risk > 0:
+        hi, lo = exc
+        fav, adv = ((hi - e), (e - lo)) if side == 1 else ((e - lo), (hi - e))
+        out["mfe_r"] = _w233_num(max(fav, 0.0) / risk, 3)
+        out["mae_r"] = _w233_num(max(adv, 0.0) / risk, 3)
+    else:
+        out["mfe_r"] = out["mae_r"] = "UNKNOWN"
+    try:
+        f = datetime.fromisoformat(str(r.get("fired_at") or r.get("timestamp")))
+        if f.tzinfo is None:
+            f = f.replace(tzinfo=timezone.utc)
+        dur = int((now - f).total_seconds())
+        out["duration_sec"] = dur
+        if not bars:
+            tfs = _W233_TF_SEC.get(str(r.get("tf", "")).strip())
+            out["bars_to_resolution"] = (dur // tfs) if tfs else "UNKNOWN"
+    except Exception:
+        out["duration_sec"] = "UNKNOWN"
+        if not bars:
+            out["bars_to_resolution"] = "UNKNOWN"
+    return out
+# ---- end _WAVE233_LEDGER_COMPLETE ------------------------------------------
+
+
 def update_result(alert_id: str, result: str, bars: int, exit_price: float):
     def _mut(rows):
         for r in rows:
@@ -3360,6 +3495,11 @@ def update_result(alert_id: str, result: str, bars: int, exit_price: float):
                 r["result"]             = result
                 r["bars_to_resolution"] = bars
                 r["exit_price"]         = exit_price
+                try:  # _WAVE233_LEDGER_COMPLETE
+                    r.update(_w233_outcome_fields(r, result, exit_price, bars=bars))
+                    _W233_EXCURSION.pop(alert_id, None)   # recorded; a closed call needs no excursion
+                except Exception:
+                    pass
         return rows
     _safe_mutate_csv(_mut)
 
@@ -3408,6 +3548,10 @@ def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
                 r["result"]             = "SKIP"
                 r["exit_price"]         = entry
                 r["bars_to_resolution"] = ""
+                try:  # _WAVE233_LEDGER_COMPLETE
+                    r.update(_w233_outcome_fields(r, "SKIP", entry))
+                except Exception:
+                    pass
                 expired.append((alert_id, market, setup, -1.0))
                 continue
             if age_seconds < cutoff_seconds:
@@ -3419,6 +3563,10 @@ def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
             r["result"]             = "SKIP"
             r["exit_price"]         = entry
             r["bars_to_resolution"] = ""
+            try:  # _WAVE233_LEDGER_COMPLETE
+                r.update(_w233_outcome_fields(r, "SKIP", entry))
+            except Exception:
+                pass
             expired.append((alert_id, market, setup, hours))
             _log.info(f"Auto-expired stale OPEN trade: {alert_id} {market} {setup} (opened {hours}h ago)")
         return rows
