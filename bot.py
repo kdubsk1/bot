@@ -981,6 +981,8 @@ def _w231_exit_card(market, cfg, row, exit_price, result, reason=None):
             "Entry `%.*f` \u2192 Exit `%.*f`" % (dec, e, dec, x),
             "Move `%+.*f pts` \u00b7 `%s`" % (dec, pts, r_txt),
         ]
+        if row.get("call_id"):  # _WAVE232_CALL_ID
+            lines.append("Call ID `%s`" % row.get("call_id"))
         if reason:
             lines.append(str(reason))
         return "\n".join(lines)
@@ -3787,6 +3789,15 @@ async def scan_market(app, market, frames):
                                              extra_footer=footer, alert_id=alert_id)
             # Wave 179: clean card to the public channel, full diagnostics to control.
             _w179_pub = format_alert_public(market, entry_tf, stp, tier, tgt, rr, _w217_size(conv))
+            # _WAVE232_CALL_ID: the call's id, printed on both cards so fills can be matched exactly.
+            try:
+                _w232_cid = ot.call_id_for(alert_id)
+            except Exception:
+                _w232_cid = ""
+            if _w232_cid:
+                _w179_full = str(_w179_full) + "\nCall ID `%s`" % _w232_cid
+                if _w179_pub:
+                    _w179_pub = str(_w179_pub) + "\nCall ID `%s`" % _w232_cid
             if _R225_PUBLIC_CALLS:  # _WAVE225_RULEBOOK: False = control channel only
                 await tg_send_pub(app, _w179_pub or _w179_full, kind="call")  # _WAVE231_CALLS_ONLY
             await tg_send(app, _w179_full, kind="call")  # _WAVE231_CALLS_ONLY: control ALWAYS gets every call

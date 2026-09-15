@@ -107,6 +107,8 @@ CSV_COLS = [
     "w7_setup_boost",       # int, signed — Layer 1 setup-specific delta
     "w7_market_mult",       # int, signed — Layer 2 per-market direction delta
     "w7_applied_layers",    # comma-separated string — which layers fired
+    # _WAVE232_CALL_ID: appended, never renamed. #NQ-0915-K7 - how the journal matches fills.
+    "call_id",
 ]
 
 # ------------------------------------------------------------------ #
@@ -3240,6 +3242,55 @@ def _ensure_csv():
             clean = {k: row.get(k, "") for k in CSV_COLS}
             writer.writerow(clean)
 
+# _WAVE232_CALL_ID ------------------------------------------------------
+W232_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"   # no 0/O, 1/I/L look-alikes
+_W232_CACHE = {}
+
+
+def _w232_make_call_id(row, taken=None):
+    """#<MARKET>-<MMDD ET>-<2 chars from alert_id>, bumped past any id already
+    in the ledger. Never raises; returns "" if it cannot build one."""
+    try:
+        market = str(row.get("market", "")).strip().upper() or "XX"
+        ts = datetime.fromisoformat(str(row.get("timestamp")))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        try:
+            from zoneinfo import ZoneInfo as _W232Z
+            day = ts.astimezone(_W232Z("America/New_York")).strftime("%m%d")
+        except Exception:
+            day = (ts - timedelta(hours=4)).strftime("%m%d")
+        if taken is None:
+            try:
+                taken = {r.get("call_id") for r in safe_io.safe_read_csv(OUTCOMES_CSV)}
+            except Exception:
+                taken = set()
+        n = len(W232_ALPHABET)
+        seed = int(str(row.get("alert_id") or "0"), 16) % (n * n)
+        for k in range(n * n):
+            v = (seed + k) % (n * n)
+            cid = "#%s-%s-%s%s" % (market, day, W232_ALPHABET[v // n], W232_ALPHABET[v % n])
+            if cid not in taken:
+                return cid
+        return ""
+    except Exception:
+        return ""
+
+
+def call_id_for(alert_id):
+    """The call_id stamped on this alert, or ""."""
+    try:
+        if alert_id in _W232_CACHE:
+            return _W232_CACHE[alert_id]
+        for r in safe_io.safe_read_csv(OUTCOMES_CSV):
+            if r.get("alert_id") == alert_id:
+                return r.get("call_id") or ""
+    except Exception:
+        pass
+    return ""
+# ---- end _WAVE232_CALL_ID -----------------------------------------------
+
+
 def log_alert(row: dict) -> str:
     _ensure_csv()
     row = dict(row)
@@ -3256,6 +3307,12 @@ def log_alert(row: dict) -> str:
         row["session_id"] = get_session_date()
     except Exception:
         row["session_id"] = datetime.now().strftime("%Y-%m-%d")
+    if not row.get("call_id"):  # _WAVE232_CALL_ID
+        row["call_id"] = _w232_make_call_id(row)
+    try:
+        _W232_CACHE[row["alert_id"]] = row["call_id"]
+    except Exception:
+        pass
     clean = {k: row.get(k,"") for k in CSV_COLS}
     # Locked atomic append — prevents _write_all from clobbering this row
     safe_io.safe_append_csv(OUTCOMES_CSV, CSV_COLS, clean)
