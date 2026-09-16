@@ -154,6 +154,26 @@ def _git_blob_sha(content_bytes: bytes) -> str:
     return hashlib.sha1(header + content_bytes).hexdigest()
 
 
+# ---- _WAVE241_SYNC_SKIP -------------------------------------------
+# Wave 241 (Wayne, Q6, 15 Sep 2026): never sync these. data/archive still syncs.
+W241_SKIP_SUFFIXES = (".bak", ".lock")
+W241_SKIP_NAMES = ("sim_account.json",)
+W241_SKIP_DIR_PREFIXES = ("_backup_pre_pull_",)
+
+
+def _w241_skip(path: Path) -> bool:
+    """True for a file the sync must leave alone: *.bak, *.lock, sim_account.json,
+    or anything under a _backup_pre_pull_* folder. Never raises."""
+    try:
+        name = path.name
+        if name.endswith(W241_SKIP_SUFFIXES) or name in W241_SKIP_NAMES:
+            return True
+        return any(part.startswith(W241_SKIP_DIR_PREFIXES) for part in path.parts[:-1])
+    except Exception:
+        return False
+# ---- end _WAVE241_SYNC_SKIP ---------------------------------------
+
+
 def _walk_sync_paths() -> List[Path]:
     """
     Walk SYNC_PATHS and return a list of all regular file Paths to sync.
@@ -174,6 +194,8 @@ def _walk_sync_paths() -> List[Path]:
                 if any(part.startswith(".") for part in child.relative_to(BASE_DIR).parts):
                     continue
                 if "__pycache__" in child.parts:
+                    continue
+                if _w241_skip(child.relative_to(BASE_DIR)):  # _WAVE241_SYNC_SKIP
                     continue
                 try:
                     if child.stat().st_size > 25 * 1024 * 1024:  # Wave 59: raised from 5MB so strategy_log keeps backing up to GitHub
