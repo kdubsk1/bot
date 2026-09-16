@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-16T14:43:50.174009+00:00",
+  "generated_at": "2026-09-16T20:44:14.955139+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -337,6 +337,10 @@ const DATA = {
       {
         "time": "2026-09-15 16:51",
         "balance": 55158.4
+      },
+      {
+        "time": "2026-09-16 19:00",
+        "balance": 54331.02
       }
     ]
   },
@@ -755,30 +759,30 @@ const DATA = {
   },
   "all_time": {
     "wins": 5,
-    "losses": 9,
-    "wr": 35.7,
-    "total_trades": 14
+    "losses": 10,
+    "wr": 33.3,
+    "total_trades": 15
   },
   "today": {
     "wins": 0,
-    "losses": 0,
-    "wr": 0,
-    "total_trades": 0
+    "losses": 1,
+    "wr": 0.0,
+    "total_trades": 1
   },
   "setup_stats": [
+    {
+      "setup": "GC:BB_REVERSION_BULL",
+      "fires": 4,
+      "wins": 2,
+      "losses": 2,
+      "wr": 50.0
+    },
     {
       "setup": "BTC:STOCH_REVERSAL_BULL",
       "fires": 4,
       "wins": 0,
       "losses": 4,
       "wr": 0.0
-    },
-    {
-      "setup": "GC:BB_REVERSION_BULL",
-      "fires": 3,
-      "wins": 2,
-      "losses": 1,
-      "wr": 66.7
     },
     {
       "setup": "NQ:OPENING_RANGE_BREAKOUT",
@@ -810,6 +814,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-16 19:00",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4314.5",
+      "stop": "4288.9844",
+      "target": "4381.9",
+      "rr": "2.64",
+      "conv": "73",
+      "tier": "HIGH",
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4288.9844"
+    },
     {
       "time": "2026-09-15 16:51",
       "market": "GC",
@@ -1055,9 +1075,9 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 3,
-      "losses": 3,
-      "total_pnl_r": 3.97,
-      "wr": 50.0
+      "losses": 4,
+      "total_pnl_r": 2.97,
+      "wr": 42.9
     },
     "NQ": {
       "wins": 2,
@@ -1075,8 +1095,8 @@ const DATA = {
   "by_tier": {
     "HIGH": {
       "wins": 5,
-      "losses": 2,
-      "wr": 71.4
+      "losses": 3,
+      "wr": 62.5
     },
     "MEDIUM": {
       "wins": 0,
