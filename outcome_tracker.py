@@ -2510,6 +2510,8 @@ def _log_trade_outcome(trade_row: dict, result: str, exit_price: float):
             pass
 
         decision_const = sl.DECISION_CLOSED_WIN if result == "WIN" else sl.DECISION_CLOSED_LOSS
+        if result == "SCRATCH":  # _WAVE240_FLATTEN_GRADING
+            decision_const = "CLOSED_SCRATCH"
         reason = (f"Trade closed {result} at {round(exit_p,4)}, "
                   f"{pts_str} pts from entry {round(entry,4)}"
                   f"{', held ' + str(held_hours) + 'h' if held_hours else ''}.")
@@ -3457,7 +3459,7 @@ def _w233_outcome_fields(r, result, exit_price, bars=None, now=None):
         out["r_result"] = _w233_num(r.get("rr"), 3)
     elif res == "LOSS":
         out["r_result"] = -1.0
-    elif res == "SKIP":
+    elif res in ("SKIP", "SCRATCH"):  # _WAVE240_FLATTEN_GRADING: a scratch is 0R, never a loss
         out["r_result"] = 0.0
     else:
         out["r_result"] = "UNKNOWN"
@@ -3502,6 +3504,37 @@ def update_result(alert_id: str, result: str, bars: int, exit_price: float):
                     pass
         return rows
     _safe_mutate_csv(_mut)
+
+
+# ---- _WAVE240_FLATTEN_GRADING -------------------------------------------
+def update_result_flatten(alert_id: str, result: str, exit_price: float, priced: bool = True):
+    """Close a call at the 4:10 PM ET flatten, graded at the price it was actually
+    closed at (Wayne, Q3, 15 Sep 2026). r_actual is the number of record, so the
+    nominal r_result is set equal to it: the flatten price IS the exit, not the
+    target or the stop. With no real price (the entry stood in for it) the result
+    is a SCRATCH at 0R and points_result / r_actual are UNKNOWN, never a made-up 0."""
+    def _mut(rows):
+        for r in rows:
+            if r.get("alert_id") == alert_id:
+                r["status"]             = "CLOSED"
+                r["result"]             = result
+                r["bars_to_resolution"] = 0
+                r["exit_price"]         = exit_price
+                try:
+                    f = _w233_outcome_fields(r, result, exit_price, bars=0)
+                    if priced:
+                        f["r_result"] = f.get("r_actual", "UNKNOWN")
+                    else:
+                        f["points_result"] = "UNKNOWN"
+                        f["r_actual"] = "UNKNOWN"
+                        f["r_result"] = 0.0
+                    r.update(f)
+                    _W233_EXCURSION.pop(alert_id, None)
+                except Exception:
+                    pass
+        return rows
+    _safe_mutate_csv(_mut)
+# ---- end _WAVE240_FLATTEN_GRADING ---------------------------------------
 
 
 def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:

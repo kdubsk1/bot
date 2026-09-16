@@ -939,6 +939,7 @@ def _w231_exit_card(market, cfg, row, exit_price, result, reason=None):
     Never money, never contracts, never balance."""
     try:
         won = str(result).upper() == "WIN"
+        scratch = str(result).upper() == "SCRATCH"  # _WAVE240_FLATTEN_GRADING
         side = "LONG" if "LONG" in str(row.get("direction", "")) else "SHORT"
         e = float(row.get("entry"))
         x = float(exit_price)
@@ -952,7 +953,8 @@ def _w231_exit_card(market, cfg, row, exit_price, result, reason=None):
         dec = 2 if abs(e) >= 1000 else 4
         name = str(row.get("setup", "")).replace("_", " ")
         lines = [
-            "%s *%s* \u2014 %s *%s* %s" % ("\u2705" if won else "\u274c", "WIN" if won else "LOSS",
+            "%s *%s* \u2014 %s *%s* %s" % (("\u2796" if scratch else "\u2705" if won else "\u274c"),  # _WAVE240_FLATTEN_GRADING
+                                        ("SCRATCH" if scratch else "WIN" if won else "LOSS"),
                                         getattr(cfg, "EMOJI", ""), market, side),
             "%s [%s]" % (name, row.get("tf", "")),
             "Entry `%.*f` \u2192 Exit `%.*f`" % (dec, e, dec, x),
@@ -4625,12 +4627,15 @@ async def force_flatten_futures(app):
     for row in futures_trades:
         market = row["market"]
         cfg    = get_market_config(market)
+        _w240_priced = True  # _WAVE240_FLATTEN_GRADING: False when the entry stands in for a missing price
         try:
             cur = get_current_price(market)
             if not np.isfinite(cur):
                 cur = float(row["entry"])
+                _w240_priced = False
         except Exception:
             cur = float(row["entry"])
+            _w240_priced = False
 
         entry_p = row.get("entry", "?")
         # Wave 44 (May 12, 2026): pre-initialize pts so the exception path
@@ -4643,8 +4648,13 @@ async def force_flatten_futures(app):
             pts_str = f"+{round(pts,2)}" if pts>=0 else str(round(pts,2))
         except Exception: pts_str = "?"
 
-        result = "WIN" if (pts > 0 if isinstance(pts, float) else False) else "LOSS"
-        ot.update_result(row["alert_id"], result, 0, cur)
+        # _WAVE240_FLATTEN_GRADING: graded at the actual flatten price. No move, or no price,
+        # is a SCRATCH -- never a LOSS (Wayne, Q3, 15 Sep 2026).
+        if not _w240_priced or not isinstance(pts, float) or pts == 0:
+            result = "SCRATCH"
+        else:
+            result = "WIN" if pts > 0 else "LOSS"
+        ot.update_result_flatten(row["alert_id"], result, cur, priced=_w240_priced)
         ot.record_trade_result(market, row.get("setup",""), result)
         _shadow_log_settle(row, cur, result)  # Wave 86: keep watching in shadow
         # Batch 2A: Log outcome to strategy_log.csv
@@ -4653,7 +4663,7 @@ async def force_flatten_futures(app):
         except Exception:
             pass
 
-        icon = "✅" if result=="WIN" else "❌"
+        icon = "✅" if result=="WIN" else ("\u2796" if result == "SCRATCH" else "❌")  # _WAVE240_FLATTEN_GRADING
         # _WAVE231_CALLS_ONLY: the flatten exit is the same exit card, flagged as the 4:10 rule.
         _w231_card = _w231_exit_card(market, cfg, row, cur, result, reason="Closed by the 4:10 PM ET flatten")
         if _w239_public_ok(market):  # _WAVE239_CONVICTION_MIN
