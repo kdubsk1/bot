@@ -1,0 +1,13 @@
+{
+ "utc": "2026-09-17T13:38:21.356760+00:00",
+ "cycle": 11,
+ "last_sync": null,
+ "started_utc": "2026-09-17T13:33:31.193580+00:00",
+ "scanner_on": true,
+ "markets": [
+  "NQ",
+  "GC",
+  "BTC"
+ ],
+ "interval_min": 5
+}
