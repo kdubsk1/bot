@@ -5,7 +5,13 @@
       "setup": "STOCH_REVERSAL_BULL",
       "losses": 3,
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
+      "market": "GC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "losses": 4,
+      "reason": "Wave 47 auto: 0W/4L over last 30 days"
     }
   ],
-  "ts": "2026-09-17T17:07:29.826138+00:00"
+  "ts": "2026-09-17T20:00:13.584129+00:00"
 }

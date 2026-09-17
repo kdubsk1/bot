@@ -119,3 +119,4 @@
 {"event":"seed_base","bucket":"adx_min|NQ|RSI_DIV_BEAR","base":14.0,"ts":"2026-09-16T23:31:31.912778+00:00"}
 {"event":"apply","bucket":"vol_floor|GC|BB_REVERSION_BULL","from":0.3,"to":0.25,"evidence":{"n":100,"w":44,"l":56,"wr":44.0,"avg_rr":2.21,"required_wr":38.9},"ts":"2026-09-17T00:01:36.596686+00:00"}
 {"event":"seed_base","bucket":"adx_min|BTC|EMA50_BREAKDOWN","base":20.0,"ts":"2026-09-17T02:12:01.651591+00:00"}
+{"event":"seed_base","bucket":"adx_min|GC|EMA50_BREAKDOWN","base":18.0,"ts":"2026-09-17T22:00:25.064260+00:00"}

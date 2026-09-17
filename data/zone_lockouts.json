@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "market": "BTC",
+    "direction": "LONG",
+    "zone_low": 76728.0729,
+    "zone_high": 76889.0671,
+    "expiry": "2026-09-18T00:11:04.682796+00:00"
+  },
+  {
+    "market": "BTC",
+    "direction": "LONG",
+    "zone_low": 76708.3517,
+    "zone_high": 76865.8483,
+    "expiry": "2026-09-18T00:20:11.852773+00:00"
+  }
+]

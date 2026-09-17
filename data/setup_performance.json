@@ -233,7 +233,7 @@
     "losses": 630,
     "total": 776,
     "win_rate": 18.8,
-    "last_updated": "2026-09-15T18:46:20.749363",
+    "last_updated": "2026-09-17T22:20:11.168122",
     "paper_total": 677,
     "paper_losses": 536,
     "paper_win_rate": 20.8,
@@ -243,7 +243,10 @@
     "real_total": 11,
     "real_win_rate": 36.4,
     "real_avg_rr_win": 2.5,
-    "real_expectancy": 0.2727
+    "real_expectancy": 0.2727,
+    "lab_total": 2,
+    "lab_losses": 2,
+    "lab_win_rate": 0.0
   },
   "BTC:BB_REVERSION_BULL": {
     "wins": 76,
@@ -419,7 +422,7 @@
     "losses": 31,
     "total": 99,
     "win_rate": 68.7,
-    "last_updated": "2026-09-04T12:37:19.168931",
+    "last_updated": "2026-09-17T19:55:10.740573",
     "paper_total": 66,
     "paper_losses": 16,
     "paper_win_rate": 75.8,
@@ -429,14 +432,17 @@
     "real_win_rate": 22.2,
     "real_wins": 4,
     "real_avg_rr_win": 2.647,
-    "real_expectancy": -0.1418
+    "real_expectancy": -0.1418,
+    "lab_total": 1,
+    "lab_wins": 1,
+    "lab_win_rate": 100.0
   },
   "GC:BB_REVERSION_BEAR": {
     "wins": 24,
     "losses": 44,
     "total": 68,
     "win_rate": 35.3,
-    "last_updated": "2026-09-04T12:37:19.164276",
+    "last_updated": "2026-09-17T19:55:10.440850",
     "paper_total": 56,
     "paper_losses": 36,
     "paper_win_rate": 35.7,
@@ -446,7 +452,10 @@
     "real_total": 9,
     "real_win_rate": 44.4,
     "real_avg_rr_win": 3.355,
-    "real_expectancy": 0.9356
+    "real_expectancy": 0.9356,
+    "lab_total": 2,
+    "lab_wins": 2,
+    "lab_win_rate": 100.0
   },
   "GC:MACD_CROSS_BEAR": {
     "wins": 33,
@@ -714,7 +723,7 @@
     "losses": 73,
     "total": 167,
     "win_rate": 56.3,
-    "last_updated": "2026-09-15T19:55:21.336208",
+    "last_updated": "2026-09-17T19:55:10.111125",
     "paper_total": 80,
     "paper_losses": 14,
     "paper_win_rate": 82.5,
@@ -724,7 +733,10 @@
     "real_total": 18,
     "real_win_rate": 55.6,
     "real_avg_rr_win": 2.5,
-    "real_expectancy": 2.5
+    "real_expectancy": 2.5,
+    "lab_total": 2,
+    "lab_losses": 2,
+    "lab_win_rate": 0.0
   },
   "SOL:MACD_CROSS_BULL": {
     "wins": 11,

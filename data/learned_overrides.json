@@ -1418,6 +1418,10 @@
     "adx_min|BTC|EMA50_BREAKDOWN": {
       "base": 20.0,
       "seeded_at": "2026-09-17T02:12:01.649671+00:00"
+    },
+    "adx_min|GC|EMA50_BREAKDOWN": {
+      "base": 18.0,
+      "seeded_at": "2026-09-17T22:00:25.062963+00:00"
     }
   }
 }
