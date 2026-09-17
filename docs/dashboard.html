@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-16T20:44:14.955139+00:00",
+  "generated_at": "2026-09-17T02:44:34.547616+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -765,9 +765,9 @@ const DATA = {
   },
   "today": {
     "wins": 0,
-    "losses": 1,
-    "wr": 0.0,
-    "total_trades": 1
+    "losses": 0,
+    "wr": 0,
+    "total_trades": 0
   },
   "setup_stats": [
     {
@@ -814,6 +814,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-16 23:31",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "29402.5",
+      "stop": "29229.5334",
+      "target": "29753.0",
+      "rr": "2.03",
+      "conv": "55",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-09-16 22:40",
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "4312.3",
+      "stop": "4289.2364",
+      "target": "4358.9",
+      "rr": "2.02",
+      "conv": "72",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-16 19:00",
       "market": "GC",
@@ -1104,7 +1136,34 @@ const DATA = {
       "wr": 0.0
     }
   },
-  "open_trades": []
+  "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "29402.5",
+      "target": "29753.0",
+      "stop": "29229.5334",
+      "conviction": 55,
+      "last_rescore_conviction": 55,
+      "tier": "MEDIUM",
+      "timestamp": "2026-09-16T23:31:31.371206+00:00"
+    },
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "4312.3",
+      "target": "4358.9",
+      "stop": "4289.2364",
+      "conviction": 72,
+      "last_rescore_conviction": 72,
+      "tier": "HIGH",
+      "timestamp": "2026-09-16T22:40:12.634286+00:00"
+    }
+  ]
 };
 
 function fmtMoney(n) {
