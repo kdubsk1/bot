@@ -32,6 +32,12 @@ try:
 except Exception:
     _R225_RR_CAP = {"GC": 3.0, "NQ": 3.5, "BTC": 4.0, "SOL": 4.0}
     _R225_RR_CAP_DEF = 3.5
+# _WAVE244_CONVICTION_TABLE: the frozen conviction table (Wayne, Q8). Defensive - a rules.py without it falls
+# back to exactly the pre-244 learned read, so a half deploy can never leave the bot scoreless.
+try:
+    from rules import CONVICTION_TABLE as _R244_CONV_TABLE, CONVICTION_UNKNOWN as _R244_CONV_UNKNOWN
+except Exception:
+    _R244_CONV_TABLE, _R244_CONV_UNKNOWN = None, 45
 try:
     from zoneinfo import ZoneInfo
     ET_ZONE = ZoneInfo("America/New_York")
@@ -2176,6 +2182,26 @@ def conviction_score(setup: dict, trend: int, df_entry: pd.DataFrame,
     MIN_HISTORY = 5     # outcomes required before a bucket can score live
     K           = 4.0   # shrinkage strength toward the neutral prior
     PRIOR_WR    = 0.50  # neutral prior win rate
+
+    # _WAVE244_CONVICTION_TABLE: under ADAPTIVE_OFF the score is the written table in rules.py, not the learned
+    # counter. Same scale, same tier ladder, same breakdown keys - it simply stops moving by itself.
+    if ADAPTIVE_OFF and isinstance(_R244_CONV_TABLE, dict):
+        _key = f"{market}:{setup_type}" if (market and setup_type) else ""
+        _listed = _key in _R244_CONV_TABLE
+        try:
+            s = int(_R244_CONV_TABLE.get(_key, _R244_CONV_UNKNOWN))
+        except Exception:
+            s = int(_R244_CONV_UNKNOWN)
+        bd["fixed_table"] = _key if _listed else "unlisted"
+        bd["trend_ctx"] = trend
+        if news_flag:
+            bd["news_flag"] = 1
+        s = max(0, min(100, int(s)))
+        if   s >= 60: tier = TIER_HIGH
+        elif s >= 53: tier = TIER_MED
+        elif s >= 48: tier = TIER_LOW
+        else:         tier = "REJECT"
+        return s, tier, bd
 
     perf = _load_performance()
     data = perf.get(f"{market}:{setup_type}", {}) if (market and setup_type) else {}

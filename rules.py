@@ -54,6 +54,109 @@ RR_CAP_DEFAULT = 3.5
 CONVICTION_MIN = {"NQ": 50, "GC": 70, "BTC": 70, "SOL": None}
 CONVICTION_MIN_DEFAULT = None
 
+# _WAVE244_CONVICTION_TABLE: conviction is a WRITTEN TABLE, not a learned number (Wayne, Q8, 16 Sep 2026).
+# These are the exact scores conviction_score computed on 16 Sep 2026 from the counters in
+# data/setup_performance.json - round(100 * (wins + 2) / (n + 4)), or 45 when n < 5 - frozen here so the
+# number that decides what fires cannot move on its own. Wave 238 stopped shadow grades feeding it;
+# real closes still did. Nothing changes a number here except a wave.
+# Each line carries the wins-losses and n behind the score on that date.
+# A market:setup not listed scores CONVICTION_UNKNOWN (45 = REJECT), exactly like a cold-start bucket
+# today. setup_performance.json keeps being written: it is the research record, not a rule.
+# WHAT IS BAKED IN, honestly: these counters include every shadow grade written up to 15 Sep 21:56 UTC,
+# when Wave 238 cut that feed, plus the real closes since. Some numbers therefore carry shadow drift:
+# BTC:BREAK_RETEST_BULL moved 38 -> 64 in the two days before 238 went live and is frozen here at 64.
+# Freezing stops the drift; it does not undo it. Re-basing a number on real closes only is a later wave.
+# Only these clear their market's floor (rules.CONVICTION_MIN, Wave 239):
+#   GC  BB_REVERSION_BULL 72, MACD_CROSS_BEAR 76      (floor 70)
+#   NQ  BREAK_RETEST_BULL 63, OPENING_RANGE_BREAKOUT 63, MACD_CROSS_BULL 55, VWAP_BOUNCE_BULL 55 (floor 50)
+#   BTC nothing reaches 70; SOL never calls (CALLS_OFF_MARKETS).
+CONVICTION_TABLE_ASOF = "16 Sep 2026"
+CONVICTION_UNKNOWN = 45
+CONVICTION_TABLE = {
+    "BTC:BB_REVERSION_BEAR":          13,   # 13-102, n=115
+    "BTC:BB_REVERSION_BULL":          35,   # 76-145, n=221
+    "BTC:BREAK_RETEST_BEAR":          22,   # 12-48, n=60
+    "BTC:BREAK_RETEST_BULL":          64,   # 44-24, n=68
+    "BTC:EMA21_PULLBACK_BEAR":        30,   # 48-113, n=161
+    "BTC:EMA21_PULLBACK_BULL":        26,   # 147-415, n=562
+    "BTC:EMA50_BREAKDOWN":             3,   # 0-64, n=64
+    "BTC:EMA50_RECLAIM":              16,   # 2-19, n=21
+    "BTC:LAB|RSI_DIV_BEAR":           45,   # 13-16, n=29
+    "BTC:LAB|RSI_DIV_BULL":           38,   # 4-8, n=12
+    "BTC:MACD_CROSS_BEAR":            35,   # 25-49, n=74
+    "BTC:MACD_CROSS_BULL":            32,   # 68-147, n=215
+    "BTC:RSI_DIV_BEAR":               22,   # 17-66, n=83
+    "BTC:RSI_DIV_BULL":               30,   # 22-55, n=77
+    "BTC:STOCH_REVERSAL_BEAR":        22,   # 62-220, n=282
+    "BTC:STOCH_REVERSAL_BULL":        51,   # 69-67, n=136
+    "BTC:VWAP_BOUNCE_BULL":           19,   # 146-630, n=776
+    "BTC:VWAP_REJECT_BEAR":           31,   # 33-75, n=108
+    "GC:BB_REVERSION_BEAR":           36,   # 24-44, n=68
+    "GC:BB_REVERSION_BULL":           72,   # 41-15, n=56
+    "GC:BREAK_RETEST_BEAR":           24,   # 30-102, n=132
+    "GC:BREAK_RETEST_BULL":           34,   # 8-17, n=25
+    "GC:EMA21_PULLBACK_BEAR":          6,   # 8-154, n=162
+    "GC:EMA21_PULLBACK_BULL":          2,   # 5-281, n=286
+    "GC:EMA50_BREAKDOWN":             45,   # 0-4, n=4  COLD START
+    "GC:EMA50_RECLAIM":               11,   # 0-15, n=15
+    "GC:LAB|RSI_DIV_BEAR":            17,   # 3-22, n=25
+    "GC:MACD_CROSS_BEAR":             76,   # 33-9, n=42
+    "GC:MACD_CROSS_BULL":             27,   # 4-14, n=18
+    "GC:RSI_DIV_BEAR":                 6,   # 3-73, n=76
+    "GC:RSI_DIV_BULL":                 3,   # 1-103, n=104
+    "GC:STOCH_REVERSAL_BEAR":         68,   # 68-31, n=99
+    "GC:STOCH_REVERSAL_BULL":         11,   # 11-103, n=114
+    "GC:VWAP_BOUNCE_BULL":            56,   # 94-73, n=167
+    "GC:VWAP_REJECT_BEAR":            14,   # 38-254, n=292
+    "NQ:APPROACH_SUPPORT":            45,   # 0-2, n=2  COLD START
+    "NQ:BB_REVERSION_BEAR":           10,   # 3-45, n=48
+    "NQ:BB_REVERSION_BULL":           26,   # 40-117, n=157
+    "NQ:BREAK_RETEST_BEAR":           18,   # 9-48, n=57
+    "NQ:BREAK_RETEST_BULL":           63,   # 100-58, n=158
+    "NQ:EMA21_PULLBACK_BEAR":         23,   # 31-108, n=139
+    "NQ:EMA21_PULLBACK_BULL":         10,   # 5-61, n=66
+    "NQ:EMA50_BREAKDOWN":             27,   # 2-9, n=11
+    "NQ:EMA50_RECLAIM":               13,   # 0-11, n=11
+    "NQ:LAB|BB_REVERSION_BEAR":       36,   # 3-7, n=10
+    "NQ:LAB|BREAK_RETEST_BEAR":       30,   # 5-14, n=19
+    "NQ:LAB|EMA21_PULLBACK_BEAR":     20,   # 16-71, n=87
+    "NQ:LAB|EMA50_BREAKDOWN":         45,   # 2-0, n=2  COLD START
+    "NQ:LAB|MACD_CROSS_BEAR":         33,   # 5-12, n=17
+    "NQ:LAB|OPENING_RANGE_BREAKOUT":  45,   # 0-3, n=3  COLD START
+    "NQ:LAB|RSI_DIV_BEAR":            33,   # 1-4, n=5
+    "NQ:LAB|RSI_DIV_BULL":            14,   # 0-10, n=10
+    "NQ:LAB|STOCH_REVERSAL_BEAR":     41,   # 9-14, n=23
+    "NQ:LAB|VWAP_REJECT_BEAR":        28,   # 16-45, n=61
+    "NQ:MACD_CROSS_BEAR":             27,   # 10-31, n=41
+    "NQ:MACD_CROSS_BULL":             55,   # 32-26, n=58
+    "NQ:OPENING_RANGE_BREAKOUT":      63,   # 15-8, n=23
+    "NQ:RSI_DIV_BEAR":                20,   # 1-10, n=11
+    "NQ:RSI_DIV_BULL":                11,   # 2-29, n=31
+    "NQ:STOCH_REVERSAL_BEAR":         26,   # 11-35, n=46
+    "NQ:STOCH_REVERSAL_BULL":         40,   # 44-67, n=111
+    "NQ:VWAP_BOUNCE_BULL":            55,   # 164-134, n=298
+    "NQ:VWAP_REJECT_BEAR":            26,   # 45-132, n=177
+    "SOL:APPROACH_SUPPORT":           45,   # 0-3, n=3  COLD START
+    "SOL:BB_REVERSION_BEAR":          30,   # 42-99, n=141
+    "SOL:BB_REVERSION_BULL":          28,   # 7-21, n=28
+    "SOL:BREAK_RETEST_BEAR":          44,   # 18-23, n=41
+    "SOL:BREAK_RETEST_BULL":          58,   # 58-41, n=99
+    "SOL:EMA21_PULLBACK_BEAR":        32,   # 23-50, n=73
+    "SOL:EMA21_PULLBACK_BULL":        40,   # 23-36, n=59
+    "SOL:EMA50_BREAKDOWN":            43,   # 4-6, n=10
+    "SOL:EMA50_RECLAIM":              90,   # 16-0, n=16
+    "SOL:LAB|RSI_DIV_BEAR":           36,   # 2-5, n=7
+    "SOL:LAB|RSI_DIV_BULL":           45,   # 1-1, n=2  COLD START
+    "SOL:MACD_CROSS_BEAR":            31,   # 9-22, n=31
+    "SOL:MACD_CROSS_BULL":            32,   # 11-26, n=37
+    "SOL:RSI_DIV_BEAR":                5,   # 2-70, n=72
+    "SOL:RSI_DIV_BULL":               15,   # 4-32, n=36
+    "SOL:STOCH_REVERSAL_BEAR":        39,   # 17-28, n=45
+    "SOL:STOCH_REVERSAL_BULL":        26,   # 7-23, n=30
+    "SOL:VWAP_BOUNCE_BULL":           24,   # 47-154, n=201
+    "SOL:VWAP_REJECT_BEAR":           38,   # 24-40, n=64
+}
+
 # A market listed here never sends a call (the scan still logs it, REJECTED).
 CALLS_OFF_MARKETS = ("SOL",)
 
