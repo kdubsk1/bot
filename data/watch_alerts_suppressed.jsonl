@@ -47,3 +47,4 @@
 {"timestamp": "2026-09-17T13:37:51.314005+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 76090.0, "stop": 75981.01886905935, "target": null, "rr": null}
 {"timestamp": "2026-09-17T13:38:21.567659+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 4423.3, "stop": 4435.038577338772, "target": null, "rr": null}
 {"timestamp": "2026-09-17T13:38:21.815158+00:00", "market": "", "tf": "", "setup": "APPROACH_SUPPORT", "direction": "WATCH_LONG", "entry": 76090.0, "stop": 75981.01886905935, "target": null, "rr": null}
+{"timestamp": "2026-09-17T17:07:44.498384+00:00", "market": "", "tf": "", "setup": "APPROACH_RESIST", "direction": "WATCH_SHORT", "entry": 77105.42, "stop": 77331.99364800578, "target": null, "rr": null}

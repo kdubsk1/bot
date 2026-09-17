@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-17T13:38:47.090419+00:00",
+  "generated_at": "2026-09-17T17:12:43.919618+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -337,6 +337,10 @@ const DATA = {
       {
         "time": "2026-09-16 22:40",
         "balance": 54641.31
+      },
+      {
+        "time": "2026-09-16 23:31",
+        "balance": 56305.14
       }
     ]
   },
@@ -754,10 +758,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 5,
+    "wins": 6,
     "losses": 8,
-    "wr": 38.5,
-    "total_trades": 13
+    "wr": 42.9,
+    "total_trades": 14
   },
   "today": {
     "wins": 0,
@@ -800,9 +804,64 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "NQ:VWAP_BOUNCE_BULL",
+      "fires": 1,
+      "wins": 1,
+      "losses": 0,
+      "wr": 100.0
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-17 17:07",
+      "market": "BTC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "76808.57",
+      "stop": "76264.7932",
+      "target": "78554.18",
+      "rr": "3.21",
+      "conv": "19",
+      "tier": "REJECT",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-09-17 17:07",
+      "market": "GC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "4h",
+      "dir": "SHORT",
+      "entry": "4405.1",
+      "stop": "4436.7591",
+      "target": "4329.2",
+      "rr": "2.4",
+      "conv": "36",
+      "tier": "REJECT",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-09-17 17:07",
+      "market": "GC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "4h",
+      "dir": "LONG",
+      "entry": "4405.1",
+      "stop": "4334.8273",
+      "target": "4558.5",
+      "rr": "2.18",
+      "conv": "56",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-16 23:31",
       "market": "NQ",
@@ -815,9 +874,9 @@ const DATA = {
       "rr": "2.03",
       "conv": "55",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "WIN",
+      "exit": "29753.0"
     },
     {
       "time": "2026-09-16 22:40",
@@ -1053,10 +1112,10 @@ const DATA = {
       "wr": 0.0
     },
     "NQ": {
-      "wins": 2,
+      "wins": 3,
       "losses": 1,
-      "total_pnl_r": 3.82,
-      "wr": 66.7
+      "total_pnl_r": 5.85,
+      "wr": 75.0
     },
     "GC": {
       "wins": 3,
@@ -1067,9 +1126,9 @@ const DATA = {
   },
   "by_tier": {
     "MEDIUM": {
-      "wins": 0,
+      "wins": 1,
       "losses": 5,
-      "wr": 0.0
+      "wr": 16.7
     },
     "HIGH": {
       "wins": 5,
@@ -1079,17 +1138,43 @@ const DATA = {
   },
   "open_trades": [
     {
-      "market": "NQ",
+      "market": "BTC",
       "setup": "VWAP_BOUNCE_BULL",
       "tf": "1h",
       "direction": "LONG",
-      "entry": "29402.5",
-      "target": "29753.0",
-      "stop": "29229.5334",
-      "conviction": 55,
-      "last_rescore_conviction": 55,
+      "entry": "76808.57",
+      "target": "78554.18",
+      "stop": "76264.7932",
+      "conviction": 19,
+      "last_rescore_conviction": 19,
+      "tier": "REJECT",
+      "timestamp": "2026-09-17T17:07:44.508786+00:00"
+    },
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "4h",
+      "direction": "SHORT",
+      "entry": "4405.1",
+      "target": "4329.2",
+      "stop": "4436.7591",
+      "conviction": 36,
+      "last_rescore_conviction": 36,
+      "tier": "REJECT",
+      "timestamp": "2026-09-17T17:07:44.325046+00:00"
+    },
+    {
+      "market": "GC",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "4h",
+      "direction": "LONG",
+      "entry": "4405.1",
+      "target": "4558.5",
+      "stop": "4334.8273",
+      "conviction": 56,
+      "last_rescore_conviction": 56,
       "tier": "MEDIUM",
-      "timestamp": "2026-09-16T23:31:31.371206+00:00"
+      "timestamp": "2026-09-17T17:07:44.321587+00:00"
     }
   ]
 };

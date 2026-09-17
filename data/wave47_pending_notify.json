@@ -3,9 +3,9 @@
     {
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BULL",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
     }
   ],
-  "ts": "2026-09-17T13:33:31.738359+00:00"
+  "ts": "2026-09-17T17:07:29.826138+00:00"
 }
