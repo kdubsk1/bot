@@ -163,6 +163,44 @@ def _w245_is_lab(setup_type):
         return False
 # ---- end _WAVE245_LAB_LANE ---------------------------------------
 
+# ---- _WAVE246_LAB_GRADE -------------------------------------------
+# Wave 246: LAB-grade everything. A setup that passes every market gate and fails only the conviction
+# floor becomes a ledger row in the LAB lane, graded by the real grader, never sent.
+try:
+    from rules import (LAB_GRADE_EVERYTHING as _R246_ON, LAB_TO_TELEGRAM as _R246_TG,
+                       LAB_MAX_PER_MARKET_PER_DAY as _R246_MAX, LAB_DUP_MIN as _R246_DUP_MIN)
+except Exception:
+    _R246_ON, _R246_TG, _R246_MAX, _R246_DUP_MIN = False, False, 40, 30
+
+_W246_LAST = {}          # (market, setup, direction) -> datetime UTC of the last LAB row
+_W246_COUNT = {}         # (market, UTC date) -> LAB rows written today
+
+
+def _w246_may_grade(market, setup_type, direction, now=None):
+    """The LAB lane's own duplicate discipline and daily cap. Separate memory from the real dup-guards,
+    so a LAB row can never block or unblock a real call. Returns (True, '') or (False, why)."""
+    try:
+        if not _R246_ON:
+            return False, "LAB_GRADE_EVERYTHING is off"
+        now = now or datetime.now(timezone.utc)
+        day_key = (market, now.date().isoformat())
+        if _W246_COUNT.get(day_key, 0) >= int(_R246_MAX):
+            return False, "daily LAB cap reached for %s (%s)" % (market, _R246_MAX)
+        last = _W246_LAST.get((market, setup_type, direction))
+        if last is not None and (now - last) < timedelta(minutes=float(_R246_DUP_MIN)):
+            return False, "same LAB cell within %s min" % _R246_DUP_MIN
+        return True, ""
+    except Exception as _e:
+        return False, "lab guard error: %s" % _e
+
+
+def _w246_mark(market, setup_type, direction, now=None):
+    now = now or datetime.now(timezone.utc)
+    _W246_LAST[(market, setup_type, direction)] = now
+    key = (market, now.date().isoformat())
+    _W246_COUNT[key] = _W246_COUNT.get(key, 0) + 1
+# ---- end _WAVE246_LAB_GRADE ---------------------------------------
+
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
 # level) or for its R:R, write one line saying which swing levels existed and
@@ -3522,6 +3560,38 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
             elif tier=="REJECT" or conv < _WAVE60_MIN_CONV:
+                # _WAVE246_LAB_GRADE: this setup passed every market gate and failed only the conviction
+                # floor. Write it to the ledger as a LAB row so the real grader scores it; never send it.
+                try:
+                    _w246_ok, _w246_why = _w246_may_grade(market, stp["type"], stp["direction"])
+                    if _w246_ok:
+                        _w246_id = ot.log_alert({
+                            "lane": "lab", "channel": "lab (not sent)",
+                            "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
+                            "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
+                            "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
+                            "tier": tier, "leverage": "", "suggested_hold": "", "rsi": round(rsi_v, 2),
+                            "atr": round(atr_v, 4), "adx": round(adx_v, 2), "htf_bias": htf_bias,
+                            "hour": datetime.now(timezone.utc).hour, "vol_ratio": round(vol_ratio, 2),
+                            "news_flag": int(news_flag),
+                        })
+                        _w246_mark(market, stp["type"], stp["direction"])
+                        sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                            cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                            trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                            "LAB_GRADED",
+                            f"LAB graded: conviction {conv} below {_WAVE60_MIN_CONV}; graded as evidence, not sent",
+                            context=snapshot_context,
+                            detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                            score_breakdown=bd_final)
+                        log.info(f"[{market}] [{entry_tf}] LAB-GRADED {stp['type']} {stp['direction']} conv {conv} -> {_w246_id}")
+                        if _R246_TG:
+                            await tg_send(app, "\U0001f9ea LAB graded (not a call): %s %s %s conv %s" % (
+                                market, stp["type"], stp["direction"], conv), kind="report")
+                    elif _w246_why and "cap reached" in _w246_why:
+                        log.warning(f"[{market}] LAB grading skipped: {_w246_why}")
+                except Exception as _w246e:
+                    log.warning(f"[{market}] LAB grading failed (non-fatal): {_w246e}")
                 decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
                 _conv_reason = (
                     f"Conviction {conv} below {_WAVE60_MIN_CONV} minimum (tier={tier}); gap: {_WAVE60_MIN_CONV - conv} points"
@@ -4678,7 +4748,7 @@ def _check_afterclose_shadows(market, frames):
 
 
 async def force_flatten_futures(app):
-    trades = ot.load_open_trades()
+    trades = ot.load_open_trades(include_lab=True)  # _WAVE246_LAB_GRADE: LAB rows are flattened and graded too
     # Wave 86: settle only trades opened BEFORE today's 16:10 ET cutoff -
     # evening-session entries carry to the NEXT day's 4:10. Enables safe
     # catch-up settles after restarts without touching new-session trades.
@@ -4724,7 +4794,9 @@ async def force_flatten_futures(app):
         else:
             result = "WIN" if pts > 0 else "LOSS"
         ot.update_result_flatten(row["alert_id"], result, cur, priced=_w240_priced)
-        ot.record_trade_result(market, row.get("setup",""), result)
+        # _WAVE246_LAB_GRADE: a LAB close is tagged lab in the honest counter, never real.
+        ot.record_trade_result(market, row.get("setup",""), result,
+                              source=("lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"))
         _shadow_log_settle(row, cur, result)  # Wave 86: keep watching in shadow
         # Batch 2A: Log outcome to strategy_log.csv
         try:
@@ -4733,6 +4805,11 @@ async def force_flatten_futures(app):
             pass
 
         icon = "✅" if result=="WIN" else ("\u2796" if result == "SCRATCH" else "❌")  # _WAVE240_FLATTEN_GRADING
+        # _WAVE246_LAB_GRADE: a LAB row is graded by the same flatten, but no card is ever sent for it.
+        _w246_is_lab_row = str(row.get("lane", "")).strip().lower() == "lab"
+        if _w246_is_lab_row and not _R246_TG:
+            log.info(f"[{market}] LAB row flattened and graded at {cur} (no card sent)")
+            continue
         # _WAVE231_CALLS_ONLY: the flatten exit is the same exit card, flagged as the 4:10 rule.
         _w231_card = _w231_exit_card(market, cfg, row, cur, result, reason="Closed by the 4:10 PM ET flatten")
         if _w239_public_ok(market):  # _WAVE239_CONVICTION_MIN

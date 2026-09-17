@@ -118,6 +118,9 @@ CSV_COLS = [
     # _WAVE233_LEDGER_COMPLETE: L2 fired-call fields, then L3 outcome fields. Appended only.
     "fired_at", "symbol", "session", "r_planned", "channel",
     "outcome", "r_result", "r_actual", "points_result", "mfe_r", "mae_r", "duration_sec", "resolved_at",
+    # _WAVE246_LAB_GRADE: which lane the row belongs to - "real" (a call that was sent) or "lab"
+    # (graded evidence that was never sent). Rows written before this wave have no value and are real.
+    "lane",
 ]
 
 # ------------------------------------------------------------------ #
@@ -948,13 +951,17 @@ def record_trade_result(market: str, setup_type: str, result: str,
             key = f"{market}:{setup_type}"
             if key not in perf:
                 perf[key] = {"wins": 0, "losses": 0, "total": 0}
-            perf[key]["total"] += 1
-            if result == "WIN":
+            # _WAVE246_LAB_GRADE: a LAB close is evidence from a call that was never sent. It gets its own
+            # lab_* bucket and is kept OUT of the blended wins/losses/total, which stay real + paper.
+            _w246_lab_src = str(source).strip().lower() == "lab"
+            if not _w246_lab_src:
+                perf[key]["total"] += 1
+            if result == "WIN" and not _w246_lab_src:
                 perf[key]["wins"] += 1
-            elif result == "LOSS":
+            elif result == "LOSS" and not _w246_lab_src:
                 perf[key]["losses"] += 1
             perf[key]["win_rate"] = round(perf[key]["wins"] / max(1, perf[key]["total"]) * 100, 1)
-            _src = "paper" if source == "paper" else "real"
+            _src = "lab" if _w246_lab_src else ("paper" if source == "paper" else "real")  # _WAVE246_LAB_GRADE
             _kw = _src + "_wins"
             _kl = _src + "_losses"
             _kt = _src + "_total"
@@ -2823,7 +2830,7 @@ def auto_check_outcomes(live_frames: dict):
     """
     import logging
     _log = logging.getLogger("nqcalls")
-    open_trades = load_open_trades()
+    open_trades = load_open_trades(include_lab=True)  # _WAVE246_LAB_GRADE: LAB rows are graded by the real grader
     # Wave 130 (_WAVE130_OUTCOME_CHECK_SCOPE): check only trades whose market
     # is present in the frames we were given. Call sites pass per-market
     # frames ({market: frames} from each scan), so iterating ALL open trades
@@ -3062,15 +3069,16 @@ def auto_check_outcomes(live_frames: dict):
                         _log_resolution_audit(alert_id, market, setup_type, direction, _union_res, _ft_res, entry, stop, target, ts_str)
             except Exception:
                 pass
+            _w246_src = "lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"  # _WAVE246_LAB_GRADE
             if hit_target:
                 update_result(alert_id, "WIN", 0, target)
-                record_trade_result(market, setup_type, "WIN")
+                record_trade_result(market, setup_type, "WIN", source=_w246_src)
                 closed_now.append({"alert_id": alert_id, "result": "WIN",
                                    "market": market, "price": target})
                 _log_trade_outcome(row, "WIN", target)
             elif hit_stop:
                 update_result(alert_id, "LOSS", 0, stop)
-                record_trade_result(market, setup_type, "LOSS")
+                record_trade_result(market, setup_type, "LOSS", source=_w246_src)
                 closed_now.append({"alert_id": alert_id, "result": "LOSS",
                                    "market": market, "price": stop})
                 _log_trade_outcome(row, "LOSS", stop)
@@ -3356,6 +3364,7 @@ def log_alert(row: dict) -> str:
     row.setdefault("bars_to_resolution", "")
     row.setdefault("exit_price", "")
     row.setdefault("last_rescore_conviction", row.get("conviction",""))
+    row["lane"] = "lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"  # _WAVE246_LAB_GRADE
     # Session ID — always compute fresh, never rely on caller passing it in
     try:
         from session_clock import get_session_date
@@ -3669,8 +3678,14 @@ def update_partial_exit(alert_id: str):
         return rows
     _safe_mutate_csv(_mut)
 
-def load_open_trades() -> list[dict]:
-    return [r for r in _read_all() if r.get("status") == "OPEN"]
+def load_open_trades(include_lab: bool = False) -> list[dict]:
+    """_WAVE246_LAB_GRADE: LAB rows are graded evidence, never positions. They are invisible here by
+    default, so the one-position guard, the rescore watcher, /status and every caller written before
+    this wave behave exactly as they did. The grader and the 4:10 flatten pass include_lab=True."""
+    rows = [r for r in _read_all() if r.get("status") == "OPEN"]
+    if include_lab:
+        return rows
+    return [r for r in rows if str(r.get("lane", "")).strip().lower() != "lab"]
 
 
 # ------------------------------------------------------------------ #

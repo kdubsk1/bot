@@ -157,6 +157,24 @@ CONVICTION_TABLE = {
     "SOL:VWAP_REJECT_BEAR":           38,   # 24-40, n=64
 }
 
+# _WAVE246_LAB_GRADE: LAB-grade everything. A setup that passes every market gate and fails ONLY the
+# conviction floor is written to the ledger as a LAB row and graded by the real grader - real entry,
+# real stop, real target, the 4:10 flatten at the actual price, r_actual, MFE/MAE, duration. It is
+# never sent to Telegram. Without this, Wave 244 leaves six setups producing evidence and the rest
+# producing none, so nothing else could ever earn its way back.
+LAB_GRADE_EVERYTHING = True
+
+# Ships False and should stay False: a LAB row is evidence, not a call.
+LAB_TO_TELEGRAM = False
+
+# Safety cap. On 16 Sep the live scan log holds 867 conviction rejections in one day, 592 of them one
+# GC setup re-detected every scan. Hitting the cap is logged loudly, never silent.
+LAB_MAX_PER_MARKET_PER_DAY = 40
+
+# One LAB row per market:setup:direction per this many minutes - the same duplicate discipline a real
+# call gets, in its own memory, so it can never affect a real call's guard.
+LAB_DUP_MIN = 30
+
 # A market listed here never sends a call (the scan still logs it, REJECTED).
 CALLS_OFF_MARKETS = ("SOL",)
 
