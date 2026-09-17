@@ -1158,6 +1158,25 @@ def trend_score(tf_frames: dict, market: str) -> tuple[int, dict]:
 # ------------------------------------------------------------------ #
 # Setup Detection
 # ------------------------------------------------------------------ #
+# ---- _WAVE245_LAB_LANE -------------------------------------------
+def _w245_vol_ratio(df_entry) -> float:
+    """Wave 245: the last bar's volume over its 20-bar average - the same number scan_market computes.
+    Three setups here used `'vol_ratio' in dir()`, which is always False inside this function, so their
+    volume checks silently used a constant. Returns 0.0 when volume is missing or unusable; never raises."""
+    try:
+        v = df_entry["Volume"]
+        if len(v) < 20:
+            return 0.0
+        mean20 = float(v.rolling(20).mean().iloc[-1])
+        last = float(v.iloc[-1])
+        if not (mean20 > 0) or not np.isfinite(last) or not np.isfinite(mean20):
+            return 0.0
+        return float(last / mean20)
+    except Exception:
+        return 0.0
+# ---- end _WAVE245_LAB_LANE ---------------------------------------
+
+
 def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                   htf_bias: str) -> list[dict]:
     """
@@ -1446,7 +1465,7 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                             is_narrowest = False
                             break
 
-                    vol_ok = vol_ratio >= 1.5 if 'vol_ratio' in dir() else True
+                    vol_ok = _w245_vol_ratio(df_entry) >= 1.5  # _WAVE245_LAB_LANE: was always True (the dir() trap)
 
                     if is_narrowest and vol_ok:
                         if close > range7_high:
@@ -1613,7 +1632,7 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                     if float(df_entry.iloc[-bi]["Close"]) < float(vwap_series.iloc[-bi]):
                         below_count += 1
                 if below_count >= 3 and close > vwap_v:
-                    vol_check = vol_ratio if 'vol_ratio' in dir() else 0
+                    vol_check = _w245_vol_ratio(df_entry)  # _WAVE245_LAB_LANE: was always 0 (the dir() trap)
                     if vol_check >= 1.2 and 45 <= rsi_v <= 65:
                         # Check 1h trend is not strongly bearish
                         if htf_bias != "LH_LL":
@@ -1658,7 +1677,7 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
                         is_pin_bull = (lower_wick > body_size * 2 and upper_wick < body_size)
                         is_pin_bear = (upper_wick > body_size * 2 and lower_wick < body_size)
 
-                        vol_ok = vol_ratio >= 1.1 if 'vol_ratio' in dir() else False
+                        vol_ok = _w245_vol_ratio(df_entry) >= 1.1  # _WAVE245_LAB_LANE: was always False (the dir() trap)
                         if level_type == "support" and (is_bull_engulf or is_pin_bull) and vol_ok:
                             stop_htf = level - atr_v * 0.4
                             setups.append({
@@ -3450,7 +3469,8 @@ def _w233_fired_fields(row):
             from rules import PUBLIC_CALLS as _w233_pub
         except Exception:
             _w233_pub = False
-        out["channel"] = "control+public" if _w233_pub else "control"
+        # _WAVE245_LAB_LANE: a LAB call sets its own channel before log_alert; never overwrite it.
+        out["channel"] = str(row.get("channel") or ("control+public" if _w233_pub else "control"))
     except Exception:
         for k in ("fired_at", "symbol", "session", "r_planned", "channel"):
             out.setdefault(k, "UNKNOWN")

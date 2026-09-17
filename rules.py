@@ -160,6 +160,22 @@ CONVICTION_TABLE = {
 # A market listed here never sends a call (the scan still logs it, REJECTED).
 CALLS_OFF_MARKETS = ("SOL",)
 
+# _WAVE245_LAB_LANE: the LAB lane (WORKBOOK Part 2 E1). A setup here fires to the CONTROL channel only,
+# is logged and graded like any other call, and is re-tested weekly. It never reaches the public
+# channel, whatever PUBLIC_CALLS says. Nothing enters or leaves this list except by a wave.
+#
+# These three were broken since Wave 60 by `'vol_ratio' in dir()` inside detect_setups, which is always
+# False there: VWAP_RECLAIM and HTF_LEVEL_BOUNCE could never fire, and VOLATILITY_CONTRACTION_BREAKOUT
+# skipped its volume check entirely. Wave 245 fixes the check and gives all three a lane to earn a
+# record in. Real calls from them so far: zero (Wayne, Q11, 16 Sep 2026).
+LAB_SETUPS = ("VWAP_RECLAIM", "HTF_LEVEL_BOUNCE", "VOLATILITY_CONTRACTION_BREAKOUT")
+
+# A LAB setup has no track record, so Wave 244's table scores it 45 and the conviction floor would keep
+# it at zero calls for ever - it could never earn the record that gets it out of LAB. Inside the lane the
+# conviction floor is skipped. EVERY other gate still applies: session windows, the R:R floor and cap,
+# volume, ADX, news, the dup-guards and one open call per market.
+LAB_BYPASSES_CONVICTION = True
+
 # Calls AND exit cards for these markets go to the CONTROL channel only, even
 # when PUBLIC_CALLS is True. The control channel always gets everything.
 CONTROL_ONLY_MARKETS = ("BTC",)

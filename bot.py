@@ -145,6 +145,24 @@ def _w239_public_ok(market):
         return False
 # ---- end _WAVE239_CONVICTION_MIN ---------------------------------------
 
+# ---- _WAVE245_LAB_LANE -------------------------------------------
+# Wave 245: the LAB lane. rules.LAB_SETUPS fire to the control channel only and skip the conviction
+# floor (they have no record yet); every other gate still applies. Defensive: a rules.py without the
+# names behaves exactly as before this wave - an empty lane.
+try:
+    from rules import LAB_SETUPS as _R245_LAB, LAB_BYPASSES_CONVICTION as _R245_LAB_BYPASS
+except Exception:
+    _R245_LAB, _R245_LAB_BYPASS = (), False
+
+
+def _w245_is_lab(setup_type):
+    """True when this setup is in the LAB lane (control channel only, conviction floor skipped)."""
+    try:
+        return str(setup_type) in _R245_LAB
+    except Exception:
+        return False
+# ---- end _WAVE245_LAB_LANE ---------------------------------------
+
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
 # level) or for its R:R, write one line saying which swing levels existed and
@@ -3491,7 +3509,19 @@ async def scan_market(app, market, frames):
             else:          tier="REJECT"
             if tier == "LOW":
                 _w143_mark_via(stp, "conv_min", market, conv, 50)
-            if tier=="REJECT" or conv < _WAVE60_MIN_CONV:
+            _w245_lab = _w245_is_lab(stp["type"]) and bool(_R245_LAB_BYPASS)  # _WAVE245_LAB_LANE
+            if _w245_lab and (tier == "REJECT" or conv < _WAVE60_MIN_CONV):
+                # LAB lane: no record yet, so the conviction floor cannot be the gate. Logged as a LAB
+                # candidate; every other gate below still has to pass.
+                sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                    cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                    trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                    sl.DECISION_ALMOST,
+                    f"LAB lane: {stp['type']} conviction {conv} below {_WAVE60_MIN_CONV}, fired to control only to earn a record",
+                    context=snapshot_context,
+                    detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                    score_breakdown=bd_final)
+            elif tier=="REJECT" or conv < _WAVE60_MIN_CONV:
                 decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
                 _conv_reason = (
                     f"Conviction {conv} below {_WAVE60_MIN_CONV} minimum (tier={tier}); gap: {_WAVE60_MIN_CONV - conv} points"
@@ -3637,6 +3667,8 @@ async def scan_market(app, market, frames):
 
             _w7_for_log = w7_breakdown if "w7_breakdown" in dir() else {}
             alert_id = ot.log_alert({
+                # _WAVE245_LAB_LANE: a LAB call records its lane in the ledger's channel column.
+                "channel": "control (LAB)" if _w245_is_lab(stp["type"]) else None,
                 "market":market, "tf":entry_tf, "setup":stp["type"], "direction":stp["direction"],
                 "entry":round(stp["entry"],4), "stop":round(stp["raw_stop"],4), "target":round(tgt,4),
                 "rr":round(rr,2), "method":method, "trend_score":trend, "conviction":conv, "tier":tier,
@@ -3774,6 +3806,9 @@ async def scan_market(app, market, frames):
             if stp.get("_w89_partner"):
                 _w90_badge = "\U0001f393 Probation fire \u2014 partner: " + str(stp["_w89_partner"]).replace("_", " ")
                 footer = (footer + "\n" + _w90_badge) if footer else _w90_badge
+            _w245_badge = "\U0001f9ea LAB \u2014 control only, earning a record" if _w245_is_lab(stp["type"]) else ""  # _WAVE245_LAB_LANE
+            if _w245_badge:
+                footer = (footer + "\n" + _w245_badge) if footer else _w245_badge
             _w179_full = format_alert(market, entry_tf, stp, conv, tier, trend,
                                              tgt, rr, method, adx_v, rsi_v, lev, risk_pct, hold,
                                              extra_footer=footer, alert_id=alert_id)
@@ -3788,7 +3823,7 @@ async def scan_market(app, market, frames):
                 _w179_full = str(_w179_full) + "\nCall ID `%s`" % _w232_cid
                 if _w179_pub:
                     _w179_pub = str(_w179_pub) + "\nCall ID `%s`" % _w232_cid
-            if _w239_public_ok(market):  # _WAVE225_RULEBOOK: False = control channel only; _WAVE239_CONVICTION_MIN: BTC control-only
+            if _w239_public_ok(market) and not _w245_is_lab(stp["type"]):  # _WAVE225_RULEBOOK / _WAVE239_CONVICTION_MIN; _WAVE245_LAB_LANE: LAB never goes public
                 await tg_send_pub(app, _w179_pub or _w179_full, kind="call")  # _WAVE231_CALLS_ONLY
             await tg_send(app, _w179_full, kind="call")  # _WAVE231_CALLS_ONLY: control ALWAYS gets every call
             log.info(
