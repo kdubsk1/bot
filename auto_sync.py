@@ -482,6 +482,71 @@ async def periodic_sync_loop(telegram_send: Optional[Callable] = None):
         await asyncio.sleep(SYNC_INTERVAL_SECONDS)
 
 
+# ---- _WAVE243_HEARTBEAT -------------------------------------------
+# Wave 243: the 6-hourly sync is too coarse to tell whether the scanner is alive right now, so the
+# heartbeat file gets its own small push: ONE file, ONE commit, through the contents API - no tree
+# walk, no dashboard rebuild. Unchanged content is not pushed. Data-only commits on main, exactly
+# like the 6-hourly ones (Railway records them as SKIPPED). Change W243_PUSH_SECONDS to trade commit
+# noise against how stale the outside view may be.
+W243_HEARTBEAT_PATH = "data/heartbeat.json"
+W243_PUSH_SECONDS = 900
+_w243_last_push_sha = [""]
+
+
+def _w243_push_heartbeat_sync() -> dict:
+    """Push data/heartbeat.json on its own. Returns {ok, message, changed}. Never raises."""
+    try:
+        if not GITHUB_TOKEN:
+            return {"ok": False, "message": "GITHUB_TOKEN not set", "changed": False}
+        fp = BASE_DIR / W243_HEARTBEAT_PATH
+        if not fp.exists():
+            return {"ok": False, "message": "no heartbeat file yet", "changed": False}
+        content = fp.read_bytes()
+        local_sha = _git_blob_sha(content)
+        if local_sha == _w243_last_push_sha[0]:
+            return {"ok": True, "message": "unchanged", "changed": False}
+        s, r = _api_request("GET", "/contents/%s?ref=%s" % (W243_HEARTBEAT_PATH, BRANCH))
+        remote_sha = r.get("sha") if (s == 200 and isinstance(r, dict)) else None
+        if remote_sha == local_sha:
+            _w243_last_push_sha[0] = local_sha
+            return {"ok": True, "message": "unchanged on GitHub", "changed": False}
+        body = {
+            "message": "Heartbeat: %s" % datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            "content": base64.b64encode(content).decode("ascii"),
+            "branch": BRANCH,
+            "committer": {"name": COMMITTER_NAME, "email": COMMITTER_EMAIL},
+        }
+        if remote_sha:
+            body["sha"] = remote_sha
+        s, r = _api_request("PUT", "/contents/%s" % W243_HEARTBEAT_PATH, body)
+        if s in (200, 201):
+            _w243_last_push_sha[0] = local_sha
+            return {"ok": True, "message": "pushed", "changed": True}
+        # 409 = the ref moved (the 6-hourly sync committed first). Next cycle picks it up.
+        return {"ok": False, "message": "heartbeat push HTTP %s" % s, "changed": False}
+    except Exception as e:
+        return {"ok": False, "message": "exception: %s" % _redact(str(e)), "changed": False}
+
+
+async def heartbeat_push_loop():
+    """Wave 243: push the heartbeat file every W243_PUSH_SECONDS. Log only - never Telegram,
+    never an exception out of the loop."""
+    loop = asyncio.get_event_loop()
+    while True:
+        try:
+            await asyncio.sleep(W243_PUSH_SECONDS)
+            res = await loop.run_in_executor(None, _w243_push_heartbeat_sync)
+            if res.get("changed"):
+                log.info("auto_sync: heartbeat pushed")
+            elif not res.get("ok"):
+                log.warning("auto_sync: heartbeat push: %s", res.get("message"))
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            log.warning("auto_sync: heartbeat loop iteration: %s", _redact(str(e)))
+# ---- end _WAVE243_HEARTBEAT ---------------------------------------
+
+
 def status() -> str:
     """Human-readable auto-sync status string for startup banner / /status."""
     if not GITHUB_TOKEN:

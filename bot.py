@@ -4194,6 +4194,40 @@ def _w236_daily_rotate_watch_alerts(now=None):
 # ---- end _WAVE236_DATA_HYGIENE ---------------------------------------
 
 
+# ---- _WAVE243_HEARTBEAT -------------------------------------------
+W243_HEARTBEAT_FILE = "heartbeat.json"
+_W243_CYCLE = [0]
+_W243_STARTED = datetime.now(timezone.utc).isoformat()
+
+
+def _w243_write_heartbeat():
+    """Wave 243: one small file that says the scanner is alive, written every scan cycle.
+    A process cannot witness its own death, so this exists to be read from OUTSIDE (the journal,
+    or a chat session). Never raises - the scan loop matters more than the heartbeat."""
+    try:
+        _W243_CYCLE[0] += 1
+        try:
+            _ls = getattr(auto_sync, "_last_sync_time", None)
+            _last_sync = _ls.isoformat() if _ls else None
+        except Exception:
+            _last_sync = None
+        safe_io.atomic_write_json(os.path.join(BASE_DIR, "data", W243_HEARTBEAT_FILE), {
+            "utc": datetime.now(timezone.utc).isoformat(),
+            "cycle": _W243_CYCLE[0],
+            "last_sync": _last_sync,
+            "started_utc": _W243_STARTED,
+            "scanner_on": bool(SETTINGS.get("scanner_on", True)),
+            "markets": [m for m in ALL_MARKETS if SETTINGS["markets"].get(m)],
+            "interval_min": SETTINGS.get("scan_interval_min"),
+        }, indent=1)
+    except Exception as _w243e:
+        try:
+            log.warning("Wave 243: heartbeat write skipped: %s" % _w243e)
+        except Exception:
+            pass
+# ---- end _WAVE243_HEARTBEAT ---------------------------------------
+
+
 def _rotate_data_logs():
     for _name, _mb in _ROTATE_DATA_LOGS:
         try:
@@ -5387,6 +5421,7 @@ async def scan_loop(app):
             _rotate_strategy_log()  # Wave 93: keep the live log under the sync cap
             _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
             _w236_daily_rotate_watch_alerts()  # _WAVE236_DATA_HYGIENE: daily, keep 30
+            _w243_write_heartbeat()  # _WAVE243_HEARTBEAT: alive, every cycle
             await _check_state_file_sizes(app)  # Wave 121: warn if a state file bloats
             # Wave 120 (_WAVE120_DROP_ALERT): surface any dropped write immediately
             # instead of losing data silently. get_dropped_writes()/reset come from
@@ -8336,6 +8371,12 @@ async def _post_init(app):
             log.warning(f"auto_sync telegram notify failed: {e}")
     asyncio.create_task(auto_sync.periodic_sync_loop(telegram_send=_auto_sync_notify))
     log.info(f"Auto-sync loop launched. {auto_sync.status()}")
+    # _WAVE243_HEARTBEAT: write one heartbeat now (so the file exists from startup) and push it
+    # to GitHub every 15 minutes, so liveness can be judged from outside this process.
+    _w243_write_heartbeat()
+    if hasattr(auto_sync, "heartbeat_push_loop"):
+        asyncio.create_task(auto_sync.heartbeat_push_loop())
+        log.info("Wave 243: heartbeat push loop launched (every %ds)" % getattr(auto_sync, "W243_PUSH_SECONDS", 900))
 
 async def cmd_sync(u, c):
     """Manual /sync trigger — pushes data/ + outcomes.csv to GitHub immediately."""
