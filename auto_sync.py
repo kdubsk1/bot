@@ -159,6 +159,8 @@ def _git_blob_sha(content_bytes: bytes) -> str:
 W241_SKIP_SUFFIXES = (".bak", ".lock")
 W241_SKIP_NAMES = ("sim_account.json",)
 W241_SKIP_DIR_PREFIXES = ("_backup_pre_pull_",)
+# _WAVE247_LOG_ROTATION: a 2.36 MB one-off import sitting in data/, not bot data. Re-hashed on every sync.
+W247_SKIP_FILE_PREFIXES = ("trench-radar-",)
 
 
 def _w241_skip(path: Path) -> bool:
@@ -167,6 +169,8 @@ def _w241_skip(path: Path) -> bool:
     try:
         name = path.name
         if name.endswith(W241_SKIP_SUFFIXES) or name in W241_SKIP_NAMES:
+            return True
+        if name.startswith(W247_SKIP_FILE_PREFIXES):  # _WAVE247_LOG_ROTATION
             return True
         return any(part.startswith(W241_SKIP_DIR_PREFIXES) for part in path.parts[:-1])
     except Exception:

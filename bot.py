@@ -4298,6 +4298,190 @@ def _w236_daily_rotate_watch_alerts(now=None):
         return None
 # ---- end _WAVE236_DATA_HYGIENE ---------------------------------------
 
+# ---- _WAVE247_LOG_ROTATION -------------------------------------------
+# Wave 247: every append-only diagnostic rotates daily, and any data file that approaches auto_sync's
+# 25 MB skip is announced BEFORE it crosses. tight_stop_suppressed.jsonl was 18.31 MB with 52 days in it
+# when this was written; Wave 236 had only ever rotated watch_alerts_suppressed.jsonl.
+# Nothing is deleted: the daily files live in data/archive/logs/, which auto_sync pushes to GitHub.
+W247_DIAG_LOGS = (
+    "tight_stop_suppressed.jsonl",
+    "bench_shadow.jsonl",
+    "intermarket_tape.jsonl",
+    "scan_stacks.jsonl",
+    "phantom_events.jsonl",
+    "parole_ledger.jsonl",
+    "target_candidates.jsonl",
+    "decision_journal.jsonl",
+)
+W247_TS_KEYS = ("timestamp", "ts", "utc", "time")
+W247_ALERT_MB = 20        # below auto_sync's 25 MB skip, so the warning comes with time to spare
+_W247_LAST_AUDIT = [""]   # UTC date of the last size audit
+
+
+def _w247_day_of(line):
+    """The UTC date of one .jsonl line, or None when it has no readable timestamp. Never raises."""
+    import json as _j
+    try:
+        row = _j.loads(line)
+        if not isinstance(row, dict):
+            return None
+        for k in W247_TS_KEYS:
+            v = row.get(k)
+            if v:
+                ts = datetime.fromisoformat(str(v))
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+                return ts.astimezone(timezone.utc).date()
+    except Exception:
+        return None
+    return None
+
+
+def _w247_drain(tmp, live, adir, stem, today):
+    """Stream a rotated-out file: each line is appended to data/archive/logs/<stem>_<its day>.jsonl,
+    except today's lines, which go back into the live file. A line with no readable timestamp follows
+    the line before it, so nothing is ever dropped. Returns {day or 'live': lines written}."""
+    handles, counts, last = {}, {}, None
+    try:
+        os.makedirs(adir, exist_ok=True)
+        with open(tmp, encoding="utf-8", errors="replace") as src, open(live, "a", encoding="utf-8") as back:
+            for line in src:
+                if not line.strip():
+                    continue
+                if not line.endswith("\n"):
+                    line += "\n"
+                day = _w247_day_of(line) or last
+                if day is None or day >= today:
+                    back.write(line)
+                    counts["live"] = counts.get("live", 0) + 1
+                    continue
+                last = day
+                key = day.isoformat()
+                fh = handles.get(key)
+                if fh is None:
+                    fh = handles[key] = open(os.path.join(adir, "%s_%s.jsonl" % (stem, key)), "a", encoding="utf-8")
+                fh.write(line)
+                counts[key] = counts.get(key, 0) + 1
+    finally:
+        for fh in handles.values():
+            try:
+                fh.close()
+            except Exception:
+                pass
+    return counts
+
+
+def _w247_rotate_one(name, now=None):
+    """Daily rotation for one append-only .jsonl diagnostic. Cheap when there is nothing to do (a
+    getsize and one readline). Never raises. Returns {day: lines archived}."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        today = now.astimezone(timezone.utc).date()
+        stem = name[:-6] if name.endswith(".jsonl") else name
+        live = os.path.join(BASE_DIR, "data", name)
+        adir = os.path.join(BASE_DIR, "data", "archive", "logs")
+        tmp = live + ".w247"
+        counts = {}
+        if os.path.exists(tmp):
+            # a previous pass was interrupted (restart, redeploy, power cut). Every line is still in tmp.
+            log.warning("Wave 247: found an interrupted rotation of %s - finishing it before anything else" % name)
+            if not os.path.exists(live):
+                open(live, "a", encoding="utf-8").close()
+            counts = _w247_drain(tmp, live, adir, stem, today)
+            os.remove(tmp)
+        if not os.path.exists(live) or os.path.getsize(live) == 0:
+            return counts
+        with open(live, encoding="utf-8", errors="replace") as fh:
+            first = fh.readline()
+        day = _w247_day_of(first)
+        if day is None:
+            log.warning("Wave 247: %s has no readable timestamp on its first line - left alone" % name)
+            return counts
+        if day >= today:
+            return counts                       # nothing older than today: the normal every-cycle path
+        os.replace(live, tmp)                   # atomic: from here the lines are in tmp, never lost
+        open(live, "a", encoding="utf-8").close()
+        for k, v in _w247_drain(tmp, live, adir, stem, today).items():
+            counts[k] = counts.get(k, 0) + v
+        os.remove(tmp)
+        log.info("Wave 247: rotated %s into archive/logs (%s)"
+                 % (name, ", ".join("%s:%d" % (k, counts[k]) for k in sorted(counts))))
+        return counts
+    except Exception as _w247e:
+        try:
+            log.warning("Wave 247: daily rotate of %s skipped: %s" % (name, _w247e))
+        except Exception:
+            pass
+        return {}
+
+
+def _w247_rotate_diag_logs(now=None):
+    """Rotate every append-only diagnostic. Returns {log name: {day: lines}} for whatever moved."""
+    out = {}
+    for _name in W247_DIAG_LOGS:
+        got = _w247_rotate_one(_name, now=now)
+        if got:
+            out[_name] = got
+    return out
+
+
+def _w247_big_files(limit_mb=None):
+    """Every file under data/ at or over the limit, biggest first: [(path below the bot folder, MB)].
+    Never raises."""
+    limit = (W247_ALERT_MB if limit_mb is None else limit_mb) * 1024 * 1024
+    found = []
+    try:
+        root = os.path.join(BASE_DIR, "data")
+        for dirpath, _dirs, names in os.walk(root):
+            for n in names:
+                p = os.path.join(dirpath, n)
+                try:
+                    sz = os.path.getsize(p)
+                except OSError:
+                    continue
+                if sz >= limit:
+                    found.append((os.path.relpath(p, BASE_DIR).replace("\\", "/"), sz / 1048576.0))
+    except Exception as _w247we:
+        try:
+            log.warning("Wave 247: size audit walk failed: %s" % _w247we)
+        except Exception:
+            pass
+    return sorted(found, key=lambda x: -x[1])
+
+
+async def _w247_size_audit(app, now=None, force=False):
+    """Announce any data file getting close to auto_sync's 25 MB skip: at boot, then once per UTC day.
+    HEALTH, not a call - a file that stops syncing is data loss in waiting. Never raises."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        today = now.astimezone(timezone.utc).date().isoformat()
+        if not force and _W247_LAST_AUDIT[0] == today:
+            return []
+        _W247_LAST_AUDIT[0] = today
+        big = _w247_big_files()
+        if not big:
+            log.info("Wave 247: size audit clean (nothing in data/ at or over %d MB)" % W247_ALERT_MB)
+            return []
+        for rel, mb in big:
+            log.error("Wave 247 SIZE AUDIT: %s is %.1f MB - auto_sync stops backing it up at 25 MB" % (rel, mb))
+        lines = ["DATA ALERT: file(s) approaching the sync limit.",
+                 "auto_sync stops backing up anything over 25 MB.", ""]
+        for rel, mb in big[:10]:
+            lines.append("%s  %.1f MB" % (rel, mb))
+        if len(big) > 10:
+            lines.append("...and %d more" % (len(big) - 10))
+        lines.append("")
+        lines.append("Diagnostics rotate daily into data/archive/logs. Anything here needs a look.")
+        await tg_send(app, "\n".join(lines), kind="health")
+        return big
+    except Exception as _w247ae:
+        try:
+            log.warning("Wave 247: size audit skipped: %s" % _w247ae)
+        except Exception:
+            pass
+        return []
+# ---- end _WAVE247_LOG_ROTATION ---------------------------------------
+
 
 # ---- _WAVE243_HEARTBEAT -------------------------------------------
 W243_HEARTBEAT_FILE = "heartbeat.json"
@@ -5534,6 +5718,8 @@ async def scan_loop(app):
             _rotate_data_logs()  # Wave 105: keep other append-only logs under the cap
             _w236_daily_rotate_watch_alerts()  # _WAVE236_DATA_HYGIENE: daily, keep 30
             _w243_write_heartbeat()  # _WAVE243_HEARTBEAT: alive, every cycle
+            _w247_rotate_diag_logs()  # _WAVE247_LOG_ROTATION: every diagnostic rotates daily
+            await _w247_size_audit(app)  # _WAVE247_LOG_ROTATION: once a day, before the 25 MB skip bites
             await _check_state_file_sizes(app)  # Wave 121: warn if a state file bloats
             # Wave 120 (_WAVE120_DROP_ALERT): surface any dropped write immediately
             # instead of losing data silently. get_dropped_writes()/reset come from
@@ -8486,6 +8672,8 @@ async def _post_init(app):
     # _WAVE243_HEARTBEAT: write one heartbeat now (so the file exists from startup) and push it
     # to GitHub every 15 minutes, so liveness can be judged from outside this process.
     _w243_write_heartbeat()
+    _w247_rotate_diag_logs()  # _WAVE247_LOG_ROTATION: clear any backlog (and finish an interrupted pass) at boot
+    await _w247_size_audit(app, force=True)  # _WAVE247_LOG_ROTATION: one audit at boot, before anything grows further
     if hasattr(auto_sync, "heartbeat_push_loop"):
         asyncio.create_task(auto_sync.heartbeat_push_loop())
         log.info("Wave 243: heartbeat push loop launched (every %ds)" % getattr(auto_sync, "W243_PUSH_SECONDS", 900))
