@@ -331,9 +331,9 @@
   },
   "VWAP_REJECT_BEAR|||ALL": {
     "wins": 0,
-    "losses": 8,
+    "losses": 9,
     "total_win_r": 0.0,
-    "total_loss_r": 8.0
+    "total_loss_r": 9.0
   },
   "MACD_CROSS_BEAR|||UNKNOWN": {
     "wins": 0,
@@ -343,15 +343,15 @@
   },
   "MACD_CROSS_BEAR|||ALL": {
     "wins": 5,
-    "losses": 6,
+    "losses": 7,
     "total_win_r": 11.342232588247885,
-    "total_loss_r": 6.0
+    "total_loss_r": 7.0
   },
   "MACD_CROSS_BEAR|||MIXED": {
     "wins": 1,
-    "losses": 4,
+    "losses": 5,
     "total_win_r": 2.7273505562734863,
-    "total_loss_r": 4.0
+    "total_loss_r": 5.0
   },
   "EMA21_PULLBACK_BEAR|||UNKNOWN": {
     "wins": 0,
@@ -445,9 +445,9 @@
   },
   "VWAP_REJECT_BEAR|||MIXED": {
     "wins": 0,
-    "losses": 2,
+    "losses": 3,
     "total_win_r": 0.0,
-    "total_loss_r": 2.0
+    "total_loss_r": 3.0
   },
   "VWAP_REJECT_BEAR|||HH_HL": {
     "wins": 0,
@@ -463,9 +463,9 @@
   },
   "OPENING_RANGE_BREAKOUT|||ALL": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "total_win_r": 0.0,
-    "total_loss_r": 3.0
+    "total_loss_r": 4.0
   },
   "OPENING_RANGE_BREAKOUT|||LH_LL": {
     "wins": 0,
@@ -480,6 +480,12 @@
     "total_loss_r": 1.0
   },
   "OPENING_RANGE_BREAKOUT|||MIXED": {
+    "wins": 0,
+    "losses": 1,
+    "total_win_r": 0.0,
+    "total_loss_r": 1.0
+  },
+  "OPENING_RANGE_BREAKOUT|||HH_HL": {
     "wins": 0,
     "losses": 1,
     "total_win_r": 0.0,
