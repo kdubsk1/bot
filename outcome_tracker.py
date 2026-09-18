@@ -2304,8 +2304,16 @@ def structure_target(df: pd.DataFrame, direction: str,
         return 0.0, 0.0, "no_target"
 
     # NQ strong trend override — lower RR minimum when trend is very strong
+    # _WAVE248_FLOOR_AWARE_TARGET: it can no longer drop the screen BELOW the floor the caller passed. Today it
+    # drops to 1.2R and every level it lets through is rejected by the scanner's own floor seconds
+    # later, so no call changes - it just stops the picker spending its pick on a level that cannot
+    # fire. With no floor passed (the old default 1.5) the override behaves exactly as it always did.
+    _W248_PICKER_DEFAULT = 1.5       # this function's own default: it means no floor was passed
+    _w248_caller_floor = float(min_rr)
     if market == "NQ" and abs(trend_score_val) >= 7:
         min_rr = min(min_rr, 1.2)
+        if _w248_caller_floor > _W248_PICKER_DEFAULT:
+            min_rr = _w248_caller_floor   # a rulebook floor was passed: the override cannot duck it
 
     # Apr 30: dynamic upper bound. Old MAX_RR=4.0 was too tight; sweet spot is 2-3R
     # but we should accept up to 5R when no closer level exists.

@@ -287,6 +287,56 @@ def _w229_log(where, market, tf, stp, method, picked_rr, floor, trend, news_flag
     except Exception:
         pass
 # ---- end _WAVE229_TARGET_CANDIDATES ---------------------------
+
+# ---- _WAVE248_FLOOR_AWARE_TARGET -----------------------------------
+# Wave 248, log-only half: an R:R floor and cap are RATIOS, so they cannot see absolute distance. A
+# 70-point stop with a 153-point target on Gold is 2.18R and passes every rule - and in 42 recorded
+# sessions that 153-point move was delivered before the 4:10 flatten exactly 0 times. This records the
+# ones that ask for more than a whole median day. It blocks nothing: 24 of 343 real calls would trip it,
+# and the measurement behind that is n=24 with a confidence interval through zero.
+try:
+    from rules import (DAILY_RANGE_POINTS as _R248_DAY, TARGET_MAX_DAY_SHARE as _R248_SHARE,
+                       TARGET_DISTANCE_LOG_ONLY as _R248_LOG_ONLY)
+except Exception:
+    _R248_DAY, _R248_SHARE, _R248_LOG_ONLY = {}, 1.0, True
+
+
+def _w248_flag_distance(market, tf, stp, tgt, rr, atr_v):
+    """LOG ONLY. Returns True when this target asks for more than a median day. Never raises, never
+    blocks - the caller ignores the result on purpose until the live count earns a decision."""
+    try:
+        day = _R248_DAY.get(market)
+        if not day:
+            return False
+        dist = abs(float(tgt) - float(stp.get("entry")))
+        share = dist / float(day)
+        if share <= float(_R248_SHARE):
+            return False
+        rec = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "where": "w248_distance", "market": market, "tf": tf,
+            "setup": stp.get("type"), "direction": stp.get("direction"),
+            "entry": round(float(stp.get("entry")), 4), "stop": round(float(stp.get("raw_stop")), 4),
+            "target": round(float(tgt), 4), "rr": round(float(rr or 0), 3),
+            "target_points": round(dist, 4), "median_day_points": float(day),
+            "day_share": round(share, 3),
+            "target_atr": (round(dist / float(atr_v), 2) if atr_v else None),
+            "blocked": False, "log_only": bool(_R248_LOG_ONLY),
+        }
+        path = os.path.join(BASE_DIR, "data", "target_candidates.jsonl")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec) + "\n")
+        log.info("[%s] [%s] W248 distance flag (log only): %s asks %.1f pts = %.0f%% of a median day"
+                 % (market, tf, stp.get("type"), dist, 100.0 * share))
+        return True
+    except Exception as _w248e:
+        try:
+            log.debug("W248 distance flag skipped: %s" % _w248e)
+        except Exception:
+            pass
+        return False
+# ---- end _WAVE248_FLOOR_AWARE_TARGET -------------------------------
 import random as _rnd  # Pre-Batch 2026-04-20: for sampled REJECTED logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -3428,8 +3478,27 @@ async def scan_market(app, market, frames):
                             stp["raw_stop"] = stp["entry"] + _min_stop_dist
                 except Exception:
                     pass
-            tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
-                                                   market=market, trend_score_val=trend)
+            # _WAVE248_FLOOR_AWARE_TARGET: compute the floor FIRST and screen the picker with it. Q14, measured
+            # over three sessions: 547 of 673 R:R-floor rejections (81%) had a viable level inside the
+            # cap, median 2.74R, because the picker screened at 1.5R and the scanner judged at the
+            # rulebook floor afterwards. This loosens nothing - every level the picker can now choose
+            # already clears the floor the gate below enforces. Never raises: on any error it falls
+            # back to the picker's own default, which is exactly today's behaviour.
+            try:
+                _w248_setup_floor = ot.get_rr_floor(stp["type"], market)
+                _w248_global = (max(cfg.NEWS_MIN_RR, _w225_min_rr(market)) if news_flag
+                                else _w225_min_rr(market))
+                _w248_floor = _w225_floor(_w248_setup_floor, _w248_global)
+            except Exception as _w248fe:
+                log.warning("W248: floor lookup failed, picker keeps its default (%s)" % _w248fe)
+                _w248_setup_floor, _w248_global, _w248_floor = None, None, None
+            if _w248_floor is None:
+                tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
+                                                       market=market, trend_score_val=trend)
+            else:
+                tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
+                                                       min_rr=float(_w248_floor),
+                                                       market=market, trend_score_val=trend)
             _w229_c = _w229_take()  # _WAVE229_TARGET_CANDIDATES
 
             if method == "no_target" or tgt == 0:
@@ -3465,11 +3534,18 @@ async def scan_market(app, market, frames):
             # bucket stats as the conviction score. The old static map was
             # calibrated on inflated shadow stats (the "83% WR" setup's real
             # record was 1W/20L).
-            setup_floor = ot.get_rr_floor(stp["type"], market)
-            _w225_market_rr = _w225_min_rr(market)
-            _global_min_rr = (max(cfg.NEWS_MIN_RR, _w225_market_rr)
-                              if news_flag else _w225_market_rr)
-            min_rr = _w225_floor(setup_floor, _global_min_rr)  # _WAVE225_RULEBOOK
+            # _WAVE225_RULEBOOK, hoisted by _WAVE248_FLOOR_AWARE_TARGET: the same floor the picker screened with,
+            # so the two can never disagree. The gate still runs - the picker can legitimately return
+            # nothing that clears the floor, and the fallback path above leaves the floor unset.
+            if _w248_floor is None:
+                setup_floor = ot.get_rr_floor(stp["type"], market)
+                _w225_market_rr = _w225_min_rr(market)
+                _global_min_rr = (max(cfg.NEWS_MIN_RR, _w225_market_rr)
+                                  if news_flag else _w225_market_rr)
+                min_rr = _w225_floor(setup_floor, _global_min_rr)
+            else:
+                setup_floor, _global_min_rr = _w248_setup_floor, _w248_global
+                min_rr = _w248_floor
             if rr < min_rr:
                 sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                     cur_price, stp["entry"], stp["raw_stop"], tgt, rr, 0, "REJECT",
@@ -3482,6 +3558,7 @@ async def scan_market(app, market, frames):
                 _w229_log("rr_floor", market, entry_tf, stp, method, rr, min_rr, trend, news_flag, _w229_c)  # _WAVE229_TARGET_CANDIDATES
                 continue
 
+            _w248_flag_distance(market, entry_tf, stp, tgt, rr, atr_v)  # _WAVE248_FLOOR_AWARE_TARGET: log only
             clean_path = abs(tgt-stp["entry"])/max(1e-9, atr_v)
             conv, tier, bd_core = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio, clean_path)
             extra         = cfg.extra_conviction_factors(df_e, df_h, stp, trend, adx_v, rsi_v)

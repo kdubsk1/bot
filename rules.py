@@ -232,3 +232,23 @@ FUTURES_HOLIDAYS = {
 # card is filed in data/bot_reports), keeping Telegram to calls, exits and
 # health. True = the card is also posted to control. QUESTIONS_FOR_WAYNE Q5.
 KEY_LEVELS_TO_TELEGRAM = False
+
+# _WAVE248_FLOOR_AWARE_TARGET: an R:R floor and cap are RATIOS. They cannot tell a 15-point target from a
+# 153-point one, so a huge stop makes a huge target legal. Measured on the three LAB calls of 17 Sep:
+# #GC-0917-M6 asked for 153.4 points on Gold - 165% of a median Gold day - and in 42 recorded sessions
+# that move was delivered before the 4:10 flatten 0 times.
+#
+# These are MEDIAN DAILY RANGES in points, measured 17 Sep 2026 from the recorded daily bars
+# (NQ 168 days from Oct 2025, GC 251 days from Sep 2025, BTC 745 days). Re-measure them when the
+# market's character changes; they are a yardstick, not a law.
+DAILY_RANGE_POINTS = {"NQ": 446.2, "GC": 92.7, "BTC": 2602.7}
+
+# A target beyond this share of a median day is RECORDED, not blocked. 1.00 = a whole day's range.
+# Why log-only: of 343 real graded calls, this rule would have blocked 24 (-0.028R each, reached 4.2%
+# of the time) against +0.073R for the ones it kept - the only variant tested where the blocked set was
+# not BETTER than the kept set. n=24 with a CI through zero does not earn the right to block a call.
+# Every ATR-based variant was worse: capping the stop at 2 ATR would have blocked 41 calls worth
+# +0.248R each, and capping the target at 6 ATR would have blocked 20 worth +0.477R each - the
+# trend-day tail that pays for everything else.
+TARGET_MAX_DAY_SHARE = 1.00
+TARGET_DISTANCE_LOG_ONLY = True
