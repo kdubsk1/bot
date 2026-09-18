@@ -172,6 +172,24 @@ try:
 except Exception:
     _R246_ON, _R246_TG, _R246_MAX, _R246_DUP_MIN = False, False, 40, 30
 
+# _WAVE249_LAB_SILENT: LAB is ledger-only, except for the setups Wayne names in rules.LAB_NOTIFY_SETUPS.
+# Defaults to silence if rules.py is older than this wave.
+try:
+    from rules import LAB_NOTIFY as _R249_LAB_NOTIFY, LAB_NOTIFY_SETUPS as _R249_NOTIFY_SETUPS
+except Exception:
+    _R249_LAB_NOTIFY, _R249_NOTIFY_SETUPS = False, ()
+
+
+def _w249_may_notify(setup_type):
+    """May THIS LAB setup speak? A named exception, or the master switch, or silence. Control only -
+    the public path excludes LAB separately and this function is never consulted there."""
+    try:
+        if str(setup_type) in tuple(_R249_NOTIFY_SETUPS or ()):
+            return True
+        return bool(_R249_LAB_NOTIFY) and bool(_R246_TG)
+    except Exception:
+        return False
+
 _W246_LAST = {}          # (market, setup, direction) -> datetime UTC of the last LAB row
 _W246_COUNT = {}         # (market, UTC date) -> LAB rows written today
 
@@ -3816,6 +3834,12 @@ async def scan_market(app, market, frames):
             alert_id = ot.log_alert({
                 # _WAVE245_LAB_LANE: a LAB call records its lane in the ledger's channel column.
                 "channel": "control (LAB)" if _w245_is_lab(stp["type"]) else None,
+                # _WAVE249_LAB_SILENT: and in the LANE column, which is what every statistic reads. A blank
+                # lane means REAL (the Wave 246 contract), so without this line the first Wave 245 LAB
+                # call to fire would have entered expectancy, the conviction table and the floors as a
+                # whitelisted call. None had fired yet; this closes it before it opens. It applies to
+                # the notifying exception setups too - a voice does not make a row real.
+                "lane": "lab" if _w245_is_lab(stp["type"]) else None,
                 "market":market, "tf":entry_tf, "setup":stp["type"], "direction":stp["direction"],
                 "entry":round(stp["entry"],4), "stop":round(stp["raw_stop"],4), "target":round(tgt,4),
                 "rr":round(rr,2), "method":method, "trend_score":trend, "conviction":conv, "tier":tier,
@@ -3953,7 +3977,11 @@ async def scan_market(app, market, frames):
             if stp.get("_w89_partner"):
                 _w90_badge = "\U0001f393 Probation fire \u2014 partner: " + str(stp["_w89_partner"]).replace("_", " ")
                 footer = (footer + "\n" + _w90_badge) if footer else _w90_badge
-            _w245_badge = "\U0001f9ea LAB \u2014 control only, earning a record" if _w245_is_lab(stp["type"]) else ""  # _WAVE245_LAB_LANE
+            # _WAVE249_LAB_SILENT: no badge on a card that is never sent. A silent LAB setup builds nothing.
+            _w249_lab_call = _w245_is_lab(stp["type"])
+            _w249_notify_lab = _w249_may_notify(stp["type"])
+            _w245_badge = ("\U0001f9ea LAB \u2014 unproven, evidence only, control channel"
+                           if (_w249_lab_call and _w249_notify_lab) else "")  # _WAVE245_LAB_LANE
             if _w245_badge:
                 footer = (footer + "\n" + _w245_badge) if footer else _w245_badge
             _w179_full = format_alert(market, entry_tf, stp, conv, tier, trend,
@@ -3972,7 +4000,14 @@ async def scan_market(app, market, frames):
                     _w179_pub = str(_w179_pub) + "\nCall ID `%s`" % _w232_cid
             if _w239_public_ok(market) and not _w245_is_lab(stp["type"]):  # _WAVE225_RULEBOOK / _WAVE239_CONVICTION_MIN; _WAVE245_LAB_LANE: LAB never goes public
                 await tg_send_pub(app, _w179_pub or _w179_full, kind="call")  # _WAVE231_CALLS_ONLY
-            await tg_send(app, _w179_full, kind="call")  # _WAVE231_CALLS_ONLY: control ALWAYS gets every call
+            # _WAVE249_LAB_SILENT: control gets every whitelisted call, and every LAB setup Wayne has named
+            # in rules.LAB_NOTIFY_SETUPS. Any other LAB setup is graded and saved in silence: the row is
+            # still in the ledger, still graded by the real grader, still flattened at 4:10.
+            if _w249_lab_call and not _w249_notify_lab:
+                log.info("[%s] [%s] LAB %s %s graded silently (no notification, %s)"
+                         % (market, entry_tf, stp["type"], stp["direction"], _w232_cid or alert_id))
+            else:
+                await tg_send(app, _w179_full, kind="call")  # _WAVE231_CALLS_ONLY: control gets every call
             log.info(
                 f"[{market}] [{entry_tf}] FIRED: {stp['type']} {stp['direction']} "
                 f"Conv:{conv}/{tier} RR:{round(rr,2)} Entry:{round(stp['entry'],4)} "

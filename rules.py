@@ -252,3 +252,16 @@ DAILY_RANGE_POINTS = {"NQ": 446.2, "GC": 92.7, "BTC": 2602.7}
 # trend-day tail that pays for everything else.
 TARGET_MAX_DAY_SHARE = 1.00
 TARGET_DISTANCE_LOG_ONLY = True
+
+# _WAVE249_LAB_SILENT (Wayne, 18 Sep 2026): every strategy fires, is graded and is saved - but a LAB
+# strategy is ledger-only. No Telegram, no badge. This is the master switch: a LAB row may notify only
+# if BOTH LAB_NOTIFY and the lane's own flag (Wave 246's LAB_TO_TELEGRAM) are true, so the default is
+# silence whichever one is read.
+LAB_NOTIFY = False
+
+# THE ONE EXCEPTION Wayne allows: the three Wave 245 setups are already running and keep their
+# control-channel voice. They are NAMED here rather than hidden in a code path, so revoking the
+# exception is one edit to this list. CONTROL CHANNEL ONLY - nothing in LAB ever reaches the public
+# channel, whatever these switches say. Their ledger rows still carry lane='lab', so they still never
+# enter a real statistic, and promotion out of LAB is never automatic (PROMOTION_REVIEW.md).
+LAB_NOTIFY_SETUPS = ("VWAP_RECLAIM", "HTF_LEVEL_BOUNCE", "VOLATILITY_CONTRACTION_BREAKOUT")
