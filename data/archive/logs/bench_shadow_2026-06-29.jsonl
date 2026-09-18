@@ -1,0 +1,1 @@
+{"kind": "pending", "bench_id": "2026-06-29T05:00:02.280344+00:00|MACD_CROSS_BEAR|15m", "market": "SOL", "setup": "MACD_CROSS_BEAR", "tf": "15m", "direction": "SHORT", "entry": 71.58, "stop": 72.4646, "target_2r": 69.8108, "ts": "2026-06-29T05:00:02.280344+00:00"}

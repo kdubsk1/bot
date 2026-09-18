@@ -1,0 +1,2 @@
+{"kind": "pending", "bench_id": "2026-06-30T09:00:17.035121+00:00|BB_REVERSION_BULL|15m", "market": "BTC", "setup": "BB_REVERSION_BULL", "tf": "15m", "direction": "LONG", "entry": 59191.54, "stop": 59064.929, "target_2r": 59444.762, "ts": "2026-06-30T09:00:17.035121+00:00"}
+{"kind": "pending", "bench_id": "2026-06-30T09:11:43.461542+00:00|BB_REVERSION_BULL|15m", "market": "BTC", "setup": "BB_REVERSION_BULL", "tf": "15m", "direction": "LONG", "entry": 59209.7, "stop": 59042.8547, "target_2r": 59543.3906, "ts": "2026-06-30T09:11:43.461542+00:00"}

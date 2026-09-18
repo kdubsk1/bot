@@ -581,7 +581,7 @@
     "losses": 254,
     "total": 292,
     "win_rate": 13.0,
-    "last_updated": "2026-09-15T18:23:11.203369",
+    "last_updated": "2026-09-18T06:15:35.791718",
     "paper_total": 249,
     "paper_losses": 215,
     "paper_win_rate": 13.7,
@@ -591,7 +591,10 @@
     "real_total": 2,
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_expectancy": -1.0,
+    "lab_total": 1,
+    "lab_losses": 1,
+    "lab_win_rate": 0.0
   },
   "BTC:EMA21_PULLBACK_BEAR": {
     "wins": 48,
@@ -699,13 +702,16 @@
     "losses": 4,
     "total": 4,
     "win_rate": 0.0,
-    "last_updated": "2026-07-15T01:03:02.163976",
+    "last_updated": "2026-09-18T05:43:26.840445",
     "real_wins": 0,
     "real_losses": 1,
     "real_total": 1,
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_expectancy": -1.0,
+    "lab_total": 1,
+    "lab_losses": 1,
+    "lab_win_rate": 0.0
   },
   "GC:MACD_CROSS_BULL": {
     "wins": 4,
