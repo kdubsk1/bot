@@ -247,9 +247,9 @@
   },
   "MACD_CROSS_BULL|||ALL": {
     "wins": 1,
-    "losses": 4,
+    "losses": 6,
     "total_win_r": 2.734145273760883,
-    "total_loss_r": 4.0
+    "total_loss_r": 6.0
   },
   "MACD_CROSS_BULL|||HH_HL": {
     "wins": 0,
@@ -277,9 +277,9 @@
   },
   "MACD_CROSS_BULL|||MIXED": {
     "wins": 1,
-    "losses": 2,
+    "losses": 4,
     "total_win_r": 2.734145273760883,
-    "total_loss_r": 2.0
+    "total_loss_r": 4.0
   },
   "VWAP_BOUNCE_BULL|||LH_LL": {
     "wins": 1,

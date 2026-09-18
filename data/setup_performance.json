@@ -718,11 +718,14 @@
     "losses": 14,
     "total": 18,
     "win_rate": 22.2,
-    "last_updated": "2026-08-27T09:42:20.406418",
+    "last_updated": "2026-09-18T13:58:27.747094",
     "paper_total": 8,
     "paper_losses": 4,
     "paper_win_rate": 50.0,
-    "paper_wins": 4
+    "paper_wins": 4,
+    "lab_total": 2,
+    "lab_losses": 2,
+    "lab_win_rate": 0.0
   },
   "GC:VWAP_BOUNCE_BULL": {
     "wins": 94,
