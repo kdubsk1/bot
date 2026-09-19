@@ -10,9 +10,9 @@
   "skip_bad_timestamp": 0,
   "skip_too_old": 0,
   "skip_no_target": 0,
-  "skip_no_history": 2053,
+  "skip_no_history": 2051,
   "skip_no_window": 30,
   "total_graded": 0,
   "mode": "write",
-  "generated_at": "2026-09-19T10:19:25.770612+00:00"
+  "generated_at": "2026-09-19T16:19:26.071661+00:00"
 }
