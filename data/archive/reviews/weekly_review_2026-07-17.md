@@ -1,0 +1,112 @@
+# Weekly Self-Review
+
+_Generated: 2026-07-18 00:01 UTC_
+_Window: last 7 days_
+
+---
+
+## Summary
+
+- Alerts logged: **25**
+- Fired: **0** | Closed: **24** | Open: **1**
+- W/L: **9W / 15L** (37.5% WR)
+
+## Per-Setup Performance (closed trades)
+
+- `NQ:BREAK_RETEST_BULL` -- 3W/4L (43% WR, avg conv 66)
+- `BTC:STOCH_REVERSAL_BEAR` -- 1W/5L (17% WR, avg conv 52) WARN
+- `GC:STOCH_REVERSAL_BEAR` -- 2W/1L (67% WR, avg conv 58)
+- `NQ:VWAP_BOUNCE_BULL` -- 1W/2L (33% WR, avg conv 62)
+- `GC:MACD_CROSS_BEAR` -- 1W/0L (100% WR, avg conv 89)
+- `GC:BB_REVERSION_BULL` -- 1W/0L (100% WR, avg conv 81)
+- `NQ:OPENING_RANGE_BREAKOUT` -- 0W/1L (0% WR, avg conv 82)
+- `SOL:VWAP_REJECT_BEAR` -- 0W/1L (0% WR, avg conv 64)
+- `SOL:EMA50_BREAKDOWN` -- 0W/1L (0% WR, avg conv 50)
+
+## Per-Market Performance
+
+- **BTC**: 1W/5L (17% WR over 6 trades)
+- **GC**: 4W/1L (80% WR over 5 trades)
+- **NQ**: 4W/7L (36% WR over 11 trades)
+- **SOL**: 0W/2L (0% WR over 2 trades)
+
+## Tier Calibration Check
+
+- **HIGH**: 6W/8L (43% WR)
+- **MEDIUM**: 2W/3L (40% WR)
+- **LOW**: 1W/4L (20% WR)
+
+## Suspensions This Week
+
+- `GC:EMA21_PULLBACK_BULL` -- 0W/115L (0.0% WR) (at 2026-07-14)
+- `SOL:BB_REVERSION_BEAR` -- 27W/71L (27.6% WR) (at 2026-07-15)
+- `SOL:RSI_DIV_BULL` -- 3W/30L (9.1% WR) (at 2026-07-15)
+- `NQ:RSI_DIV_BULL` -- 2W/4L (33.3% WR) (at 2026-07-15)
+- `GC:BREAK_RETEST_BEAR` -- 1W/5L (16.7% WR) (at 2026-07-15)
+- `NQ:STOCH_REVERSAL_BEAR` -- 0W/19L (0.0% WR) (at 2026-07-15)
+- `NQ:EMA50_BREAKDOWN` -- 0W/9L (0.0% WR) (at 2026-07-15)
+- `GC:RSI_DIV_BULL` -- 1W/103L (1.0% WR) (at 2026-07-15)
+- `NQ:RSI_DIV_BEAR` -- 0W/6L (0.0% WR) (at 2026-07-15)
+- `GC:RSI_DIV_BEAR` -- 0W/51L (0.0% WR) (at 2026-07-15)
+- `BTC:MACD_CROSS_BEAR` -- 2W/21L (8.7% WR) (at 2026-07-15)
+- `GC:EMA21_PULLBACK_BEAR` -- 1W/88L (1.1% WR) (at 2026-07-15)
+- `NQ:EMA21_PULLBACK_BULL` -- 2W/5L (28.6% WR) (at 2026-07-15)
+- `SOL:BB_REVERSION_BULL` -- 0W/6L (0.0% WR) (at 2026-07-15)
+- `BTC:STOCH_REVERSAL_BULL` -- 1W/5L (16.7% WR) (at 2026-07-15)
+- `NQ:MACD_CROSS_BULL` -- 0W/8L (0.0% WR) (at 2026-07-15)
+- `NQ:EMA50_RECLAIM` -- 0W/11L (0.0% WR) (at 2026-07-15)
+- `NQ:EMA21_PULLBACK_BEAR` -- 0W/20L (0.0% WR) (at 2026-07-15)
+- `NQ:BB_REVERSION_BULL` -- 8W/26L (23.5% WR) (at 2026-07-15)
+- `SOL:BREAK_RETEST_BEAR` -- 0W/5L (0.0% WR) (at 2026-07-15)
+- `BTC:VWAP_BOUNCE_BULL` -- 4W/92L (4.2% WR) (at 2026-07-15)
+- `BTC:BREAK_RETEST_BULL` -- 1W/10L (9.1% WR) (at 2026-07-15)
+- `NQ:VWAP_REJECT_BEAR` -- 27W/67L (28.7% WR) (at 2026-07-15)
+- `GC:STOCH_REVERSAL_BULL` -- 0W/29L (0.0% WR) (at 2026-07-15)
+- `BTC:BREAK_RETEST_BEAR` -- 4W/23L (14.8% WR) (at 2026-07-15)
+- `BTC:BB_REVERSION_BEAR` -- 1W/6L (14.3% WR) (at 2026-07-15)
+- `BTC:RSI_DIV_BEAR` -- 4W/13L (23.5% WR) (at 2026-07-15)
+- `SOL:MACD_CROSS_BULL` -- 2W/13L (13.3% WR) (at 2026-07-15)
+- `BTC:EMA21_PULLBACK_BEAR` -- 5W/15L (25.0% WR) (at 2026-07-15)
+- `GC:VWAP_REJECT_BEAR` -- 0W/36L (0.0% WR) (at 2026-07-15)
+- `GC:MACD_CROSS_BULL` -- 0W/10L (0.0% WR) (at 2026-07-15)
+- `BTC:EMA21_PULLBACK_BULL` -- 0W/35L (0.0% WR) (at 2026-07-15)
+- `GC:BB_REVERSION_BEAR` -- 4W/8L (33.3% WR) (at 2026-07-15)
+- `SOL:MACD_CROSS_BEAR` -- 1W/6L (14.3% WR) (at 2026-07-15)
+- `NQ:MACD_CROSS_BEAR` -- 1W/8L (11.1% WR) (at 2026-07-15)
+- `SOL:EMA21_PULLBACK_BULL` -- 0W/7L (0.0% WR) (at 2026-07-15)
+- `NQ:BB_REVERSION_BEAR` -- 0W/38L (0.0% WR) (at 2026-07-15)
+- `SOL:STOCH_REVERSAL_BEAR` -- 1W/7L (12.5% WR) (at 2026-07-15)
+- `BTC:MACD_CROSS_BULL` -- 0W/62L (0.0% WR) (at 2026-07-15)
+- `SOL:BREAK_RETEST_BULL` -- 2W/4L (33.3% WR) (at 2026-07-15)
+- `SOL:VWAP_BOUNCE_BULL` -- 15W/35L (30.0% WR) (at 2026-07-15)
+- `BTC:VWAP_REJECT_BEAR` -- 2W/14L (12.5% WR) (at 2026-07-15)
+- `BTC:BB_REVERSION_BULL` -- 1W/4L (20.0% WR) (at 2026-07-15)
+- `NQ:BREAK_RETEST_BEAR` -- 0W/27L (0.0% WR) (at 2026-07-15)
+- `BTC:EMA50_RECLAIM` -- 0W/17L (0.0% WR) (at 2026-07-15)
+- `SOL:STOCH_REVERSAL_BULL` -- 0W/5L (0.0% WR) (at 2026-07-15)
+- `GC:VWAP_BOUNCE_BULL` -- 19W/51L (27.1% WR) (at 2026-07-15)
+- `SOL:EMA21_PULLBACK_BEAR` -- 2W/23L (8.0% WR) (at 2026-07-15)
+- `NQ:STOCH_REVERSAL_BULL` -- 6W/17L (26.1% WR) (at 2026-07-15)
+- `SOL:RSI_DIV_BEAR` -- 0W/65L (0.0% WR) (at 2026-07-15)
+- `BTC:EMA50_BREAKDOWN` -- 0W/61L (0.0% WR) (at 2026-07-15)
+
+## Best 3 Trades
+
+- `GC:MACD_CROSS_BEAR` -- SHORT -- P&L $+0.00 -- conv 89 (2026-07-12)
+- `NQ:VWAP_BOUNCE_BULL` -- LONG -- P&L $+0.00 -- conv 63 (2026-07-13)
+- `GC:BB_REVERSION_BULL` -- LONG -- P&L $+0.00 -- conv 81 (2026-07-14)
+
+## Worst 3 Trades
+
+- `SOL:EMA50_BREAKDOWN` -- SHORT -- P&L $+0.00 -- conv 50 (2026-07-17)
+- `GC:STOCH_REVERSAL_BEAR` -- SHORT -- P&L $+0.00 -- conv 56 (2026-07-17)
+- `BTC:STOCH_REVERSAL_BEAR` -- SHORT -- P&L $+0.00 -- conv 50 (2026-07-17)
+
+## Tune Suggestions (informational, not auto-applied)
+
+- **`BTC:STOCH_REVERSAL_BEAR` underperforming**: 1W/5L. Either suspend or reduce conviction multipliers in markets/BTC*.py.
+
+---
+
+_This file is auto-generated by build_weekly_review() in outcome_tracker.py._
+_Saved daily as part of 8 PM ET daily-report flow. Auto-synced to GitHub hourly._
