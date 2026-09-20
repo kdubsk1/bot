@@ -179,6 +179,12 @@ try:
 except Exception:
     _R249_LAB_NOTIFY, _R249_NOTIFY_SETUPS = False, ()
 
+# _WAVE250_REVIEW_CADENCE: which weekday the weekly review lands on, and whether the daily file is kept.
+try:
+    from rules import WEEKLY_REVIEW_WEEKDAY as _R250_WEEKDAY, DAILY_SELF_REVIEW as _R250_DAILY
+except Exception:
+    _R250_WEEKDAY, _R250_DAILY = 6, True
+
 
 def _w249_may_notify(setup_type):
     """May THIS LAB setup speak? A named exception, or the master switch, or silence. Control only -
@@ -189,6 +195,58 @@ def _w249_may_notify(setup_type):
         return bool(_R249_LAB_NOTIFY) and bool(_R246_TG)
     except Exception:
         return False
+
+# ---- _WAVE250_REVIEW_CADENCE -----------------------------------
+# Wave 250: 121 files called weekly_review_*.md, one per day, because Wave 54 put the date in the name
+# and ran on the DAILY report trigger. They move to data/archive/reviews/ - moved, never deleted, and
+# today's file is left where it is.
+def _w250_archive_old_reviews(now=None):
+    """Move historical weekly_review_*.md into data/archive/reviews/. Never deletes. Never raises.
+    Returns (moved, skipped)."""
+    import re as _re
+    moved = skipped = 0
+    try:
+        now = now or datetime.now(timezone.utc)
+        today = now.astimezone(timezone.utc).date().isoformat()
+        src_dir = os.path.join(BASE_DIR, "data")
+        dst_dir = os.path.join(src_dir, "archive", "reviews")
+        pat = _re.compile(r"^weekly_review_(\d{4}-\d{2}-\d{2})\.md$")
+        names = sorted(n for n in os.listdir(src_dir) if pat.match(n))
+        if not names:
+            return (0, 0)
+        os.makedirs(dst_dir, exist_ok=True)
+        for name in names:
+            if pat.match(name).group(1) >= today:
+                continue                      # today's (or a future-dated) file stays put
+            dst = os.path.join(dst_dir, name)
+            if os.path.exists(dst):
+                skipped += 1                  # never overwrite an archived copy
+                continue
+            try:
+                os.replace(os.path.join(src_dir, name), dst)
+                moved += 1
+            except Exception as _mv:
+                skipped += 1
+                log.warning("Wave 250: could not archive %s: %s" % (name, _mv))
+        if moved or skipped:
+            log.info("Wave 250: archived %d review file(s) to data/archive/reviews, %d left in place "
+                     "(nothing deleted)" % (moved, skipped))
+    except Exception as _w250e:
+        try:
+            log.warning("Wave 250: review archive skipped: %s" % _w250e)
+        except Exception:
+            pass
+    return (moved, skipped)
+
+
+def _w250_is_weekly_day(now=None):
+    """Is today the configured weekly-review day, in ET (the schedule this runs on)?"""
+    try:
+        et = (now or datetime.now(timezone.utc)).astimezone(ET_ZONE) if ET_ZONE else (now or datetime.now(timezone.utc))
+        return int(et.weekday()) == int(_R250_WEEKDAY)
+    except Exception:
+        return False
+# ---- end _WAVE250_REVIEW_CADENCE -------------------------------
 
 _W246_LAST = {}          # (market, setup, direction) -> datetime UTC of the last LAB row
 _W246_COUNT = {}         # (market, UTC date) -> LAB rows written today
@@ -5977,21 +6035,38 @@ async def scan_loop(app):
                         except Exception as _w143de:
                             log.error(f"Wave 143 hands failed (non-fatal): {_w143de}")
 
-                        # Wave 54 (May 13, 2026): generate weekly self-review.
-                        # Runs piggy-backed on the daily report trigger so it
-                        # uses the same 8 PM ET schedule. File overwritten daily
-                        # with current date so Wayne always sees latest version.
+                        # Wave 54 (May 13, 2026): generate the self-review, piggy-backed on the daily
+                        # 8 PM ET report trigger.
+                        # _WAVE250_REVIEW_CADENCE (Q17): it used to write weekly_review_<date>.md EVERY evening
+                        # and call it weekly - 121 files. Now the daily file says daily, and the weekly
+                        # file is written on one weekday only (rules.WEEKLY_REVIEW_WEEKDAY, Sunday).
                         try:
                             _wr_md = ot.build_weekly_review()
+                            _w250_weekly = _w250_is_weekly_day()
+                            _w250_written = []
+                            if _R250_DAILY:
+                                _wr_daily = os.path.join(BASE_DIR, "data",
+                                    f"daily_self_review_{today_str}.md")
+                                with open(_wr_daily, "w", encoding="utf-8") as _wrf:
+                                    _wrf.write(_wr_md)
+                                _w250_written.append(os.path.basename(_wr_daily))
                             _wr_path = os.path.join(BASE_DIR, "data",
                                 f"weekly_review_{today_str}.md")
-                            with open(_wr_path, "w", encoding="utf-8") as _wrf:
-                                _wrf.write(_wr_md)
+                            if _w250_weekly:
+                                with open(_wr_path, "w", encoding="utf-8") as _wrf:
+                                    _wrf.write(_wr_md)
+                                _w250_written.append(os.path.basename(_wr_path))
                             await asyncio.sleep(1)
-                            await tg_send(app,
-                                f"Weekly self-review saved: `weekly_review_{today_str}.md`. "
-                                f"Auto-syncs to GitHub within the hour.")
-                            log.info(f"Wave 54: weekly review saved to {_wr_path}")
+                            if _w250_weekly:
+                                await tg_send(app,
+                                    f"Weekly self-review saved: `weekly_review_{today_str}.md`. "
+                                    f"Auto-syncs to GitHub within the hour.")
+                            elif _R250_DAILY:
+                                await tg_send(app,
+                                    f"Daily self-review saved: `daily_self_review_{today_str}.md`. "
+                                    f"The weekly one lands on Sunday.")
+                            log.info("Wave 54/250: self-review written: %s"
+                                     % (", ".join(_w250_written) or "nothing (both switches off)"))
                         except Exception as _w54_e:
                             log.error(f"Wave 54 weekly review failed: {_w54_e}", exc_info=True)
 
@@ -8785,6 +8860,7 @@ async def _post_init(app):
     # to GitHub every 15 minutes, so liveness can be judged from outside this process.
     _w243_write_heartbeat()
     _w247_rotate_diag_logs()  # _WAVE247_LOG_ROTATION: clear any backlog (and finish an interrupted pass) at boot
+    _w250_archive_old_reviews()  # _WAVE250_REVIEW_CADENCE: the 121 historical review files, moved not deleted
     await _w247_size_audit(app, force=True)  # _WAVE247_LOG_ROTATION: one audit at boot, before anything grows further
     if hasattr(auto_sync, "heartbeat_push_loop"):
         asyncio.create_task(auto_sync.heartbeat_push_loop())

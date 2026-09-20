@@ -265,3 +265,9 @@ LAB_NOTIFY = False
 # channel, whatever these switches say. Their ledger rows still carry lane='lab', so they still never
 # enter a real statistic, and promotion out of LAB is never automatic (PROMOTION_REVIEW.md).
 LAB_NOTIFY_SETUPS = ("VWAP_RECLAIM", "HTF_LEVEL_BOUNCE", "VOLATILITY_CONTRACTION_BREAKOUT")
+
+# _WAVE250_REVIEW_CADENCE (Q17, Wayne 17 Sep 2026): the "weekly" self-review was written EVERY evening and
+# announced as weekly - 121 files in data/ by 17 Sep. Now: a daily file under an honest name, and a
+# weekly file on ONE weekday. Python's weekday(): Monday=0 ... Sunday=6.
+WEEKLY_REVIEW_WEEKDAY = 6          # Sunday
+DAILY_SELF_REVIEW = True           # keep the daily file, as daily_self_review_<date>.md
