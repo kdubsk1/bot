@@ -1,5 +1,5 @@
 {
-  "rows_scanned": 17589,
+  "rows_scanned": 17619,
   "WOULD_WIN": 0,
   "WOULD_LOSE": 0,
   "EXPIRED": 0,
@@ -11,8 +11,8 @@
   "skip_too_old": 0,
   "skip_no_target": 0,
   "skip_no_history": 1951,
-  "skip_no_window": 32,
+  "skip_no_window": 62,
   "total_graded": 0,
   "mode": "write",
-  "generated_at": "2026-09-19T22:19:26.477150+00:00"
+  "generated_at": "2026-09-20T04:19:26.852063+00:00"
 }
