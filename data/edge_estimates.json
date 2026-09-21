@@ -331,9 +331,9 @@
   },
   "VWAP_REJECT_BEAR|||ALL": {
     "wins": 0,
-    "losses": 9,
+    "losses": 10,
     "total_win_r": 0.0,
-    "total_loss_r": 9.0
+    "total_loss_r": 10.0
   },
   "MACD_CROSS_BEAR|||UNKNOWN": {
     "wins": 0,
@@ -451,9 +451,9 @@
   },
   "VWAP_REJECT_BEAR|||HH_HL": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 0.0,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "OPENING_RANGE_BREAKOUT|||UNKNOWN": {
     "wins": 0,

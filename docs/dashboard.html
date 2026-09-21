@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-21T05:46:43.266716+00:00",
+  "generated_at": "2026-09-21T11:46:57.033026+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -879,15 +879,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 18,
-    "losses": 31,
-    "wr": 36.7,
-    "total_trades": 49
+    "losses": 32,
+    "wr": 36.0,
+    "total_trades": 50
   },
   "today": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "wr": 0.0,
-    "total_trades": 3
+    "total_trades": 4
   },
   "setup_stats": [
     {
@@ -987,6 +987,13 @@ const DATA = {
       "wins": 1,
       "losses": 0,
       "wr": 100.0
+    },
+    {
+      "setup": "BTC:VWAP_REJECT_BEAR",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     },
     {
       "setup": "BTC:MACD_CROSS_BEAR",
@@ -1153,9 +1160,9 @@ const DATA = {
       "rr": "2.61",
       "conv": "31",
       "tier": "REJECT",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "82139.2513"
     },
     {
       "time": "2026-09-21 01:11",
@@ -1430,9 +1437,9 @@ const DATA = {
     },
     "BTC": {
       "wins": 5,
-      "losses": 3,
-      "total_pnl_r": 10.73,
-      "wr": 62.5
+      "losses": 4,
+      "total_pnl_r": 9.73,
+      "wr": 55.6
     }
   },
   "by_tier": {
@@ -1448,8 +1455,8 @@ const DATA = {
     },
     "REJECT": {
       "wins": 7,
-      "losses": 9,
-      "wr": 43.8
+      "losses": 10,
+      "wr": 41.2
     }
   },
   "open_trades": [
@@ -1543,19 +1550,6 @@ const DATA = {
       "last_rescore_conviction": 14,
       "tier": "REJECT",
       "timestamp": "2026-09-21T02:41:49.656175+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_REJECT_BEAR",
-      "tf": "15m",
-      "direction": "SHORT",
-      "entry": "81596.23",
-      "target": "80178.85",
-      "stop": "82139.2513",
-      "conviction": 31,
-      "last_rescore_conviction": 31,
-      "tier": "REJECT",
-      "timestamp": "2026-09-21T01:31:37.541511+00:00"
     },
     {
       "market": "GC",

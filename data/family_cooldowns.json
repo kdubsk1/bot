@@ -10,5 +10,9 @@
   "GC:mean_rev_long": {
     "expiry": "2026-09-21T06:36:17.873151+00:00",
     "reason": "LOSS"
+  },
+  "BTC:mean_rev_short": {
+    "expiry": "2026-09-21T09:57:31.539432+00:00",
+    "reason": "LOSS"
   }
 }
