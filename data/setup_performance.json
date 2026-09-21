@@ -740,7 +740,7 @@
     "losses": 73,
     "total": 167,
     "win_rate": 56.3,
-    "last_updated": "2026-09-21T05:06:16.880091",
+    "last_updated": "2026-09-21T14:05:59.498400",
     "paper_total": 80,
     "paper_losses": 14,
     "paper_win_rate": 82.5,
@@ -751,9 +751,9 @@
     "real_win_rate": 55.6,
     "real_avg_rr_win": 2.5,
     "real_expectancy": 2.5,
-    "lab_total": 20,
-    "lab_losses": 16,
-    "lab_win_rate": 20.0,
+    "lab_total": 21,
+    "lab_losses": 17,
+    "lab_win_rate": 19.0,
     "lab_wins": 4
   },
   "SOL:MACD_CROSS_BULL": {

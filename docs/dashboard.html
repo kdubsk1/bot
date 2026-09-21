@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-21T11:46:57.033026+00:00",
+  "generated_at": "2026-09-21T17:47:06.850788+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -292,7 +292,7 @@ const DATA = {
     "max_drawdown": 2000,
     "daily_loss_limit": 1000,
     "profit_target": 3000,
-    "open_count": 0,
+    "open_count": 1,
     "equity_curve": [
       {
         "time": "Start",
@@ -455,12 +455,16 @@ const DATA = {
         "balance": 51452.12
       },
       {
-        "time": "2026-09-21 01:10",
+        "time": "2026-09-20 22:00",
         "balance": 50680.34
       },
       {
-        "time": "2026-09-21 01:41",
+        "time": "2026-09-21 01:10",
         "balance": 49920.13
+      },
+      {
+        "time": "2026-09-21 01:41",
+        "balance": 49171.33
       }
     ]
   },
@@ -879,9 +883,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 18,
-    "losses": 32,
-    "wr": 36.0,
-    "total_trades": 50
+    "losses": 33,
+    "wr": 35.3,
+    "total_trades": 51
   },
   "today": {
     "wins": 0,
@@ -892,10 +896,10 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "GC:VWAP_BOUNCE_BULL",
-      "fires": 22,
+      "fires": 23,
       "wins": 4,
-      "losses": 18,
-      "wr": 18.2
+      "losses": 19,
+      "wr": 17.4
     },
     {
       "setup": "GC:BB_REVERSION_BULL",
@@ -1004,6 +1008,38 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-09-21 16:00",
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "4h",
+      "dir": "SHORT",
+      "entry": "4379.5",
+      "stop": "4423.8752",
+      "target": "4281.2",
+      "rr": "2.22",
+      "conv": "76",
+      "tier": "HIGH",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-09-21 16:00",
+      "market": "GC",
+      "setup": "VWAP_REJECT_BEAR",
+      "tf": "4h",
+      "dir": "SHORT",
+      "entry": "4379.5",
+      "stop": "4420.2501",
+      "target": "4293.0",
+      "rr": "2.12",
+      "conv": "14",
+      "tier": "REJECT",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-09-21 05:46",
       "market": "GC",
@@ -1288,9 +1324,9 @@ const DATA = {
       "rr": "2.17",
       "conv": "56",
       "tier": "MEDIUM",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "4372.8553"
     },
     {
       "time": "2026-09-20 14:56",
@@ -1371,38 +1407,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "WIN",
       "exit": "81720.0"
-    },
-    {
-      "time": "2026-09-18 19:20",
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "4h",
-      "dir": "LONG",
-      "entry": "4420.2",
-      "stop": "4372.9324",
-      "target": "4558.5",
-      "rr": "2.93",
-      "conv": "56",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4415.9"
-    },
-    {
-      "time": "2026-09-18 18:46",
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "4h",
-      "dir": "LONG",
-      "entry": "4420.2",
-      "stop": "4372.9324",
-      "target": "4558.5",
-      "rr": "2.93",
-      "conv": "56",
-      "tier": "MEDIUM",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4415.9"
     }
   ],
   "suspended_setups": [
@@ -1425,9 +1429,9 @@ const DATA = {
   "by_market": {
     "GC": {
       "wins": 10,
-      "losses": 27,
-      "total_pnl_r": -5.28,
-      "wr": 27.0
+      "losses": 28,
+      "total_pnl_r": -6.28,
+      "wr": 26.3
     },
     "NQ": {
       "wins": 3,
@@ -1450,8 +1454,8 @@ const DATA = {
     },
     "MEDIUM": {
       "wins": 5,
-      "losses": 18,
-      "wr": 21.7
+      "losses": 19,
+      "wr": 20.8
     },
     "REJECT": {
       "wins": 7,
@@ -1460,6 +1464,32 @@ const DATA = {
     }
   },
   "open_trades": [
+    {
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "tf": "4h",
+      "direction": "SHORT",
+      "entry": "4379.5",
+      "target": "4281.2",
+      "stop": "4423.8752",
+      "conviction": 76,
+      "last_rescore_conviction": 76,
+      "tier": "HIGH",
+      "timestamp": "2026-09-21T16:00:45.478367+00:00"
+    },
+    {
+      "market": "GC",
+      "setup": "VWAP_REJECT_BEAR",
+      "tf": "4h",
+      "direction": "SHORT",
+      "entry": "4379.5",
+      "target": "4293.0",
+      "stop": "4420.2501",
+      "conviction": 14,
+      "last_rescore_conviction": 14,
+      "tier": "REJECT",
+      "timestamp": "2026-09-21T16:00:45.473285+00:00"
+    },
     {
       "market": "GC",
       "setup": "VWAP_REJECT_BEAR",
@@ -1628,19 +1658,6 @@ const DATA = {
       "last_rescore_conviction": 14,
       "tier": "REJECT",
       "timestamp": "2026-09-20T23:41:09.244945+00:00"
-    },
-    {
-      "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "4h",
-      "direction": "LONG",
-      "entry": "4415.9",
-      "target": "4509.1",
-      "stop": "4372.8553",
-      "conviction": 56,
-      "last_rescore_conviction": 56,
-      "tier": "MEDIUM",
-      "timestamp": "2026-09-20T22:00:22.150591+00:00"
     }
   ]
 };
