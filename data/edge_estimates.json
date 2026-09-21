@@ -30,9 +30,9 @@
     "total_loss_r": 4.0
   },
   "EMA21_PULLBACK_BULL|||ALL": {
-    "wins": 0,
+    "wins": 1,
     "losses": 8,
-    "total_win_r": 0.0,
+    "total_win_r": 2.7206528725987362,
     "total_loss_r": 8.0
   },
   "APPROACH_SUPPORT|||MIXED": {
@@ -60,10 +60,10 @@
     "total_loss_r": 21.0
   },
   "VWAP_BOUNCE_BULL|||ALL": {
-    "wins": 15,
-    "losses": 51,
-    "total_win_r": 30.865714765053063,
-    "total_loss_r": 51.0
+    "wins": 17,
+    "losses": 53,
+    "total_win_r": 36.62898737446993,
+    "total_loss_r": 53.0
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 7,
@@ -228,9 +228,9 @@
     "total_loss_r": 0.0
   },
   "STOCH_REVERSAL_BULL|||ALL": {
-    "wins": 7,
+    "wins": 8,
     "losses": 26,
-    "total_win_r": 16.84734454656673,
+    "total_win_r": 19.352437804057036,
     "total_loss_r": 26.0
   },
   "STOCH_REVERSAL_BULL|||HH_HL": {
@@ -282,10 +282,10 @@
     "total_loss_r": 4.0
   },
   "VWAP_BOUNCE_BULL|||LH_LL": {
-    "wins": 1,
-    "losses": 5,
-    "total_win_r": 2.0313174485934224,
-    "total_loss_r": 5.0
+    "wins": 3,
+    "losses": 7,
+    "total_win_r": 7.794590058010289,
+    "total_loss_r": 7.0
   },
   "STOCH_REVERSAL_BULL|||MIXED": {
     "wins": 1,
@@ -343,15 +343,15 @@
   },
   "MACD_CROSS_BEAR|||ALL": {
     "wins": 5,
-    "losses": 7,
+    "losses": 8,
     "total_win_r": 11.342232588247885,
-    "total_loss_r": 7.0
+    "total_loss_r": 8.0
   },
   "MACD_CROSS_BEAR|||MIXED": {
     "wins": 1,
-    "losses": 5,
+    "losses": 6,
     "total_win_r": 2.7273505562734863,
-    "total_loss_r": 5.0
+    "total_loss_r": 6.0
   },
   "EMA21_PULLBACK_BEAR|||UNKNOWN": {
     "wins": 0,
@@ -378,9 +378,9 @@
     "total_loss_r": 0.0
   },
   "STOCH_REVERSAL_BULL|||LH_LL": {
-    "wins": 3,
+    "wins": 4,
     "losses": 3,
-    "total_win_r": 6.908486962364305,
+    "total_win_r": 9.41358021985461,
     "total_loss_r": 3.0
   },
   "MACD_CROSS_BEAR|||LH_LL": {
@@ -490,5 +490,23 @@
     "losses": 1,
     "total_win_r": 0.0,
     "total_loss_r": 1.0
+  },
+  "EMA50_RECLAIM|||LH_LL": {
+    "wins": 1,
+    "losses": 0,
+    "total_win_r": 2.74004132288089,
+    "total_loss_r": 0.0
+  },
+  "EMA50_RECLAIM|||ALL": {
+    "wins": 1,
+    "losses": 0,
+    "total_win_r": 2.74004132288089,
+    "total_loss_r": 0.0
+  },
+  "EMA21_PULLBACK_BULL|||LH_LL": {
+    "wins": 1,
+    "losses": 0,
+    "total_win_r": 2.7206528725987362,
+    "total_loss_r": 0.0
   }
 }
