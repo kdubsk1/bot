@@ -3137,7 +3137,11 @@ async def scan_market(app, market, frames):
         if df_e is None or df_h is None: continue
         if df_e.empty: continue
 
-        setups = ot.detect_setups(df_e, df_h, htf_bias)
+        # _WAVE252_WATCH_LOG_CONTEXT (Q16): hand detect_setups the market and timeframe it is scanning. It was
+        # never told, so every suppressed-WATCH row it has written since 8 May carries market "" and
+        # tf "" and can never be attributed to an instrument. Keyword arguments with defaults - the
+        # detection this returns is byte-identical to what it returned before.
+        setups = ot.detect_setups(df_e, df_h, htf_bias, market=market, entry_tf=entry_tf)
 
         # ── Task 6: OPENING_RANGE_BREAKOUT (NQ and GC only, 9:30-10:30 AM ET) ──
         if market in ("NQ", "GC") and entry_tf == "15m":

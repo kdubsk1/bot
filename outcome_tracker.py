@@ -1184,8 +1184,54 @@ def _w245_vol_ratio(df_entry) -> float:
 # ---- end _WAVE245_LAB_LANE ---------------------------------------
 
 
+def _w252_watch_target(df_entry, s, atr_val, market=""):
+    """_WAVE252_WATCH_LOG_CONTEXT: the counterfactual target for a suppressed WATCH setup.
+
+    WATCH setups are dropped before any target math runs, so there is no recorded target to write
+    down - this computes one, at the picker's own default floor, purely so the row can be graded
+    later. It is a counterfactual and the row says so in target_floor.
+
+    `market` matters and is not decoration: structure_target screens candidates against the Wave 225
+    rulebook R cap, which is per market (GC 3.0, NQ 3.5, BTC 4.0, SOL 4.0, default 3.5). Passing ""
+    would screen every market against NQ's cap - too tight for crypto, too loose for gold - in the
+    one wave whose whole point is that the market was never passed down.
+
+    structure_target() clears and repopulates the Wave 229 candidate stash on every call, and bot.py
+    drains that stash right after ITS structure_target call. Draining it from here would be a
+    behaviour change in a log-only wave, so the stash is snapshotted and put back. Never raises.
+    """
+    try:
+        _stash = dict(_W229_LAST)
+    except Exception:
+        _stash = {}
+    try:
+        entry = float(s.get("entry") or 0)
+        stop = float(s.get("raw_stop", s.get("stop")) or 0)
+        atr_val = float(atr_val or 0)
+        if entry <= 0 or stop <= 0 or atr_val <= 0:
+            return None, None, "no_inputs", None
+        tgt, rr, method = structure_target(df_entry, str(s.get("direction", "")),
+                                           entry, stop, atr_val, market=str(market or ""))
+        if not tgt:
+            return None, None, str(method), 1.5
+        return float(tgt), float(rr), str(method), 1.5
+    except Exception as _w252e:
+        return None, None, "error:%s" % type(_w252e).__name__, None
+    finally:
+        try:
+            _W229_LAST.clear()
+            _W229_LAST.update(_stash)
+        except Exception:
+            pass
+
+
 def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
-                  htf_bias: str) -> list[dict]:
+                  htf_bias: str, market: str = "", entry_tf: str = "") -> list[dict]:
+    # _WAVE252_WATCH_LOG_CONTEXT (Q16): market and entry_tf are new KEYWORD arguments with empty defaults.
+    # They change nothing about detection - they exist so the Wave 15 suppressed-WATCH log can say
+    # which instrument and timeframe a dropped setup belonged to. It never could, so none of the
+    # 614+ rows it has written since 8 May can be graded. A caller that does not pass them gets
+    # exactly today's behaviour, empty strings and all.
     """
     Detects setups on the entry timeframe confirmed by HTF bias.
     Returns list of setup dicts.
@@ -1917,7 +1963,10 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
         # not speculative 'about to take' scouts. APPROACH_RESIST and
         # APPROACH_SUPPORT produce WATCH_LONG/WATCH_SHORT directions.
         if s.get("direction", "").startswith("WATCH_"):
-            _rlog.info(f"WATCH skip (Wave 14): {st} {s.get('direction')}")
+            # _WAVE252_WATCH_LOG_CONTEXT: say which market and timeframe. Two of these lines appear in every
+            # scan and until now neither said what they were about.
+            _rlog.info("[%s] [%s] WATCH skip (Wave 14): %s %s"
+                       % (market or "?", entry_tf or "?", st, s.get("direction")))
             # Wave 15 (May 8, 2026): Persist WATCH suppressions to JSONL
             # so future backtest can measure what these setups WOULD
             # have done. File is append-only JSONL (same pattern as
@@ -1925,16 +1974,30 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
             try:
                 _wpath = os.path.join(_BASE_DIR, "data", "watch_alerts_suppressed.jsonl")
                 os.makedirs(os.path.dirname(_wpath), exist_ok=True)
+                # _WAVE252_WATCH_LOG_CONTEXT: atr_v is assigned inside the big try at the top of this function,
+                # whose except only warns - so it can be UNBOUND here. A NameError would be eaten by
+                # this block's own except and the row would stay as broken as it is today, in exactly
+                # the sessions worth logging. locals() is the correct lookup for a local and .get
+                # never raises. (globals() cannot see a local; this is the one place locals() is right.)
+                _w252_atr = locals().get("atr_v", 0.0)
+                _w252_t, _w252_rr, _w252_m, _w252_fl = _w252_watch_target(df_entry, s, _w252_atr,
+                                                                          market)
                 _wentry = {
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "market":    s.get("market", ""),
-                    "tf":        s.get("tf", ""),
+                    "market":    market or s.get("market", ""),
+                    "tf":        entry_tf or s.get("tf", ""),
                     "setup":     st,
                     "direction": s.get("direction", ""),
                     "entry":     s.get("entry"),
                     "stop":      s.get("raw_stop", s.get("stop")),
-                    "target":    s.get("target"),
-                    "rr":        s.get("rr"),
+                    # a COUNTERFACTUAL target: this setup was dropped before any target math ran, so
+                    # nothing was recorded. target_floor is the floor it was screened at, not the live
+                    # rulebook floor - that is computed per setup in bot.py and is not in scope here.
+                    "target":    _w252_t,
+                    "rr":        _w252_rr,
+                    "target_method": _w252_m,
+                    "target_floor":  _w252_fl,
+                    "wave":      252,
                 }
                 with open(_wpath, "a", encoding="utf-8") as _wf:
                     _wf.write(json.dumps(_wentry) + "\n")
