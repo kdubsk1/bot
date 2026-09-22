@@ -1,18 +1,1 @@
-{
-  "BTC:cont_long": {
-    "expiry": "2026-09-21T01:55:35.368772+00:00",
-    "reason": "WIN"
-  },
-  "BTC:mean_rev_long": {
-    "expiry": "2026-09-21T01:55:35.143415+00:00",
-    "reason": "WIN"
-  },
-  "GC:mean_rev_long": {
-    "expiry": "2026-09-21T15:36:00.352416+00:00",
-    "reason": "LOSS"
-  },
-  "BTC:mean_rev_short": {
-    "expiry": "2026-09-21T09:57:31.539432+00:00",
-    "reason": "LOSS"
-  }
-}
+{}
