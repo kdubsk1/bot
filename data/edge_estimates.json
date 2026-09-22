@@ -25,15 +25,15 @@
   },
   "EMA21_PULLBACK_BULL|||MIXED": {
     "wins": 0,
-    "losses": 4,
+    "losses": 5,
     "total_win_r": 0.0,
-    "total_loss_r": 4.0
+    "total_loss_r": 5.0
   },
   "EMA21_PULLBACK_BULL|||ALL": {
     "wins": 1,
-    "losses": 8,
+    "losses": 9,
     "total_win_r": 2.7206528725987362,
-    "total_loss_r": 8.0
+    "total_loss_r": 9.0
   },
   "APPROACH_SUPPORT|||MIXED": {
     "wins": 0,
@@ -61,9 +61,9 @@
   },
   "VWAP_BOUNCE_BULL|||ALL": {
     "wins": 17,
-    "losses": 54,
+    "losses": 55,
     "total_win_r": 36.62898737446993,
-    "total_loss_r": 54.0
+    "total_loss_r": 55.0
   },
   "EMA21_PULLBACK_BEAR|||LH_LL": {
     "wins": 7,
@@ -217,9 +217,9 @@
   },
   "VWAP_BOUNCE_BULL|||MIXED": {
     "wins": 6,
-    "losses": 25,
+    "losses": 26,
     "total_win_r": 11.724490945999674,
-    "total_loss_r": 25.0
+    "total_loss_r": 26.0
   },
   "STOCH_REVERSAL_BULL|||UNKNOWN": {
     "wins": 0,

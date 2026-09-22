@@ -236,7 +236,7 @@
     "losses": 630,
     "total": 776,
     "win_rate": 18.8,
-    "last_updated": "2026-09-21T01:25:33.536801",
+    "last_updated": "2026-09-22T14:36:12.839946",
     "paper_total": 677,
     "paper_losses": 536,
     "paper_win_rate": 20.8,
@@ -247,9 +247,9 @@
     "real_win_rate": 36.4,
     "real_avg_rr_win": 2.5,
     "real_expectancy": 0.2727,
-    "lab_total": 4,
-    "lab_losses": 2,
-    "lab_win_rate": 50.0,
+    "lab_total": 5,
+    "lab_losses": 3,
+    "lab_win_rate": 40.0,
     "lab_wins": 2
   },
   "BTC:BB_REVERSION_BULL": {
@@ -815,7 +815,7 @@
     "losses": 415,
     "total": 562,
     "win_rate": 26.2,
-    "last_updated": "2026-09-21T01:25:33.890307",
+    "last_updated": "2026-09-22T13:38:20.520986",
     "paper_total": 525,
     "paper_losses": 378,
     "paper_win_rate": 28.0,
@@ -826,9 +826,10 @@
     "real_win_rate": 20.0,
     "real_avg_rr_win": 3.7,
     "real_expectancy": -0.06,
-    "lab_total": 1,
+    "lab_total": 2,
     "lab_wins": 1,
-    "lab_win_rate": 100.0
+    "lab_win_rate": 50.0,
+    "lab_losses": 1
   },
   "NQ:OPENING_RANGE_BREAKOUT": {
     "wins": 15,

@@ -1,1 +1,10 @@
-{}
+{
+  "BTC:cont_long": {
+    "expiry": "2026-09-22T15:08:21.361908+00:00",
+    "reason": "LOSS"
+  },
+  "BTC:mean_rev_long": {
+    "expiry": "2026-09-22T16:06:13.645964+00:00",
+    "reason": "LOSS"
+  }
+}
