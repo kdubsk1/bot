@@ -185,6 +185,20 @@ try:
 except Exception:
     _R250_WEEKDAY, _R250_DAILY = 6, True
 
+# _WAVE251_SETUP_OFF: setups that may never fire a real call, but are still LAB-graded.
+try:
+    from rules import SETUPS_OFF as _R251_OFF
+except Exception:
+    _R251_OFF = ()
+
+
+def _w251_is_off(setup_type):
+    """Is this setup switched off? OFF = never fires, still graded in the LAB lane. Never raises."""
+    try:
+        return str(setup_type) in tuple(_R251_OFF or ())
+    except Exception:
+        return False
+
 
 def _w249_may_notify(setup_type):
     """May THIS LAB setup speak? A named exception, or the master switch, or silence. Control only -
@@ -3712,7 +3726,11 @@ async def scan_market(app, market, frames):
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
-            elif tier=="REJECT" or conv < _WAVE60_MIN_CONV:
+            elif tier=="REJECT" or conv < _WAVE60_MIN_CONV or _w251_is_off(stp["type"]):
+                # _WAVE251_SETUP_OFF: a setup in rules.SETUPS_OFF takes this branch whatever its
+                # conviction, so the fire path below is unreachable for it - but it is still written to
+                # the ledger as lane='lab' and still graded. OFF is a lane, not a delete: if it ever
+                # starts working, PROMOTION_REVIEW.md will show it, and promotion stays manual.
                 # _WAVE246_LAB_GRADE: this setup passed every market gate and failed only the conviction
                 # floor. Write it to the ledger as a LAB row so the real grader scores it; never send it.
                 try:
@@ -3737,7 +3755,9 @@ async def scan_market(app, market, frames):
                             context=snapshot_context,
                             detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                             score_breakdown=bd_final)
-                        log.info(f"[{market}] [{entry_tf}] LAB-GRADED {stp['type']} {stp['direction']} conv {conv} -> {_w246_id}")
+                        log.info("[%s] [%s] LAB-GRADED %s %s conv %s -> %s%s"
+                                 % (market, entry_tf, stp["type"], stp["direction"], conv, _w246_id,
+                                    "  (setup is OFF in rules.py)" if _w251_is_off(stp["type"]) else ""))
                         if _R246_TG:
                             await tg_send(app, "\U0001f9ea LAB graded (not a call): %s %s %s conv %s" % (
                                 market, stp["type"], stp["direction"], conv), kind="report")

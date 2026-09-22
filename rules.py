@@ -271,3 +271,11 @@ LAB_NOTIFY_SETUPS = ("VWAP_RECLAIM", "HTF_LEVEL_BOUNCE", "VOLATILITY_CONTRACTION
 # weekly file on ONE weekday. Python's weekday(): Monday=0 ... Sunday=6.
 WEEKLY_REVIEW_WEEKDAY = 6          # Sunday
 DAILY_SELF_REVIEW = True           # keep the daily file, as daily_self_review_<date>.md
+
+# _WAVE251_SETUP_OFF (Q12, Wayne 17 Sep 2026): a setup listed here can never fire a real call, in any
+# market, at any conviction - but it is still LAB-graded, so we keep learning whether it was ever
+# right. OFF is a lane, not a delete.
+#
+# VWAP_REJECT_BEAR, measured 20 Sep on the real ledger: 18 calls, 0 wins, r_actual -1.000 with a 95%
+# CI of -1.00 to -1.00 - every single one a full stop-out (BTC 5, SOL 10, GC 2, NQ 1).
+SETUPS_OFF = ("VWAP_REJECT_BEAR",)
