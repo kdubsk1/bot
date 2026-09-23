@@ -279,3 +279,10 @@ DAILY_SELF_REVIEW = True           # keep the daily file, as daily_self_review_<
 # VWAP_REJECT_BEAR, measured 20 Sep on the real ledger: 18 calls, 0 wins, r_actual -1.000 with a 95%
 # CI of -1.00 to -1.00 - every single one a full stop-out (BTC 5, SOL 10, GC 2, NQ 1).
 SETUPS_OFF = ("VWAP_REJECT_BEAR",)
+
+# _WAVE253_LAB_CAPS_PERSIST (item 3b, consolidated prompt 21 Sep): the Telegram gate's thresholds, AS VALUES ONLY.
+# NOTHING READS THESE YET. compute_trust.py scores against them; wiring them into the send path is its own
+# wave, only after at least one cell per scanned market clears the gate on real + LAB data (Q21, 22 Sep).
+# Wayne, 21 Sep: "50, not 60 - start loose, tighten as data arrives."
+TRUST_MIN_FOR_TELEGRAM = 50
+TRUST_MIN_N = 30

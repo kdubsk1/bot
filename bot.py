@@ -291,6 +291,83 @@ def _w246_mark(market, setup_type, direction, now=None):
     _W246_COUNT[key] = _W246_COUNT.get(key, 0) + 1
 # ---- end _WAVE246_LAB_GRADE ---------------------------------------
 
+# ---- _WAVE253_LAB_CAPS_PERSIST --------------------------------
+# Wave 253 (Wayne, 17 Sep, item 5): the two dicts above emptied on every boot, so every deploy and every
+# restart re-opened the day's LAB cap and the duplicate window. Railway has no volume - the filesystem resets
+# to the GitHub copy on every deploy AND restart - so the caps ride inside data/heartbeat.json, which Wave 243
+# already pushes every 15 minutes, and are merged back at boot. A restore can only make the LAB lane
+# STRICTER than a fresh boot: counts only rise, timestamps only move later. Nothing here can raise.
+def _w253_caps_snapshot(now=None):
+    """Today's LAB counts and the duplicate-window timestamps still inside their window."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        today = now.date().isoformat()
+        horizon = now - timedelta(minutes=float(_R246_DUP_MIN))
+        return {
+            "count": {"%s|%s" % k: int(v) for k, v in _W246_COUNT.items() if k[1] == today},
+            "last": {"%s|%s|%s" % k: t.isoformat() for k, t in _W246_LAST.items() if t >= horizon},
+        }
+    except Exception:
+        return {}
+
+
+def _w253_restore(doc, now=None):
+    """Merge a heartbeat's lab_caps into the live dicts. Never lowers a count, never moves a timestamp
+    earlier, ignores other days and future times. Returns how many entries it applied."""
+    applied = 0
+    try:
+        now = now or datetime.now(timezone.utc)
+        today = now.date().isoformat()
+        caps = (doc or {}).get("lab_caps") or {}
+        for key, v in (caps.get("count") or {}).items():
+            market, day = str(key).rsplit("|", 1)
+            if day != today:
+                continue
+            if int(v) > _W246_COUNT.get((market, day), 0):
+                _W246_COUNT[(market, day)] = int(v)
+                applied += 1
+        for key, iso in (caps.get("last") or {}).items():
+            parts = tuple(str(key).split("|"))
+            if len(parts) != 3:
+                continue
+            t = datetime.fromisoformat(str(iso))
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=timezone.utc)
+            if t > now:
+                continue
+            if parts not in _W246_LAST or t > _W246_LAST[parts]:
+                _W246_LAST[parts] = t
+                applied += 1
+    except Exception as _w253e:
+        try:
+            log.warning("Wave 253: LAB caps restore skipped: %s" % _w253e)
+        except Exception:
+            pass
+    return applied
+
+
+def _w253_restore_at_boot():
+    """Merge the heartbeat's lab_caps from GitHub (the freshest copy - pushed every 15 min) and from disk.
+    Returns (sources read, entries applied). Any failure falls back to what could be read."""
+    sources, applied = [], 0
+    try:
+        with open(os.path.join(BASE_DIR, "data", W243_HEARTBEAT_FILE), encoding="utf-8") as _f:
+            applied += _w253_restore(json.load(_f))
+            sources.append("local")
+    except Exception:
+        pass
+    try:
+        import base64 as _w253_b64
+        _s, _r = auto_sync._api_request(
+            "GET", "/contents/data/%s?ref=%s" % (W243_HEARTBEAT_FILE, auto_sync.BRANCH), timeout=15)
+        if _s == 200 and isinstance(_r, dict) and _r.get("content"):
+            applied += _w253_restore(json.loads(_w253_b64.b64decode(_r["content"]).decode("utf-8")))
+            sources.append("github")
+    except Exception:
+        pass
+    return ("+".join(sources) or "nothing"), applied
+# ---- end _WAVE253_LAB_CAPS_PERSIST ----------------------------
+
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
 # level) or for its R:R, write one line saying which swing levels existed and
@@ -4702,6 +4779,7 @@ def _w243_write_heartbeat():
             "scanner_on": bool(SETTINGS.get("scanner_on", True)),
             "markets": [m for m in ALL_MARKETS if SETTINGS["markets"].get(m)],
             "interval_min": SETTINGS.get("scan_interval_min"),
+            "lab_caps": _w253_caps_snapshot(),  # _WAVE253_LAB_CAPS_PERSIST: the LAB caps ride the 15-minute push
         }, indent=1)
     except Exception as _w243e:
         try:
@@ -5904,6 +5982,13 @@ async def scan_loop(app):
     last_brief=last_asia=last_report=None
     last_hb=datetime.now(timezone.utc)
     scan_interval = SETTINGS["scan_interval_min"]
+    # _WAVE253_LAB_CAPS_PERSIST: restore the LAB caps before the first scan can write a LAB row. In an executor, so the
+    # GitHub read (up to 15 s) never blocks the event loop.
+    try:
+        _w253_src, _w253_n = await asyncio.get_event_loop().run_in_executor(None, _w253_restore_at_boot)
+        log.info("Wave 253: LAB caps restored from %s (%d entries)" % (_w253_src, _w253_n))
+    except Exception as _w253e:
+        log.warning("Wave 253: LAB caps restore failed, starting empty: %s" % _w253e)
     while True:
         try:
             now_utc = datetime.now(timezone.utc)
