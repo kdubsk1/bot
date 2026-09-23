@@ -1,13 +1,17 @@
 {
- "utc": "2026-09-23T13:06:24.880790+00:00",
- "cycle": 823,
- "last_sync": "2026-09-23T12:52:29.643431+00:00",
- "started_utc": "2026-09-22T12:46:19.998289+00:00",
+ "utc": "2026-09-23T13:15:31.404425+00:00",
+ "cycle": 4,
+ "last_sync": null,
+ "started_utc": "2026-09-23T13:11:21.081232+00:00",
  "scanner_on": true,
  "markets": [
   "NQ",
   "GC",
   "BTC"
  ],
- "interval_min": 5
+ "interval_min": 5,
+ "lab_caps": {
+  "count": {},
+  "last": {}
+ }
 }
