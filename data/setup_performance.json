@@ -236,7 +236,7 @@
     "losses": 630,
     "total": 776,
     "win_rate": 18.8,
-    "last_updated": "2026-09-22T14:36:12.839946",
+    "last_updated": "2026-09-23T12:20:39.098902",
     "paper_total": 677,
     "paper_losses": 536,
     "paper_win_rate": 20.8,
@@ -247,9 +247,9 @@
     "real_win_rate": 36.4,
     "real_avg_rr_win": 2.5,
     "real_expectancy": 0.2727,
-    "lab_total": 5,
-    "lab_losses": 3,
-    "lab_win_rate": 40.0,
+    "lab_total": 6,
+    "lab_losses": 4,
+    "lab_win_rate": 33.3,
     "lab_wins": 2
   },
   "BTC:BB_REVERSION_BULL": {
