@@ -3694,7 +3694,81 @@ def update_result_flatten(alert_id: str, result: str, exit_price: float, priced:
 # ---- end _WAVE240_FLATTEN_GRADING ---------------------------------------
 
 
-def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
+# ---- _WAVE256_EXPIRY_EXCURSION ---------------------------------------------
+# Wave 256 (24 Sep 2026): a row closed by the 24h expiry carries mfe_r / mae_r measured from bars. The startup
+# expiry runs before any scan, when _W233_EXCURSION is still empty - so every row expired at a boot was UNKNOWN.
+def _w256_excursion(r, frames, max_hours=24):
+    """(highest high, lowest low) of the bars that OPENED strictly after the alert (its own bar excluded, as in
+    auto_check_outcomes) and CLOSED by alert + max_hours, from the finest frame that reaches back to the alert
+    (15m, else 1h) and runs to alert + max_hours. None when no frame covers it. Never raises."""
+    try:
+        t0 = pd.Timestamp(str(r.get("timestamp", "")))
+        t0 = t0.tz_localize("UTC") if t0.tzinfo is None else t0.tz_convert("UTC")
+        t1 = t0 + pd.Timedelta(hours=float(max_hours))
+        for tf in ("15m", "1h"):
+            df = (frames or {}).get(tf) if isinstance(frames, dict) else None
+            if df is None or getattr(df, "empty", True) or len(df) < 2:
+                continue
+            idx = pd.DatetimeIndex(df.index)
+            idx = idx.tz_localize("UTC") if idx.tz is None else idx.tz_convert("UTC")
+            step = pd.Timedelta(seconds=_W233_TF_SEC[tf])
+            if idx[0] > t0 or idx[-1] + step < t1:
+                continue    # this frame starts after the alert, or stops before its 24h end (a stale cache)
+            keep = (idx > t0) & (idx + step <= t1)
+            if not keep.any():
+                continue
+            sub = df.loc[keep]
+            hi, lo = float(sub["High"].max()), float(sub["Low"].min())    # NaN skipped, as the grader does
+            if hi != hi or lo != lo or hi < lo:
+                continue
+            return (hi, lo)
+        return None
+    except Exception:
+        return None
+
+
+def _w256_prefill(frames_for, max_hours=24, now_utc=None, log=None):
+    """Before the expiry rewrite: for each OPEN row that expires now, put its 24h high/low from bars into
+    _W233_EXCURSION. Each market is fetched once, OUTSIDE the ledger lock. A row the bars cannot cover keeps
+    whatever the memory already held. Returns (rows due, rows measured). Without frames_for: does nothing."""
+    if frames_for is None:
+        return (0, 0)
+    now_utc = now_utc or datetime.now(timezone.utc)
+    due, got, cache = 0, 0, {}
+    for r in _read_all():
+        if r.get("status") != "OPEN":
+            continue
+        try:
+            t = datetime.fromisoformat(str(r.get("timestamp", "")))
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=timezone.utc)
+            if (now_utc - t).total_seconds() < max_hours * 3600:
+                continue
+        except Exception:
+            continue    # a bad timestamp is force-closed by the expiry itself, as before
+        due += 1
+        m = str(r.get("market", ""))
+        if m not in cache:
+            try:
+                cache[m] = frames_for(m)
+            except Exception:
+                cache[m] = None
+        exc = _w256_excursion(r, cache[m], max_hours)
+        if exc is not None:
+            _W233_EXCURSION[r.get("alert_id")] = exc
+            try:
+                side = 1 if "LONG" in str(r.get("direction", "")) else -1
+                if (float(r.get("entry")) - float(r.get("stop"))) * side > 0:
+                    got += 1    # only rows whose mfe_r / mae_r will actually be written
+            except Exception:
+                pass
+    if due and log is not None:
+        log.info(f"W256: expiry excursion - {got} of {due} expiring row(s) measured from bars")
+    return (due, got)
+# ---- end _WAVE256_EXPIRY_EXCURSION -----------------------------------------
+
+
+def auto_expire_stale_trades(max_hours: int = 24, frames_for=None) -> list[tuple]:  # _WAVE256_EXPIRY_EXCURSION
     """
     Task 2: Auto-close OPEN trades older than max_hours.
     Sets status=CLOSED, result=SKIP, exit_price=entry (zero P&L).
@@ -3709,6 +3783,10 @@ def auto_expire_stale_trades(max_hours: int = 24) -> list[tuple]:
     now_utc = datetime.now(timezone.utc)
     cutoff_seconds = max_hours * 3600
     expired: list[tuple] = []
+    try:  # _WAVE256_EXPIRY_EXCURSION: measure the rows about to expire, before the locked rewrite
+        _w256_prefill(frames_for, max_hours, now_utc, _log)
+    except Exception as _w256_err:
+        _log.warning(f"W256: expiry excursion skipped ({_w256_err})")
 
     def _mut(rows):
         for r in rows:

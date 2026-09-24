@@ -8381,7 +8381,7 @@ def _on_session_close(event, now_et):
 
         # Task 2: Auto-expire stale OPEN trades
         try:
-            expired = ot.auto_expire_stale_trades(max_hours=24)
+            expired = ot.auto_expire_stale_trades(max_hours=24, frames_for=dl_get_frames)  # _WAVE256_EXPIRY_EXCURSION
             if expired:
                 log.info(f"Session close: auto-expired {len(expired)} stale trade(s)")
         except Exception as e:
@@ -8839,7 +8839,7 @@ async def _post_init(app):
     # Task 2: Auto-expire stale OPEN trades at startup
     expired_count = 0
     try:
-        expired = ot.auto_expire_stale_trades(max_hours=24)
+        expired = ot.auto_expire_stale_trades(max_hours=24, frames_for=dl_get_frames)  # _WAVE256_EXPIRY_EXCURSION
         expired_count = len(expired)
         if expired_count:
             log.info(f"Startup: auto-expired {expired_count} stale trade(s)")
