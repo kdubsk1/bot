@@ -286,3 +286,12 @@ SETUPS_OFF = ("VWAP_REJECT_BEAR",)
 # Wayne, 21 Sep: "50, not 60 - start loose, tighten as data arrives."
 TRUST_MIN_FOR_TELEGRAM = 50
 TRUST_MIN_N = 30
+
+# _WAVE254_LAB_GATE_GRADE (plan item 1.1): grade in the LAB lane what the R:R floor drops. When every swing level
+# a setup could aim at sits below the floor, the picker runs once more with the floor taken down to
+# LAB_GATE_MIN_RR, and a real level that comes back is graded as lane='lab', lab_gate='rr_too_low'.
+# Never sent, never a real call. 1.0R = a target that at least pays its own risk.
+# LAB_GRADE_GATES = False switches off THIS grading only (by a wave, like every rule here); the exit-card
+# silence for LAB rows (Wave 254 part A) does not depend on it.
+LAB_GRADE_GATES = True
+LAB_GATE_MIN_RR = 1.0

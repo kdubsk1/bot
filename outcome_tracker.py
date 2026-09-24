@@ -121,6 +121,10 @@ CSV_COLS = [
     # _WAVE246_LAB_GRADE: which lane the row belongs to - "real" (a call that was sent) or "lab"
     # (graded evidence that was never sent). Rows written before this wave have no value and are real.
     "lane",
+    # _WAVE254_LAB_GATE_GRADE: on a LAB row, the gate that kept it from being a call - "conviction" (below the floor,
+    # Wave 246), "setup_off" (rules.SETUPS_OFF), "rr_too_low" / "rr_floor" (its target sat below the R:R
+    # floor). Blank on real rows and on every row written before this wave. Appended only.
+    "lab_gate",
 ]
 
 # ------------------------------------------------------------------ #

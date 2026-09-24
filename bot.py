@@ -368,6 +368,100 @@ def _w253_restore_at_boot():
     return ("+".join(sources) or "nothing"), applied
 # ---- end _WAVE253_LAB_CAPS_PERSIST ----------------------------
 
+# ---- _WAVE254_LAB_GATE_GRADE --------------------------------
+# Wave 254 (plan item 1.1, "grade what the gates drop"). Since Wave 248 the target picker screens at the rulebook
+# R:R floor, so a setup whose swing levels all sit below the floor comes back as "rr_too_low" and is dropped before
+# it is ever scored - 53 distinct setups in the 4.4 days after 248, while the old R:R-floor gate fired zero times.
+# This grades them in the LAB lane: the picker runs once more with the floor taken down to rules.LAB_GATE_MIN_RR,
+# and if a real swing level comes back the row is written with lane='lab' and lab_gate naming the gate. Same caps
+# and duplicate window as Wave 246 (persisted by 253). Never sent, never a real call, never in a real statistic,
+# never seen by the one-position guard. "No swing level at all" stays a plain rejection: nothing to grade.
+try:
+    from rules import LAB_GRADE_GATES as _R254_ON, LAB_GATE_MIN_RR as _R254_MIN_RR
+except Exception:
+    _R254_ON, _R254_MIN_RR = False, 1.0
+
+
+def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v, vol_ratio,
+                         htf_bias, cur_price, snapshot_context, gate, tgt=0.0, rr=0.0, method=""):
+    """LAB-grade a setup that a target gate just dropped. Returns the ledger alert_id, or "" when nothing was
+    written. Never raises, never sends anything."""
+    try:
+        if not (_R254_ON and _R246_ON):
+            return ""
+        if market in tuple(_R239_CALLS_OFF or ()):
+            return ""
+        lab_min = float(_R254_MIN_RR)
+        if gate == "rr_too_low":
+            tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
+                                                  min_rr=lab_min, market=market, trend_score_val=trend)
+        elif gate != "rr_floor":
+            return ""
+        if (not tgt) or float(rr) < lab_min or method in ("no_target", "rr_too_low", "rr_too_high"):
+            return ""
+        # Its own duplicate window: "RRGATE:" + setup, so a gate row never blocks the Wave 246 conviction-floor
+        # row for the same cell (that one is the evidence Trust counts; gate rows are kept out of every cell).
+        # No "|" in the token, so the key stays three parts and Wave 253 still persists it. The 40/day cap is shared.
+        cell = "RRGATE:" + str(stp["type"])
+        ok, why = _w246_may_grade(market, cell, stp["direction"])
+        if not ok:
+            if why and "cap reached" in why:
+                log.warning("[%s] LAB grading skipped: %s" % (market, why))
+            return ""
+        conv, _tier, _bd = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio,
+                                               abs(tgt - stp["entry"]) / max(1e-9, atr_v))
+        conv = max(0, min(100, int(conv)))
+        cmin = _w225_conv_min(market, stp["type"])
+        tier = "HIGH" if conv >= 60 else ("MEDIUM" if conv >= 53 else ("LOW" if conv >= cmin else "REJECT"))
+        aid = ot.log_alert({
+            "lane": "lab", "channel": "lab (not sent)", "lab_gate": gate,
+            "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
+            "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
+            "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
+            "tier": tier, "leverage": "", "suggested_hold": "", "rsi": round(rsi_v, 2),
+            "atr": round(atr_v, 4), "adx": round(adx_v, 2), "htf_bias": htf_bias,
+            "hour": datetime.now(timezone.utc).hour, "vol_ratio": round(vol_ratio, 2),
+            "news_flag": int(news_flag),
+        })
+        _w246_mark(market, cell, stp["direction"])
+        try:
+            sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                "LAB_GRADED",
+                "LAB graded (%s): target %s at %sR, below the R:R floor; graded as evidence, not sent"
+                % (gate, round(tgt, 4), round(rr, 2)),
+                context=snapshot_context,
+                detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
+        except Exception:
+            pass
+        log.info("[%s] [%s] LAB-GRADED (%s) %s %s %.2fR conv %s -> %s"
+                 % (market, entry_tf, gate, stp["type"], stp["direction"], float(rr), conv, aid))
+        return aid
+    except Exception as _w254e:
+        try:
+            log.warning("[%s] W254 LAB gate grading failed (non-fatal): %s" % (market, _w254e))
+        except Exception:
+            pass
+        return ""
+
+
+def _w254_closure_silent(orig):
+    """Part A: should this CLOSED row pass through the exit-card loop in silence? True only for a LAB row
+    whose entry was never sent - so no exit card and none of the real calls' bookkeeping. Real rows, and the
+    LAB setups Wayne named in rules.LAB_NOTIFY_SETUPS (their entry cards reach control), return False. On any
+    doubt it returns False: a real call must never lose its exit card."""
+    try:
+        row = orig or {}
+        if str(row.get("lane", "")).strip().lower() != "lab":
+            return False
+        if "not sent" in str(row.get("channel", "")).lower():
+            return True
+        return not _w249_may_notify(row.get("setup", ""))
+    except Exception:
+        return False
+# ---- end _WAVE254_LAB_GATE_GRADE ----------------------------
+
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
 # level) or for its R:R, write one line saying which swing levels existed and
@@ -2822,6 +2916,9 @@ async def scan_market(app, market, frames):
         result = c["result"]
         all_rows = ot._read_all()
         orig = next((r for r in all_rows if r.get("alert_id")==c.get("alert_id")), {})
+        if _w254_closure_silent(orig):  # _WAVE254_LAB_GATE_GRADE part A: a LAB row whose entry was never sent
+            log.info("[%s] LAB row %s closed %s at %s and graded (no card sent)" % (market, c.get("alert_id"), result, c.get("price")))
+            continue
         entry_p = orig.get("entry", "?")
         exit_p  = c["price"]
         setup_n = _md(orig.get("setup", ""))
@@ -3682,6 +3779,9 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 _sample_reject_log(market, entry_tf, stp["type"], "No swing target available")
                 _w229_log("no_target", market, entry_tf, stp, method, 0.0, _w229_floor(market, cfg, stp, news_flag), trend, news_flag, _w229_c)  # _WAVE229_TARGET_CANDIDATES
+                if method == "rr_too_low":  # _WAVE254_LAB_GATE_GRADE: the levels exist - only the floor dropped them
+                    _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v,
+                                         vol_ratio, htf_bias, cur_price, snapshot_context, "rr_too_low")
                 continue
 
             sim_risk = sim.check_risk_limits()
@@ -3727,6 +3827,9 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 _sample_reject_log(market, entry_tf, stp["type"], f"RR {round(rr,2)} < {min_rr}")
                 _w229_log("rr_floor", market, entry_tf, stp, method, rr, min_rr, trend, news_flag, _w229_c)  # _WAVE229_TARGET_CANDIDATES
+                _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v,
+                                     vol_ratio, htf_bias, cur_price, snapshot_context, "rr_floor",
+                                     tgt=tgt, rr=rr, method=method)  # _WAVE254_LAB_GATE_GRADE
                 continue
 
             _w248_flag_distance(market, entry_tf, stp, tgt, rr, atr_v)  # _WAVE248_FLOOR_AWARE_TARGET: log only
@@ -3819,6 +3922,7 @@ async def scan_market(app, market, frames):
                     if _w246_ok:
                         _w246_id = ot.log_alert({
                             "lane": "lab", "channel": "lab (not sent)",
+                            "lab_gate": ("setup_off" if _w251_is_off(stp["type"]) else "conviction"),  # _WAVE254_LAB_GATE_GRADE
                             "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
                             "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
                             "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
