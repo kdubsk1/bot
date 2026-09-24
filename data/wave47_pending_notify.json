@@ -2,16 +2,16 @@
   "newly_suspended": [
     {
       "market": "BTC",
-      "setup": "STOCH_REVERSAL_BULL",
-      "losses": 3,
-      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+      "setup": "BB_REVERSION_BULL",
+      "losses": 5,
+      "reason": "Wave 47 auto: 0W/5L over last 30 days"
     },
     {
       "market": "GC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+      "setup": "STOCH_REVERSAL_BULL",
+      "losses": 8,
+      "reason": "Wave 47 auto: 0W/8L over last 30 days"
     }
   ],
-  "ts": "2026-09-18T04:19:04.635268+00:00"
+  "ts": "2026-09-24T11:25:38.384485+00:00"
 }
