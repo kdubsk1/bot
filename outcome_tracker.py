@@ -2026,20 +2026,22 @@ def detect_setups(df_entry: pd.DataFrame, df_htf: pd.DataFrame,
             _stop_p  = float(s.get("raw_stop", s.get("stop", 0)) or 0)
             if _entry_p > 0 and _stop_p > 0:
                 _risk_pct = abs(_entry_p - _stop_p) / _entry_p
-                _min_pct  = MIN_RISK_PCT_BY_MARKET.get(s.get("market", ""), 0.0050)
+                # _WAVE262_TIGHT_STOP_MARKET: the setup dict never carries "market"; the caller does.
+                _w262_mkt = market or s.get("market", "")
+                _min_pct  = _w262_min_stop_pct(_w262_mkt)
                 if _risk_pct < _min_pct:
                     _rlog.info(
                         f"Stop too tight (Wave 16): {st} "
                         f"{_risk_pct*100:.3f}% < {_min_pct*100:.2f}% "
-                        f"min for {s.get('market', '?')}"
+                        f"min for {_w262_mkt or '?'}"
                     )
                     try:
                         _tspath = os.path.join(_BASE_DIR, "data", "tight_stop_suppressed.jsonl")
                         os.makedirs(os.path.dirname(_tspath), exist_ok=True)
                         _tsentry = {
                             "timestamp": datetime.now(timezone.utc).isoformat(),
-                            "market":    s.get("market", ""),
-                            "tf":        s.get("tf", ""),
+                            "market":    _w262_mkt,
+                            "tf":        entry_tf or s.get("tf", ""),
                             "setup":     st,
                             "direction": s.get("direction", ""),
                             "entry":     _entry_p,
@@ -2164,6 +2166,31 @@ MIN_RISK_PCT_BY_MARKET = {
     "BTC": 0.0005,  # 0.05%   (was 0.0050, never enforced)
     "SOL": 0.0005,  # 0.05%   (was 0.0080, never enforced)
 }
+
+# ---- _WAVE262_TIGHT_STOP_MARKET -----------------------------------
+# Wave 262 (24 Sep 2026). MIN_RISK_PCT_BY_MARKET above is NOT READ by anything any more - its 0.05% values
+# never ran. The live floors are rules.TIGHT_STOP_MIN_PCT. The guard in detect_setups looked the market up in the
+# SETUP dict, which has no "market" key, so every market fell through to the 0.50% default - all 87,181 rows in
+# tight_stop_suppressed from 28 Jul to 23 Sep say min_pct 0.5 and market "". The floors now live in rules.py
+# (TIGHT_STOP_MIN_PCT) and the guard uses the market detect_setups is called with (bot.py passes it since
+# Wave 252). No market (the backtests), a market missing from the rulebook, or no rulebook at all: 0.50%,
+# which is exactly what every market ran at before this wave.
+try:
+    from rules import TIGHT_STOP_MIN_PCT as _R262_FLOORS
+except Exception:
+    _R262_FLOORS = {}
+
+
+def _w262_min_stop_pct(market):
+    """The tight-stop floor for one market, as a fraction of price. Never raises."""
+    try:
+        m = str(market or "").strip().upper()
+        if not m:
+            return 0.0050
+        return float(_R262_FLOORS.get(m, 0.0050))
+    except Exception:
+        return 0.0050
+# ---- end _WAVE262_TIGHT_STOP_MARKET -------------------------------
 
 
 def get_rr_floor(setup_type: str, market: str = None) -> float:

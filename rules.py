@@ -295,3 +295,10 @@ TRUST_MIN_N = 30
 # silence for LAB rows (Wave 254 part A) does not depend on it.
 LAB_GRADE_GATES = True
 LAB_GATE_MIN_RR = 1.0
+
+# Wave 262 (_WAVE262_TIGHT_STOP_MARKET, 24 Sep 2026): the tight-stop floor per market. A setup whose stop is
+# closer to entry than this fraction of price is dropped before it is scored (Wave 16's guard). Since 28 Jul
+# every market has really run at 0.0050 (0.50%) because the guard could not see the market. NQ goes to Wave
+# 209's 0.0005 (0.05%): 0.50% of NQ is ~150 points and dropped about 9 of every 10 NQ setups. GC, BTC and SOL
+# stay at what they have actually run at. A market missing here keeps 0.0050.
+TIGHT_STOP_MIN_PCT = {"NQ": 0.0005, "GC": 0.0050, "BTC": 0.0050, "SOL": 0.0050}
