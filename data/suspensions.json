@@ -88,5 +88,15 @@
     "reason": "Wave 47 auto: 0W/8L over last 30 days",
     "suspended_at": "2026-09-24T11:25:38.383429+00:00",
     "source": "wave47_auto"
+  },
+  "GC:MACD_CROSS_BEAR": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-09-24T20:00:01.731047+00:00",
+    "source": "wave47_auto"
+  },
+  "BTC:MACD_CROSS_BEAR": {
+    "reason": "Wave 47 auto: 0W/5L over last 30 days",
+    "suspended_at": "2026-09-24T20:00:01.731716+00:00",
+    "source": "wave47_auto"
   }
 }

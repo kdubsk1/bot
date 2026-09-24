@@ -1,10 +1,22 @@
 {
   "newly_suspended": [
     {
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
       "market": "BTC",
-      "setup": "BB_REVERSION_BULL",
+      "setup": "MACD_CROSS_BEAR",
       "losses": 5,
       "reason": "Wave 47 auto: 0W/5L over last 30 days"
+    },
+    {
+      "market": "BTC",
+      "setup": "EMA21_PULLBACK_BEAR",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
     },
     {
       "market": "GC",
@@ -13,5 +25,5 @@
       "reason": "Wave 47 auto: 0W/8L over last 30 days"
     }
   ],
-  "ts": "2026-09-24T12:46:44.676549+00:00"
+  "ts": "2026-09-24T20:00:01.732679+00:00"
 }
