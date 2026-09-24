@@ -302,3 +302,14 @@ LAB_GATE_MIN_RR = 1.0
 # 209's 0.0005 (0.05%): 0.50% of NQ is ~150 points and dropped about 9 of every 10 NQ setups. GC, BTC and SOL
 # stay at what they have actually run at. A market missing here keeps 0.0050.
 TIGHT_STOP_MIN_PCT = {"NQ": 0.0005, "GC": 0.0050, "BTC": 0.0050, "SOL": 0.0050}
+
+# Wave 255 (_WAVE255_LAB_NO_SWING_LEVEL, 24 Sep 2026): a setup with NO swing level in range is LAB-graded against
+# a synthesized target at the market's own R:R floor, never less than LAB_SYNTH_RR (NQ 2.0R, GC 2.0R, BTC 2.5R),
+# marked lab_gate='no_target' and method='synthesized'. At most LAB_SYNTH_MAX_PER_DAY a market a UTC day, and none
+# once the market's LAB count reaches LAB_MAX_PER_MARKET_PER_DAY - LAB_SYNTH_RESERVE, so the conviction-floor rows
+# Trust counts always fit. Keep LAB_GATE_MIN_RR below LAB_SYNTH_RR, or every synthesized row is dropped.
+# LAB_GRADE_GATES = False switches it off with the rest of the gate grading; LAB_SYNTH_MAX_PER_DAY = 0 alone
+# switches off just this.
+LAB_SYNTH_RR = 2.0
+LAB_SYNTH_MAX_PER_DAY = 10
+LAB_SYNTH_RESERVE = 10

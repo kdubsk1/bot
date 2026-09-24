@@ -395,6 +395,10 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
         if gate == "rr_too_low":
             tgt, rr, method = ot.structure_target(df_e, stp["direction"], stp["entry"], stp["raw_stop"], atr_v,
                                                   min_rr=lab_min, market=market, trend_score_val=trend)
+        elif gate == "no_target":  # _WAVE255_LAB_NO_SWING_LEVEL: nothing to aim at - a fixed-R target, LAB only
+            if not _w255_room(market):
+                return ""
+            tgt, rr, method = _w255_synth_target(stp, market)
         elif gate != "rr_floor":
             return ""
         if (not tgt) or float(rr) < lab_min or method in ("no_target", "rr_too_low", "rr_too_high"):
@@ -402,7 +406,7 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
         # Its own duplicate window: "RRGATE:" + setup, so a gate row never blocks the Wave 246 conviction-floor
         # row for the same cell (that one is the evidence Trust counts; gate rows are kept out of every cell).
         # No "|" in the token, so the key stays three parts and Wave 253 still persists it. The 40/day cap is shared.
-        cell = "RRGATE:" + str(stp["type"])
+        cell = ("SYNTH:" if gate == "no_target" else "RRGATE:") + str(stp["type"])  # _WAVE255_LAB_NO_SWING_LEVEL: its own window
         ok, why = _w246_may_grade(market, cell, stp["direction"])
         if not ok:
             if why and "cap reached" in why:
@@ -424,12 +428,16 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
             "news_flag": int(news_flag),
         })
         _w246_mark(market, cell, stp["direction"])
+        if gate == "no_target":  # _WAVE255_LAB_NO_SWING_LEVEL: its own daily count
+            _w255_mark(market)
         try:
             sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                 cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                 trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                 "LAB_GRADED",
-                "LAB graded (%s): target %s at %sR, below the R:R floor; graded as evidence, not sent"
+                ("LAB graded (%s): no swing level in range - synthesized target %s at %sR (fixed, rules.LAB_SYNTH_RR); graded as evidence, not sent"  # _WAVE255_LAB_NO_SWING_LEVEL
+                 if gate == "no_target" else
+                 "LAB graded (%s): target %s at %sR, below the R:R floor; graded as evidence, not sent")
                 % (gate, round(tgt, 4), round(rr, 2)),
                 context=snapshot_context,
                 detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
@@ -461,6 +469,71 @@ def _w254_closure_silent(orig):
     except Exception:
         return False
 # ---- end _WAVE254_LAB_GATE_GRADE ----------------------------
+
+# ---- _WAVE255_LAB_NO_SWING_LEVEL -----------------------------
+# Wave 255 (plan item 1.2, re-specced 24 Sep 2026). When the target picker finds NO swing level in range at all
+# (method "no_target") the setup was dropped ungraded - there was nothing to aim at. It is now LAB-graded against a
+# synthesized target at the market's own R:R floor (never less than rules.LAB_SYNTH_RR): the least a real call in
+# that market would need. Marked lab_gate='no_target', method='synthesized'. LAB only: never sent, never a real
+# call, kept out of every Trust cell like the other gate rows. At most rules.LAB_SYNTH_MAX_PER_DAY a market a UTC
+# day, and none once the shared LAB count reaches the cap minus rules.LAB_SYNTH_RESERVE - so it can never crowd out
+# the conviction-floor rows Trust counts. The count lives in memory: a restart re-opens it (the shared cap holds).
+try:
+    from rules import (LAB_SYNTH_RR as _R255_RR, LAB_SYNTH_MAX_PER_DAY as _R255_MAX,
+                       LAB_SYNTH_RESERVE as _R255_RESERVE)
+except Exception:
+    _R255_RR, _R255_MAX, _R255_RESERVE = 2.0, 0, 10   # an older rulebook: no synthesized grading at all
+
+_W255_COUNT = {}        # (market, UTC date) -> synthesized LAB rows written today
+_W255_FULL_SAID = set()  # (market, UTC date) already logged as out of room
+
+
+def _w255_synth_target(stp, market=""):
+    """(target, rr, "synthesized") at the market's R:R floor (at least LAB_SYNTH_RR) from the setup's own entry
+    and stop, else (0, 0, "no_target"). Never raises."""
+    try:
+        e, s = float(stp["entry"]), float(stp["raw_stop"])
+        r = float(_R255_RR)
+        if market:
+            r = max(r, float(_w225_min_rr(market)))
+        risk = abs(e - s)
+        if risk <= 0 or r <= 0 or r != r:
+            return 0.0, 0.0, "no_target"
+        d = str(stp.get("direction", "")).upper()
+        if d.endswith("LONG") and s < e:
+            return round(e + r * risk, 4), round(r, 2), "synthesized"
+        if d.endswith("SHORT") and s > e:
+            return round(e - r * risk, 4), round(r, 2), "synthesized"
+        return 0.0, 0.0, "no_target"          # a stop on the wrong side of entry is not gradeable
+    except Exception:
+        return 0.0, 0.0, "no_target"
+
+
+def _w255_room(market, now=None):
+    """May a synthesized row be written for this market now? Says so once a day when the answer turns to no."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        key = (market, now.date().isoformat())
+        shared, mine = _W246_COUNT.get(key, 0), _W255_COUNT.get(key, 0)
+        if shared < int(_R246_MAX) - int(_R255_RESERVE) and mine < int(_R255_MAX):
+            return True
+        if key not in _W255_FULL_SAID and int(_R255_MAX) > 0:
+            _W255_FULL_SAID.add(key)
+            log.info("[%s] W255: no room for synthesized LAB rows today (synthesized %d/%d, all LAB %d/%d)"
+                     % (market, mine, int(_R255_MAX), shared, int(_R246_MAX)))
+        return False
+    except Exception:
+        return False
+
+
+def _w255_mark(market, now=None):
+    try:
+        now = now or datetime.now(timezone.utc)
+        key = (market, now.date().isoformat())
+        _W255_COUNT[key] = _W255_COUNT.get(key, 0) + 1
+    except Exception:
+        pass
+# ---- end _WAVE255_LAB_NO_SWING_LEVEL -------------------------
 
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
@@ -3782,6 +3855,9 @@ async def scan_market(app, market, frames):
                 if method == "rr_too_low":  # _WAVE254_LAB_GATE_GRADE: the levels exist - only the floor dropped them
                     _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v,
                                          vol_ratio, htf_bias, cur_price, snapshot_context, "rr_too_low")
+                elif method == "no_target":  # _WAVE255_LAB_NO_SWING_LEVEL: no level at all - LAB-grade a fixed-R target
+                    _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v,
+                                         vol_ratio, htf_bias, cur_price, snapshot_context, "no_target")
                 continue
 
             sim_risk = sim.check_risk_limits()
