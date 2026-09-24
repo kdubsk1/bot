@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-09-24T12:20:33.869158+00:00",
+  "generated_at": "2026-09-24T12:27:05.596379+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -549,6 +549,10 @@ const DATA = {
       {
         "time": "2026-09-24 08:40",
         "balance": 55763.56
+      },
+      {
+        "time": "2026-09-24 12:05",
+        "balance": 54927.1
       }
     ]
   },
@@ -967,15 +971,15 @@ const DATA = {
   },
   "all_time": {
     "wins": 27,
-    "losses": 66,
-    "wr": 29.0,
-    "total_trades": 93
+    "losses": 67,
+    "wr": 28.7,
+    "total_trades": 94
   },
   "today": {
     "wins": 0,
-    "losses": 19,
+    "losses": 20,
     "wr": 0.0,
-    "total_trades": 19
+    "total_trades": 20
   },
   "setup_stats": [
     {
@@ -1131,6 +1135,13 @@ const DATA = {
       "wins": 0,
       "losses": 1,
       "wr": 0.0
+    },
+    {
+      "setup": "NQ:EMA21_PULLBACK_BEAR",
+      "fires": 1,
+      "wins": 0,
+      "losses": 1,
+      "wr": 0.0
     }
   ],
   "recent_alerts": [
@@ -1146,9 +1157,9 @@ const DATA = {
       "rr": "1.19",
       "conv": "23",
       "tier": "REJECT",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "30506.0333"
     },
     {
       "time": "2026-09-24 11:55",
@@ -1561,9 +1572,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 1,
-      "losses": 1,
-      "total_pnl_r": 1.03,
-      "wr": 50.0
+      "losses": 2,
+      "total_pnl_r": 0.03,
+      "wr": 33.3
     },
     "BTC": {
       "wins": 5,
@@ -1585,24 +1596,11 @@ const DATA = {
     },
     "REJECT": {
       "wins": 16,
-      "losses": 41,
-      "wr": 28.1
+      "losses": 42,
+      "wr": 27.6
     }
   },
   "open_trades": [
-    {
-      "market": "NQ",
-      "setup": "EMA21_PULLBACK_BEAR",
-      "tf": "15m",
-      "direction": "SHORT",
-      "entry": "30444.0",
-      "target": "30370.0",
-      "stop": "30506.0333",
-      "conviction": 23,
-      "last_rescore_conviction": 23,
-      "tier": "REJECT",
-      "timestamp": "2026-09-24T12:05:52.317296+00:00"
-    },
     {
       "market": "BTC",
       "setup": "RSI_DIV_BULL",

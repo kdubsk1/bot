@@ -707,7 +707,7 @@
     "losses": 108,
     "total": 139,
     "win_rate": 22.3,
-    "last_updated": "2026-09-11T06:08:17.485573",
+    "last_updated": "2026-09-24T12:22:06.015594",
     "paper_total": 106,
     "paper_losses": 83,
     "paper_win_rate": 21.7,
@@ -717,7 +717,10 @@
     "real_total": 1,
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
-    "real_expectancy": -1.0
+    "real_expectancy": -1.0,
+    "lab_total": 1,
+    "lab_losses": 1,
+    "lab_win_rate": 0.0
   },
   "GC:EMA50_BREAKDOWN": {
     "wins": 0,
