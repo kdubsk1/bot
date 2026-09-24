@@ -1,6 +1,6 @@
 {
- "utc": "2026-09-24T02:01:19.944177+00:00",
- "cycle": 43,
+ "utc": "2026-09-24T02:15:21.432248+00:00",
+ "cycle": 48,
  "last_sync": "2026-09-24T00:37:18.810522+00:00",
  "started_utc": "2026-09-24T00:31:57.193098+00:00",
  "scanner_on": true,
@@ -12,11 +12,11 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "GC|2026-09-24": 2,
+   "GC|2026-09-24": 3,
    "BTC|2026-09-24": 1
   },
   "last": {
-   "GC|RRGATE:BB_REVERSION_BULL|LONG": "2026-09-24T01:37:17.144784+00:00",
+   "GC|RRGATE:BB_REVERSION_BULL|LONG": "2026-09-24T02:12:20.846583+00:00",
    "GC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-09-24T01:59:19.728493+00:00",
    "BTC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-09-24T01:59:19.778367+00:00"
   }
