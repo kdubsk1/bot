@@ -3897,6 +3897,250 @@ def get_session_trades(session_id: str = None) -> list[dict]:
     return []
 
 
+# ---- _WAVE264_ARCHIVE_KEEPS_CLOSES -------------------------------------------
+# Wave 264 (24 Sep 2026): the session archive lost closes. A session's rows were copied to its archive ONCE (at
+# its close, or the first boot after it); a row still OPEN then closed later in outcomes.csv only, and 7 days on
+# the trim dropped that CLOSED row while the archive kept the OPEN copy - 40 real calls were stuck OPEN. Now every
+# past session is merged into its archive before any trim, and the trim drops a row only when its archive holds
+# that exact row. The lost closes come back once from data/ledger_repairs_w264.csv (the bot's own CLOSED rows,
+# read from the GitHub history of outcomes.csv; each names its commit).
+W264_REPAIRS_FILE = os.path.join(_BASE_DIR, "data", "ledger_repairs_w264.csv")
+
+
+def _w264_log():
+    import logging as _w264_logging
+    return _w264_logging.getLogger("nqcalls")
+
+
+def _w264_val(r, k):
+    v = r.get(k)
+    return "" if v is None else str(v)
+
+
+def _w264_fp(r):
+    """Every non-blank value a row carries, in CSV_COLS order - for 'does the archive hold this exact row?'."""
+    return tuple((k, _w264_val(r, k)) for k in CSV_COLS if _w264_val(r, k) != "")
+
+
+def _w264_fill_sid(rows):
+    """The session_id back-fill _read_all does, for rows read inside the ledger lock."""
+    try:
+        from session_clock import session_date_from_timestamp
+        for r in rows:
+            if not r.get("session_id"):
+                ts = r.get("timestamp", "")
+                r["session_id"] = session_date_from_timestamp(ts) if ts else ""
+    except Exception:
+        pass
+    return rows
+
+
+def _w264_read_archive(path):
+    """(columns, rows) of one archive file; ([], []) when it does not exist. A byte-order mark is ignored. A row
+    with MORE fields than the header raises: rewriting it would drop the extra value, so that file is left alone."""
+    if not os.path.exists(path):
+        return [], []
+    with open(path, "r", newline="", encoding="utf-8-sig") as f:
+        rd = csv.DictReader(f)
+        rows = list(rd)
+        header = list(rd.fieldnames or [])
+    if any(None in r for r in rows):
+        raise ValueError("a row has more fields than the header - not rewriting %s" % os.path.basename(path))
+    return header, rows
+
+
+def _w264_write_archive(path, header, rows):
+    """Rewrite one archive file atomically. Its own columns, in its own order, plus any CSV_COLS column that a
+    row now has a value for (so no value is dropped); a new file gets CSV_COLS, as before. Temp file, flush,
+    fsync, os.replace - a crash leaves the old file whole, and a failed write removes its own temp file."""
+    if not header:
+        cols = list(CSV_COLS)
+    else:
+        cols = list(header) + [c for c in CSV_COLS if c not in header
+                               and any(_w264_val(r, c) != "" for r in rows)]
+    tmp = path + ".w264tmp"
+    try:
+        with open(tmp, "w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=cols)
+            w.writeheader()
+            for r in rows:
+                w.writerow({k: _w264_val(r, k) for k in cols})
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    finally:
+        if os.path.exists(tmp):     # only after a failed write: never leave a partial file for auto_sync
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+
+
+def _w264_merge_archive(path, live_rows):
+    """Bring one session's archive up to date with that session's rows in outcomes.csv. Returns (added, updated,
+    held); held maps alert_id -> _w264_fp of each live row the archive now holds exactly. A missing row is added;
+    a differing copy gets the live values laid over it (the live row is the later record) - never OPEN over
+    CLOSED, never a blank over a value. Writes only when something changed. Raises on an I/O error."""
+    header, rows = _w264_read_archive(path)
+    by_id = {}
+    for r in rows:
+        by_id.setdefault(_w264_val(r, "alert_id").strip(), []).append(r)
+    added = updated = 0
+    held = {}
+    for live in live_rows:
+        aid = _w264_val(live, "alert_id").strip()
+        if not aid:
+            continue    # no id, no proof: the trim keeps it
+        fp = _w264_fp(live)
+        copies = by_id.get(aid)
+        if not copies:
+            new = {k: _w264_val(live, k) for k in CSV_COLS}
+            rows.append(new)
+            by_id[aid] = [new]
+            added += 1
+            held[aid] = fp
+            continue
+        ok = True
+        for a in copies:
+            if all(_w264_val(a, k) == v for k, v in fp):
+                continue    # already holds it
+            if _w264_val(live, "status") == "OPEN" and _w264_val(a, "status") == "CLOSED":
+                ok = False  # never OPEN over CLOSED
+                continue
+            for k, v in fp:
+                a[k] = v
+            updated += 1
+        if ok:
+            held[aid] = fp
+    if added or updated:
+        _w264_write_archive(path, header, rows)
+    return added, updated, held
+
+
+def _w264_merge_sessions(archive_dir, by_session):
+    """Merge each session's live rows into its archive. Returns (held, summary, created). A session whose merge
+    fails is logged and left out of held, so the trim keeps its rows in outcomes.csv."""
+    held, created = {}, []
+    added = updated = changed = failed = 0
+    for sid, srows in by_session.items():
+        path = os.path.join(archive_dir, "outcomes_%s.csv" % sid)
+        existed = os.path.exists(path)
+        try:
+            a, u, h = _w264_merge_archive(path, srows)
+        except Exception as e:
+            failed += 1
+            _w264_log().error("W264: could not bring %s up to date (%s) - its rows stay in outcomes.csv" % (path, e))
+            continue
+        held.update(h)
+        if not existed and os.path.exists(path):
+            created.append(path)
+        elif a or u:
+            changed += 1
+        added += a
+        updated += u
+    summary = "%d new archive file(s), %d updated (%d row(s) added, %d brought up to date)%s" % (
+        len(created), changed, added, updated, (", %d FAILED" % failed) if failed else "")
+    return held, summary, created
+
+
+def _w264_trim(cutoff, held, current=None):
+    """The trim, on the rows read INSIDE the ledger lock. Keeps what the old trim kept (OPEN rows, the current
+    session, the last 7 days) and every older row its archive does not hold exactly. Returns (dropped, kept)."""
+    res = [0, 0]
+
+    def _mut(fresh):
+        _w264_fill_sid(fresh)
+        keep = []
+        for r in fresh:
+            sid = _w264_val(r, "session_id")
+            if _w264_val(r, "status") == "OPEN" or (current is not None and sid == current) or sid >= cutoff:
+                keep.append(r)
+            elif held.get(_w264_val(r, "alert_id").strip()) == _w264_fp(r):
+                res[0] += 1     # its archive holds this exact row
+            else:
+                res[1] += 1     # not proven in the archive: it stays here
+                keep.append(r)
+        return keep
+    _safe_mutate_csv(_mut)
+    return res[0], res[1]
+
+
+def _w264_apply_repairs(live_ids):
+    """One-time and idempotent: put back what the archive lost before this wave, from data/ledger_repairs_w264.csv
+    (each row the bot's own CLOSED row). w264_action "close": an archive copy that is still OPEN, for a call no longer
+    in outcomes.csv, gets that row's values; a CLOSED archive row is never touched. w264_action "add": a call that is
+    in NO archive file and not in outcomes.csv is appended to its session's archive (an existing file only); if any
+    archive cannot be read, nothing is added that boot. One archive that cannot be read or written is logged and
+    skipped; the others still get theirs. Returns (closed, added, already done, not found, skipped, files failed)."""
+    if not os.path.exists(W264_REPAIRS_FILE):
+        return 0, 0, 0, 0, 0, 0
+    with open(W264_REPAIRS_FILE, "r", newline="", encoding="utf-8-sig") as f:
+        reps = list(csv.DictReader(f))
+    applied = added = already = missing = skipped = failed = 0
+    by_sid = {}
+    for rep in reps:
+        aid, sid = _w264_val(rep, "alert_id").strip(), _w264_val(rep, "session_id").strip()
+        if not aid or not sid or _w264_val(rep, "status") != "CLOSED" or aid in live_ids:
+            skipped += 1    # while a call is in outcomes.csv, the merge keeps its archive up to date
+            continue
+        by_sid.setdefault(sid, []).append(rep)
+    archive_dir = os.path.join(_BASE_DIR, "data", "archive")
+    everywhere = None       # every alert_id in every archive file - an "add" needs proof the call is nowhere
+    if any(_w264_val(r, "w264_action") == "add" for rs in by_sid.values() for r in rs):
+        try:
+            everywhere = set()
+            for fn in os.listdir(archive_dir):
+                if fn.startswith("outcomes_") and fn.endswith(".csv"):
+                    everywhere.update(_w264_val(r, "alert_id").strip()
+                                      for r in _w264_read_archive(os.path.join(archive_dir, fn))[1])
+        except Exception as e:
+            everywhere = None
+            _w264_log().error("W264: cannot read every archive (%s) - no row is added this boot" % e)
+    for sid, reps_s in sorted(by_sid.items()):
+        path = os.path.join(archive_dir, "outcomes_%s.csv" % sid)
+        try:
+            header, rows = _w264_read_archive(path)
+            a_n = n_n = k_n = m_n = 0
+            for rep in reps_s:
+                aid = _w264_val(rep, "alert_id").strip()
+                copies = [a for a in rows if _w264_val(a, "alert_id").strip() == aid]
+                if _w264_val(rep, "w264_action") == "add":
+                    if copies or (everywhere is not None and aid in everywhere):
+                        k_n += 1    # already in an archive: never a second copy
+                    elif everywhere is None or not header:
+                        m_n += 1    # cannot prove it is missing, or no archive file for that session
+                    else:
+                        rows.append({k: _w264_val(rep, k) for k in CSV_COLS})
+                        everywhere.add(aid)     # an id listed twice is still added once
+                        n_n += 1
+                    continue
+                if not copies:
+                    m_n += 1
+                    continue
+                still_open = [a for a in copies if _w264_val(a, "status") == "OPEN"]
+                if not still_open:
+                    k_n += 1
+                    continue
+                for a in still_open:
+                    for k in CSV_COLS:
+                        v = _w264_val(rep, k)
+                        if v != "":
+                            a[k] = v
+                a_n += 1
+            if a_n or n_n:
+                _w264_write_archive(path, header, rows)
+        except Exception as e:
+            failed += 1
+            _w264_log().error("W264: repair skipped %s (%s) - tried again next boot" % (path, e))
+            continue
+        applied += a_n
+        added += n_n
+        already += k_n
+        missing += m_n
+    return applied, added, already, missing, skipped, failed
+# ---- end _WAVE264_ARCHIVE_KEEPS_CLOSES ---------------------------------------
+
+
 def archive_session(session_id: str) -> str:
     """
     Archive trades from the specified session:
@@ -3909,27 +4153,26 @@ def archive_session(session_id: str) -> str:
     archive_path = os.path.join(archive_dir, f"outcomes_{session_id}.csv")
 
     rows = _read_all()
-    session_rows = [r for r in rows if r.get("session_id") == session_id]
-
-    # Write archive file
-    if session_rows:
-        with open(archive_path, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=CSV_COLS)
-            w.writeheader()
-            for r in session_rows:
-                w.writerow({k: r.get(k, "") for k in CSV_COLS})
-
-    # Rebuild live file: keep open trades + last 7 days of closed trades
-    cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    keep = []
+    # _WAVE264_ARCHIVE_KEEPS_CLOSES: this session and every other past session still in outcomes.csv are MERGED
+    # into their archives (this file used to be overwritten, the others never looked at), then the trim drops
+    # only rows their archive holds exactly.
+    try:
+        from session_clock import get_session_date
+        _w264_current = get_session_date()
+    except Exception:
+        _w264_current = None
+    _w264_by = {}
     for r in rows:
-        if r.get("status") == "OPEN":
-            keep.append(r)
-        elif r.get("session_id", "") >= cutoff:
-            keep.append(r)
-        # Older closed trades are dropped from live file (already archived)
+        _w264_sid = _w264_val(r, "session_id")
+        if _w264_sid and (_w264_sid == session_id or _w264_sid != _w264_current):
+            _w264_by.setdefault(_w264_sid, []).append(r)
+    _w264_held, _w264_done, _w264_new = _w264_merge_sessions(archive_dir, _w264_by)
 
-    _write_all(keep)
+    # Rebuild live file: keep open trades + last 7 days of closed trades (+ any older row its archive lacks)
+    cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    _w264_dropped, _w264_kept = _w264_trim(cutoff, _w264_held)
+    _w264_log().info("W264: archive at session close %s - %s; trim dropped %d row(s) the archive holds, "
+                     "kept %d it does not" % (session_id, _w264_done, _w264_dropped, _w264_kept))
     return archive_path
 
 
@@ -3961,32 +4204,22 @@ def archive_old_sessions() -> list[str]:
         if sid:
             by_session.setdefault(sid, []).append(r)
 
-    created = []
-    for sid, session_rows in by_session.items():
-        if sid == current:
-            continue  # don't archive today's session
-        archive_path = os.path.join(archive_dir, f"outcomes_{sid}.csv")
-        if os.path.exists(archive_path):
-            continue  # already archived
-        with open(archive_path, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=CSV_COLS)
-            w.writeheader()
-            for r in session_rows:
-                w.writerow({k: r.get(k, "") for k in CSV_COLS})
-        created.append(archive_path)
+    # _WAVE264_ARCHIVE_KEEPS_CLOSES: every past session is MERGED into its archive - never skipped because the file
+    # exists (that skip is what lost the closes) - then the one-time repair, then a trim that drops only rows
+    # their archive holds exactly. Today's session is still never archived.
+    _w264_past = {sid: srows for sid, srows in by_session.items() if sid != current}
+    _w264_held, _w264_done, created = _w264_merge_sessions(archive_dir, _w264_past)
+    try:
+        _w264_rep = ("closed %d, added %d, already done %d, not found %d, skipped %d, files failed %d"
+                     % _w264_apply_repairs({_w264_val(r, "alert_id").strip() for r in rows}))
+    except Exception as _w264_e:
+        _w264_rep = "FAILED (%s)" % _w264_e
 
-    # Trim live file: open + current session + last 7 days
+    # Trim live file: open + current session + last 7 days (+ any older row its archive does not hold)
     cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    keep = []
-    for r in rows:
-        if r.get("status") == "OPEN":
-            keep.append(r)
-        elif r.get("session_id") == current:
-            keep.append(r)
-        elif r.get("session_id", "") >= cutoff:
-            keep.append(r)
-
-    _write_all(keep)
+    _w264_dropped, _w264_kept = _w264_trim(cutoff, _w264_held, current=current)
+    _w264_log().info("W264: archive at boot - %s; repairs %s; trim dropped %d row(s) the archive holds, "
+                     "kept %d it does not" % (_w264_done, _w264_rep, _w264_dropped, _w264_kept))
     return created
 
 
