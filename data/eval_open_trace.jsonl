@@ -128,3 +128,5 @@
 {"ts": "2026-09-24T11:20:50.349191+00:00", "market": "GC", "alert_id": "198a207713", "outcome": "blocked_sizer", "detail": "kelly_no_edge (WR=31%)", "contracts": 0, "rejected": true}
 {"ts": "2026-09-24T14:28:59.515127+00:00", "market": "NQ", "alert_id": "b427a9ebae", "outcome": "attempt", "detail": "tier=HIGH"}
 {"ts": "2026-09-24T14:28:59.516696+00:00", "market": "NQ", "alert_id": "b427a9ebae", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
+{"ts": "2026-09-25T00:29:45.677845+00:00", "market": "NQ", "alert_id": "474f2d3a9b", "outcome": "attempt", "detail": "tier=MEDIUM"}
+{"ts": "2026-09-25T00:29:45.679054+00:00", "market": "NQ", "alert_id": "474f2d3a9b", "outcome": "blocked_sizer", "detail": "kelly_no_edge (WR=26%)", "contracts": 0, "rejected": true}
