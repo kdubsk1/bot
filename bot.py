@@ -8548,6 +8548,15 @@ def _build_boot_banner(tsx_result, open_carried, expired_count, suspended_count,
 
 async def _post_init(app):
     log.info("Running startup...")
+    # _WAVE265_LEDGER_AND_RESTORE: FIRST, before anything reads or writes a data file - bring every file the image
+    # has up to GitHub HEAD (a restart that is not a deploy starts from the image's older copies). Never raises.
+    try:
+        global _LAST_WEEKLY_RECAP_DATE
+        _w265_res = await asyncio.get_event_loop().run_in_executor(None, auto_sync.w265_restore_at_boot)
+        if _w265_res.get("replaced") or _w265_res.get("created"):
+            _LAST_WEEKLY_RECAP_DATE = _w204_load("weekly_recap")   # the one value read from a data file at import
+    except Exception as _w265e:
+        log.error("W265: restore at boot skipped: %s" % _w265e)
 
     # ============================================================
     # Wave 12 (May 5, 2026): Phantom-Loss Data Cleanup Migration

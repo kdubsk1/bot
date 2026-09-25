@@ -237,7 +237,7 @@ def _regenerate_dashboard():
         log.warning(f"auto_sync: dashboard regen failed (non-fatal): {_redact(str(e))}")
 
 
-def _do_sync_sync(label: str) -> dict:
+def _w265_do_sync_unlocked(label: str) -> dict:  # _WAVE265_LEDGER_AND_RESTORE: _do_sync_sync (below) takes the lock
     """
     Synchronous sync logic. Called from a thread via run_in_executor.
     Returns {ok, message, commit_sha, files_changed}.
@@ -539,16 +539,217 @@ async def heartbeat_push_loop():
     while True:
         try:
             await asyncio.sleep(W243_PUSH_SECONDS)
-            res = await loop.run_in_executor(None, _w243_push_heartbeat_sync)
+            res = await loop.run_in_executor(None, _w265_locked, _w243_push_heartbeat_sync)  # _WAVE265_LEDGER_AND_RESTORE
             if res.get("changed"):
                 log.info("auto_sync: heartbeat pushed")
             elif not res.get("ok"):
                 log.warning("auto_sync: heartbeat push: %s", res.get("message"))
+            # _WAVE265_LEDGER_AND_RESTORE: the ledger goes with the heartbeat, every 15 minutes, when it changed
+            res = await loop.run_in_executor(None, _w265_locked, _w265_push_ledger_sync)
+            if res.get("changed"):
+                log.info("auto_sync: ledger pushed (W265)")
+            elif not res.get("ok"):
+                log.warning("auto_sync: W265 ledger push: %s", res.get("message"))
         except asyncio.CancelledError:
             raise
         except Exception as e:
             log.warning("auto_sync: heartbeat loop iteration: %s", _redact(str(e)))
 # ---- end _WAVE243_HEARTBEAT ---------------------------------------
+
+
+# ---- _WAVE265_LEDGER_AND_RESTORE ------------------------------------------
+# Wave 265 (24 Sep 2026): (A) outcomes.csv reaches GitHub every 15 minutes, with the heartbeat; (B) at boot, every
+# sync-path file the image has that differs from GitHub HEAD is brought up to HEAD before anything uses it - so a
+# restart that is not a deploy can never push the image's old files over newer ones; (C) one lock, so the 15-minute
+# pushes, the 6-hourly sync, /sync and the restore never race on the branch ref. Nothing here deletes anything.
+import threading as _w265_threading
+import time as _w265_time
+
+W265_LEDGER_PATH = "outcomes.csv"
+W265_RESTORE_BUDGET_SEC = 240          # the boot waits at most this long for downloads; the rest is logged, not written
+W265_RESTORE_MAX_BYTES = 200 * 1024 * 1024
+W265_TMP_SUFFIX = ".w265tmp"
+_W265_LOCK = _w265_threading.Lock()
+_w265_last_ledger_sha = [""]
+_W265_ARCHIVE_RE = re.compile(r"^data/archive/outcomes_[^/]+\.csv$")
+
+
+def _w265_locked(fn, *args):
+    """Run one GitHub write at a time (the 15-minute pushes, the 6-hourly sync, /sync, the boot restore)."""
+    with _W265_LOCK:
+        return fn(*args)
+
+
+def _do_sync_sync(label: str) -> dict:
+    """Wave 265: the tree sync, under the same lock as the 15-minute pushes. Same result dict as before."""
+    with _W265_LOCK:
+        return _w265_do_sync_unlocked(label)
+
+
+def _w265_push_ledger_sync() -> dict:
+    """Push outcomes.csv on its own, like the heartbeat: contents API, one file, one commit, only when it changed.
+    Returns {ok, message, changed}. Never raises."""
+    try:
+        if not GITHUB_TOKEN:
+            return {"ok": False, "message": "GITHUB_TOKEN not set", "changed": False}
+        fp = BASE_DIR / W265_LEDGER_PATH
+        if not fp.exists():
+            return {"ok": False, "message": "no ledger file yet", "changed": False}
+        content = fp.read_bytes()
+        local_sha = _git_blob_sha(content)
+        if local_sha == _w265_last_ledger_sha[0]:
+            return {"ok": True, "message": "unchanged", "changed": False}
+        s, r = _api_request("GET", "/contents/%s?ref=%s" % (W265_LEDGER_PATH, BRANCH))
+        if s not in (200, 404):
+            return {"ok": False, "message": "ledger check HTTP %s" % s, "changed": False}
+        remote_sha = r.get("sha") if (s == 200 and isinstance(r, dict)) else None
+        if remote_sha == local_sha:
+            _w265_last_ledger_sha[0] = local_sha
+            return {"ok": True, "message": "unchanged on GitHub", "changed": False}
+        body = {
+            "message": "Ledger: %s" % datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            "content": base64.b64encode(content).decode("ascii"),
+            "branch": BRANCH,
+            "committer": {"name": COMMITTER_NAME, "email": COMMITTER_EMAIL},
+        }
+        if remote_sha:
+            body["sha"] = remote_sha
+        s, r = _api_request("PUT", "/contents/%s" % W265_LEDGER_PATH, body, timeout=60)
+        if s in (200, 201):
+            _w265_last_ledger_sha[0] = local_sha
+            return {"ok": True, "message": "pushed", "changed": True}
+        # 409 = the ref moved between the check and the write. Next cycle picks it up.
+        return {"ok": False, "message": "ledger push HTTP %s" % s, "changed": False}
+    except Exception as e:
+        return {"ok": False, "message": "exception: %s" % _redact(str(e)), "changed": False}
+
+
+def _w265_in_sync_paths(path: str) -> bool:
+    """The same files the sync walks: data/**, outcomes.csv, docs/dashboard.html - minus dot-paths, __pycache__
+    and the Wave 241/247 skip list."""
+    parts = path.split("/")
+    if not (path in ("outcomes.csv", "docs/dashboard.html") or (parts[0] == "data" and len(parts) > 1)):
+        return False
+    if any(p.startswith(".") for p in parts) or "__pycache__" in parts:
+        return False
+    return not _w241_skip(Path(path))
+
+
+def _w265_rank(path: str) -> int:
+    """The ledger first, then its archives, then everything else - what matters most is fetched inside the budget."""
+    return 0 if path == W265_LEDGER_PATH else 1 if _W265_ARCHIVE_RE.match(path) else 2
+
+
+def _w265_write(dest: Path, data: bytes) -> bool:
+    """Atomic write: a temp file next to it, fsync, os.replace. On any error the old file is untouched and the temp
+    file is removed. Returns True when written."""
+    tmp = dest.with_name(dest.name + W265_TMP_SUFFIX)
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with open(tmp, "wb") as fh:
+            fh.write(data)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, dest)
+        return True
+    except Exception as e:
+        log.error("W265: could not write %s: %s" % (dest.name, _redact(str(e))))
+        return False
+    finally:
+        try:
+            if tmp.exists():
+                os.remove(tmp)
+        except Exception:
+            pass
+
+
+def _w265_restore_log(out: dict) -> dict:
+    msg = ("W265: restore at boot - %d file(s) differ from GitHub HEAD; %d replaced, %d created, %d failed, "
+           "%d left (time/size budget), %.2f MB" % (out["differ"], out["replaced"], out["created"], out["failed"],
+                                                 out["left"], out["bytes"] / (1024.0 * 1024.0)))
+    if out.get("why"):
+        msg += " - " + out["why"]
+    (log.info if out.get("ok") else log.warning)(msg)
+    return out
+
+
+def w265_restore_at_boot(budget_sec=None, max_bytes=None) -> dict:
+    """Wave 265 Part B. Call FIRST at startup, before anything reads or writes a data file. Returns a summary dict
+    {ok, differ, replaced, created, failed, left, bytes, why}. Never raises, never deletes."""
+    t0 = _w265_time.monotonic()
+    budget = W265_RESTORE_BUDGET_SEC if budget_sec is None else budget_sec
+    cap = W265_RESTORE_MAX_BYTES if max_bytes is None else max_bytes
+    out = {"ok": False, "differ": 0, "replaced": 0, "created": 0, "failed": 0, "left": 0, "bytes": 0, "why": ""}
+    try:
+        if not GITHUB_TOKEN:
+            out["why"] = "GITHUB_TOKEN not set - booting on the image's files"
+            return _w265_restore_log(out)
+        with _W265_LOCK:
+            s, r = _api_request("GET", "/git/refs/heads/%s" % BRANCH)
+            if s != 200 or "object" not in r:
+                out["why"] = "could not read the branch (HTTP %s) - booting on the image's files" % s
+                return _w265_restore_log(out)
+            s, r = _api_request("GET", "/git/commits/%s" % r["object"]["sha"])
+            if s != 200 or "tree" not in r:
+                out["why"] = "could not read the head commit (HTTP %s) - booting on the image's files" % s
+                return _w265_restore_log(out)
+            s, r = _api_request("GET", "/git/trees/%s?recursive=1" % r["tree"]["sha"], timeout=60)
+            if s != 200 or r.get("truncated"):
+                out["why"] = ("GitHub's file list came back truncated" if s == 200 else
+                              "could not read the file list (HTTP %s)" % s) + " - booting on the image's files"
+                return _w265_restore_log(out)
+            remote = {}
+            for e in r.get("tree", []):
+                path = e.get("path") or ""
+                if e.get("type") == "blob" and e.get("sha") and _w265_in_sync_paths(path):
+                    remote[path] = e
+            local = {}
+            for fp in _walk_sync_paths():
+                try:
+                    local[str(fp.relative_to(BASE_DIR)).replace("\\", "/")] = _git_blob_sha(fp.read_bytes())
+                except Exception:
+                    continue
+            todo = []
+            for path, e in remote.items():
+                have = local.get(path)
+                if have is None:
+                    # only a missing ledger archive is created; a file that exists but was not hashed (too big,
+                    # unreadable) is never overwritten
+                    if _W265_ARCHIVE_RE.match(path) and not (BASE_DIR / path).exists():
+                        todo.append((path, e, "created"))
+                elif have != e["sha"]:
+                    todo.append((path, e, "replaced"))
+            todo.sort(key=lambda x: (_w265_rank(x[0]), x[0]))
+            out["differ"] = len(todo)
+            for path, e, kind in todo:
+                size = int(e.get("size") or 0)
+                if _w265_time.monotonic() - t0 > budget or out["bytes"] + size > cap:
+                    out["left"] += 1
+                    continue
+                s2, b = _api_request("GET", "/git/blobs/%s" % e["sha"], timeout=60)
+                data = None
+                try:
+                    if s2 == 200 and isinstance(b, dict) and b.get("encoding") == "base64":
+                        data = base64.b64decode(b.get("content") or "")
+                except Exception:
+                    data = None
+                if data is None or _git_blob_sha(data) != e["sha"]:
+                    out["failed"] += 1
+                    log.error("W265: restore of %s failed (HTTP %s, %s) - kept the image's copy"
+                              % (path, s2, "sha mismatch" if data is not None else "no content"))
+                    continue
+                if _w265_write(BASE_DIR / path, data):
+                    out[kind] += 1
+                    out["bytes"] += len(data)
+                else:
+                    out["failed"] += 1
+            if out["left"]:
+                out["why"] = "the time/size budget ran out - %d file(s) keep the image's copy" % out["left"]
+        out["ok"] = out["failed"] == 0 and out["left"] == 0
+    except Exception as ex:
+        out["why"] = "exception: %s" % _redact(str(ex))
+    return _w265_restore_log(out)
+# ---- end _WAVE265_LEDGER_AND_RESTORE --------------------------------------
 
 
 def status() -> str:
