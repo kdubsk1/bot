@@ -8,6 +8,12 @@
     },
     {
       "market": "BTC",
+      "setup": "VWAP_REJECT_BEAR",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
+      "market": "BTC",
       "setup": "MACD_CROSS_BEAR",
       "losses": 5,
       "reason": "Wave 47 auto: 0W/5L over last 30 days"
@@ -23,7 +29,19 @@
       "setup": "STOCH_REVERSAL_BULL",
       "losses": 8,
       "reason": "Wave 47 auto: 0W/8L over last 30 days"
+    },
+    {
+      "market": "BTC",
+      "setup": "BB_REVERSION_BEAR",
+      "losses": 4,
+      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+    },
+    {
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BEAR",
+      "losses": 7,
+      "reason": "Wave 47 auto: 0W/7L over last 30 days"
     }
   ],
-  "ts": "2026-09-24T20:15:21.388189+00:00"
+  "ts": "2026-09-25T12:34:38.251305+00:00"
 }

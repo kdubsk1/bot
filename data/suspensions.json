@@ -98,5 +98,15 @@
     "reason": "Wave 47 auto: 0W/5L over last 30 days",
     "suspended_at": "2026-09-24T20:00:01.731716+00:00",
     "source": "wave47_auto"
+  },
+  "BTC:VWAP_REJECT_BEAR": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-09-25T12:34:38.200296+00:00",
+    "source": "wave47_auto"
+  },
+  "BTC:BB_REVERSION_BEAR": {
+    "reason": "Wave 47 auto: 0W/4L over last 30 days",
+    "suspended_at": "2026-09-25T12:34:38.206776+00:00",
+    "source": "wave47_auto"
   }
 }
