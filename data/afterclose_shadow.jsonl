@@ -150,3 +150,8 @@
 {"kind": "pending", "alert_id": "198a207713", "market": "GC", "direction": "LONG", "setup": "BB_REVERSION_BULL", "entry": "4300.1", "stop": "4273.437", "target": "4356.2", "settle_price": 4309.9, "settle_result": "WIN", "settle_ts": "2026-09-24T19:55:29.854507+00:00"}
 {"kind": "pending", "alert_id": "b427a9ebae", "market": "NQ", "direction": "LONG", "setup": "OPENING_RANGE_BREAKOUT", "entry": "30635.5", "stop": "30481.87", "target": "30997.5", "settle_price": 30782.5, "settle_result": "WIN", "settle_ts": "2026-09-24T19:55:30.293465+00:00"}
 {"kind": "resolved", "alert_id": "7dae759713", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 18, "settle_result": "LOSS", "ts": "2026-09-25T01:26:51.169668+00:00"}
+{"kind": "resolved", "alert_id": "eaa4a9fbfd", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 53, "settle_result": "WIN", "ts": "2026-09-25T10:12:56.813902+00:00"}
+{"kind": "resolved", "alert_id": "bcf4b11131", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 53, "settle_result": "WIN", "ts": "2026-09-25T10:12:56.814253+00:00"}
+{"kind": "resolved", "alert_id": "b2b58ef8a1", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 53, "settle_result": "WIN", "ts": "2026-09-25T10:16:57.937189+00:00"}
+{"kind": "resolved", "alert_id": "8b937c8f39", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 53, "settle_result": "WIN", "ts": "2026-09-25T10:16:57.937636+00:00"}
+{"kind": "resolved", "alert_id": "b427a9ebae", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 59, "settle_result": "WIN", "ts": "2026-09-25T11:36:20.625131+00:00"}
