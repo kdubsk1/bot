@@ -3,8 +3,8 @@
     {
       "market": "GC",
       "setup": "MACD_CROSS_BEAR",
-      "losses": 3,
-      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+      "losses": 5,
+      "reason": "Wave 47 auto: 0W/5L over last 30 days"
     },
     {
       "market": "BTC",
@@ -32,16 +32,10 @@
     },
     {
       "market": "BTC",
-      "setup": "BB_REVERSION_BEAR",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
-    },
-    {
-      "market": "BTC",
       "setup": "STOCH_REVERSAL_BEAR",
       "losses": 7,
       "reason": "Wave 47 auto: 0W/7L over last 30 days"
     }
   ],
-  "ts": "2026-09-25T12:34:38.251305+00:00"
+  "ts": "2026-09-25T20:00:16.407578+00:00"
 }

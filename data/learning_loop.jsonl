@@ -126,3 +126,4 @@
 {"event":"apply","bucket":"vol_floor|SOL|BB_REVERSION_BEAR","from":0.25,"to":0.2,"evidence":{"n":57,"w":37,"l":20,"wr":64.9,"avg_rr":2.5,"required_wr":35.7},"ts":"2026-09-23T00:05:35.657798+00:00"}
 {"event":"apply","bucket":"vol_floor|GC|STOCH_REVERSAL_BEAR","from":0.3,"to":0.25,"evidence":{"n":78,"w":35,"l":43,"wr":44.9,"avg_rr":2.63,"required_wr":34.4},"ts":"2026-09-24T00:01:13.456525+00:00"}
 {"event":"apply","bucket":"vol_floor|GC|RSI_DIV_BULL","from":0.3,"to":0.25,"evidence":{"n":68,"w":67,"l":1,"wr":98.5,"avg_rr":1.83,"required_wr":44.1},"ts":"2026-09-25T00:00:19.713091+00:00"}
+{"event":"apply","bucket":"vol_confirm|SOL|EMA21_PULLBACK_BULL","from":0.7,"to":0.65,"evidence":{"n":84,"w":35,"l":49,"wr":41.7,"avg_rr":2.08,"required_wr":40.6},"ts":"2026-09-26T00:01:12.282583+00:00"}
