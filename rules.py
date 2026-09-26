@@ -313,3 +313,13 @@ TIGHT_STOP_MIN_PCT = {"NQ": 0.0005, "GC": 0.0050, "BTC": 0.0050, "SOL": 0.0050}
 LAB_SYNTH_RR = 2.0
 LAB_SYNTH_MAX_PER_DAY = 10
 LAB_SYNTH_RESERVE = 10
+
+# ---- Wave 266 (24 Sep 2026, Phase 1.5: keep looking during a call) - _WAVE266_KEEP_LOOKING ----
+# While a REAL call is open in a market (or BTC/SOL are in the 2-5 AM ET dead zone) the scanner keeps scanning,
+# LAB-only. A setup that passes every gate becomes a silent LAB row (lab_gate open_call / crypto_dead_zone) - never
+# a second real call, never a send - and every other LAB row found in that mode is tagged "<mode>:<gate>". At most
+# LAB_OPEN_MAX_PER_DAY such rows per market per UTC day, counted apart from LAB_MAX_PER_MARKET_PER_DAY, so they
+# never crowd out the rows Trust counts. Q24 (Wayne, 24 Sep): reported BESIDE Trust, not in it, for one week after
+# the wave is live; then he decides. LAB_WHILE_OPEN = False switches it off (the old early return comes back).
+LAB_WHILE_OPEN = True
+LAB_OPEN_MAX_PER_DAY = 20

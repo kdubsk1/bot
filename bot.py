@@ -273,6 +273,8 @@ def _w246_may_grade(market, setup_type, direction, now=None):
         if not _R246_ON:
             return False, "LAB_GRADE_EVERYTHING is off"
         now = now or datetime.now(timezone.utc)
+        if _w266_mode(market):  # _WAVE266_KEEP_LOOKING: found during a call / the dead zone - its own cap and window
+            return _w266_room(market, setup_type, direction, now)
         day_key = (market, now.date().isoformat())
         if _W246_COUNT.get(day_key, 0) >= int(_R246_MAX):
             return False, "daily LAB cap reached for %s (%s)" % (market, _R246_MAX)
@@ -286,6 +288,8 @@ def _w246_may_grade(market, setup_type, direction, now=None):
 
 def _w246_mark(market, setup_type, direction, now=None):
     now = now or datetime.now(timezone.utc)
+    if _w266_mode(market):  # _WAVE266_KEEP_LOOKING: its own count and duplicate cell, never the shared ones
+        return _w266_mark(market, setup_type, direction, now)
     _W246_LAST[(market, setup_type, direction)] = now
     key = (market, now.date().isoformat())
     _W246_COUNT[key] = _W246_COUNT.get(key, 0) + 1
@@ -418,7 +422,8 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
         cmin = _w225_conv_min(market, stp["type"])
         tier = "HIGH" if conv >= 60 else ("MEDIUM" if conv >= 53 else ("LOW" if conv >= cmin else "REJECT"))
         aid = ot.log_alert({
-            "lane": "lab", "channel": "lab (not sent)", "lab_gate": gate,
+            "lane": "lab", "channel": "lab (not sent)",
+            "lab_gate": _w266_tag(market, gate),  # _WAVE266_KEEP_LOOKING: "<mode>:<gate>" in a LAB-only scan
             "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
             "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
             "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
@@ -513,6 +518,8 @@ def _w255_room(market, now=None):
     """May a synthesized row be written for this market now? Says so once a day when the answer turns to no."""
     try:
         now = now or datetime.now(timezone.utc)
+        if _w266_mode(market):  # _WAVE266_KEEP_LOOKING: in a LAB-only scan the Wave 266 cap decides, not these
+            return True
         key = (market, now.date().isoformat())
         shared, mine = _W246_COUNT.get(key, 0), _W255_COUNT.get(key, 0)
         if shared < int(_R246_MAX) - int(_R255_RESERVE) and mine < int(_R255_MAX):
@@ -528,12 +535,134 @@ def _w255_room(market, now=None):
 
 def _w255_mark(market, now=None):
     try:
+        if _w266_mode(market):  # _WAVE266_KEEP_LOOKING: never uses the synthesized rows' own daily room
+            return
         now = now or datetime.now(timezone.utc)
         key = (market, now.date().isoformat())
         _W255_COUNT[key] = _W255_COUNT.get(key, 0) + 1
     except Exception:
         pass
 # ---- end _WAVE255_LAB_NO_SWING_LEVEL -------------------------
+
+# ---- _WAVE266_KEEP_LOOKING -----------------------------------
+# Wave 266 (24 Sep 2026, Phase 1.5, plan item A2). A REAL call open in a market, or the crypto 2-5 AM ET dead zone,
+# used to end the scan before detection - the market went unscanned for the call's whole life. Now the scan runs
+# LAB-ONLY: every gate runs as today, and a setup that passes them all becomes a silent LAB row at the fire point
+# (lab_gate open_call / crypto_dead_zone) - never a second real call, never a send. Every other LAB row written in
+# that mode (the Wave 246 conviction-floor rows, the Wave 254/255 gate rows) is tagged "<mode>:<gate>" and counted
+# against THIS wave's daily cap and duplicate window, never the shared ones, so nothing found during a call can
+# enter Trust or crowd out the rows Trust counts (Q24, Wayne 24 Sep: beside Trust, not in it, for one week). The count
+# lives in _W246_COUNT under (market + ":W266", day), so Wave 253 persists it with no change.
+# rules.LAB_WHILE_OPEN = False switches all of it off.
+try:
+    from rules import LAB_WHILE_OPEN as _R266_ON, LAB_OPEN_MAX_PER_DAY as _R266_MAX
+except Exception:
+    _R266_ON, _R266_MAX = False, 0     # an older rulebook: today's early return, exactly
+_W266_MODE = {}           # market -> "" (a normal scan) | "open_call" | "crypto_dead_zone"; set by scan_market
+_W266_FULL_SAID = set()   # (market, UTC date) already logged as out of room
+_W266_WHY = {"open_call": "a real call is open in this market",
+             "crypto_dead_zone": "the crypto 2-5 AM ET dead zone"}
+
+
+def _w266_on():
+    """Is Wave 266 switched on (rules.LAB_WHILE_OPEN, a positive cap, and the LAB lane itself)? Never raises."""
+    try:
+        return bool(_R266_ON) and bool(_R246_ON) and int(_R266_MAX) > 0
+    except Exception:
+        return False
+
+
+def _w266_mode(market):
+    """The LAB-only reason of the scan in progress for this market, or "" (a normal scan, or the wave off)."""
+    try:
+        return str(_W266_MODE.get(market) or "") if _w266_on() else ""
+    except Exception:
+        return ""
+
+
+def _w266_tag(market, gate):
+    """The lab_gate a LAB row gets: unchanged in a normal scan, "<mode>:<gate>" in a LAB-only one."""
+    try:
+        m = _w266_mode(market)
+        return ("%s:%s" % (m, gate)) if m else gate
+    except Exception:
+        return gate
+
+
+def _w266_room(market, setup_type, direction, now=None):
+    """(True, "") when a LAB-only row may be written: under this wave's own daily cap and outside the LAB duplicate
+    window for this cell ("OPEN:" + cell). Says so once a day when the cap is reached. Never raises."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        day = now.date().isoformat()
+        if _W246_COUNT.get((market + ":W266", day), 0) >= int(_R266_MAX):
+            if (market, day) not in _W266_FULL_SAID:
+                _W266_FULL_SAID.add((market, day))
+                log.info("[%s] W266: LAB-only cap reached for today (%d rows) - no more until tomorrow UTC"
+                         % (market, int(_R266_MAX)))
+            return False, "W266 cap full"
+        last = _W246_LAST.get((market, "OPEN:" + str(setup_type), direction))
+        if last is not None and (now - last) < timedelta(minutes=float(_R246_DUP_MIN)):
+            return False, "same LAB-only cell within %s min" % _R246_DUP_MIN
+        return True, ""
+    except Exception as _e:
+        return False, "w266 guard error: %s" % _e
+
+
+def _w266_mark(market, setup_type, direction, now=None):
+    """Count one LAB-only row and open its duplicate window. The shared LAB count is NOT touched."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        key = (market + ":W266", now.date().isoformat())
+        _W246_COUNT[key] = _W246_COUNT.get(key, 0) + 1
+        _W246_LAST[(market, "OPEN:" + str(setup_type), direction)] = now
+    except Exception:
+        pass
+
+
+def _w266_grade(market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v, htf_bias,
+                vol_ratio, news_flag, cur_price, snapshot_context, bd_final, why):
+    """Write a setup that passed every gate, found while it may not fire, as a silent LAB row. Returns the
+    alert_id, or "" when nothing was written. Never raises, never sends."""
+    try:
+        ok, skip = _w266_room(market, stp["type"], stp["direction"])
+        if not ok:
+            if "error" in skip:
+                log.warning("[%s] W266: %s" % (market, skip))
+            return ""
+        aid = ot.log_alert({
+            "lane": "lab", "channel": "lab (not sent)", "lab_gate": why,
+            "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
+            "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
+            "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
+            "tier": tier, "leverage": "", "suggested_hold": "", "rsi": round(rsi_v, 2),
+            "atr": round(atr_v, 4), "adx": round(adx_v, 2), "htf_bias": htf_bias,
+            "hour": datetime.now(timezone.utc).hour, "vol_ratio": round(vol_ratio, 2),
+            "news_flag": int(news_flag),
+        })
+        _w266_mark(market, stp["type"], stp["direction"])
+        try:
+            sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+                cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
+                trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                "LAB_GRADED",
+                "LAB graded (%s): passed every gate while %s; graded as evidence, not sent"
+                % (why, _W266_WHY.get(why, why)),
+                context=snapshot_context,
+                detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
+                score_breakdown=bd_final)
+        except Exception:
+            pass
+        log.info("[%s] [%s] LAB-GRADED (%s) %s %s %.2fR conv %s -> %s"
+                 % (market, entry_tf, why, stp["type"], stp["direction"], float(rr), conv, aid))
+        return aid
+    except Exception as _w266e:
+        try:
+            log.warning("[%s] W266 LAB grading failed (non-fatal): %s" % (market, _w266e))
+        except Exception:
+            pass
+        return ""
+# ---- end _WAVE266_KEEP_LOOKING -------------------------------
 
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
@@ -3312,6 +3441,8 @@ async def scan_market(app, market, frames):
         except Exception as e:
             log.warning(f"SHADOW_CORRELATION log failed: {e}")
     # Fall through.
+    _w266_lab_only = ""  # _WAVE266_KEEP_LOOKING: "" = a normal scan; else why nothing this scan finds may fire
+    _W266_MODE[market] = ""
     if already_in or not futures_ok or not crypto_ok:
         if already_in:
             log.info(f"[{market}] Already in position — skipping new entry scan")
@@ -3320,7 +3451,14 @@ async def scan_market(app, market, frames):
             log.info(f"[{market}] {_w226_why} — no new entries for {market}")
         else:
             log.info(f"[{market}] Crypto 2-5 AM ET dead zone — no new entries (audit #7)")
-        return
+        # _WAVE266_KEEP_LOOKING: an open real call, or the crypto dead zone, is a POLICY - the market trades and its
+        # bars are live - so keep scanning, LAB-only. A closed futures session stays a hard stop.
+        if futures_ok and _w266_on():
+            _w266_lab_only = "open_call" if already_in else "crypto_dead_zone"
+            _W266_MODE[market] = _w266_lab_only
+            log.info(f"[{market}] W266: scanning LAB-only ({_w266_lab_only}) - nothing it finds is sent")
+        else:
+            return
 
     # ── Task 8: Topstep eval daily gates ─────────────────────────
     now_et_check = _now_et()
@@ -3342,7 +3480,7 @@ async def scan_market(app, market, frames):
 
     # Pre-Batch Follow-up Part A 2026-04-20: Daily profit lock REMOVED.
     _profit_lock_would_fire = DAILY_PROFIT_LOCKED
-    if _profit_lock_would_fire:
+    if _profit_lock_would_fire and not _w266_lab_only:  # _WAVE266_KEEP_LOOKING: a LAB-only scan cannot fire
         log.info(f"[{market}] SHADOW: profit lock at +$150 (firing anyway)")
         try:
             sl.log_scan_decision(
@@ -3360,7 +3498,7 @@ async def scan_market(app, market, frames):
 
     # Pre-Batch Follow-up Part A 2026-04-20: Max daily trades cap REMOVED.
     _max_trades_would_fire = (DAILY_TRADE_COUNT >= MAX_DAILY_TRADES)
-    if _max_trades_would_fire:
+    if _max_trades_would_fire and not _w266_lab_only:  # _WAVE266_KEEP_LOOKING: a LAB-only scan cannot fire
         log.info(f"[{market}] SHADOW: max {MAX_DAILY_TRADES} daily trades (firing anyway, count={DAILY_TRADE_COUNT})")
         try:
             sl.log_scan_decision(
@@ -3998,7 +4136,7 @@ async def scan_market(app, market, frames):
                     if _w246_ok:
                         _w246_id = ot.log_alert({
                             "lane": "lab", "channel": "lab (not sent)",
-                            "lab_gate": ("setup_off" if _w251_is_off(stp["type"]) else "conviction"),  # _WAVE254_LAB_GATE_GRADE
+                            "lab_gate": _w266_tag(market, "setup_off" if _w251_is_off(stp["type"]) else "conviction"),  # _WAVE254_LAB_GATE_GRADE, _WAVE266_KEEP_LOOKING
                             "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
                             "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
                             "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
@@ -4125,6 +4263,17 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
                 log.info(f"[{market}] [{entry_tf}] DUP-GUARD-DIR blocked {stp['type']} {stp['direction']} (within {_RECENT_DIRECTION_WINDOW_MIN} min)")
+                continue
+
+            # _WAVE266_KEEP_LOOKING: this setup passed every gate above. In a LAB-only scan - or once a position is
+            # open in this market (one opened earlier in this same pass) - it is written as a silent LAB row and the
+            # real fire below is never reached. A news-window 15m setup would not fire even in a flat market: it goes
+            # on to the Wave 129 / Wave 145 blocks below exactly as today, and both of them end in `continue`.
+            _w266_why = _w266_lab_only or ("open_call" if (_w266_on() and _market_position_open(market)) else "")
+            if _w266_why and not _w145_news_15m:
+                _W266_MODE[market] = _w266_why
+                _w266_grade(market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v,
+                            htf_bias, vol_ratio, news_flag, cur_price, snapshot_context, bd_final, _w266_why)
                 continue
 
             # Wave 8 (May 3): include Wave 7 breakdown fields so we can later
