@@ -307,7 +307,7 @@
     "losses": 66,
     "total": 83,
     "win_rate": 20.5,
-    "last_updated": "2026-09-25T11:07:05.425148",
+    "last_updated": "2026-09-27T10:17:40.960670",
     "paper_total": 66,
     "paper_losses": 53,
     "paper_win_rate": 19.7,
@@ -318,8 +318,8 @@
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
     "real_expectancy": -1.0,
-    "lab_total": 1,
-    "lab_losses": 1,
+    "lab_total": 2,
+    "lab_losses": 2,
     "lab_win_rate": 0.0
   },
   "NQ:RSI_DIV_BULL": {
