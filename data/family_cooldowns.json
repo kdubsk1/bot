@@ -2,5 +2,9 @@
   "NQ:mean_rev_long": {
     "expiry": "2026-09-28T15:15:31.190387+00:00",
     "reason": "LOSS"
+  },
+  "NQ:cont_long": {
+    "expiry": "2026-09-29T12:46:29.521136+00:00",
+    "reason": "WIN"
   }
 }
