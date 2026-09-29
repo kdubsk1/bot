@@ -108,5 +108,10 @@
     "reason": "Wave 47 auto: 0W/4L over last 30 days",
     "suspended_at": "2026-09-25T12:34:38.206776+00:00",
     "source": "wave47_auto"
+  },
+  "NQ:MACD_CROSS_BULL": {
+    "reason": "Wave 47 auto: 0W/5L over last 30 days",
+    "suspended_at": "2026-09-28T20:00:07.392591+00:00",
+    "source": "wave47_auto"
   }
 }
