@@ -3,8 +3,8 @@
     {
       "market": "BTC",
       "setup": "MACD_CROSS_BEAR",
-      "losses": 6,
-      "reason": "Wave 47 auto: 0W/6L over last 30 days"
+      "losses": 9,
+      "reason": "Wave 47 auto: 0W/9L over last 30 days"
     },
     {
       "market": "GC",
@@ -13,17 +13,47 @@
       "reason": "Wave 47 auto: 0W/8L over last 30 days"
     },
     {
+      "market": "NQ",
+      "setup": "BB_REVERSION_BEAR",
+      "losses": 7,
+      "reason": "Wave 47 auto: 0W/7L over last 30 days"
+    },
+    {
       "market": "BTC",
       "setup": "STOCH_REVERSAL_BEAR",
-      "losses": 8,
-      "reason": "Wave 47 auto: 0W/8L over last 30 days"
+      "losses": 14,
+      "reason": "Wave 47 auto: 0W/14L over last 30 days"
+    },
+    {
+      "market": "BTC",
+      "setup": "RSI_DIV_BEAR",
+      "losses": 4,
+      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+    },
+    {
+      "market": "GC",
+      "setup": "BREAK_RETEST_BEAR",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
     },
     {
       "market": "NQ",
       "setup": "MACD_CROSS_BULL",
       "losses": 5,
       "reason": "Wave 47 auto: 0W/5L over last 30 days"
+    },
+    {
+      "market": "NQ",
+      "setup": "VWAP_REJECT_BEAR",
+      "losses": 12,
+      "reason": "Wave 47 auto: 0W/12L over last 30 days"
+    },
+    {
+      "market": "NQ",
+      "setup": "MACD_CROSS_BEAR",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
     }
   ],
-  "ts": "2026-09-28T20:00:07.395060+00:00"
+  "ts": "2026-09-29T20:00:02.966976+00:00"
 }
