@@ -247,15 +247,15 @@
   },
   "MACD_CROSS_BULL|||ALL": {
     "wins": 1,
-    "losses": 12,
+    "losses": 13,
     "total_win_r": 2.734145273760883,
-    "total_loss_r": 12.0
+    "total_loss_r": 13.0
   },
   "MACD_CROSS_BULL|||HH_HL": {
     "wins": 0,
-    "losses": 8,
+    "losses": 9,
     "total_win_r": 0.0,
-    "total_loss_r": 8.0
+    "total_loss_r": 9.0
   },
   "BB_REVERSION_BULL|||LH_LL": {
     "wins": 1,
@@ -508,5 +508,23 @@
     "losses": 0,
     "total_win_r": 2.7206528725987362,
     "total_loss_r": 0.0
+  },
+  "HTF_LEVEL_BOUNCE|||UNKNOWN": {
+    "wins": 0,
+    "losses": 0,
+    "total_win_r": 0.0,
+    "total_loss_r": 0.0
+  },
+  "HTF_LEVEL_BOUNCE|||ALL": {
+    "wins": 0,
+    "losses": 2,
+    "total_win_r": 0.0,
+    "total_loss_r": 2.0
+  },
+  "HTF_LEVEL_BOUNCE|||HH_HL": {
+    "wins": 0,
+    "losses": 2,
+    "total_win_r": 0.0,
+    "total_loss_r": 2.0
   }
 }
