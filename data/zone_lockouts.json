@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "market": "NQ",
+    "direction": "LONG",
+    "zone_low": 30897.9341,
+    "zone_high": 30953.5659,
+    "expiry": "2026-10-01T13:18:59.444947+00:00"
+  },
+  {
+    "market": "NQ",
+    "direction": "LONG",
+    "zone_low": 30877.0275,
+    "zone_high": 30928.4725,
+    "expiry": "2026-10-01T14:57:07.723931+00:00"
+  }
+]
