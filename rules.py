@@ -303,6 +303,14 @@ LAB_GATE_MIN_RR = 1.0
 # stay at what they have actually run at. A market missing here keeps 0.0050.
 TIGHT_STOP_MIN_PCT = {"NQ": 0.0005, "GC": 0.0050, "BTC": 0.0050, "SOL": 0.0050}
 
+# ---- Wave 267 (24 Sep 2026, Phase 1.8) - _WAVE267_STOP_COUNTS ----
+# Wayne: "if it hits the stop, it should hit the stop and count as the stop being hit on all markets". A stop touch
+# in the post-alert bars closes the call at the stop, LOSS, on every market, even when the latest close has moved
+# back past the stop (the Wave 11 guard used to refuse that close every scan; real stop-outs expired as 0R SKIPs).
+# Targets keep the guard. Every such close is logged in data/stop_touch_counted.jsonl for a second-source check.
+# False = the old refusal, exactly.
+STOP_TOUCH_COUNTS = True
+
 # Wave 255 (_WAVE255_LAB_NO_SWING_LEVEL, 24 Sep 2026): a setup with NO swing level in range is LAB-graded against
 # a synthesized target at the market's own R:R floor, never less than LAB_SYNTH_RR (NQ 2.0R, GC 2.0R, BTC 2.5R),
 # marked lab_gate='no_target' and method='synthesized'. At most LAB_SYNTH_MAX_PER_DAY a market a UTC day, and none

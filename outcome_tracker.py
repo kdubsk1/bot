@@ -2552,6 +2552,51 @@ _PHANTOM_DEDUP_CACHE: dict = {}            # alert_id -> datetime (UTC)
 _PHANTOM_DEDUP_COOLDOWN_SEC = 1800         # 30 min - skip dedup matches within this window
 _PHANTOM_DEDUP_MAX_SIZE = 500              # cap; trim oldest half when exceeded
 
+# ---- _WAVE267_STOP_COUNTS -------------------------------------
+# Wave 267 (Wayne, 24 Sep 2026: "if it hits the stop, it should hit the stop and count as the stop being hit on
+# all markets"). The price-divergence check below refused a stop close whenever the latest close had moved more
+# than 0.2% back from the stop - every scan, for as long as that held - so a real stop-out closed late or expired
+# after 24 h as a 0R SKIP (two real crypto losses were hidden that way; Coinbase's own candles traded both stops).
+# Now a stop touch in the post-alert bars closes the call at the stop on every market. Unchanged: the too-fast
+# check (a close within 30 s of the alert waits one scan) and the whole guard for TARGETS. Each stop close the old
+# guard would have refused writes one audit line to data/stop_touch_counted.jsonl - not to the phantom log and not
+# to the Telegram alarm. rules.STOP_TOUCH_COUNTS = False brings the old refusal back.
+try:
+    from rules import STOP_TOUCH_COUNTS as _R267_ON
+except Exception:
+    _R267_ON = False     # an older rulebook: the Wave 11 guard exactly as before
+W267_COUNTED_FILE = os.path.join(_BASE_DIR, "data", "stop_touch_counted.jsonl")
+
+
+def _w267_stop_counts():
+    """Does a stop touch close the call even when the latest close has moved back past the stop? Never raises."""
+    try:
+        return bool(_R267_ON)
+    except Exception:
+        return False
+
+
+def _w267_note_counted(event):
+    """One audit line for a stop close the Wave 11 guard would have refused. Never raises."""
+    ev = {}
+    try:
+        ev = dict(event or {})
+        ev["action"] = "counted (W267)"
+        os.makedirs(os.path.dirname(W267_COUNTED_FILE), exist_ok=True)
+        with open(W267_COUNTED_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(ev, default=str) + "\n")
+    except Exception:
+        pass
+    try:
+        import logging as _w267_logging
+        _w267_logging.getLogger("nqcalls").warning(
+            "W267: stop touch counted for %s %s %s - latest close %s is back past the stop %s; "
+            "the old guard would have refused it" % (ev.get("alert_id"), ev.get("market"), ev.get("direction"),
+                                                     ev.get("current_close"), ev.get("stop")))
+    except Exception:
+        pass
+# ---- end _WAVE267_STOP_COUNTS ---------------------------------
+
 
 def get_and_clear_phantom_events() -> list:
     """
@@ -3110,14 +3155,26 @@ def auto_check_outcomes(live_frames: dict):
                                     else None)
                     if cc_for_check is not None and stop > 0 and target > 0:
                         if hit_stop:
+                            _w267_div = ""  # _WAVE267_STOP_COUNTS: why the Wave 11 guard would refuse this stop
                             if direction == "LONG" and cc_for_check > stop * (1 + _PHANTOM_PRICE_DIVERGE_PCT):
-                                phantom_reasons.append(
-                                    f"price_diverge_long_cc{cc_for_check:.2f}_stop{stop:.2f}"
-                                )
+                                _w267_div = f"price_diverge_long_cc{cc_for_check:.2f}_stop{stop:.2f}"
                             elif direction == "SHORT" and cc_for_check < stop * (1 - _PHANTOM_PRICE_DIVERGE_PCT):
-                                phantom_reasons.append(
-                                    f"price_diverge_short_cc{cc_for_check:.2f}_stop{stop:.2f}"
-                                )
+                                _w267_div = f"price_diverge_short_cc{cc_for_check:.2f}_stop{stop:.2f}"
+                            if _w267_div and _w267_stop_counts():
+                                # Wayne, 24 Sep: a stop touch is a stop hit, on every market. It closes below at the
+                                # stop; the audit line is written only when nothing else (too fast) holds it back.
+                                if not phantom_reasons:
+                                    _w267_note_counted({
+                                        "timestamp": datetime.now(timezone.utc).isoformat(), "alert_id": alert_id,
+                                        "market": market, "setup": setup_type, "direction": direction,
+                                        "lane": str(row.get("lane", "") or "real"), "alert_timestamp": ts_str,
+                                        "current_close": cc_for_check, "entry": float(entry),
+                                        "stop": float(stop), "target": float(target),
+                                        "period_high": float(period_high) if period_high != float("-inf") else None,
+                                        "period_low": float(period_low) if period_low != float("inf") else None,
+                                        "frames_used": list(frames_used), "old_guard_reason": _w267_div})
+                            elif _w267_div:
+                                phantom_reasons.append(_w267_div)
                         if hit_target:
                             if direction == "LONG" and cc_for_check < target * (1 - _PHANTOM_PRICE_DIVERGE_PCT):
                                 phantom_reasons.append(
