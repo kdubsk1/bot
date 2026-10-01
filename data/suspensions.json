@@ -138,5 +138,10 @@
     "reason": "Wave 47 auto: 0W/3L over last 30 days",
     "suspended_at": "2026-09-29T20:00:02.965974+00:00",
     "source": "wave47_auto"
+  },
+  "BTC:EMA21_PULLBACK_BULL": {
+    "reason": "Wave 47 auto: 0W/5L over last 30 days",
+    "suspended_at": "2026-09-30T20:00:22.351659+00:00",
+    "source": "wave47_auto"
   }
 }
