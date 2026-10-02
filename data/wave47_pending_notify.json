@@ -15,8 +15,8 @@
     {
       "market": "NQ",
       "setup": "BB_REVERSION_BEAR",
-      "losses": 7,
-      "reason": "Wave 47 auto: 0W/7L over last 30 days"
+      "losses": 10,
+      "reason": "Wave 47 auto: 0W/10L over last 30 days"
     },
     {
       "market": "BTC",
@@ -55,5 +55,5 @@
       "reason": "Wave 47 auto: 0W/4L over last 30 days"
     }
   ],
-  "ts": "2026-10-01T20:00:09.685727+00:00"
+  "ts": "2026-10-02T19:11:13.634493+00:00"
 }
