@@ -559,7 +559,8 @@ async def heartbeat_push_loop():
 
 # ---- _WAVE265_LEDGER_AND_RESTORE ------------------------------------------
 # Wave 265 (24 Sep 2026): (A) outcomes.csv reaches GitHub every 15 minutes, with the heartbeat; (B) at boot, every
-# sync-path file the image has that differs from GitHub HEAD is brought up to HEAD before anything uses it - so a
+# sync-path file the image has that differs from GitHub HEAD is brought up to HEAD before startup uses it (bot.py's
+# main() reads data/cooldowns.json first and re-reads it after - _WAVE268_COOLDOWN_FIX) - so a
 # restart that is not a deploy can never push the image's old files over newer ones; (C) one lock, so the 15-minute
 # pushes, the 6-hourly sync, /sync and the restore never race on the branch ref. Nothing here deletes anything.
 import threading as _w265_threading
@@ -674,7 +675,8 @@ def _w265_restore_log(out: dict) -> dict:
 
 
 def w265_restore_at_boot(budget_sec=None, max_bytes=None) -> dict:
-    """Wave 265 Part B. Call FIRST at startup, before anything reads or writes a data file. Returns a summary dict
+    """Wave 265 Part B. Call FIRST in startup (_post_init). main() has read data/cooldowns.json before it; bot.py
+    re-reads it when this replaced or created a file (_WAVE268_COOLDOWN_FIX). Returns a summary dict
     {ok, differ, replaced, created, failed, left, bytes, why}. Never raises, never deletes."""
     t0 = _w265_time.monotonic()
     budget = W265_RESTORE_BUDGET_SEC if budget_sec is None else budget_sec
