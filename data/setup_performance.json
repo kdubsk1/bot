@@ -4,7 +4,7 @@
     "losses": 117,
     "total": 157,
     "win_rate": 25.5,
-    "last_updated": "2026-10-01T15:13:13.564981",
+    "last_updated": "2026-10-01T19:55:05.604060",
     "paper_total": 114,
     "paper_wins": 30,
     "paper_win_rate": 26.3,
@@ -15,10 +15,10 @@
     "real_win_rate": 46.2,
     "real_avg_rr_win": 2.493,
     "real_expectancy": 0.6123,
-    "lab_total": 16,
+    "lab_total": 17,
     "lab_losses": 12,
-    "lab_win_rate": 25.0,
-    "lab_wins": 4
+    "lab_win_rate": 29.4,
+    "lab_wins": 5
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 58,
@@ -160,7 +160,7 @@
     "losses": 67,
     "total": 111,
     "win_rate": 39.6,
-    "last_updated": "2026-10-01T17:31:47.794915",
+    "last_updated": "2026-10-01T19:55:05.672753",
     "paper_total": 81,
     "paper_losses": 45,
     "paper_win_rate": 44.4,
@@ -171,10 +171,10 @@
     "real_win_rate": 40.0,
     "real_avg_rr_win": 2.167,
     "real_expectancy": 0.267,
-    "lab_total": 27,
+    "lab_total": 28,
     "lab_losses": 20,
-    "lab_win_rate": 25.9,
-    "lab_wins": 7
+    "lab_win_rate": 28.6,
+    "lab_wins": 8
   },
   "SOL:STOCH_REVERSAL_BULL": {
     "wins": 7,
@@ -236,25 +236,25 @@
     "lab_wins": 1
   },
   "NQ:VWAP_BOUNCE_BULL": {
-    "wins": 170,
+    "wins": 171,
     "losses": 141,
-    "total": 311,
-    "win_rate": 54.7,
-    "last_updated": "2026-10-01T11:29:03.164440",
+    "total": 312,
+    "win_rate": 54.8,
+    "last_updated": "2026-10-01T19:55:07.390719",
     "paper_total": 41,
     "paper_losses": 31,
     "paper_win_rate": 24.4,
     "paper_wins": 10,
-    "real_total": 64,
+    "real_total": 65,
     "real_losses": 37,
-    "real_win_rate": 42.2,
-    "real_wins": 27,
+    "real_win_rate": 43.1,
+    "real_wins": 28,
     "real_avg_rr_win": 2.213,
     "real_expectancy": 0.3771,
-    "lab_total": 20,
+    "lab_total": 25,
     "lab_losses": 15,
-    "lab_win_rate": 25.0,
-    "lab_wins": 5
+    "lab_win_rate": 40.0,
+    "lab_wins": 10
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 146,
@@ -340,7 +340,7 @@
     "losses": 29,
     "total": 31,
     "win_rate": 6.5,
-    "last_updated": "2026-10-01T17:31:47.748862",
+    "last_updated": "2026-10-01T19:55:06.042412",
     "paper_total": 24,
     "paper_losses": 24,
     "paper_win_rate": 0.0,
@@ -350,9 +350,9 @@
     "real_win_rate": 40.0,
     "real_avg_rr_win": 2.25,
     "real_expectancy": 0.3,
-    "lab_total": 4,
-    "lab_wins": 2,
-    "lab_win_rate": 50.0,
+    "lab_total": 5,
+    "lab_wins": 3,
+    "lab_win_rate": 60.0,
     "lab_losses": 2
   },
   "GC:BREAK_RETEST_BEAR": {
@@ -555,7 +555,7 @@
     "losses": 154,
     "total": 162,
     "win_rate": 4.9,
-    "last_updated": "2026-09-30T19:55:16.849894",
+    "last_updated": "2026-10-01T19:55:07.317973",
     "real_wins": 1,
     "real_losses": 3,
     "real_total": 4,
@@ -566,10 +566,10 @@
     "paper_losses": 63,
     "paper_win_rate": 10.0,
     "paper_wins": 7,
-    "lab_total": 53,
-    "lab_wins": 24,
-    "lab_win_rate": 45.3,
-    "lab_losses": 29
+    "lab_total": 75,
+    "lab_wins": 26,
+    "lab_win_rate": 34.7,
+    "lab_losses": 49
   },
   "BTC:BREAK_RETEST_BULL": {
     "wins": 44,
@@ -655,7 +655,7 @@
     "losses": 254,
     "total": 292,
     "win_rate": 13.0,
-    "last_updated": "2026-09-30T19:55:17.719436",
+    "last_updated": "2026-10-01T19:55:05.744713",
     "paper_total": 249,
     "paper_losses": 215,
     "paper_win_rate": 13.7,
@@ -666,9 +666,9 @@
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
     "real_expectancy": -1.0,
-    "lab_total": 46,
-    "lab_losses": 24,
-    "lab_win_rate": 47.8,
+    "lab_total": 56,
+    "lab_losses": 34,
+    "lab_win_rate": 39.3,
     "lab_wins": 22
   },
   "BTC:EMA21_PULLBACK_BEAR": {
@@ -818,7 +818,7 @@
     "losses": 73,
     "total": 167,
     "win_rate": 56.3,
-    "last_updated": "2026-09-25T19:55:12.461943",
+    "last_updated": "2026-10-02T00:56:16.397357",
     "paper_total": 80,
     "paper_losses": 14,
     "paper_win_rate": 82.5,
@@ -829,10 +829,10 @@
     "real_win_rate": 55.6,
     "real_avg_rr_win": 2.5,
     "real_expectancy": 2.5,
-    "lab_total": 29,
-    "lab_losses": 22,
-    "lab_win_rate": 24.1,
-    "lab_wins": 7
+    "lab_total": 35,
+    "lab_losses": 26,
+    "lab_win_rate": 25.7,
+    "lab_wins": 9
   },
   "SOL:MACD_CROSS_BULL": {
     "wins": 11,

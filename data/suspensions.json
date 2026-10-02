@@ -148,5 +148,10 @@
     "reason": "Wave 47 auto: 0W/4L over last 30 days",
     "suspended_at": "2026-10-01T13:01:56.532886+00:00",
     "source": "wave47_auto"
+  },
+  "NQ:HTF_LEVEL_BOUNCE": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-10-01T20:00:09.684414+00:00",
+    "source": "wave47_auto"
   }
 }
