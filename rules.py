@@ -311,6 +311,13 @@ TIGHT_STOP_MIN_PCT = {"NQ": 0.0005, "GC": 0.0050, "BTC": 0.0050, "SOL": 0.0050}
 # False = the old refusal, exactly.
 STOP_TOUCH_COUNTS = True
 
+# ---- Wave 270 (3 Oct 2026, Q43 A) - _WAVE270_FLATTEN_AT_STOP ----
+# Wayne: "if the bot has a stop it should be the set stop it should not be able to trade past the stop". At the
+# 4:10 PM flatten, a call whose stop was touched since the call closes AT its stop, as a LOSS - the same test a scan
+# makes - instead of at a flatten price beyond it (30 Sep: four NQ longs closed 25 to 33 points past their stops).
+# Every such close is logged in data/flatten_at_stop.jsonl. False = the flatten exactly as before.
+FLATTEN_AT_STOP = True
+
 # Wave 255 (_WAVE255_LAB_NO_SWING_LEVEL, 24 Sep 2026): a setup with NO swing level in range is LAB-graded against
 # a synthesized target at the market's own R:R floor, never less than LAB_SYNTH_RR (NQ 2.0R, GC 2.0R, BTC 2.5R),
 # marked lab_gate='no_target' and method='synthesized'. At most LAB_SYNTH_MAX_PER_DAY a market a UTC day, and none

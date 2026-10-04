@@ -5560,6 +5560,7 @@ async def force_flatten_futures(app):
         "Topstep rule: flat by 4:10 PM ET."
     )
 
+    _w270_closed = {}   # _WAVE270_FLATTEN_AT_STOP: alert_id -> the stop it was closed at
     for row in futures_trades:
         market = row["market"]
         cfg    = get_market_config(market)
@@ -5572,6 +5573,25 @@ async def force_flatten_futures(app):
         except Exception:
             cur = float(row["entry"])
             _w240_priced = False
+
+        # _WAVE270_FLATTEN_AT_STOP (Q43 A - Wayne, 2 Oct 2026): a call never closes past its own stop. If the stop was
+        # touched since the call - the same test a scan makes - it closes AT the stop. Any failure here is a warning
+        # and the row closes at the flatten price, as before.
+        _w270_at_stop = ""
+        if _w240_priced:
+            try:
+                try:
+                    _w270_frames = dl_get_frames(market)
+                except Exception:
+                    _w270_frames = {}
+                _w270_px, _w270_res, _w270_why = ot.w270_flatten_exit(row, _w270_frames, cur)
+                if _w270_res == "LOSS" and np.isfinite(float(_w270_px)):
+                    cur = float(_w270_px)
+                    _w270_at_stop = str(_w270_why) or "the stop was touched"
+                    _w270_closed[row.get("alert_id")] = cur
+            except Exception as _w270_e:
+                _w270_at_stop = ""
+                log.warning(f"[{market}] W270: stop check at the flatten skipped ({_w270_e})")
 
         entry_p = row.get("entry", "?")
         # Wave 44 (May 12, 2026): pre-initialize pts so the exception path
@@ -5594,7 +5614,8 @@ async def force_flatten_futures(app):
         # _WAVE246_LAB_GRADE: a LAB close is tagged lab in the honest counter, never real.
         ot.record_trade_result(market, row.get("setup",""), result,
                               source=("lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"))
-        _shadow_log_settle(row, cur, result)  # Wave 86: keep watching in shadow
+        if not _w270_at_stop:  # _WAVE270_FLATTEN_AT_STOP: a stopped-out call is over - nothing to watch after the close
+            _shadow_log_settle(row, cur, result)  # Wave 86: keep watching in shadow
         # Batch 2A: Log outcome to strategy_log.csv
         try:
             ot._log_trade_outcome(row, result, cur)
@@ -5605,10 +5626,13 @@ async def force_flatten_futures(app):
         # _WAVE246_LAB_GRADE: a LAB row is graded by the same flatten, but no card is ever sent for it.
         _w246_is_lab_row = str(row.get("lane", "")).strip().lower() == "lab"
         if _w246_is_lab_row and not _R246_TG:
-            log.info(f"[{market}] LAB row flattened and graded at {cur} (no card sent)")
+            log.info(f"[{market}] LAB row flattened and graded at {cur} (no card sent)"
+                     + (" - at its stop (W270)" if _w270_at_stop else ""))
             continue
         # _WAVE231_CALLS_ONLY: the flatten exit is the same exit card, flagged as the 4:10 rule.
-        _w231_card = _w231_exit_card(market, cfg, row, cur, result, reason="Closed by the 4:10 PM ET flatten")
+        _w231_card = _w231_exit_card(market, cfg, row, cur, result,
+                                     reason=("Stop hit before the 4:10 PM ET flatten - closed at the stop"
+                                             if _w270_at_stop else "Closed by the 4:10 PM ET flatten"))  # _WAVE270_FLATTEN_AT_STOP
         if _w239_public_ok(market):  # _WAVE239_CONVICTION_MIN
             await tg_send_pub(app, _w231_card, kind="exit")
         await tg_send(app, _w231_card, kind="exit")
@@ -5630,6 +5654,8 @@ async def force_flatten_futures(app):
                 cur = get_current_price(row["market"])
                 if not np.isfinite(cur):
                     cur = float(row["entry"])
+                if row.get("alert_id") in _w270_closed:   # _WAVE270_FLATTEN_AT_STOP: the sim closes where the ledger did
+                    cur = _w270_closed[row.get("alert_id")]
                 # Wave 44 (May 12, 2026): direction-aware WIN/LOSS.
                 # Old code did `cur > entry = WIN` which is wrong for SHORTS.
                 # A SHORT wins when price falls (cur < entry). Without this fix,

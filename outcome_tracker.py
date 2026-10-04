@@ -2598,6 +2598,94 @@ def _w267_note_counted(event):
 # ---- end _WAVE267_STOP_COUNTS ---------------------------------
 
 
+# ---- _WAVE270_FLATTEN_AT_STOP -------------------------------------
+# Wave 270 (Wayne, Q43, 2 Oct 2026: "if the bot has a stop it should be the set stop it should not be able to trade
+# past the stop it has to stick to its rules"). The 4:10 PM flatten closed every open futures call at the current
+# price and never looked at its stop: on 30 Sep four NQ longs (one real) closed 25 to 33 points beyond their stops,
+# because NQ fell through them between the last scan and the flatten. Now, at the flatten, a call whose stop was
+# touched since the call - the same test a scan makes - closes AT its stop, as a LOSS. A stop the market gaps through
+# is booked at the stop too: the bot has no fill, only a price. rules.FLATTEN_AT_STOP = False = the old flatten.
+try:
+    from rules import FLATTEN_AT_STOP as _R270_ON
+except Exception:
+    _R270_ON = False     # an older rulebook: the flatten exactly as before
+W270_FILE = os.path.join(_BASE_DIR, "data", "flatten_at_stop.jsonl")
+
+
+def w270_flatten_exit(row, frames, cur):
+    """At the 4:10 flatten: where does this open call close? -> (exit_price, result or None, why).
+    (stop, "LOSS", why) when its stop was touched since the call - in the bars that opened after it (every intraday
+    frame given; the bar the call fired in is not scanned, Wave 10), in the high / low earlier scans remembered, or
+    by the current price itself. (cur, None, "") otherwise: the caller grades it at the flatten price, as before.
+    The remembered high / low is widened to what was seen here, so mfe_r / mae_r cover the exit.
+    Never raises: on any doubt it is (cur, None, "")."""
+    try:
+        if not bool(_R270_ON):
+            return cur, None, ""
+        aid = row.get("alert_id")
+        entry, stop, px = float(row.get("entry")), float(row.get("stop")), float(cur)
+        side = 1 if "LONG" in str(row.get("direction", "LONG")) else -1
+        if stop == 0 or px != px or (entry - stop) * side <= 0:
+            return cur, None, ""      # no price, no stop, or a stop on the wrong side of the entry (Wave 230)
+        hi = lo = px
+        used = []
+        try:
+            alert_dt = pd.Timestamp(str(row.get("timestamp", "")), tz="UTC")
+        except Exception:
+            alert_dt = None
+        if alert_dt is not None and isinstance(frames, dict):
+            for tf_name, tf_df in frames.items():
+                try:
+                    if str(tf_name) == "1d" or tf_df is None or getattr(tf_df, "empty", True):
+                        continue      # (the daily frame is Yahoo's continuous contract - another series near a roll)
+                    post = tf_df[tf_df.index > alert_dt]
+                    if post.empty:
+                        continue
+                    h, l = float(post["High"].max()), float(post["Low"].min())
+                    if h == h and l == l:
+                        hi, lo = max(hi, h), min(lo, l)
+                        used.append(str(tf_name))
+                except Exception:
+                    continue
+        mem = _W233_EXCURSION.get(aid)
+        if mem:
+            try:
+                hi, lo = max(hi, float(mem[0])), min(lo, float(mem[1]))
+            except Exception:
+                pass
+        touched = (lo <= stop) if side == 1 else (hi >= stop)
+        if not touched:
+            _W233_EXCURSION[aid] = (hi, lo)
+            return cur, None, ""
+        _W233_EXCURSION[aid] = (hi, lo)
+        past = (px <= stop) if side == 1 else (px >= stop)
+        why = ("the flatten price is past the stop" if past
+               else "the bars since the call touched the stop; the price is back inside it")
+        try:
+            os.makedirs(os.path.dirname(W270_FILE), exist_ok=True)
+            with open(W270_FILE, "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "timestamp": datetime.now(timezone.utc).isoformat(), "action": "closed at the stop (W270)",
+                    "alert_id": aid, "market": row.get("market"), "setup": row.get("setup"),
+                    "direction": row.get("direction"), "lane": str(row.get("lane", "") or "real"),
+                    "alert_timestamp": row.get("timestamp"), "entry": entry, "stop": stop,
+                    "flatten_price": px, "period_high": hi, "period_low": lo, "frames_used": used, "why": why},
+                    default=str) + "\n")
+        except Exception:
+            pass
+        try:
+            import logging as _w270_logging
+            _w270_logging.getLogger("nqcalls").warning(
+                "W270: %s %s %s closed at its stop %s by the flatten - %s (flatten price %s)"
+                % (aid, row.get("market"), row.get("direction"), stop, why, px))
+        except Exception:
+            pass
+        return stop, "LOSS", why
+    except Exception:
+        return cur, None, ""
+# ---- end _WAVE270_FLATTEN_AT_STOP ---------------------------------
+
+
 def get_and_clear_phantom_events() -> list:
     """
     bot.py calls this after each scan to pick up any phantom events the
