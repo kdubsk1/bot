@@ -138,3 +138,4 @@
 {"event":"apply","bucket":"vol_floor|GC|BB_REVERSION_BULL","from":0.25,"to":0.2,"evidence":{"n":100,"w":44,"l":56,"wr":44.0,"avg_rr":2.21,"required_wr":38.9},"ts":"2026-10-01T00:02:36.204753+00:00"}
 {"event":"apply","bucket":"conv_min|GC|STOCH_REVERSAL_BEAR","from":48.0,"to":46.0,"evidence":{"n":51,"w":29,"l":22,"wr":56.9,"avg_rr":2.17,"required_wr":39.4},"ts":"2026-10-02T00:01:39.296355+00:00"}
 {"event":"apply","bucket":"vol_floor|GC|RSI_DIV_BEAR","from":0.25,"to":0.2,"evidence":{"n":78,"w":53,"l":25,"wr":67.9,"avg_rr":2.3,"required_wr":37.8},"ts":"2026-10-03T00:01:29.106767+00:00"}
+{"event":"apply","bucket":"adx_min|GC|VWAP_REJECT_BEAR","from":16.0,"to":14.0,"evidence":{"n":419,"w":229,"l":190,"wr":54.7,"avg_rr":2.16,"required_wr":39.5},"ts":"2026-10-04T00:01:18.528496+00:00"}
