@@ -3521,6 +3521,18 @@ async def scan_market(app, market, frames):
         df_h = frames.get(htf_key)
         if df_e is None or df_h is None: continue
         if df_e.empty: continue
+        # _WAVE269_FRESH_ENTRY (Q44 A - Wayne, 2 Oct 2026): a 1h / 4h frame is re-used for up to 15 / 60 minutes,
+        # forming bar included, and a call's entry is that bar's close. Bring the bar up to date from the 15m frame
+        # (re-fetched every 3 minutes) BEFORE the setups are detected, so the entry, the stop and the detection all
+        # read the market as it is now. On any doubt the frame is used as it is; this never stops a scan.
+        if entry_tf != "15m":
+            try:
+                from data_layer import w269_fresh_tail as _w269_fresh_tail
+                _w269_df = _w269_fresh_tail(df_e, frames.get("15m"), entry_tf, market)
+                if _w269_df is not None and len(_w269_df) >= len(df_e):
+                    df_e = _w269_df
+            except Exception as _w269_e:
+                log.warning(f"[{market}] W269: fresh tail skipped ({_w269_e})")
 
         # _WAVE252_WATCH_LOG_CONTEXT (Q16): hand detect_setups the market and timeframe it is scanning. It was
         # never told, so every suppressed-WATCH row it has written since 8 May carries market "" and

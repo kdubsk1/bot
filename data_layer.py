@@ -115,7 +115,10 @@ def _get_cached(market: str, timeframe: str) -> Optional[pd.DataFrame]:
     # every 60 seconds -- the old flat 60s TTL forced a full provider
     # round-trip on every scan for every timeframe, which burned the
     # TwelveData daily credit limit in hours and got yfinance rate-limited.
-    # The bot trades CLOSED bars, so these staleness windows are safe.
+    # _WAVE269_FRESH_ENTRY (3 Oct 2026): the line here used to say the bot trades CLOSED bars, so these windows
+    # are safe. It does not: the frames carry the FORMING bar and detect_setups takes a call's entry from its
+    # close, so a 4h entry could be 60 minutes old (1h: 15). The windows stay - they protect the providers -
+    # and w269_fresh_tail brings a 1h / 4h frame's last bar up to date from the 15m frame before it is scanned.
     ttl_by_tf = {"15m": 180, "1h": 900, "4h": 3600, "1d": 14400}
     key = _cache_key(market, timeframe)
     entry = _cache.get(key)
@@ -1300,6 +1303,83 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
     if df is not None:
         return df
     return pd.DataFrame(columns=_STANDARD_COLS)
+
+
+# ---------------------------------------------------------------------------
+# _WAVE269_FRESH_ENTRY: a 1h / 4h frame's last bar, brought up to date from the 15m frame
+# ---------------------------------------------------------------------------
+_W269_BAR_MIN = {"1h": 60, "4h": 240}
+
+
+def w269_fresh_tail(df_tf, df_15m, timeframe, market=""):
+    """Q44 option A (Wayne, 2 Oct 2026). A 1h / 4h frame is re-used for up to 15 / 60 minutes (_get_cached) with
+    its forming bar, and detect_setups takes a call's entry from that bar's close - so a 4h call could quote a
+    price the market left an hour ago, and the same stale call was written again and again (gold: 93 exact
+    repeats, every one on 4h). This brings the frame's last bar up to date from the 15m frame, which is
+    re-fetched every 3 minutes: High, Low, Close and Volume, plus the next bar when one began since the frame
+    was fetched. No provider is asked for anything.
+
+    Returns a NEW frame - or df_tf itself, untouched, whenever it cannot be sure: an unknown timeframe, an empty
+    frame, a 15m frame that does not reach back to the bar's open, a frame fetched after the 15m frame, frames
+    from two different providers, a frame more than one bar behind, or two frames that disagree about the bar.
+    Never raises."""
+    try:
+        dur = _W269_BAR_MIN.get(timeframe)
+        if dur is None or df_tf is None or df_15m is None or len(df_tf) == 0 or len(df_15m) == 0:
+            return df_tf
+        mkt = str(market or "").upper()
+        e_tf, e_15 = _cache.get(_cache_key(mkt, timeframe)), _cache.get(_cache_key(mkt, "15m"))
+        if e_tf and e_15 and e_tf.get("ts", 0) >= e_15.get("ts", 0):
+            return df_tf                                   # fetched after the 15m frame: it is the fresher one
+        if _last_source.get(_cache_key(mkt, timeframe)) != _last_source.get(_cache_key(mkt, "15m")):
+            return df_tf                                   # the two frames came from different providers
+        t_last = df_tf.index[-1]
+        if df_15m.index[0] > t_last:
+            return df_tf                                   # the 15m frame does not reach back to this bar's open
+        tail = df_15m[df_15m.index >= t_last]
+        if len(tail) == 0:
+            return df_tf
+        bucket = np.asarray((tail.index - t_last).total_seconds() // (dur * 60)).astype(int)
+        if int(bucket.max()) > 1:
+            return df_tf                                   # more than one bar behind: too old to patch
+        cur = tail[bucket == 0]
+        if len(cur) == 0:
+            return df_tf
+        last = df_tf.iloc[-1]
+        old_h, old_l, old_c = float(last["High"]), float(last["Low"]), float(last["Close"])
+        lo0, hi0 = float(cur["Low"].min()), float(cur["High"].max())
+        tol = 0.0005 * abs(old_c)
+        if not (lo0 - tol <= old_l and old_h <= hi0 + tol and lo0 - tol <= old_c <= hi0 + tol):
+            logger.info("W269 fresh tail %s %s: not used - the frames disagree about the bar (bar H/L/C "
+                        "%.4f/%.4f/%.4f, 15m range %.4f-%.4f)", mkt, timeframe, old_h, old_l, old_c, lo0, hi0)
+            return df_tf
+        out = df_tf.copy()
+        for _c in ("Open", "High", "Low", "Close", "Volume"):
+            out[_c] = out[_c].astype(float)
+        new_c = float(cur["Close"].iloc[-1])
+        out.iloc[-1, out.columns.get_loc("High")] = max(old_h, hi0)
+        out.iloc[-1, out.columns.get_loc("Low")] = min(old_l, lo0)
+        out.iloc[-1, out.columns.get_loc("Close")] = new_c
+        out.iloc[-1, out.columns.get_loc("Volume")] = max(float(last["Volume"]), float(cur["Volume"].sum()))
+        nxt = tail[bucket == 1]
+        if len(nxt) > 0:                                   # a new bar began since the frame was fetched
+            row = pd.DataFrame({"Open": [float(nxt["Open"].iloc[0])], "High": [float(nxt["High"].max())],
+                                "Low": [float(nxt["Low"].min())], "Close": [float(nxt["Close"].iloc[-1])],
+                                "Volume": [float(nxt["Volume"].sum())]},
+                               index=[t_last + pd.Timedelta(minutes=dur)])
+            row.index.name = out.index.name
+            out = pd.concat([out, row.reindex(columns=out.columns)])
+            new_c = float(row["Close"].iloc[0])
+        if new_c != old_c or len(nxt) > 0:
+            logger.info("W269 fresh tail %s %s: close %.4f -> %.4f%s", mkt, timeframe, old_c, new_c,
+                        " (+1 new bar)" if len(nxt) > 0 else "")
+        return out
+    except Exception as exc:
+        try:
+            logger.warning("W269 fresh tail skipped for %s %s (%s)", market, timeframe, exc)
+        except Exception:
+            pass
+        return df_tf
 
 
 # ---------------------------------------------------------------------------
