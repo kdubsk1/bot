@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-05T00:07:35.009222+00:00",
- "cycle": 646,
+ "utc": "2026-10-05T00:29:42.924873+00:00",
+ "cycle": 649,
  "last_sync": "2026-10-04T19:33:52.116397+00:00",
  "started_utc": "2026-10-04T07:28:21.509031+00:00",
  "scanner_on": true,
@@ -11,9 +11,15 @@
  ],
  "interval_min": 5,
  "lab_caps": {
-  "count": {},
+  "count": {
+   "NQ:W266|2026-10-05": 2,
+   "GC:W266|2026-10-05": 2
+  },
   "last": {
-   "NQ|OPEN:RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-04T23:47:33.443701+00:00"
+   "NQ|OPEN:RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-05T00:17:41.764142+00:00",
+   "GC|OPEN:STOCH_REVERSAL_BULL|LONG": "2026-10-05T00:07:40.689028+00:00",
+   "NQ|OPEN:VWAP_BOUNCE_BULL|LONG": "2026-10-05T00:07:40.556412+00:00",
+   "GC|OPEN:VWAP_BOUNCE_BULL|LONG": "2026-10-05T00:27:42.812047+00:00"
   }
  }
 }
