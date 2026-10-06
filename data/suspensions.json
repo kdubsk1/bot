@@ -153,5 +153,15 @@
     "reason": "Wave 47 auto: 0W/3L over last 30 days",
     "suspended_at": "2026-10-01T20:00:09.684414+00:00",
     "source": "wave47_auto"
+  },
+  "GC:BB_REVERSION_BULL": {
+    "reason": "Wave 47 auto: 0W/4L over last 30 days",
+    "suspended_at": "2026-10-05T20:00:04.102837+00:00",
+    "source": "wave47_auto"
+  },
+  "GC:RSI_DIV_BULL": {
+    "reason": "Wave 47 auto: 0W/4L over last 30 days",
+    "suspended_at": "2026-10-05T20:00:04.103436+00:00",
+    "source": "wave47_auto"
   }
 }
