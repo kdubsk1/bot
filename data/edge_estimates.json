@@ -90,9 +90,9 @@
     "total_loss_r": 21.0
   },
   "BREAK_RETEST_BULL|||ALL": {
-    "wins": 15,
+    "wins": 16,
     "losses": 35,
-    "total_win_r": 40.47571432291303,
+    "total_win_r": 42.725119006328796,
     "total_loss_r": 35.0
   },
   "RSI_DIV_BEAR|||LH_LL": {
@@ -198,9 +198,9 @@
     "total_loss_r": 13.0
   },
   "BREAK_RETEST_BULL|||HH_HL": {
-    "wins": 7,
+    "wins": 8,
     "losses": 13,
-    "total_win_r": 20.960033667584657,
+    "total_win_r": 23.209438351000422,
     "total_loss_r": 13.0
   },
   "STOCH_REVERSAL_BEAR|||UNKNOWN": {
