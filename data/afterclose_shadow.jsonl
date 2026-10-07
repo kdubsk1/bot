@@ -492,3 +492,10 @@
 {"kind": "pending", "alert_id": "3591ab6100", "market": "GC", "direction": "LONG", "setup": "VWAP_BOUNCE_BULL", "entry": "4200.7", "stop": "4164.2205", "target": "4276.2", "settle_price": 4195.9, "settle_result": "LOSS", "settle_ts": "2026-10-06T19:55:08.682723+00:00"}
 {"kind": "pending", "alert_id": "a8102b15d1", "market": "NQ", "direction": "LONG", "setup": "EMA21_PULLBACK_BULL", "entry": "31509.75", "stop": "31422.8916", "target": "31683.4667", "settle_price": 31486.5, "settle_result": "LOSS", "settle_ts": "2026-10-06T19:55:09.043676+00:00"}
 {"kind": "pending", "alert_id": "cffdc08e3b", "market": "GC", "direction": "LONG", "setup": "VWAP_BOUNCE_BULL", "entry": "4201.8", "stop": "4164.0576", "target": "4298.6", "settle_price": 4195.9, "settle_result": "LOSS", "settle_ts": "2026-10-06T19:55:09.434020+00:00"}
+{"kind": "resolved", "alert_id": "8dbba5f76b", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 21, "settle_result": "LOSS", "ts": "2026-10-07T02:02:27.901851+00:00"}
+{"kind": "resolved", "alert_id": "79ad096c56", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 21, "settle_result": "LOSS", "ts": "2026-10-07T02:02:27.902122+00:00"}
+{"kind": "resolved", "alert_id": "5748c28b34", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 21, "settle_result": "LOSS", "ts": "2026-10-07T02:02:27.902300+00:00"}
+{"kind": "resolved", "alert_id": "fde96e7f90", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 21, "settle_result": "LOSS", "ts": "2026-10-07T02:02:27.902467+00:00"}
+{"kind": "resolved", "alert_id": "f2519cd85a", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 26, "settle_result": "LOSS", "ts": "2026-10-07T03:20:58.521376+00:00"}
+{"kind": "resolved", "alert_id": "3591ab6100", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 26, "settle_result": "LOSS", "ts": "2026-10-07T03:20:58.521577+00:00"}
+{"kind": "resolved", "alert_id": "cffdc08e3b", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 31, "settle_result": "LOSS", "ts": "2026-10-07T04:52:26.896523+00:00"}
