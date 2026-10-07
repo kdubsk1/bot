@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 52437.42,
+  "peak_balance": 52437.42,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": 116.0,
+  "today_date": "2026-10-06",
+  "session_date": "2026-10-06",
+  "total_pnl": 2437.42,
+  "trades": [
+    {
+      "alert_id": "7ef5201743",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 31353.25,
+      "stop": 31327.465355885608,
+      "target": 31411.25,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "BREAK_RETEST_BULL",
+      "opened_at": "2026-10-06T07:12:12.108322",
+      "status": "CLOSED",
+      "pnl": 116.0,
+      "exit_price": 31411.25,
+      "result": "WIN",
+      "closed_at": "2026-10-06T09:07:51.159951"
+    }
+  ],
+  "open_sim_trades": []
+}
