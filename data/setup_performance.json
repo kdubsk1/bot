@@ -4,7 +4,7 @@
     "losses": 117,
     "total": 157,
     "win_rate": 25.5,
-    "last_updated": "2026-10-07T12:31:15.624473",
+    "last_updated": "2026-10-07T17:21:20.740731",
     "paper_total": 114,
     "paper_wins": 30,
     "paper_win_rate": 26.3,
@@ -15,10 +15,10 @@
     "real_win_rate": 46.2,
     "real_avg_rr_win": 2.493,
     "real_expectancy": 0.6123,
-    "lab_total": 24,
-    "lab_losses": 19,
-    "lab_win_rate": 20.8,
-    "lab_wins": 5
+    "lab_total": 26,
+    "lab_losses": 20,
+    "lab_win_rate": 23.1,
+    "lab_wins": 6
   },
   "SOL:BREAK_RETEST_BULL": {
     "wins": 58,
@@ -160,7 +160,7 @@
     "losses": 67,
     "total": 111,
     "win_rate": 39.6,
-    "last_updated": "2026-10-07T11:50:47.613514",
+    "last_updated": "2026-10-07T13:41:24.527267",
     "paper_total": 81,
     "paper_losses": 45,
     "paper_win_rate": 44.4,
@@ -171,9 +171,9 @@
     "real_win_rate": 40.0,
     "real_avg_rr_win": 2.167,
     "real_expectancy": 0.267,
-    "lab_total": 34,
-    "lab_losses": 26,
-    "lab_win_rate": 23.5,
+    "lab_total": 37,
+    "lab_losses": 29,
+    "lab_win_rate": 21.6,
     "lab_wins": 8
   },
   "SOL:STOCH_REVERSAL_BULL": {
@@ -282,7 +282,7 @@
     "losses": 145,
     "total": 221,
     "win_rate": 34.4,
-    "last_updated": "2026-10-07T13:06:58.789229",
+    "last_updated": "2026-10-07T14:46:31.358062",
     "paper_total": 214,
     "paper_wins": 75,
     "paper_win_rate": 35.0,
@@ -293,9 +293,9 @@
     "real_wins": 1,
     "real_avg_rr_win": 2.32,
     "real_expectancy": -0.6311,
-    "lab_total": 16,
-    "lab_losses": 12,
-    "lab_win_rate": 25.0,
+    "lab_total": 17,
+    "lab_losses": 13,
+    "lab_win_rate": 23.5,
     "lab_wins": 4
   },
   "SOL:VWAP_BOUNCE_BULL": {
@@ -340,7 +340,7 @@
     "losses": 29,
     "total": 31,
     "win_rate": 6.5,
-    "last_updated": "2026-10-01T19:55:06.042412",
+    "last_updated": "2026-10-07T15:55:48.387938",
     "paper_total": 24,
     "paper_losses": 24,
     "paper_win_rate": 0.0,
@@ -350,10 +350,10 @@
     "real_win_rate": 40.0,
     "real_avg_rr_win": 2.25,
     "real_expectancy": 0.3,
-    "lab_total": 5,
-    "lab_wins": 3,
-    "lab_win_rate": 60.0,
-    "lab_losses": 2
+    "lab_total": 7,
+    "lab_wins": 4,
+    "lab_win_rate": 57.1,
+    "lab_losses": 3
   },
   "GC:BREAK_RETEST_BEAR": {
     "wins": 30,
