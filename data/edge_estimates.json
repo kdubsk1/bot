@@ -342,15 +342,15 @@
     "total_loss_r": 0.0
   },
   "MACD_CROSS_BEAR|||ALL": {
-    "wins": 5,
+    "wins": 6,
     "losses": 8,
-    "total_win_r": 11.342232588247885,
+    "total_win_r": 13.651408747412047,
     "total_loss_r": 8.0
   },
   "MACD_CROSS_BEAR|||MIXED": {
-    "wins": 1,
+    "wins": 2,
     "losses": 6,
-    "total_win_r": 2.7273505562734863,
+    "total_win_r": 5.036526715437647,
     "total_loss_r": 6.0
   },
   "EMA21_PULLBACK_BEAR|||UNKNOWN": {
