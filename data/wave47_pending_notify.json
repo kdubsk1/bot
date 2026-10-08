@@ -1,18 +1,6 @@
 {
   "newly_suspended": [
     {
-      "market": "BTC",
-      "setup": "MACD_CROSS_BEAR",
-      "losses": 10,
-      "reason": "Wave 47 auto: 0W/10L over last 30 days"
-    },
-    {
-      "market": "BTC",
-      "setup": "RSI_DIV_BEAR",
-      "losses": 6,
-      "reason": "Wave 47 auto: 0W/6L over last 30 days"
-    },
-    {
       "market": "NQ",
       "setup": "BB_REVERSION_BEAR",
       "losses": 14,
@@ -25,22 +13,22 @@
       "reason": "Wave 47 auto: 0W/5L over last 30 days"
     },
     {
+      "market": "BTC",
+      "setup": "RSI_DIV_BEAR",
+      "losses": 4,
+      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+    },
+    {
       "market": "NQ",
       "setup": "HTF_LEVEL_BOUNCE",
       "losses": 3,
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
     },
     {
-      "market": "NQ",
-      "setup": "EMA50_RECLAIM",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
-    },
-    {
       "market": "GC",
       "setup": "RSI_DIV_BULL",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+      "losses": 11,
+      "reason": "Wave 47 auto: 0W/11L over last 30 days"
     },
     {
       "market": "GC",
@@ -49,5 +37,5 @@
       "reason": "Wave 47 auto: 0W/8L over last 30 days"
     }
   ],
-  "ts": "2026-10-06T20:00:12.336211+00:00"
+  "ts": "2026-10-07T20:00:19.402198+00:00"
 }

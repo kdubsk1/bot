@@ -85,15 +85,15 @@
   },
   "BREAK_RETEST_BULL|||MIXED": {
     "wins": 8,
-    "losses": 21,
+    "losses": 22,
     "total_win_r": 19.51568065532837,
-    "total_loss_r": 21.0
+    "total_loss_r": 22.0
   },
   "BREAK_RETEST_BULL|||ALL": {
     "wins": 16,
-    "losses": 35,
+    "losses": 36,
     "total_win_r": 42.725119006328796,
-    "total_loss_r": 35.0
+    "total_loss_r": 36.0
   },
   "RSI_DIV_BEAR|||LH_LL": {
     "wins": 0,

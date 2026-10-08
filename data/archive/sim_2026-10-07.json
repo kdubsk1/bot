@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 52929.42,
+  "peak_balance": 52929.42,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": 492.0,
+  "today_date": "2026-10-07",
+  "session_date": "2026-10-07",
+  "total_pnl": 2929.42,
+  "trades": [
+    {
+      "alert_id": "e6d4ee58cc",
+      "market": "GC",
+      "direction": "SHORT",
+      "entry": 4179.9,
+      "stop": 4201.206329660985,
+      "target": 4130.7,
+      "contracts": 1,
+      "tier": "HIGH",
+      "setup_type": "MACD_CROSS_BEAR",
+      "opened_at": "2026-10-07T01:11:09.059900",
+      "status": "CLOSED",
+      "pnl": 492.0,
+      "exit_price": 4130.7,
+      "result": "WIN",
+      "closed_at": "2026-10-07T12:28:12.094001"
+    }
+  ],
+  "open_sim_trades": []
+}
