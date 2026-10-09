@@ -343,9 +343,9 @@
   },
   "MACD_CROSS_BEAR|||ALL": {
     "wins": 6,
-    "losses": 8,
+    "losses": 9,
     "total_win_r": 13.651408747412047,
-    "total_loss_r": 8.0
+    "total_loss_r": 9.0
   },
   "MACD_CROSS_BEAR|||MIXED": {
     "wins": 2,
@@ -385,9 +385,9 @@
   },
   "MACD_CROSS_BEAR|||LH_LL": {
     "wins": 4,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 8.6148820319744,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "MACD_CROSS_BEAR|||HH_HL": {
     "wins": 0,
