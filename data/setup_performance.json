@@ -557,7 +557,7 @@
     "losses": 154,
     "total": 162,
     "win_rate": 4.9,
-    "last_updated": "2026-10-08T17:22:10.545977",
+    "last_updated": "2026-10-08T19:55:18.871928",
     "real_wins": 1,
     "real_losses": 3,
     "real_total": 4,
@@ -568,10 +568,10 @@
     "paper_losses": 63,
     "paper_win_rate": 10.0,
     "paper_wins": 7,
-    "lab_total": 107,
+    "lab_total": 117,
     "lab_wins": 32,
-    "lab_win_rate": 29.9,
-    "lab_losses": 75
+    "lab_win_rate": 27.4,
+    "lab_losses": 85
   },
   "BTC:BREAK_RETEST_BULL": {
     "wins": 44,
@@ -657,7 +657,7 @@
     "losses": 254,
     "total": 292,
     "win_rate": 13.0,
-    "last_updated": "2026-10-08T17:22:10.421434",
+    "last_updated": "2026-10-08T19:55:18.985454",
     "paper_total": 249,
     "paper_losses": 215,
     "paper_win_rate": 13.7,
@@ -668,9 +668,9 @@
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
     "real_expectancy": -1.0,
-    "lab_total": 90,
-    "lab_losses": 61,
-    "lab_win_rate": 32.2,
+    "lab_total": 95,
+    "lab_losses": 66,
+    "lab_win_rate": 30.5,
     "lab_wins": 29
   },
   "BTC:EMA21_PULLBACK_BEAR": {

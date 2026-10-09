@@ -3,26 +3,8 @@
     {
       "market": "NQ",
       "setup": "BB_REVERSION_BEAR",
-      "losses": 14,
-      "reason": "Wave 47 auto: 0W/14L over last 30 days"
-    },
-    {
-      "market": "NQ",
-      "setup": "MACD_CROSS_BEAR",
-      "losses": 5,
-      "reason": "Wave 47 auto: 0W/5L over last 30 days"
-    },
-    {
-      "market": "BTC",
-      "setup": "RSI_DIV_BEAR",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
-    },
-    {
-      "market": "NQ",
-      "setup": "HTF_LEVEL_BOUNCE",
-      "losses": 3,
-      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+      "losses": 8,
+      "reason": "Wave 47 auto: 0W/8L over last 30 days"
     },
     {
       "market": "GC",
@@ -35,7 +17,13 @@
       "setup": "STOCH_REVERSAL_BULL",
       "losses": 8,
       "reason": "Wave 47 auto: 0W/8L over last 30 days"
+    },
+    {
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "losses": 18,
+      "reason": "Wave 47 auto: 0W/18L over last 30 days"
     }
   ],
-  "ts": "2026-10-07T20:00:19.402198+00:00"
+  "ts": "2026-10-08T20:00:21.066106+00:00"
 }
