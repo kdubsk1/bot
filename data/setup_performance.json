@@ -536,7 +536,7 @@
     "losses": 49,
     "total": 74,
     "win_rate": 33.8,
-    "last_updated": "2026-10-09T14:23:00.187830",
+    "last_updated": "2026-10-10T09:32:34.927819",
     "paper_total": 48,
     "paper_losses": 28,
     "paper_win_rate": 41.7,
@@ -547,9 +547,9 @@
     "real_win_rate": 33.3,
     "real_avg_rr_win": 2.42,
     "real_expectancy": 0.14,
-    "lab_total": 21,
-    "lab_losses": 19,
-    "lab_win_rate": 9.5,
+    "lab_total": 22,
+    "lab_losses": 20,
+    "lab_win_rate": 9.1,
     "lab_wins": 2
   },
   "GC:EMA21_PULLBACK_BEAR": {
@@ -678,7 +678,7 @@
     "losses": 113,
     "total": 161,
     "win_rate": 29.8,
-    "last_updated": "2026-10-09T02:55:51.948736",
+    "last_updated": "2026-10-10T09:32:34.737127",
     "paper_total": 136,
     "paper_losses": 96,
     "paper_win_rate": 29.4,
@@ -689,9 +689,9 @@
     "real_win_rate": 58.3,
     "real_avg_rr_win": 2.701,
     "real_expectancy": 1.1592,
-    "lab_total": 14,
-    "lab_losses": 8,
-    "lab_win_rate": 42.9,
+    "lab_total": 15,
+    "lab_losses": 9,
+    "lab_win_rate": 40.0,
     "lab_wins": 6
   },
   "SOL:STOCH_REVERSAL_BEAR": {
