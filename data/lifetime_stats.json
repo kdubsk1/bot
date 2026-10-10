@@ -1,9 +1,9 @@
 {
-  "total_sessions": 139,
-  "total_trades": 153,
+  "total_sessions": 140,
+  "total_trades": 154,
   "total_wins": 50,
-  "total_losses": 103,
-  "total_pnl_dollars": 4782.09,
+  "total_losses": 104,
+  "total_pnl_dollars": 4537.25,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -511.95,
   "best_setup_overall": "GC:MACD_CROSS_BEAR",
@@ -80,8 +80,8 @@
     },
     "GC:MACD_CROSS_BEAR": {
       "wins": 8,
-      "losses": 6,
-      "pnl": 3784.75
+      "losses": 7,
+      "pnl": 3539.91
     },
     "GC:BREAK_RETEST_BEAR": {
       "wins": 0,
@@ -129,9 +129,9 @@
       "pnl": -124.87
     }
   },
-  "last_updated": "2026-10-08T20:00:21.059587+00:00",
+  "last_updated": "2026-10-09T20:00:24.481523+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
-  "lifetime_balance": 54782.09,
+  "lifetime_balance": 54537.25,
   "lifetime_peak_balance": 54822.89
 }

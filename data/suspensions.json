@@ -168,5 +168,10 @@
     "reason": "Wave 47 auto: 0W/18L over last 30 days",
     "suspended_at": "2026-10-08T20:00:21.064801+00:00",
     "source": "wave47_auto"
+  },
+  "GC:BB_REVERSION_BEAR": {
+    "reason": "Wave 47 auto: 0W/15L over last 30 days",
+    "suspended_at": "2026-10-09T20:00:24.485977+00:00",
+    "source": "wave47_auto"
   }
 }
