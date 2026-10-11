@@ -1,0 +1,119 @@
+NQ CALLS DAILY REPORT
+Date: Saturday, October 10, 2026
+Session: 2026-10-12
+Generated: 00:00 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  0
+Closed today:        0
+Wins:                0
+Losses:              0
+Skipped:             0
+Still open:          0
+Today win rate:      0.0%
+
+ALL-TIME STATS
+------------------------------
+Total closed: 601
+All-time W/L: 145W / 447L (24.5% WR)
+
+LEARNING UPDATES TODAY:
+------------------------------
+  BTC:EMA21_PULLBACK_BEAR: 29.8% WR over 161 trades → Conv adj: 0
+  BTC:MACD_CROSS_BEAR: 33.8% WR over 74 trades → Conv adj: 0
+
+ALL-TIME LEARNING FILE:
+------------------------------
+  BTC:VWAP_BOUNCE_BULL: 146W/630L (18.8% WR) → Conv adj: 0
+  BTC:EMA21_PULLBACK_BULL: 147W/415L (26.2% WR) → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 173W/151L (53.4% WR) → Conv adj: 0
+  GC:VWAP_REJECT_BEAR: 38W/254L (13.0% WR) → Conv adj: 0
+  GC:EMA21_PULLBACK_BULL: 5W/281L (1.7% WR) → Conv adj: 0
+  BTC:STOCH_REVERSAL_BEAR: 62W/220L (22.0% WR) → Conv adj: 0
+  BTC:BB_REVERSION_BULL: 76W/145L (34.4% WR) → Conv adj: 0
+  BTC:MACD_CROSS_BULL: 68W/147L (31.6% WR) → Conv adj: 0
+  SOL:VWAP_BOUNCE_BULL: 47W/154L (23.4% WR) → Conv adj: 0
+  NQ:VWAP_REJECT_BEAR: 45W/132L (25.4% WR) → Conv adj: 0
+  NQ:BREAK_RETEST_BULL: 105W/62L (62.9% WR) → Conv adj: 0
+  GC:VWAP_BOUNCE_BULL: 94W/73L (56.3% WR) → Conv adj: 0
+  GC:EMA21_PULLBACK_BEAR: 8W/154L (4.9% WR) → Conv adj: 0
+  BTC:EMA21_PULLBACK_BEAR: 48W/113L (29.8% WR) → Conv adj: 0
+  NQ:BB_REVERSION_BULL: 40W/117L (25.5% WR) → Conv adj: 0
+  SOL:BB_REVERSION_BEAR: 42W/99L (29.8% WR) → Conv adj: 0
+  NQ:EMA21_PULLBACK_BEAR: 31W/108L (22.3% WR) → Conv adj: 0
+  BTC:STOCH_REVERSAL_BULL: 69W/67L (50.7% WR) → Conv adj: 0
+  GC:BREAK_RETEST_BEAR: 30W/102L (22.7% WR) → Conv adj: 0
+  BTC:BB_REVERSION_BEAR: 13W/102L (11.3% WR) → Conv adj: 0
+  GC:STOCH_REVERSAL_BULL: 11W/103L (9.6% WR) → Conv adj: 0
+  NQ:STOCH_REVERSAL_BULL: 44W/67L (39.6% WR) → Conv adj: 0
+  BTC:VWAP_REJECT_BEAR: 33W/75L (30.6% WR) → Conv adj: 0
+  GC:RSI_DIV_BULL: 1W/103L (1.0% WR) → Conv adj: 0
+  SOL:BREAK_RETEST_BULL: 58W/41L (58.6% WR) → Conv adj: 0
+  GC:STOCH_REVERSAL_BEAR: 68W/31L (68.7% WR) → Conv adj: 0
+  NQ:LAB|EMA21_PULLBACK_BEAR: 16W/71L (18.4% WR) → Conv adj: 0
+  BTC:RSI_DIV_BEAR: 17W/66L (20.5% WR) → Conv adj: 0
+  BTC:RSI_DIV_BULL: 22W/55L (28.6% WR) → Conv adj: 0
+  GC:RSI_DIV_BEAR: 3W/73L (3.9% WR) → Conv adj: 0
+  BTC:MACD_CROSS_BEAR: 25W/49L (33.8% WR) → Conv adj: 0
+  SOL:EMA21_PULLBACK_BEAR: 23W/50L (31.5% WR) → Conv adj: 0
+  SOL:RSI_DIV_BEAR: 2W/70L (2.8% WR) → Conv adj: 0
+  GC:BB_REVERSION_BEAR: 24W/44L (35.3% WR) → Conv adj: 0
+  BTC:BREAK_RETEST_BULL: 44W/24L (64.7% WR) → Conv adj: 0
+  NQ:EMA21_PULLBACK_BULL: 5W/61L (7.6% WR) → Conv adj: 0
+  GC:BB_REVERSION_BULL: 45W/19L (70.3% WR) → Conv adj: 0
+  SOL:VWAP_REJECT_BEAR: 24W/40L (37.5% WR) → Conv adj: 0
+  BTC:EMA50_BREAKDOWN: 0W/64L (0.0% WR) → Conv adj: 0
+  NQ:MACD_CROSS_BULL: 32W/32L (50.0% WR) → Conv adj: 0
+  NQ:LAB|VWAP_REJECT_BEAR: 16W/45L (26.2% WR) → Conv adj: 0
+  BTC:BREAK_RETEST_BEAR: 12W/48L (20.0% WR) → Conv adj: 0
+  SOL:EMA21_PULLBACK_BULL: 23W/36L (39.0% WR) → Conv adj: 0
+  NQ:BREAK_RETEST_BEAR: 9W/48L (15.8% WR) → Conv adj: 0
+  NQ:BB_REVERSION_BEAR: 3W/45L (6.2% WR) → Conv adj: 0
+  GC:MACD_CROSS_BEAR: 35W/12L (74.5% WR) → Conv adj: 0
+  NQ:STOCH_REVERSAL_BEAR: 11W/35L (23.9% WR) → Conv adj: 0
+  SOL:STOCH_REVERSAL_BEAR: 17W/28L (37.8% WR) → Conv adj: 0
+  SOL:BREAK_RETEST_BEAR: 18W/23L (43.9% WR) → Conv adj: 0
+  NQ:MACD_CROSS_BEAR: 10W/31L (24.4% WR) → Conv adj: 0
+  SOL:MACD_CROSS_BULL: 11W/26L (29.7% WR) → Conv adj: 0
+  SOL:RSI_DIV_BULL: 4W/32L (11.1% WR) → Conv adj: 0
+  NQ:RSI_DIV_BULL: 2W/29L (6.5% WR) → Conv adj: 0
+  SOL:MACD_CROSS_BEAR: 9W/22L (29.0% WR) → Conv adj: 0
+  SOL:STOCH_REVERSAL_BULL: 7W/23L (23.3% WR) → Conv adj: 0
+  BTC:LAB|RSI_DIV_BEAR: 13W/16L (44.8% WR) → Conv adj: 0
+  SOL:BB_REVERSION_BULL: 7W/21L (25.0% WR) → Conv adj: 0
+  GC:BREAK_RETEST_BULL: 8W/17L (32.0% WR) → Conv adj: 0
+  NQ:OPENING_RANGE_BREAKOUT: 16W/9L (64.0% WR) → Conv adj: 0
+  GC:LAB|RSI_DIV_BEAR: 3W/22L (12.0% WR) → Conv adj: 0
+  NQ:LAB|STOCH_REVERSAL_BEAR: 9W/14L (39.1% WR) → Conv adj: 0
+  BTC:EMA50_RECLAIM: 2W/19L (9.5% WR) → Conv adj: 0
+  NQ:LAB|BREAK_RETEST_BEAR: 5W/14L (26.3% WR) → Conv adj: 0
+  GC:MACD_CROSS_BULL: 4W/14L (22.2% WR) → Conv adj: 0
+  NQ:LAB|MACD_CROSS_BEAR: 5W/12L (29.4% WR) → Conv adj: 0
+  SOL:EMA50_RECLAIM: 16W/0L (100.0% WR) → Conv adj: 0
+  GC:EMA50_RECLAIM: 0W/15L (0.0% WR) → Conv adj: 0
+  BTC:LAB|RSI_DIV_BULL: 4W/8L (33.3% WR) → Conv adj: 0
+  NQ:EMA50_RECLAIM: 0W/11L (0.0% WR) → Conv adj: 0
+  NQ:RSI_DIV_BEAR: 1W/10L (9.1% WR) → Conv adj: 0
+  NQ:EMA50_BREAKDOWN: 2W/9L (18.2% WR) → Conv adj: 0
+  SOL:EMA50_BREAKDOWN: 4W/6L (40.0% WR) → Conv adj: 0
+  NQ:LAB|BB_REVERSION_BEAR: 3W/7L (30.0% WR) → Conv adj: 0
+  NQ:LAB|RSI_DIV_BULL: 0W/10L (0.0% WR) → Conv adj: 0
+  SOL:LAB|RSI_DIV_BEAR: 2W/5L (28.6% WR) → Conv adj: 0
+  NQ:LAB|RSI_DIV_BEAR: 1W/4L (20.0% WR) → Conv adj: 0
+  GC:EMA50_BREAKDOWN: 0W/4L (0.0% WR) → Conv adj: 0
+  SOL:APPROACH_SUPPORT: 0W/3L (0.0% WR) → Conv adj: 0
+  NQ:LAB|OPENING_RANGE_BREAKOUT: 0W/3L (0.0% WR) → Conv adj: 0
+  NQ:APPROACH_SUPPORT: 0W/2L (0.0% WR) → Conv adj: 0
+  SOL:LAB|RSI_DIV_BULL: 1W/1L (50.0% WR) → Conv adj: 0
+  NQ:LAB|EMA50_BREAKDOWN: 2W/0L (100.0% WR) → Conv adj: 0
+  NQ:VWAP_RECLAIM: 0W/0L (0.0% WR) → Conv adj: 0
+  NQ:HTF_LEVEL_BOUNCE: 0W/0L (0.0% WR) → Conv adj: 0
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  No open trades.
+
+==================================================
+END OF REPORT
