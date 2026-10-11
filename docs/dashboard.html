@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-10-11T13:40:01.783720+00:00",
+  "generated_at": "2026-10-11T19:40:06.821265+00:00",
   "topstep": {
     "balance": 52643.78,
     "starting_balance": 50000,
@@ -2598,10 +2598,10 @@ const DATA = {
     ]
   },
   "all_time": {
-    "wins": 145,
-    "losses": 447,
-    "wr": 24.5,
-    "total_trades": 592
+    "wins": 152,
+    "losses": 452,
+    "wr": 25.2,
+    "total_trades": 604
   },
   "today": {
     "wins": 0,
@@ -2653,6 +2653,13 @@ const DATA = {
       "wr": 20.0
     },
     {
+      "setup": "BTC:VWAP_BOUNCE_BULL",
+      "fires": 26,
+      "wins": 5,
+      "losses": 21,
+      "wr": 19.2
+    },
+    {
       "setup": "NQ:BREAK_RETEST_BULL",
       "fires": 23,
       "wins": 16,
@@ -2660,18 +2667,18 @@ const DATA = {
       "wr": 69.6
     },
     {
-      "setup": "BTC:VWAP_BOUNCE_BULL",
-      "fires": 21,
-      "wins": 0,
-      "losses": 21,
-      "wr": 0.0
-    },
-    {
       "setup": "NQ:EMA21_PULLBACK_BEAR",
       "fires": 21,
       "wins": 7,
       "losses": 14,
       "wr": 33.3
+    },
+    {
+      "setup": "BTC:RSI_DIV_BULL",
+      "fires": 20,
+      "wins": 2,
+      "losses": 18,
+      "wr": 10.0
     },
     {
       "setup": "NQ:BREAK_RETEST_BEAR",
@@ -2700,13 +2707,6 @@ const DATA = {
       "wins": 1,
       "losses": 17,
       "wr": 5.6
-    },
-    {
-      "setup": "BTC:RSI_DIV_BULL",
-      "fires": 18,
-      "wins": 0,
-      "losses": 18,
-      "wr": 0.0
     },
     {
       "setup": "BTC:MACD_CROSS_BULL",
@@ -2791,6 +2791,13 @@ const DATA = {
       "wins": 0,
       "losses": 6,
       "wr": 0.0
+    },
+    {
+      "setup": "BTC:BB_REVERSION_BEAR",
+      "fires": 6,
+      "wins": 1,
+      "losses": 5,
+      "wr": 16.7
     },
     {
       "setup": "GC:MACD_CROSS_BEAR",
@@ -2884,13 +2891,6 @@ const DATA = {
       "wr": 0.0
     },
     {
-      "setup": "BTC:BB_REVERSION_BEAR",
-      "fires": 1,
-      "wins": 1,
-      "losses": 0,
-      "wr": 100.0
-    },
-    {
       "setup": "BTC:EMA50_BREAKDOWN",
       "fires": 1,
       "wins": 0,
@@ -2899,6 +2899,54 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-10-11 18:46",
+      "market": "BTC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "83602.69",
+      "stop": "84184.2813",
+      "target": "82198.0",
+      "rr": "2.42",
+      "conv": "13",
+      "tier": "REJECT",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-10-11 18:01",
+      "market": "BTC",
+      "setup": "BB_REVERSION_BEAR",
+      "tf": "1h",
+      "dir": "SHORT",
+      "entry": "83710.9",
+      "stop": "84179.9077",
+      "target": "82198.0",
+      "rr": "3.23",
+      "conv": "13",
+      "tier": "REJECT",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
+    {
+      "time": "2026-10-11 15:42",
+      "market": "BTC",
+      "setup": "MACD_CROSS_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "83301.4",
+      "stop": "82875.6092",
+      "target": "84368.26",
+      "rr": "2.51",
+      "conv": "32",
+      "tier": "REJECT",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-10-09 19:40",
       "market": "BTC",
@@ -3231,9 +3279,9 @@ const DATA = {
       "rr": "1.29",
       "conv": "13",
       "tier": "REJECT",
-      "status": "OPEN",
-      "result": "",
-      "exit": ""
+      "status": "CLOSED",
+      "result": "LOSS",
+      "exit": "83477.8334"
     },
     {
       "time": "2026-10-09 15:25",
@@ -3250,54 +3298,6 @@ const DATA = {
       "status": "CLOSED",
       "result": "LOSS",
       "exit": "31134.4767"
-    },
-    {
-      "time": "2026-10-09 15:20",
-      "market": "NQ",
-      "setup": "VWAP_REJECT_BEAR",
-      "tf": "15m",
-      "dir": "SHORT",
-      "entry": "31058.25",
-      "stop": "31106.5538",
-      "target": "30957.5",
-      "rr": "2.09",
-      "conv": "26",
-      "tier": "REJECT",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "31106.5538"
-    },
-    {
-      "time": "2026-10-09 15:11",
-      "market": "BTC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "dir": "LONG",
-      "entry": "82823.22",
-      "stop": "82247.7266",
-      "target": "84354.65",
-      "rr": "2.66",
-      "conv": "19",
-      "tier": "REJECT",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "82247.7266"
-    },
-    {
-      "time": "2026-10-09 15:11",
-      "market": "GC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "tf": "4h",
-      "dir": "SHORT",
-      "entry": "4210.9",
-      "stop": "4233.3525",
-      "target": "4169.4",
-      "rr": "1.85",
-      "conv": "68",
-      "tier": "HIGH",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "4221.0"
     }
   ],
   "suspended_setups": [
@@ -3331,10 +3331,10 @@ const DATA = {
       "wr": 34.2
     },
     "BTC": {
-      "wins": 13,
-      "losses": 108,
-      "total_pnl_r": -84.82,
-      "wr": 10.7
+      "wins": 20,
+      "losses": 113,
+      "total_pnl_r": -68.01,
+      "wr": 15.0
     }
   },
   "by_tier": {
@@ -3344,9 +3344,9 @@ const DATA = {
       "wr": 30.1
     },
     "REJECT": {
-      "wins": 89,
-      "losses": 349,
-      "wr": 20.3
+      "wins": 96,
+      "losses": 354,
+      "wr": 21.3
     },
     "HIGH": {
       "wins": 25,
@@ -3360,156 +3360,39 @@ const DATA = {
       "setup": "BB_REVERSION_BEAR",
       "tf": "1h",
       "direction": "SHORT",
-      "entry": "82902.34",
-      "target": "82161.31",
-      "stop": "83477.8334",
+      "entry": "83602.69",
+      "target": "82198.0",
+      "stop": "84184.2813",
       "conviction": 13,
       "last_rescore_conviction": 13,
       "tier": "REJECT",
-      "timestamp": "2026-10-09T15:40:21.803521+00:00"
+      "timestamp": "2026-10-11T18:46:31.955998+00:00"
     },
     {
       "market": "BTC",
       "setup": "BB_REVERSION_BEAR",
       "tf": "1h",
       "direction": "SHORT",
-      "entry": "82863.25",
-      "target": "82161.31",
-      "stop": "83428.5074",
+      "entry": "83710.9",
+      "target": "82198.0",
+      "stop": "84179.9077",
       "conviction": 13,
       "last_rescore_conviction": 13,
       "tier": "REJECT",
-      "timestamp": "2026-10-09T15:06:15.254777+00:00"
+      "timestamp": "2026-10-11T18:01:52.072945+00:00"
     },
     {
       "market": "BTC",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "1h",
-      "direction": "SHORT",
-      "entry": "82890.36",
-      "target": "82161.31",
-      "stop": "83485.1495",
-      "conviction": 13,
-      "last_rescore_conviction": 13,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T13:28:17.702128+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "1h",
-      "direction": "SHORT",
-      "entry": "82912.78",
-      "target": "80314.7",
-      "stop": "83587.3522",
-      "conviction": 13,
-      "last_rescore_conviction": 13,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T12:53:58.980721+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "BB_REVERSION_BEAR",
-      "tf": "1h",
-      "direction": "SHORT",
-      "entry": "82983.6",
-      "target": "82161.31",
-      "stop": "83586.4422",
-      "conviction": 13,
-      "last_rescore_conviction": 13,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T12:50:50.566251+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_BOUNCE_BULL",
+      "setup": "MACD_CROSS_BULL",
       "tf": "1h",
       "direction": "LONG",
-      "entry": "82436.72",
-      "target": "83829.87",
-      "stop": "81885.5429",
-      "conviction": 19,
-      "last_rescore_conviction": 19,
+      "entry": "83301.4",
+      "target": "84368.26",
+      "stop": "82875.6092",
+      "conviction": 32,
+      "last_rescore_conviction": 32,
       "tier": "REJECT",
-      "timestamp": "2026-10-09T04:22:01.250100+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "82298.51",
-      "target": "83829.87",
-      "stop": "81723.7434",
-      "conviction": 19,
-      "last_rescore_conviction": 19,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T03:51:58.666238+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "82185.9",
-      "target": "83829.87",
-      "stop": "81626.1214",
-      "conviction": 19,
-      "last_rescore_conviction": 19,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T03:21:55.992434+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "81959.5",
-      "target": "83829.87",
-      "stop": "81396.121",
-      "conviction": 19,
-      "last_rescore_conviction": 19,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T02:45:51.148142+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "81967.45",
-      "target": "83829.87",
-      "stop": "81410.1584",
-      "conviction": 19,
-      "last_rescore_conviction": 19,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T02:15:48.318799+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "RSI_DIV_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "81784.62",
-      "target": "83829.87",
-      "stop": "81193.1816",
-      "conviction": 30,
-      "last_rescore_conviction": 30,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T00:43:29.791160+00:00"
-    },
-    {
-      "market": "BTC",
-      "setup": "RSI_DIV_BULL",
-      "tf": "1h",
-      "direction": "LONG",
-      "entry": "81747.36",
-      "target": "83829.87",
-      "stop": "81162.5233",
-      "conviction": 30,
-      "last_rescore_conviction": 30,
-      "tier": "REJECT",
-      "timestamp": "2026-10-09T00:11:25.513951+00:00"
+      "timestamp": "2026-10-11T15:42:15.887263+00:00"
     },
     {
       "market": "BTC",
