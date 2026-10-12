@@ -1,34 +1,55 @@
 NQ CALLS DAILY REPORT
-Date: Saturday, October 10, 2026
+Date: Sunday, October 11, 2026
 Session: 2026-10-12
-Generated: 00:00 EST
+Generated: 00:01 EST
 ==================================================
 
 TODAY'S PERFORMANCE
 ------------------------------
-Alerts fired today:  0
-Closed today:        0
-Wins:                0
+Alerts fired today:  12
+Closed today:        1
+Wins:                1
 Losses:              0
 Skipped:             0
-Still open:          0
-Today win rate:      0.0%
+Still open:          11
+Today win rate:      100.0%
+
+TODAY'S ALERTS:
+------------------------------
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.51 | Tier:REJECT | Entry:83301.4 Stop:82875.6092 Target:84368.26 | Exit:open | 2026-10-11 15:42
+  🔄 BTC | BB_REVERSION_BEAR | SHORT | Conv:13 | RR:3.23 | Tier:REJECT | Entry:83710.9 Stop:84179.9077 Target:82198.0 | Exit:open | 2026-10-11 18:01
+  🔄 BTC | BB_REVERSION_BEAR | SHORT | Conv:13 | RR:2.42 | Tier:REJECT | Entry:83602.69 Stop:84184.2813 Target:82198.0 | Exit:open | 2026-10-11 18:46
+  🔄 BTC | VWAP_REJECT_BEAR | SHORT | Conv:31 | RR:2.58 | Tier:REJECT | Entry:83276.3 Stop:83694.9937 Target:82198.0 | Exit:open | 2026-10-11 21:23
+  ✅ NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.78 | Tier:MEDIUM | Entry:31123.25 Stop:31071.6766 Target:31266.5 | Exit:31266.5 | 2026-10-11 22:00
+  🔄 GC | VWAP_REJECT_BEAR | SHORT | Conv:14 | RR:1.91 | Tier:REJECT | Entry:4211.3 Stop:4233.1916 Target:4169.4 | Exit:open | 2026-10-11 22:21
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.15 | Tier:MEDIUM | Entry:31192.5 Stop:31090.7675 Target:31411.25 | Exit:open | 2026-10-11 22:30
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.77 | Tier:REJECT | Entry:83560.01 Stop:83136.9018 Target:84733.86 | Exit:open | 2026-10-11 22:40
+  🔄 GC | VWAP_REJECT_BEAR | SHORT | Conv:14 | RR:2.9 | Tier:REJECT | Entry:4210.1 Stop:4233.2201 Target:4143.1 | Exit:open | 2026-10-11 22:52
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.93 | Tier:MEDIUM | Entry:31238.25 Stop:31108.9847 Target:31616.5 | Exit:open | 2026-10-11 23:21
+  🔄 NQ | BB_REVERSION_BEAR | SHORT | Conv:10 | RR:2.34 | Tier:REJECT | Entry:31262.75 Stop:31298.7093 Target:31178.5 | Exit:open | 2026-10-11 23:51
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.29 | Tier:MEDIUM | Entry:31262.75 Stop:31108.3204 Target:31616.5 | Exit:open | 2026-10-11 23:51
+
+SETUP BREAKDOWN TODAY:
+------------------------------
+  NQ:VWAP_BOUNCE_BULL: 1W / 0L (100% WR)
 
 ALL-TIME STATS
 ------------------------------
-Total closed: 601
-All-time W/L: 145W / 447L (24.5% WR)
+Total closed: 614
+All-time W/L: 153W / 452L (25.3% WR)
 
 LEARNING UPDATES TODAY:
 ------------------------------
-  BTC:EMA21_PULLBACK_BEAR: 29.8% WR over 161 trades → Conv adj: 0
-  BTC:MACD_CROSS_BEAR: 33.8% WR over 74 trades → Conv adj: 0
+  BTC:BB_REVERSION_BEAR: 11.3% WR over 115 trades → Conv adj: 0
+  BTC:RSI_DIV_BULL: 28.6% WR over 77 trades → Conv adj: 0
+  BTC:VWAP_BOUNCE_BULL: 18.8% WR over 776 trades → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 53.5% WR over 325 trades → Conv adj: 0
 
 ALL-TIME LEARNING FILE:
 ------------------------------
   BTC:VWAP_BOUNCE_BULL: 146W/630L (18.8% WR) → Conv adj: 0
   BTC:EMA21_PULLBACK_BULL: 147W/415L (26.2% WR) → Conv adj: 0
-  NQ:VWAP_BOUNCE_BULL: 173W/151L (53.4% WR) → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 174W/151L (53.5% WR) → Conv adj: 0
   GC:VWAP_REJECT_BEAR: 38W/254L (13.0% WR) → Conv adj: 0
   GC:EMA21_PULLBACK_BULL: 5W/281L (1.7% WR) → Conv adj: 0
   BTC:STOCH_REVERSAL_BEAR: 62W/220L (22.0% WR) → Conv adj: 0
@@ -113,7 +134,7 @@ ALL-TIME LEARNING FILE:
 
 STILL OPEN AT END OF DAY:
 ------------------------------
-  No open trades.
+  🔄 NQ | VWAP_BOUNCE_BULL | Entry:31262.75 Target:31616.5 | ID:2970af4967 | 2026-10-11 23:51
 
 ==================================================
 END OF REPORT
