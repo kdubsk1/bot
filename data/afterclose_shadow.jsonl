@@ -716,3 +716,5 @@
 {"kind": "resolved", "alert_id": "704028f5fc", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 11, "settle_result": "LOSS", "ts": "2026-10-12T23:41:18.615395+00:00"}
 {"kind": "resolved", "alert_id": "d44dbc039f", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 11, "settle_result": "LOSS", "ts": "2026-10-12T23:41:18.615606+00:00"}
 {"kind": "resolved", "alert_id": "733a880e12", "market": "NQ", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 12, "settle_result": "WIN", "ts": "2026-10-12T23:55:20.890301+00:00"}
+{"kind": "resolved", "alert_id": "a4d192b271", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 28, "settle_result": "LOSS", "ts": "2026-10-13T03:56:42.147773+00:00"}
+{"kind": "resolved", "alert_id": "62abf7f0f1", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 28, "settle_result": "LOSS", "ts": "2026-10-13T03:56:42.147979+00:00"}
