@@ -173,5 +173,10 @@
     "reason": "Wave 47 auto: 0W/15L over last 30 days",
     "suspended_at": "2026-10-09T20:00:24.485977+00:00",
     "source": "wave47_auto"
+  },
+  "BTC:MACD_CROSS_BULL": {
+    "reason": "Wave 47 auto: 0W/17L over last 30 days",
+    "suspended_at": "2026-10-12T20:00:14.761650+00:00",
+    "source": "wave47_auto"
   }
 }
