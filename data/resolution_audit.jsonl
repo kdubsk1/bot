@@ -1,1 +1,2 @@
 {"ts": "2026-09-28T16:25:46.417436+00:00", "alert_id": "18c928bf6c", "market": "BTC", "setup": "STOCH_REVERSAL_BEAR", "direction": "SHORT", "recorded": "LOSS", "first_touch": "WIN", "entry": 83470.32, "stop": 83902.9834, "target": 82550.0, "alert_ts": "2026-09-28T13:51:35.210146+00:00"}
+{"ts": "2026-10-14T12:30:26.745190+00:00", "alert_id": "033d95bcb5", "market": "NQ", "setup": "STOCH_REVERSAL_BULL", "direction": "LONG", "recorded": "LOSS", "first_touch": "WIN", "entry": 30751.25, "stop": 30717.8507, "target": 30827.5, "alert_ts": "2026-10-14T11:32:01.017891+00:00"}
