@@ -744,3 +744,11 @@
 {"kind": "resolved", "alert_id": "bfdb07807c", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 19, "settle_result": "LOSS", "ts": "2026-10-14T01:40:48.072999+00:00"}
 {"kind": "resolved", "alert_id": "dd1b5e6df6", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 19, "settle_result": "LOSS", "ts": "2026-10-14T01:40:48.073255+00:00"}
 {"kind": "resolved", "alert_id": "93b5678a6b", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 19, "settle_result": "LOSS", "ts": "2026-10-14T01:40:48.073464+00:00"}
+{"kind": "resolved", "alert_id": "c3e413aec7", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 20, "settle_result": "LOSS", "ts": "2026-10-14T01:46:53.935255+00:00"}
+{"kind": "resolved", "alert_id": "b6a9b95426", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 20, "settle_result": "LOSS", "ts": "2026-10-14T01:46:53.935436+00:00"}
+{"kind": "resolved", "alert_id": "1d5e03e387", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 20, "settle_result": "LOSS", "ts": "2026-10-14T01:46:53.935601+00:00"}
+{"kind": "resolved", "alert_id": "d5d965a949", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 20, "settle_result": "LOSS", "ts": "2026-10-14T01:46:53.935920+00:00"}
+{"kind": "resolved", "alert_id": "15b12dc440", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 20, "settle_result": "LOSS", "ts": "2026-10-14T01:46:53.936371+00:00"}
+{"kind": "resolved", "alert_id": "7a582505f2", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 43, "settle_result": "LOSS", "ts": "2026-10-14T07:31:29.457204+00:00"}
+{"kind": "resolved", "alert_id": "9cb9f98bd7", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 43, "settle_result": "LOSS", "ts": "2026-10-14T07:31:29.457476+00:00"}
+{"kind": "resolved", "alert_id": "ed134d8156", "market": "GC", "verdict": "SHADOW_STOP_FIRST", "bars_15m_after_close": 43, "settle_result": "LOSS", "ts": "2026-10-14T07:31:29.457744+00:00"}
