@@ -150,3 +150,5 @@
 {"event":"apply","bucket":"vol_confirm|GC|RSI_DIV_BEAR","from":0.7,"to":0.65,"evidence":{"n":55,"w":52,"l":3,"wr":94.5,"avg_rr":2.82,"required_wr":32.7},"ts":"2026-10-13T00:05:23.196580+00:00"}
 {"event":"apply","bucket":"vol_confirm|SOL|STOCH_REVERSAL_BEAR","from":0.65,"to":0.6,"evidence":{"n":74,"w":31,"l":43,"wr":41.9,"avg_rr":2.65,"required_wr":34.2},"ts":"2026-10-14T00:07:24.239313+00:00"}
 {"event":"apply","bucket":"adx_min|BTC|STOCH_REVERSAL_BEAR","from":16.0,"to":14.0,"evidence":{"n":54,"w":31,"l":23,"wr":57.4,"avg_rr":2.31,"required_wr":37.8},"ts":"2026-10-15T00:02:40.884967+00:00"}
+{"event":"seed_base","bucket":"adx_min|BTC|VWAP_RECLAIM","base":16.0,"ts":"2026-10-15T14:22:57.392240+00:00"}
+{"event":"seed_base","bucket":"adx_min|BTC|HTF_LEVEL_BOUNCE","base":16.0,"ts":"2026-10-15T14:22:57.914656+00:00"}

@@ -1757,12 +1757,16 @@
       "seeded_at": "2026-09-28T12:09:41.872672+00:00"
     },
     "adx_min|BTC|VWAP_RECLAIM": {
-      "base": 20.0,
-      "seeded_at": "2026-09-30T09:58:06.403396+00:00"
+      "base": 16.0,
+      "seeded_at": "2026-10-15T14:22:57.390630+00:00"
     },
     "adx_min|NQ|EMA50_RECLAIM": {
       "base": 22.0,
       "seeded_at": "2026-09-30T22:37:07.204666+00:00"
+    },
+    "adx_min|BTC|HTF_LEVEL_BOUNCE": {
+      "base": 16.0,
+      "seeded_at": "2026-10-15T14:22:57.911346+00:00"
     }
   }
 }
