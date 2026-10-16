@@ -152,3 +152,4 @@
 {"event":"apply","bucket":"adx_min|BTC|STOCH_REVERSAL_BEAR","from":16.0,"to":14.0,"evidence":{"n":54,"w":31,"l":23,"wr":57.4,"avg_rr":2.31,"required_wr":37.8},"ts":"2026-10-15T00:02:40.884967+00:00"}
 {"event":"seed_base","bucket":"adx_min|BTC|VWAP_RECLAIM","base":16.0,"ts":"2026-10-15T14:22:57.392240+00:00"}
 {"event":"seed_base","bucket":"adx_min|BTC|HTF_LEVEL_BOUNCE","base":16.0,"ts":"2026-10-15T14:22:57.914656+00:00"}
+{"event":"apply","bucket":"adx_min|NQ|EMA21_PULLBACK_BEAR","from":20.0,"to":18.0,"evidence":{"n":52,"w":29,"l":23,"wr":55.8,"avg_rr":2.07,"required_wr":40.7},"ts":"2026-10-16T00:01:51.231235+00:00"}
