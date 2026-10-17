@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-17T21:40:34.532193+00:00",
- "cycle": 11280,
+ "utc": "2026-10-17T21:55:12.430305+00:00",
+ "cycle": 11309,
  "last_sync": "2026-10-17T19:46:54.630174+00:00",
  "started_utc": "2026-10-04T07:28:21.509031+00:00",
  "scanner_on": true,
@@ -12,9 +12,10 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "BTC|2026-10-17": 7
+   "BTC|2026-10-17": 8
   },
   "last": {
+   "BTC|BB_REVERSION_BULL|LONG": "2026-10-17T21:45:37.484280+00:00",
    "BTC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-17T21:33:32.522764+00:00",
    "BTC|RRGATE:MACD_CROSS_BEAR|SHORT": "2026-10-17T21:33:32.532215+00:00",
    "BTC|EMA21_PULLBACK_BEAR|SHORT": "2026-10-17T21:30:31.721175+00:00"
