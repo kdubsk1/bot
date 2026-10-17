@@ -1,8 +1,8 @@
 {
-  "total_sessions": 144,
-  "total_trades": 160,
+  "total_sessions": 145,
+  "total_trades": 161,
   "total_wins": 50,
-  "total_losses": 110,
+  "total_losses": 111,
   "total_pnl_dollars": 3827.13,
   "best_session_pnl": 1194.0,
   "worst_session_pnl": -511.95,
@@ -95,7 +95,7 @@
     },
     "NQ:BREAK_RETEST_BULL": {
       "wins": 10,
-      "losses": 25,
+      "losses": 26,
       "pnl": 390.75
     },
     "GC:VWAP_REJECT_BEAR": {
@@ -134,7 +134,7 @@
       "pnl": -110.32
     }
   },
-  "last_updated": "2026-10-15T20:00:29.773803+00:00",
+  "last_updated": "2026-10-16T20:00:10.578175+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
   "lifetime_balance": 53827.13,

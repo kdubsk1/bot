@@ -658,7 +658,7 @@
     "losses": 254,
     "total": 292,
     "win_rate": 13.0,
-    "last_updated": "2026-10-16T13:54:40.687224",
+    "last_updated": "2026-10-16T19:55:07.235461",
     "paper_total": 249,
     "paper_losses": 215,
     "paper_win_rate": 13.7,
@@ -669,9 +669,9 @@
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
     "real_expectancy": -1.0,
-    "lab_total": 140,
-    "lab_losses": 99,
-    "lab_win_rate": 29.3,
+    "lab_total": 142,
+    "lab_losses": 101,
+    "lab_win_rate": 28.9,
     "lab_wins": 41
   },
   "BTC:EMA21_PULLBACK_BEAR": {
@@ -807,14 +807,14 @@
     "losses": 14,
     "total": 18,
     "win_rate": 22.2,
-    "last_updated": "2026-10-13T19:55:26.317262",
+    "last_updated": "2026-10-16T19:55:06.170273",
     "paper_total": 8,
     "paper_losses": 4,
     "paper_win_rate": 50.0,
     "paper_wins": 4,
-    "lab_total": 8,
-    "lab_losses": 6,
-    "lab_win_rate": 25.0,
+    "lab_total": 10,
+    "lab_losses": 8,
+    "lab_win_rate": 20.0,
     "lab_wins": 2
   },
   "GC:VWAP_BOUNCE_BULL": {
@@ -822,7 +822,7 @@
     "losses": 73,
     "total": 167,
     "win_rate": 56.3,
-    "last_updated": "2026-10-16T16:38:02.814839",
+    "last_updated": "2026-10-16T19:55:06.692449",
     "paper_total": 80,
     "paper_losses": 14,
     "paper_win_rate": 82.5,
@@ -833,10 +833,10 @@
     "real_win_rate": 55.6,
     "real_avg_rr_win": 2.5,
     "real_expectancy": 2.5,
-    "lab_total": 92,
-    "lab_losses": 65,
-    "lab_win_rate": 29.3,
-    "lab_wins": 27
+    "lab_total": 105,
+    "lab_losses": 77,
+    "lab_win_rate": 26.7,
+    "lab_wins": 28
   },
   "SOL:MACD_CROSS_BULL": {
     "wins": 11,
@@ -854,10 +854,11 @@
     "losses": 103,
     "total": 104,
     "win_rate": 1.0,
-    "last_updated": "2026-10-07T12:28:11.267250",
-    "lab_total": 12,
+    "last_updated": "2026-10-16T19:55:03.347445",
+    "lab_total": 17,
     "lab_losses": 12,
-    "lab_win_rate": 0.0
+    "lab_win_rate": 29.4,
+    "lab_wins": 5
   },
   "NQ:MACD_CROSS_BULL": {
     "wins": 32,
@@ -1075,15 +1076,15 @@
     "losses": 73,
     "total": 76,
     "win_rate": 3.9,
-    "last_updated": "2026-10-16T14:28:13.794312",
+    "last_updated": "2026-10-16T19:55:07.764039",
     "paper_total": 25,
     "paper_losses": 22,
     "paper_win_rate": 12.0,
     "paper_wins": 3,
-    "lab_total": 11,
+    "lab_total": 13,
     "lab_wins": 8,
-    "lab_win_rate": 72.7,
-    "lab_losses": 3
+    "lab_win_rate": 61.5,
+    "lab_losses": 5
   },
   "BTC:RSI_DIV_BULL": {
     "wins": 22,
