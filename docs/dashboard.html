@@ -283,7 +283,7 @@
 
 <script>
 const DATA = {
-  "generated_at": "2026-10-19T03:34:44.430010+00:00",
+  "generated_at": "2026-10-19T03:41:33.208489+00:00",
   "topstep": {
     "balance": 52195.42,
     "starting_balance": 50000,
@@ -1551,19 +1551,19 @@ const DATA = {
         "balance": 48145.77
       },
       {
-        "time": "2026-10-18 23:12",
+        "time": "2026-10-18 22:06",
         "balance": 47423.58
       },
       {
-        "time": "2026-10-18 23:42",
+        "time": "2026-10-18 23:12",
         "balance": 46712.23
       },
       {
-        "time": "2026-10-19 00:22",
+        "time": "2026-10-18 23:42",
         "balance": 46011.54
       },
       {
-        "time": "2026-10-19 00:56",
+        "time": "2026-10-19 00:22",
         "balance": 45321.37
       },
       {
@@ -1571,20 +1571,24 @@ const DATA = {
         "balance": 44641.55
       },
       {
-        "time": "2026-10-19 01:12",
+        "time": "2026-10-19 00:56",
         "balance": 43971.93
       },
       {
-        "time": "2026-10-19 02:07",
+        "time": "2026-10-19 01:12",
         "balance": 43312.35
       },
       {
-        "time": "2026-10-19 02:17",
+        "time": "2026-10-19 02:07",
         "balance": 42662.66
       },
       {
-        "time": "2026-10-19 02:41",
+        "time": "2026-10-19 02:17",
         "balance": 42022.72
+      },
+      {
+        "time": "2026-10-19 02:41",
+        "balance": 41392.38
       }
     ]
   },
@@ -2003,9 +2007,9 @@ const DATA = {
   },
   "all_time": {
     "wins": 120,
-    "losses": 316,
+    "losses": 317,
     "wr": 27.5,
-    "total_trades": 436
+    "total_trades": 437
   },
   "today": {
     "wins": 0,
@@ -2016,10 +2020,10 @@ const DATA = {
   "setup_stats": [
     {
       "setup": "NQ:VWAP_BOUNCE_BULL",
-      "fires": 46,
+      "fires": 47,
       "wins": 7,
-      "losses": 39,
-      "wr": 15.2
+      "losses": 40,
+      "wr": 14.9
     },
     {
       "setup": "NQ:STOCH_REVERSAL_BULL",
@@ -2247,6 +2251,22 @@ const DATA = {
     }
   ],
   "recent_alerts": [
+    {
+      "time": "2026-10-19 03:36",
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "dir": "LONG",
+      "entry": "29786.0",
+      "stop": "29654.5942",
+      "target": "30196.75",
+      "rr": "3.13",
+      "conv": "55",
+      "tier": "MEDIUM",
+      "status": "OPEN",
+      "result": "",
+      "exit": ""
+    },
     {
       "time": "2026-10-19 03:27",
       "market": "NQ",
@@ -2630,22 +2650,6 @@ const DATA = {
       "status": "OPEN",
       "result": "",
       "exit": ""
-    },
-    {
-      "time": "2026-10-19 00:22",
-      "market": "NQ",
-      "setup": "BREAK_RETEST_BEAR",
-      "tf": "1h",
-      "dir": "SHORT",
-      "entry": "29638.75",
-      "stop": "29692.5402",
-      "target": "29531.1696",
-      "rr": "2.0",
-      "conv": "18",
-      "tier": "REJECT",
-      "status": "CLOSED",
-      "result": "LOSS",
-      "exit": "29692.5402"
     }
   ],
   "suspended_setups": [
@@ -2674,9 +2678,9 @@ const DATA = {
     },
     "NQ": {
       "wins": 60,
-      "losses": 154,
-      "total_pnl_r": -18.13,
-      "wr": 28.0
+      "losses": 155,
+      "total_pnl_r": -19.13,
+      "wr": 27.9
     },
     "GC": {
       "wins": 38,
@@ -2693,8 +2697,8 @@ const DATA = {
     },
     "MEDIUM": {
       "wins": 14,
-      "losses": 70,
-      "wr": 16.7
+      "losses": 71,
+      "wr": 16.5
     },
     "HIGH": {
       "wins": 8,
@@ -2703,6 +2707,19 @@ const DATA = {
     }
   },
   "open_trades": [
+    {
+      "market": "NQ",
+      "setup": "VWAP_BOUNCE_BULL",
+      "tf": "1h",
+      "direction": "LONG",
+      "entry": "29786.0",
+      "target": "30196.75",
+      "stop": "29654.5942",
+      "conviction": 55,
+      "last_rescore_conviction": 55,
+      "tier": "MEDIUM",
+      "timestamp": "2026-10-19T03:36:34.435770+00:00"
+    },
     {
       "market": "NQ",
       "setup": "VWAP_BOUNCE_BULL",
@@ -3183,19 +3200,6 @@ const DATA = {
       "last_rescore_conviction": 11,
       "tier": "REJECT",
       "timestamp": "2026-10-18T22:07:23.796515+00:00"
-    },
-    {
-      "market": "NQ",
-      "setup": "VWAP_BOUNCE_BULL",
-      "tf": "15m",
-      "direction": "LONG",
-      "entry": "29477.25",
-      "target": "29885.0",
-      "stop": "29358.0369",
-      "conviction": 55,
-      "last_rescore_conviction": 55,
-      "tier": "MEDIUM",
-      "timestamp": "2026-10-18T22:06:46.287216+00:00"
     },
     {
       "market": "BTC",
