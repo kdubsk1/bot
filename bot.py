@@ -3201,8 +3201,8 @@ async def scan_market(app, market, frames):
             f"📐 Move:  `{pts_str} pts` ({pct_str})\n"
             f"{sim_line}"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"📅 *Today:* {day_w}W / {day_l}L\n"
-            f"🧠 Bot learning updated."
+            f"📅 *Today:* {day_w}W / {day_l}L"
+            # _WAVE272_HONEST_REPORTS: "Bot learning updated." dropped - nothing learned reaches a call (ADAPTIVE_OFF)
         )
         # Wave 179: public gets a clean result card with NO account figures;
         # the full version (which contains balance and daily limit) goes to control.
@@ -6524,14 +6524,16 @@ async def scan_loop(app):
                         # (1-day cooldown; 3 strikes -> a week; Wayne's terms).
                         try:
                             import learned_overrides as _lo143d
+                            # _WAVE272_HONEST_REPORTS (Q27 option 1): the learner still runs and writes its own
+                            # files (option 2, stopping it, was not taken), but its notes are no longer sent with
+                            # the report - nothing it learns reaches a call while rules.ADAPTIVE_OFF is True, so
+                            # "LEARNED" / "REVERTED" were false. They go to the log.
                             _w143_n1 = _lo143d.daily_decision()
                             if _w143_n1:
-                                await asyncio.sleep(1)
-                                await tg_send(app, _w143_n1)
+                                log.info("W272: learner note, not sent (ADAPTIVE_OFF): %s" % str(_w143_n1).replace("\n", " | "))
                             _w143_n2 = _lo143d.revert_check(_w143_outcome_lookup)
                             if _w143_n2:
-                                await asyncio.sleep(1)
-                                await tg_send(app, _w143_n2)
+                                log.info("W272: learner note, not sent (ADAPTIVE_OFF): %s" % str(_w143_n2).replace("\n", " | "))
                         except Exception as _w143de:
                             log.error(f"Wave 143 hands failed (non-fatal): {_w143de}")
 
@@ -6570,18 +6572,10 @@ async def scan_loop(app):
                         except Exception as _w54_e:
                             log.error(f"Wave 54 weekly review failed: {_w54_e}", exc_info=True)
 
-                        # Wave 35 (May 11, 2026): also send the eval progression
-                        # view at the same daily checkpoint. Wayne gets two
-                        # messages: (1) what happened today (above), (2) journey
-                        # status (below). Inner try/except: a /eval failure does
-                        # NOT break the daily report which has already been sent.
-                        try:
-                            await asyncio.sleep(1)  # preserve message order in Telegram
-                            _eval_view = sim.eval_progression_text()
-                            await tg_send(app, _eval_view)
-                            log.info("Wave 35: eval progression view sent")
-                        except Exception as _w35_err:
-                            log.warning(f"Wave 35 eval progression send failed: {_w35_err}")
+                        # _WAVE272_HONEST_REPORTS (Q27 option 1): Wave 35 sent the bot's simulated account here
+                        # ("TOPSTEP $50K EVAL ... PASSED! Withdraw and start funded account") - it is not Wayne's
+                        # account, so it is no longer sent with the daily report. /eval still shows it, and
+                        # sim_account.py is not touched.
 
                         _LAST_DAILY_REPORT_DATE = today_str
                         log.info(f"Daily report sent for {today_str}")

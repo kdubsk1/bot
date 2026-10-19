@@ -5153,149 +5153,23 @@ def build_daily_report() -> tuple[str, str]:
         today_dt  = datetime.now().strftime("%A, %B %d, %Y")
         _w127_sid = today  # Wave 127 fallback: calendar date if clock unavailable
     rows      = _read_all()
-    perf      = _load_performance()
 
-    # Filter to this session's alerts (Wave 127: bucket by session_id so
-    # /recap matches /session and the sim exactly - FINDING #24. _read_all()
-    # backfills session_id on legacy rows, so every row has one.)
-    today_rows = []
-    for r in rows:
-        if r.get("session_id", "") == _w127_sid:
-            today_rows.append(r)
+    # _WAVE272_HONEST_REPORTS (Q27, option 1 - Wayne, 30 Sep 2026): the report counted every ledger record as an
+    # "alert" - on 24 Sep "67 alerts, 10W / 35L, 22.2% WR" where Wayne was sent 2 calls (both won: NQ +147.0 pts,
+    # gold +9.8 pts) and the other 70 were LAB records, graded silently and never sent, 45 of them re-detections of
+    # a setup already seen that day. It also said "Learning updated" though nothing learned reaches a call
+    # (ADAPTIVE_OFF). Now: real calls apart from LAB, points at the actual exit per market first, R second, each LAB
+    # setup counted once with its raw record count beside it, and no win rate alone. Text only: nothing here
+    # decides, grades or sends a call, and the ledger is only read.
+    today_rows = [r for r in rows if r.get("session_id", "") == _w127_sid]
+    try:
+        still_open = load_open_trades(include_lab=True)     # (read only; the report shows real and LAB apart)
+    except Exception:
+        still_open = []
+    full_text, short = w272_honest_report(today_rows, today_dt, _w127_sid, still_open)
 
-    # Separate by status
-    today_closed = [r for r in today_rows if r.get("status") == "CLOSED"]
-    today_open   = [r for r in today_rows if r.get("status") == "OPEN"]
-    today_wins   = [r for r in today_closed if r.get("result") == "WIN"]
-    today_losses = [r for r in today_closed if r.get("result") == "LOSS"]
-    today_skips  = [r for r in today_closed if r.get("result") == "SKIP"]
-
-    total_closed = len(today_closed)
-    wins   = len(today_wins)
-    losses = len(today_losses)
-    wr     = round((wins / max(1, wins + losses)) * 100, 1)
-
-    # All-time stats
-    all_closed = [r for r in rows if r.get("status") == "CLOSED"]
-    all_wins   = sum(1 for r in all_closed if r.get("result") == "WIN")
-    all_losses = sum(1 for r in all_closed if r.get("result") == "LOSS")
-    all_wr     = round((all_wins / max(1, all_wins + all_losses)) * 100, 1)
-
-    # Best and worst setups today
-    setup_results = {}
-    for r in today_closed:
-        key = f"{r.get('market')}:{r.get('setup')}"
-        setup_results.setdefault(key, {"wins": 0, "losses": 0})
-        if r.get("result") == "WIN":  setup_results[key]["wins"]   += 1
-        if r.get("result") == "LOSS": setup_results[key]["losses"] += 1
-
-    # Learning adjustments that happened today
-    learning_updates = []
-    for key, data in perf.items():
-        last_updated = data.get("last_updated", "")
-        if today in last_updated:
-            wr_val = data.get("win_rate", 0)
-            bonus  = _performance_bonus(*key.split(":"))
-            learning_updates.append((key, wr_val, bonus, data.get("total", 0)))
-
-    # ── Build full text file ──────────────────────────────────────
-    lines = [
-        f"NQ CALLS DAILY REPORT",
-        f"Date: {today_dt}",
-        f"Session: {_w127_sid}",
-        f"Generated: {datetime.now().strftime('%H:%M EST')}",
-        f"{'='*50}",
-        f"",
-        f"TODAY'S PERFORMANCE",
-        f"{'-'*30}",
-        f"Alerts fired today:  {len(today_rows)}",
-        f"Closed today:        {total_closed}",
-        f"Wins:                {wins}",
-        f"Losses:              {losses}",
-        f"Skipped:             {len(today_skips)}",
-        f"Still open:          {len(today_open)}",
-        f"Today win rate:      {wr}%",
-        f"",
-    ]
-
-    if today_rows:
-        lines.append("TODAY'S ALERTS:")
-        lines.append("-" * 30)
-        for r in today_rows:
-            result  = r.get("result") or r.get("status", "OPEN")
-            result_icon = {"WIN": "✅", "LOSS": "❌", "SKIP": "⏭", "OPEN": "🔄"}.get(result, "❓")
-            ts = r.get("timestamp", "")[:16].replace("T", " ")
-            lines.append(
-                f"  {result_icon} {r.get('market')} | {r.get('setup')} | {r.get('direction')} | "
-                f"Conv:{r.get('conviction')} | RR:{r.get('rr')} | Tier:{r.get('tier')} | "
-                f"Entry:{r.get('entry')} Stop:{r.get('stop')} Target:{r.get('target')} | "
-                f"Exit:{r.get('exit_price') or 'open'} | {ts}"
-            )
-        lines.append("")
-
-    if setup_results:
-        lines.append("SETUP BREAKDOWN TODAY:")
-        lines.append("-" * 30)
-        for key, res in sorted(setup_results.items()):
-            w = res["wins"]; l = res["losses"]
-            swr = round(w / max(1, w+l) * 100)
-            lines.append(f"  {key}: {w}W / {l}L ({swr}% WR)")
-        lines.append("")
-
-    lines += [
-        "ALL-TIME STATS",
-        "-" * 30,
-        f"Total closed: {len(all_closed)}",
-        f"All-time W/L: {all_wins}W / {all_losses}L ({all_wr}% WR)",
-        "",
-    ]
-
-    if learning_updates:
-        lines.append("LEARNING UPDATES TODAY:")
-        lines.append("-" * 30)
-        for key, wr_val, bonus, total in sorted(learning_updates):
-            bon_str = f"+{bonus}" if bonus > 0 else str(bonus)
-            lines.append(f"  {key}: {wr_val}% WR over {total} trades → Conv adj: {bon_str}")
-        lines.append("")
-
-    lines += [
-        "ALL-TIME LEARNING FILE:",
-        "-" * 30,
-    ]
-    for key, data in sorted(perf.items(), key=lambda x: x[1].get("total", 0), reverse=True):
-        w   = data.get("wins", 0)
-        l   = data.get("losses", 0)
-        wr_val = data.get("win_rate", 0)
-        bonus  = _performance_bonus(*key.split(":"))
-        bon_str = f"+{bonus}" if bonus > 0 else str(bonus)
-        lines.append(f"  {key}: {w}W/{l}L ({wr_val}% WR) → Conv adj: {bon_str}")
-
-    lines += [
-        "",
-        "STILL OPEN AT END OF DAY:",
-        "-" * 30,
-    ]
-    still_open = load_open_trades()
-    if still_open:
-        for r in still_open:
-            ts = r.get("timestamp", "")[:16].replace("T", " ")
-            lines.append(
-                f"  🔄 {r.get('market')} | {r.get('setup')} | "
-                f"Entry:{r.get('entry')} Target:{r.get('target')} | "
-                f"ID:{r.get('alert_id')} | {ts}"
-            )
-    else:
-        lines.append("  No open trades.")
-
-    lines += [
-        "",
-        "=" * 50,
-        "END OF REPORT",
-    ]
-
-    full_text = "\n".join(lines)
-
-    # Save to file
+    # Save to file. daily_report_<date>.txt is also the 8 PM scheduler's once-a-day gate (bot.scan_loop) - it is
+    # written exactly as before.
     try:
         report_path = os.path.join(_BASE_DIR, "data", f"daily_report_{today}.txt")
         with open(report_path, "w", encoding="utf-8") as f:
@@ -5306,34 +5180,266 @@ def build_daily_report() -> tuple[str, str]:
     except Exception as e:
         pass
 
-    # ── Short Telegram summary ────────────────────────────────────
-    icon = "🟢" if wr >= 60 else "🔴" if wr < 45 else "🟡"
-    short = (
-        f"📋 *NQ CALLS — Daily Report*\n"
-        f"📅 {today_dt}\n"
-        f"━━━━━━━━━━━━━━━━━━\n"
-        f"*Today:* {len(today_rows)} alerts | "
-        f"{wins}W / {losses}L | {icon} {wr}% WR\n"
-        f"*All-time:* {all_wins}W / {all_losses}L | {all_wr}% WR\n"
-    )
-    if today_wins:
-        short += f"\n✅ *Wins today:*\n"
-        for r in today_wins:
-            short += f"  {r.get('market')} {str(r.get('setup') or '').replace('_', ' ')} [{r.get('tf')}]\n"
-    if today_losses:
-        short += f"\n❌ *Losses today:*\n"
-        for r in today_losses:
-            short += f"  {r.get('market')} {str(r.get('setup') or '').replace('_', ' ')} [{r.get('tf')}]\n"
-    if len(today_open) > 0:
-        short += f"\n🔄 *Still open:* {len(today_open)} trade(s)\n"
-    if learning_updates:
-        short += f"\n🧠 *Learning updated:* {len(learning_updates)} setup(s) adjusted\n"
-    short += (
-        f"━━━━━━━━━━━━━━━━━━\n"
-        f"_Full report saved._"
-    )
-
     return full_text, short
+
+
+W272_SHORT_SETUP_LINES = 25          # LAB setups listed in the Telegram text; the rest are in the full report
+W272_MARKET_ORDER = ("NQ", "GC", "BTC", "SOL")
+
+
+def _w272_md(v):
+    """A name safe inside Telegram Markdown: no underscore, star, backtick or bracket can open an entity."""
+    s = str(v if v is not None else "").replace("_", " ")
+    for ch in ("*", "`", "[", "]"):
+        s = s.replace(ch, "")
+    s = " ".join(s.split())
+    return s or "?"
+
+
+def _w272_num(v):
+    """A finite float, or None (blank, UNKNOWN, NaN, inf, text)."""
+    try:
+        x = float(v)
+    except Exception:
+        return None
+    if x != x or x in (float("inf"), float("-inf")):
+        return None
+    return x
+
+
+def _w272_side(r):
+    d = str(r.get("direction") or "").upper()
+    return "LONG" if "LONG" in d else "SHORT" if "SHORT" in d else ""
+
+
+def _w272_dec(r):
+    e = _w272_num(r.get("entry"))
+    return 2 if (e is None or abs(e) >= 1000) else 4
+
+
+def _w272_tally(rs):
+    """Records -> counts and sums. Points and R are summed only where the ledger holds a finite number."""
+    t = {"n": len(rs), "open": 0, "W": 0, "L": 0, "other": 0, "pts": 0.0, "R": 0.0, "n_pts": 0, "n_R": 0,
+         "no_pts": 0, "dec": 2}
+    for r in rs:
+        t["dec"] = max(t["dec"], _w272_dec(r))
+        if str(r.get("status") or "").upper() != "CLOSED":
+            t["open"] += 1
+            continue
+        res = str(r.get("result") or "").upper()
+        if res == "WIN":
+            t["W"] += 1
+        elif res == "LOSS":
+            t["L"] += 1
+        else:
+            t["other"] += 1
+        p = _w272_num(r.get("points_result"))
+        if p is None:
+            if res != "SKIP":            # (an expired SKIP has no exit; a SCRATCH with no price - Wave 240 - is named)
+                t["no_pts"] += 1
+        else:
+            t["pts"] += p
+            t["n_pts"] += 1
+        x = _w272_num(r.get("r_actual"))
+        if x is not None:
+            t["R"] += x
+            t["n_R"] += 1
+    return t
+
+
+def _w272_pts(t):
+    return ("%+.*f pts" % (t["dec"], t["pts"])) if t["n_pts"] else "pts ?"
+
+
+def _w272_R(t):
+    return ("%+.2fR" % t["R"]) if t["n_R"] else "R ?"
+
+
+def _w272_markets(rs):
+    seen = sorted({str(r.get("market")) for r in rs})
+    return [m for m in W272_MARKET_ORDER if m in seen] + [m for m in seen if m not in W272_MARKET_ORDER]
+
+
+def _w272_key(r):
+    return (str(r.get("market")), str(r.get("setup") or "?"), str(r.get("tf") or "?"), _w272_side(r))
+
+
+def w272_honest_report(today_rows, today_dt, sid, still_open=()):
+    """(full_text, short) for one session's ledger rows. REAL = lane "real" (sent to Wayne); LAB = lane "lab"
+    (graded silently, never sent) - the Wave 246 lane contract every statistic reads. A setup is market + setup +
+    timeframe + direction. Points come from the ledger's points_result at the actual exit, per market, never added
+    across markets; R second; no win rate. Rows it cannot place are skipped and named. Never raises."""
+    try:
+        return _w272_build(today_rows, today_dt, sid, still_open)
+    except Exception as e:
+        msg = "Daily report could not be built (%s: %s) - the ledger is untouched." % (type(e).__name__, e)
+        return ("NQ CALLS DAILY REPORT\nSession: %s\n%s\n" % (sid, msg),
+                "\U0001f4cb *NQ CALLS \u2014 Daily Report*\n" + _w272_md(msg))
+
+
+def _w272_build(today_rows, today_dt, sid, still_open):
+    real, lab, skipped = [], [], {}
+    for r in (today_rows or []):
+        if not isinstance(r, dict):
+            skipped["not a ledger record"] = skipped.get("not a ledger record", 0) + 1
+            continue
+        lane = str(r.get("lane") or "").strip().lower()
+        if lane not in ("real", "lab"):
+            skipped["no lane (neither real nor LAB)"] = skipped.get("no lane (neither real nor LAB)", 0) + 1
+            continue
+        if not str(r.get("market") or "").strip() or not _w272_side(r):
+            skipped["no market or no direction"] = skipped.get("no market or no direction", 0) + 1
+            continue
+        (real if lane == "real" else lab).append(r)
+
+    lab_setups = {}
+    for r in lab:
+        lab_setups.setdefault(_w272_key(r), []).append(r)
+    n_set = len(lab_setups)
+    head = "Real calls: %d - LAB: %d (%d setup%s)" % (len(real), len(lab), n_set, "" if n_set == 1 else "s")
+    markets = _w272_markets(real + lab)
+    rt, lt = _w272_tally(real), _w272_tally(lab)
+    skip_lines = ["Skipped %d record%s: %s - not counted." % (n, "" if n == 1 else "s", why)
+                  for why, n in sorted(skipped.items())]
+    if rt["no_pts"]:
+        skip_lines.append("%d real call%s closed with no points in the ledger - left out of the points."
+                          % (rt["no_pts"], "" if rt["no_pts"] == 1 else "s"))
+    if lt["no_pts"]:
+        skip_lines.append("%d LAB record%s closed with no points in the ledger - left out of the points."
+                          % (lt["no_pts"], "" if lt["no_pts"] == 1 else "s"))
+
+    def by_side(m, side):
+        rr = [r for r in real if str(r.get("market")) == m and _w272_side(r) == side]
+        ll = [r for r in lab if str(r.get("market")) == m and _w272_side(r) == side]
+        return rr, ll, len({_w272_key(r) for r in ll})
+
+    def real_part(rr):
+        if not rr:
+            return "real 0"
+        t = _w272_tally(rr)
+        s = "real %d: %dW %dL" % (len(rr), t["W"], t["L"])
+        if t["other"]:
+            s += " %d other" % t["other"]
+        if t["open"]:
+            s += " %d open" % t["open"]
+        if t["W"] + t["L"]:
+            s += ", %s, %s" % (_w272_pts(t), _w272_R(t))
+        return s
+
+    def lab_part(ll, ns):
+        return "LAB %d setup%s (%d record%s)" % (ns, "" if ns == 1 else "s", len(ll), "" if len(ll) == 1 else "s")
+
+    def real_line(r, md):
+        name = _w272_md(r.get("setup")) if md else str(r.get("setup"))
+        what = "%s %s [%s] %s" % (_w272_md(r.get("market")) if md else r.get("market"), name,
+                                  _w272_md(r.get("tf")) if md else r.get("tf"), _w272_side(r))
+        t = _w272_tally([r])
+        if t["open"]:
+            return ("\U0001f504 " if md else "OPEN  ") + what + ": still open"
+        res = str(r.get("result") or "").upper()
+        if not t["n_pts"]:
+            return ("\u2796 " if md else (res or "?").ljust(6)) + what + ": %s, points not in the ledger" % (res or "?")
+        icon = "\u2705 " if res == "WIN" else "\u274c " if res == "LOSS" else "\u2796 "
+        nums = "%s, %s" % (_w272_pts(t), _w272_R(t))
+        return (icon + what + ": `" + nums.replace(", ", "` \u00b7 `") + "`") if md else (res.ljust(6) + what + ": " + nums)
+
+    def lab_line(k, rs, md):
+        t = _w272_tally(rs)
+        m, setup, tf, side = k
+        what = ("%s %s [%s] %s" % (_w272_md(m), _w272_md(setup), _w272_md(tf), side)) if md else \
+               ("%s:%s %s %s" % (m, setup, tf, side))
+        s = "%s x%d: %dW %dL" % (what, len(rs), t["W"], t["L"])
+        if t["open"]:
+            s += " %d open" % t["open"]
+        if t["other"]:
+            s += " %d other" % t["other"]
+        if t["W"] + t["L"]:
+            s += ", %s, %s" % (_w272_pts(t), _w272_R(t))
+        return s
+
+    n_carded = sum(1 for r in lab if "control" in str(r.get("channel") or "").lower())
+    lab_says = ("LAB is graded silently and never sent - it is not a result you got." if not n_carded else
+                "LAB is graded, not a result you got - %d of these records sent a LAB card to control "
+                "(the setups named in rules.LAB_NOTIFY_SETUPS)." % n_carded)
+    lab_sorted = sorted(lab_setups.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+    n_open_real = sum(1 for r in still_open or () if isinstance(r, dict)
+                      and str(r.get("lane") or "").strip().lower() == "real")
+    n_open_all = len(still_open or ())
+
+    # ---- the Telegram text (Markdown; every name passes _w272_md) ----
+    bar = "\u2501" * 18
+    s = ["\U0001f4cb *NQ CALLS \u2014 Daily Report*", "\U0001f4c5 %s" % _w272_md(today_dt), bar,
+         "*%s*" % head, _w272_md(lab_says), "",
+         "*Real calls - points at the actual exit:*"]
+    s += ["  " + real_line(r, True) for r in real] or ["  None sent today."]
+    if markets:
+        s += ["", "*By market (real | LAB):*"]
+        for m in markets:
+            for side in ("LONG", "SHORT"):
+                rr, ll, ns = by_side(m, side)
+                s.append("  %s %s: %s | %s" % (_w272_md(m), side, real_part(rr), lab_part(ll, ns)))
+    if lab_sorted:
+        s += ["", "*LAB - each setup once, records after the x:*"]
+        s += ["  " + lab_line(k, rs, True) for k, rs in lab_sorted[:W272_SHORT_SETUP_LINES]]
+        if len(lab_sorted) > W272_SHORT_SETUP_LINES:
+            s.append("  ...and %d more setups in the full report" % (len(lab_sorted) - W272_SHORT_SETUP_LINES))
+    if skip_lines:
+        s += [""] + [_w272_md(x) for x in skip_lines]
+    if n_open_all:
+        s += ["", "\U0001f504 Still open: %d real, %d LAB" % (n_open_real, n_open_all - n_open_real)]
+    s += [bar, "_Full report saved._"]
+    short = "\n".join(s)
+
+    # ---- the full file (plain text) ----
+    f = ["NQ CALLS DAILY REPORT", "Date: %s" % today_dt, "Session: %s" % sid,
+         "Generated: %s" % datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"), "=" * 50, "", head,
+         lab_says, "",
+         "REAL CALLS (sent to you) - points at the actual exit", "-" * 30]
+    for r in real:
+        f.append("  " + real_line(r, False) + " | Entry %s Stop %s Target %s Exit %s | %s | ID %s" % (
+            r.get("entry"), r.get("stop"), r.get("target"), r.get("exit_price") or "open",
+            str(r.get("timestamp", ""))[:16].replace("T", " "), r.get("alert_id")))
+    if not real:
+        f.append("  None sent today.")
+    f += ["", "BY MARKET AND SIDE (points are never added across markets)", "-" * 30]
+    for m in markets:
+        for side in ("LONG", "SHORT"):
+            rr, ll, ns = by_side(m, side)
+            lt_m = _w272_tally(ll)
+            lab_s = lab_part(ll, ns)
+            if lt_m["W"] + lt_m["L"]:
+                lab_s += ": %dW %dL, %s, %s" % (lt_m["W"], lt_m["L"], _w272_pts(lt_m), _w272_R(lt_m))
+            f.append("  %s %s: %s | %s" % (m, side, real_part(rr), lab_s))
+    if not markets:
+        f.append("  No records today.")
+    f += ["", "LAB SETUPS (graded, never sent) - each setup once, raw record count after the x", "-" * 30]
+    f += ["  " + lab_line(k, rs, False) for k, rs in lab_sorted] or ["  None."]
+    if skip_lines:
+        f += ["", "SKIPPED", "-" * 30] + ["  " + x for x in skip_lines]
+    f += ["", "EVERY RECORD TODAY (raw, %d)" % len(today_rows or []), "-" * 30]
+    for r in (today_rows or []):
+        if not isinstance(r, dict):
+            continue
+        lane = str(r.get("lane") or "").strip().lower()
+        f.append("  [%s] %s %s | %s | %s | %s | Conv:%s RR:%s | Entry:%s Stop:%s Target:%s | Exit:%s | pts:%s R:%s | %s" % (
+            "REAL" if lane == "real" else "LAB" if lane == "lab" else "?", r.get("result") or r.get("status", "OPEN"),
+            r.get("market"), r.get("setup"), r.get("tf"), r.get("direction"), r.get("conviction"), r.get("rr"),
+            r.get("entry"), r.get("stop"), r.get("target"), r.get("exit_price") or "open", r.get("points_result"),
+            r.get("r_actual"), str(r.get("timestamp", ""))[:16].replace("T", " ")))
+    f += ["", "STILL OPEN AT END OF DAY:", "-" * 30]
+    if still_open:
+        for r in still_open:
+            if not isinstance(r, dict):
+                continue
+            f.append("  [%s] %s | %s | Entry:%s Target:%s | ID:%s | %s" % (
+                "REAL" if str(r.get("lane") or "").strip().lower() == "real" else "LAB",
+                r.get("market"), r.get("setup"), r.get("entry"), r.get("target"), r.get("alert_id"),
+                str(r.get("timestamp", ""))[:16].replace("T", " ")))
+    else:
+        f.append("  No open trades.")
+    f += ["", "=" * 50, "END OF REPORT"]
+    return "\n".join(f), short
+# ---- end _WAVE272_HONEST_REPORTS ---------------------------------------
 
 
 def print_stats(session_only: bool = True) -> str:
