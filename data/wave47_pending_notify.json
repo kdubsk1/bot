@@ -1,12 +1,6 @@
 {
   "newly_suspended": [
     {
-      "market": "BTC",
-      "setup": "STOCH_REVERSAL_BULL",
-      "losses": 12,
-      "reason": "Wave 47 auto: 0W/12L over last 30 days"
-    },
-    {
       "market": "GC",
       "setup": "BB_REVERSION_BEAR",
       "losses": 15,
@@ -25,11 +19,17 @@
       "reason": "Wave 47 auto: 0W/7L over last 30 days"
     },
     {
+      "market": "BTC",
+      "setup": "STOCH_REVERSAL_BULL",
+      "losses": 10,
+      "reason": "Wave 47 auto: 0W/10L over last 30 days"
+    },
+    {
       "market": "GC",
       "setup": "MACD_CROSS_BULL",
       "losses": 5,
       "reason": "Wave 47 auto: 0W/5L over last 30 days"
     }
   ],
-  "ts": "2026-10-16T20:00:10.586162+00:00"
+  "ts": "2026-10-19T03:07:43.454252+00:00"
 }
