@@ -7,7 +7,36 @@
   "leverage": 10,
   "account_risk_pct": 1.5,
   "max_hold_days": 7,
-  "open_trades": [],
+  "open_trades": [
+    {
+      "alert_id": "a042cec09e",
+      "market": "BTC",
+      "direction": "LONG",
+      "entry": 81728.8,
+      "stop": 81297.45932529976,
+      "target": 82831.01,
+      "leverage": 10,
+      "position_size_usd": 2289.29,
+      "notional_usd": 22892.9,
+      "risk_dollars": 12.08,
+      "opened_at": "2026-10-18T22:53:25.784818+00:00",
+      "max_hold_until": "2026-10-25T22:53:25.784818+00:00",
+      "tier": "REJECT",
+      "conviction": 45,
+      "context": {
+        "suggested_lev": null,
+        "trend_score": -7,
+        "rsi": 57.35,
+        "adx": 22.22,
+        "htf_bias": "UNKNOWN",
+        "regime": "UNKNOWN",
+        "session": "Late US/Early Asia",
+        "news_flag": false,
+        "chart_read": "Reclaimed VWAP (81393.093) after 3 bars below. Volume 2.4x avg. Institutional buying."
+      },
+      "status": "OPEN"
+    }
+  ],
   "closed_trades": [
     {
       "alert_id": "04e93b3160",

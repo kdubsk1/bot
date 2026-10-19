@@ -1,0 +1,179 @@
+NQ CALLS DAILY REPORT
+Date: Sunday, October 18, 2026
+Session: 2026-10-19
+Generated: 00:02 EST
+==================================================
+
+TODAY'S PERFORMANCE
+------------------------------
+Alerts fired today:  45
+Closed today:        22
+Wins:                0
+Losses:              22
+Skipped:             0
+Still open:          23
+Today win rate:      0.0%
+
+TODAY'S ALERTS:
+------------------------------
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:3.06 | Tier:REJECT | Entry:81667.73 Stop:81084.2729 Target:83452.99 | Exit:81084.2729 | 2026-10-16 22:13
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:3.02 | Tier:REJECT | Entry:81680.42 Stop:81092.6541 Target:83452.99 | Exit:81092.6541 | 2026-10-16 22:46
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:3.57 | Tier:REJECT | Entry:81156.33 Stop:81570.4372 Target:79676.02 | Exit:81570.4372 | 2026-10-17 16:31
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:3.5 | Tier:REJECT | Entry:81150.48 Stop:81571.8896 Target:79676.02 | Exit:81571.8896 | 2026-10-17 17:01
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.52 | Tier:REJECT | Entry:81458.24 Stop:81022.5356 Target:82555.08 | Exit:81022.5356 | 2026-10-17 18:26
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.68 | Tier:REJECT | Entry:81439.43 Stop:81022.4719 Target:82555.08 | Exit:81022.4719 | 2026-10-17 18:56
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:3.06 | Tier:REJECT | Entry:81126.08 Stop:81600.6608 Target:79676.02 | Exit:81600.6608 | 2026-10-17 21:30
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:1.11 | Tier:REJECT | Entry:80918.79 Stop:81632.8382 Target:80125.0 | Exit:81632.8382 | 2026-10-17 21:33
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.05 | Tier:REJECT | Entry:80918.79 Stop:81675.0782 Target:80125.0 | Exit:81675.0782 | 2026-10-17 21:33
+  ❌ BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.87 | Tier:REJECT | Entry:81081.2 Stop:80658.9071 Target:82292.03 | Exit:80658.9071 | 2026-10-17 21:45
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.96 | Tier:REJECT | Entry:81170.65 Stop:81676.2568 Target:79676.02 | Exit:81676.2568 | 2026-10-17 22:00
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.34 | Tier:REJECT | Entry:81077.12 Stop:81676.5827 Target:79676.02 | Exit:81676.5827 | 2026-10-17 22:06
+  ❌ BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.61 | Tier:REJECT | Entry:81152.87 Stop:80615.6606 Target:82555.08 | Exit:80615.6606 | 2026-10-17 22:15
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.98 | Tier:REJECT | Entry:81175.25 Stop:81678.5694 Target:79676.02 | Exit:81678.5694 | 2026-10-17 22:31
+  ❌ BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.85 | Tier:REJECT | Entry:81351.05 Stop:80613.9258 Target:83452.99 | Exit:80613.9258 | 2026-10-17 22:49
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.85 | Tier:REJECT | Entry:81685.3 Stop:81206.1691 Target:83052.89 | Exit:81206.1691 | 2026-10-18 01:41
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.1 | Tier:REJECT | Entry:81250.41 Stop:82100.1415 Target:80314.7 | Exit:82100.1415 | 2026-10-18 13:35
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.11 | Tier:REJECT | Entry:81185.95 Stop:81969.3537 Target:80314.7 | Exit:81969.3537 | 2026-10-18 14:05
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.03 | Tier:REJECT | Entry:81065.0 Stop:81974.512 Target:80125.0 | Exit:81974.512 | 2026-10-18 14:37
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.34 | Tier:REJECT | Entry:81040.56 Stop:81623.0063 Target:79676.02 | Exit:81623.0063 | 2026-10-18 15:01
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.68 | Tier:REJECT | Entry:81098.74 Stop:81629.0645 Target:79676.02 | Exit:81629.0645 | 2026-10-18 15:06
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.0 | Tier:REJECT | Entry:80970.95 Stop:81618.1458 Target:79676.02 | Exit:81618.1458 | 2026-10-18 15:31
+  🔄 BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.91 | Tier:REJECT | Entry:80916.92 Stop:80481.3026 Target:82183.56 | Exit:open | 2026-10-18 21:03
+  🔄 BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.6 | Tier:REJECT | Entry:80953.38 Stop:80480.0004 Target:82183.56 | Exit:open | 2026-10-18 21:33
+  🔄 NQ | RSI_DIV_BULL | LONG | Conv:11 | RR:3.22 | Tier:REJECT | Entry:29357.5 Stop:29193.638 Target:29885.0 | Exit:open | 2026-10-18 22:00
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.59 | Tier:REJECT | Entry:81500.52 Stop:80746.3831 Target:83452.99 | Exit:open | 2026-10-18 22:03
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:3.42 | Tier:MEDIUM | Entry:29477.25 Stop:29358.0369 Target:29885.0 | Exit:open | 2026-10-18 22:06
+  🔄 NQ | RSI_DIV_BULL | LONG | Conv:11 | RR:2.04 | Tier:REJECT | Entry:29477.25 Stop:29190.5738 Target:30061.75 | Exit:open | 2026-10-18 22:07
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.89 | Tier:REJECT | Entry:81442.51 Stop:80746.1483 Target:83452.99 | Exit:open | 2026-10-18 22:34
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:2.04 | Tier:MEDIUM | Entry:4197.6 Stop:4170.4335 Target:4252.9 | Exit:open | 2026-10-18 22:37
+  🔄 BTC | VWAP_RECLAIM | LONG | Conv:45 | RR:2.56 | Tier:REJECT | Entry:81728.8 Stop:81297.4593 Target:82831.01 | Exit:open | 2026-10-18 22:53
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.87 | Tier:MEDIUM | Entry:29592.75 Stop:29198.1957 Target:30725.5 | Exit:open | 2026-10-18 23:12
+  🔄 NQ | BREAK_RETEST_BEAR | SHORT | Conv:18 | RR:2.0 | Tier:REJECT | Entry:29592.75 Stop:29678.1087 Target:29422.0326 | Exit:open | 2026-10-18 23:12
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:2.04 | Tier:MEDIUM | Entry:4198.8 Stop:4173.108 Target:4251.1 | Exit:open | 2026-10-18 23:12
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.98 | Tier:REJECT | Entry:81656.98 Stop:81055.1482 Target:83452.99 | Exit:open | 2026-10-18 23:12
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.95 | Tier:REJECT | Entry:81722.89 Stop:81023.4513 Target:83784.68 | Exit:open | 2026-10-18 23:22
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:1.17 | Tier:MEDIUM | Entry:4204.9 Stop:4173.0251 Target:4242.3 | Exit:open | 2026-10-18 23:32
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.24 | Tier:REJECT | Entry:81979.86 Stop:81049.014 Target:84062.11 | Exit:open | 2026-10-18 23:32
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.16 | Tier:REJECT | Entry:81979.86 Stop:81015.5811 Target:84062.11 | Exit:open | 2026-10-18 23:32
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.59 | Tier:MEDIUM | Entry:29623.0 Stop:29197.9314 Target:30725.5 | Exit:open | 2026-10-18 23:42
+  🔄 NQ | BREAK_RETEST_BEAR | SHORT | Conv:18 | RR:2.0 | Tier:REJECT | Entry:29623.0 Stop:29679.1373 Target:29510.7255 | Exit:open | 2026-10-18 23:42
+  🔄 NQ | BB_REVERSION_BULL | LONG | Conv:26 | RR:2.51 | Tier:REJECT | Entry:29623.0 Stop:29183.8971 Target:30725.5 | Exit:open | 2026-10-18 23:42
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:2.1 | Tier:MEDIUM | Entry:4204.5 Stop:4170.3278 Target:4276.2 | Exit:open | 2026-10-18 23:42
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.62 | Tier:REJECT | Entry:81935.54 Stop:81049.014 Target:84261.99 | Exit:open | 2026-10-18 23:52
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.53 | Tier:REJECT | Entry:81935.54 Stop:81015.5811 Target:84261.99 | Exit:open | 2026-10-18 23:52
+
+SETUP BREAKDOWN TODAY:
+------------------------------
+  BTC:BB_REVERSION_BULL: 0W / 2L (0% WR)
+  BTC:EMA21_PULLBACK_BEAR: 0W / 10L (0% WR)
+  BTC:MACD_CROSS_BEAR: 0W / 4L (0% WR)
+  BTC:MACD_CROSS_BULL: 0W / 1L (0% WR)
+  BTC:VWAP_BOUNCE_BULL: 0W / 5L (0% WR)
+
+ALL-TIME STATS
+------------------------------
+Total closed: 558
+All-time W/L: 131W / 400L (24.7% WR)
+
+LEARNING UPDATES TODAY:
+------------------------------
+  BTC:BB_REVERSION_BULL: 34.4% WR over 221 trades → Conv adj: 0
+  BTC:EMA21_PULLBACK_BEAR: 29.8% WR over 161 trades → Conv adj: 0
+  BTC:MACD_CROSS_BEAR: 33.8% WR over 74 trades → Conv adj: 0
+  BTC:MACD_CROSS_BULL: 31.6% WR over 215 trades → Conv adj: 0
+  BTC:STOCH_REVERSAL_BULL: 50.7% WR over 136 trades → Conv adj: 0
+  BTC:VWAP_BOUNCE_BULL: 18.8% WR over 776 trades → Conv adj: 0
+
+ALL-TIME LEARNING FILE:
+------------------------------
+  BTC:VWAP_BOUNCE_BULL: 146W/630L (18.8% WR) → Conv adj: 0
+  BTC:EMA21_PULLBACK_BULL: 147W/415L (26.2% WR) → Conv adj: 0
+  NQ:VWAP_BOUNCE_BULL: 176W/163L (51.9% WR) → Conv adj: 0
+  GC:VWAP_REJECT_BEAR: 38W/254L (13.0% WR) → Conv adj: 0
+  GC:EMA21_PULLBACK_BULL: 5W/281L (1.7% WR) → Conv adj: 0
+  BTC:STOCH_REVERSAL_BEAR: 62W/220L (22.0% WR) → Conv adj: 0
+  BTC:BB_REVERSION_BULL: 76W/145L (34.4% WR) → Conv adj: 0
+  BTC:MACD_CROSS_BULL: 68W/147L (31.6% WR) → Conv adj: 0
+  SOL:VWAP_BOUNCE_BULL: 47W/154L (23.4% WR) → Conv adj: 0
+  NQ:VWAP_REJECT_BEAR: 45W/132L (25.4% WR) → Conv adj: 0
+  NQ:BREAK_RETEST_BULL: 105W/63L (62.5% WR) → Conv adj: 0
+  GC:VWAP_BOUNCE_BULL: 94W/73L (56.3% WR) → Conv adj: 0
+  GC:EMA21_PULLBACK_BEAR: 8W/154L (4.9% WR) → Conv adj: 0
+  BTC:EMA21_PULLBACK_BEAR: 48W/113L (29.8% WR) → Conv adj: 0
+  NQ:BB_REVERSION_BULL: 40W/117L (25.5% WR) → Conv adj: 0
+  SOL:BB_REVERSION_BEAR: 42W/99L (29.8% WR) → Conv adj: 0
+  NQ:EMA21_PULLBACK_BEAR: 31W/108L (22.3% WR) → Conv adj: 0
+  BTC:STOCH_REVERSAL_BULL: 69W/67L (50.7% WR) → Conv adj: 0
+  GC:BREAK_RETEST_BEAR: 30W/102L (22.7% WR) → Conv adj: 0
+  BTC:BB_REVERSION_BEAR: 13W/102L (11.3% WR) → Conv adj: 0
+  GC:STOCH_REVERSAL_BULL: 11W/103L (9.6% WR) → Conv adj: 0
+  NQ:STOCH_REVERSAL_BULL: 44W/67L (39.6% WR) → Conv adj: 0
+  BTC:VWAP_REJECT_BEAR: 33W/75L (30.6% WR) → Conv adj: 0
+  GC:RSI_DIV_BULL: 1W/103L (1.0% WR) → Conv adj: 0
+  SOL:BREAK_RETEST_BULL: 58W/41L (58.6% WR) → Conv adj: 0
+  GC:STOCH_REVERSAL_BEAR: 68W/31L (68.7% WR) → Conv adj: 0
+  NQ:LAB|EMA21_PULLBACK_BEAR: 16W/71L (18.4% WR) → Conv adj: 0
+  BTC:RSI_DIV_BEAR: 17W/66L (20.5% WR) → Conv adj: 0
+  BTC:RSI_DIV_BULL: 22W/55L (28.6% WR) → Conv adj: 0
+  GC:RSI_DIV_BEAR: 3W/73L (3.9% WR) → Conv adj: 0
+  BTC:MACD_CROSS_BEAR: 25W/49L (33.8% WR) → Conv adj: 0
+  SOL:EMA21_PULLBACK_BEAR: 23W/50L (31.5% WR) → Conv adj: 0
+  SOL:RSI_DIV_BEAR: 2W/70L (2.8% WR) → Conv adj: 0
+  GC:BB_REVERSION_BEAR: 24W/44L (35.3% WR) → Conv adj: 0
+  BTC:BREAK_RETEST_BULL: 44W/24L (64.7% WR) → Conv adj: 0
+  NQ:MACD_CROSS_BULL: 32W/36L (47.1% WR) → Conv adj: 0
+  NQ:EMA21_PULLBACK_BULL: 5W/61L (7.6% WR) → Conv adj: 0
+  GC:BB_REVERSION_BULL: 45W/19L (70.3% WR) → Conv adj: 0
+  SOL:VWAP_REJECT_BEAR: 24W/40L (37.5% WR) → Conv adj: 0
+  BTC:EMA50_BREAKDOWN: 0W/64L (0.0% WR) → Conv adj: 0
+  NQ:LAB|VWAP_REJECT_BEAR: 16W/45L (26.2% WR) → Conv adj: 0
+  BTC:BREAK_RETEST_BEAR: 12W/48L (20.0% WR) → Conv adj: 0
+  SOL:EMA21_PULLBACK_BULL: 23W/36L (39.0% WR) → Conv adj: 0
+  NQ:BREAK_RETEST_BEAR: 9W/48L (15.8% WR) → Conv adj: 0
+  GC:MACD_CROSS_BEAR: 35W/13L (72.9% WR) → Conv adj: 0
+  NQ:BB_REVERSION_BEAR: 3W/45L (6.2% WR) → Conv adj: 0
+  NQ:STOCH_REVERSAL_BEAR: 11W/35L (23.9% WR) → Conv adj: 0
+  SOL:STOCH_REVERSAL_BEAR: 17W/28L (37.8% WR) → Conv adj: 0
+  SOL:BREAK_RETEST_BEAR: 18W/23L (43.9% WR) → Conv adj: 0
+  NQ:MACD_CROSS_BEAR: 10W/31L (24.4% WR) → Conv adj: 0
+  SOL:MACD_CROSS_BULL: 11W/26L (29.7% WR) → Conv adj: 0
+  SOL:RSI_DIV_BULL: 4W/32L (11.1% WR) → Conv adj: 0
+  NQ:RSI_DIV_BULL: 2W/29L (6.5% WR) → Conv adj: 0
+  SOL:MACD_CROSS_BEAR: 9W/22L (29.0% WR) → Conv adj: 0
+  SOL:STOCH_REVERSAL_BULL: 7W/23L (23.3% WR) → Conv adj: 0
+  BTC:LAB|RSI_DIV_BEAR: 13W/16L (44.8% WR) → Conv adj: 0
+  SOL:BB_REVERSION_BULL: 7W/21L (25.0% WR) → Conv adj: 0
+  GC:BREAK_RETEST_BULL: 8W/17L (32.0% WR) → Conv adj: 0
+  NQ:OPENING_RANGE_BREAKOUT: 16W/9L (64.0% WR) → Conv adj: 0
+  GC:LAB|RSI_DIV_BEAR: 3W/22L (12.0% WR) → Conv adj: 0
+  NQ:LAB|STOCH_REVERSAL_BEAR: 9W/14L (39.1% WR) → Conv adj: 0
+  BTC:EMA50_RECLAIM: 2W/19L (9.5% WR) → Conv adj: 0
+  NQ:LAB|BREAK_RETEST_BEAR: 5W/14L (26.3% WR) → Conv adj: 0
+  GC:MACD_CROSS_BULL: 4W/14L (22.2% WR) → Conv adj: 0
+  NQ:LAB|MACD_CROSS_BEAR: 5W/12L (29.4% WR) → Conv adj: 0
+  SOL:EMA50_RECLAIM: 16W/0L (100.0% WR) → Conv adj: 0
+  GC:EMA50_RECLAIM: 0W/15L (0.0% WR) → Conv adj: 0
+  BTC:LAB|RSI_DIV_BULL: 4W/8L (33.3% WR) → Conv adj: 0
+  NQ:EMA50_RECLAIM: 0W/11L (0.0% WR) → Conv adj: 0
+  NQ:RSI_DIV_BEAR: 1W/10L (9.1% WR) → Conv adj: 0
+  NQ:EMA50_BREAKDOWN: 2W/9L (18.2% WR) → Conv adj: 0
+  SOL:EMA50_BREAKDOWN: 4W/6L (40.0% WR) → Conv adj: 0
+  NQ:LAB|BB_REVERSION_BEAR: 3W/7L (30.0% WR) → Conv adj: 0
+  NQ:LAB|RSI_DIV_BULL: 0W/10L (0.0% WR) → Conv adj: 0
+  SOL:LAB|RSI_DIV_BEAR: 2W/5L (28.6% WR) → Conv adj: 0
+  NQ:LAB|RSI_DIV_BEAR: 1W/4L (20.0% WR) → Conv adj: 0
+  GC:EMA50_BREAKDOWN: 0W/4L (0.0% WR) → Conv adj: 0
+  SOL:APPROACH_SUPPORT: 0W/3L (0.0% WR) → Conv adj: 0
+  NQ:LAB|OPENING_RANGE_BREAKOUT: 0W/3L (0.0% WR) → Conv adj: 0
+  NQ:APPROACH_SUPPORT: 0W/2L (0.0% WR) → Conv adj: 0
+  SOL:LAB|RSI_DIV_BULL: 1W/1L (50.0% WR) → Conv adj: 0
+  NQ:LAB|EMA50_BREAKDOWN: 2W/0L (100.0% WR) → Conv adj: 0
+  NQ:VWAP_RECLAIM: 0W/0L (0.0% WR) → Conv adj: 0
+  NQ:HTF_LEVEL_BOUNCE: 0W/0L (0.0% WR) → Conv adj: 0
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  🔄 NQ | VWAP_BOUNCE_BULL | Entry:29477.25 Target:29885.0 | ID:8822084a59 | 2026-10-18 22:06
+
+==================================================
+END OF REPORT

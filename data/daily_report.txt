@@ -1,17 +1,17 @@
 NQ CALLS DAILY REPORT
-Date: Saturday, October 17, 2026
+Date: Sunday, October 18, 2026
 Session: 2026-10-19
-Generated: 00:01 EST
+Generated: 00:02 EST
 ==================================================
 
 TODAY'S PERFORMANCE
 ------------------------------
-Alerts fired today:  15
-Closed today:        6
+Alerts fired today:  45
+Closed today:        22
 Wins:                0
-Losses:              6
+Losses:              22
 Skipped:             0
-Still open:          9
+Still open:          23
 Today win rate:      0.0%
 
 TODAY'S ALERTS:
@@ -22,30 +22,66 @@ TODAY'S ALERTS:
   ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:3.5 | Tier:REJECT | Entry:81150.48 Stop:81571.8896 Target:79676.02 | Exit:81571.8896 | 2026-10-17 17:01
   ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.52 | Tier:REJECT | Entry:81458.24 Stop:81022.5356 Target:82555.08 | Exit:81022.5356 | 2026-10-17 18:26
   ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.68 | Tier:REJECT | Entry:81439.43 Stop:81022.4719 Target:82555.08 | Exit:81022.4719 | 2026-10-17 18:56
-  🔄 BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:3.06 | Tier:REJECT | Entry:81126.08 Stop:81600.6608 Target:79676.02 | Exit:open | 2026-10-17 21:30
-  🔄 BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:1.11 | Tier:REJECT | Entry:80918.79 Stop:81632.8382 Target:80125.0 | Exit:open | 2026-10-17 21:33
-  🔄 BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.05 | Tier:REJECT | Entry:80918.79 Stop:81675.0782 Target:80125.0 | Exit:open | 2026-10-17 21:33
-  🔄 BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.87 | Tier:REJECT | Entry:81081.2 Stop:80658.9071 Target:82292.03 | Exit:open | 2026-10-17 21:45
-  🔄 BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.96 | Tier:REJECT | Entry:81170.65 Stop:81676.2568 Target:79676.02 | Exit:open | 2026-10-17 22:00
-  🔄 BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.34 | Tier:REJECT | Entry:81077.12 Stop:81676.5827 Target:79676.02 | Exit:open | 2026-10-17 22:06
-  🔄 BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.61 | Tier:REJECT | Entry:81152.87 Stop:80615.6606 Target:82555.08 | Exit:open | 2026-10-17 22:15
-  🔄 BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.98 | Tier:REJECT | Entry:81175.25 Stop:81678.5694 Target:79676.02 | Exit:open | 2026-10-17 22:31
-  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.85 | Tier:REJECT | Entry:81351.05 Stop:80613.9258 Target:83452.99 | Exit:open | 2026-10-17 22:49
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:3.06 | Tier:REJECT | Entry:81126.08 Stop:81600.6608 Target:79676.02 | Exit:81600.6608 | 2026-10-17 21:30
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:1.11 | Tier:REJECT | Entry:80918.79 Stop:81632.8382 Target:80125.0 | Exit:81632.8382 | 2026-10-17 21:33
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.05 | Tier:REJECT | Entry:80918.79 Stop:81675.0782 Target:80125.0 | Exit:81675.0782 | 2026-10-17 21:33
+  ❌ BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.87 | Tier:REJECT | Entry:81081.2 Stop:80658.9071 Target:82292.03 | Exit:80658.9071 | 2026-10-17 21:45
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.96 | Tier:REJECT | Entry:81170.65 Stop:81676.2568 Target:79676.02 | Exit:81676.2568 | 2026-10-17 22:00
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.34 | Tier:REJECT | Entry:81077.12 Stop:81676.5827 Target:79676.02 | Exit:81676.5827 | 2026-10-17 22:06
+  ❌ BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.61 | Tier:REJECT | Entry:81152.87 Stop:80615.6606 Target:82555.08 | Exit:80615.6606 | 2026-10-17 22:15
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.98 | Tier:REJECT | Entry:81175.25 Stop:81678.5694 Target:79676.02 | Exit:81678.5694 | 2026-10-17 22:31
+  ❌ BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.85 | Tier:REJECT | Entry:81351.05 Stop:80613.9258 Target:83452.99 | Exit:80613.9258 | 2026-10-17 22:49
+  ❌ BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.85 | Tier:REJECT | Entry:81685.3 Stop:81206.1691 Target:83052.89 | Exit:81206.1691 | 2026-10-18 01:41
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.1 | Tier:REJECT | Entry:81250.41 Stop:82100.1415 Target:80314.7 | Exit:82100.1415 | 2026-10-18 13:35
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.11 | Tier:REJECT | Entry:81185.95 Stop:81969.3537 Target:80314.7 | Exit:81969.3537 | 2026-10-18 14:05
+  ❌ BTC | MACD_CROSS_BEAR | SHORT | Conv:35 | RR:1.03 | Tier:REJECT | Entry:81065.0 Stop:81974.512 Target:80125.0 | Exit:81974.512 | 2026-10-18 14:37
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.34 | Tier:REJECT | Entry:81040.56 Stop:81623.0063 Target:79676.02 | Exit:81623.0063 | 2026-10-18 15:01
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.68 | Tier:REJECT | Entry:81098.74 Stop:81629.0645 Target:79676.02 | Exit:81629.0645 | 2026-10-18 15:06
+  ❌ BTC | EMA21_PULLBACK_BEAR | SHORT | Conv:30 | RR:2.0 | Tier:REJECT | Entry:80970.95 Stop:81618.1458 Target:79676.02 | Exit:81618.1458 | 2026-10-18 15:31
+  🔄 BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.91 | Tier:REJECT | Entry:80916.92 Stop:80481.3026 Target:82183.56 | Exit:open | 2026-10-18 21:03
+  🔄 BTC | BB_REVERSION_BULL | LONG | Conv:35 | RR:2.6 | Tier:REJECT | Entry:80953.38 Stop:80480.0004 Target:82183.56 | Exit:open | 2026-10-18 21:33
+  🔄 NQ | RSI_DIV_BULL | LONG | Conv:11 | RR:3.22 | Tier:REJECT | Entry:29357.5 Stop:29193.638 Target:29885.0 | Exit:open | 2026-10-18 22:00
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.59 | Tier:REJECT | Entry:81500.52 Stop:80746.3831 Target:83452.99 | Exit:open | 2026-10-18 22:03
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:3.42 | Tier:MEDIUM | Entry:29477.25 Stop:29358.0369 Target:29885.0 | Exit:open | 2026-10-18 22:06
+  🔄 NQ | RSI_DIV_BULL | LONG | Conv:11 | RR:2.04 | Tier:REJECT | Entry:29477.25 Stop:29190.5738 Target:30061.75 | Exit:open | 2026-10-18 22:07
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.89 | Tier:REJECT | Entry:81442.51 Stop:80746.1483 Target:83452.99 | Exit:open | 2026-10-18 22:34
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:2.04 | Tier:MEDIUM | Entry:4197.6 Stop:4170.4335 Target:4252.9 | Exit:open | 2026-10-18 22:37
+  🔄 BTC | VWAP_RECLAIM | LONG | Conv:45 | RR:2.56 | Tier:REJECT | Entry:81728.8 Stop:81297.4593 Target:82831.01 | Exit:open | 2026-10-18 22:53
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.87 | Tier:MEDIUM | Entry:29592.75 Stop:29198.1957 Target:30725.5 | Exit:open | 2026-10-18 23:12
+  🔄 NQ | BREAK_RETEST_BEAR | SHORT | Conv:18 | RR:2.0 | Tier:REJECT | Entry:29592.75 Stop:29678.1087 Target:29422.0326 | Exit:open | 2026-10-18 23:12
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:2.04 | Tier:MEDIUM | Entry:4198.8 Stop:4173.108 Target:4251.1 | Exit:open | 2026-10-18 23:12
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.98 | Tier:REJECT | Entry:81656.98 Stop:81055.1482 Target:83452.99 | Exit:open | 2026-10-18 23:12
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.95 | Tier:REJECT | Entry:81722.89 Stop:81023.4513 Target:83784.68 | Exit:open | 2026-10-18 23:22
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:1.17 | Tier:MEDIUM | Entry:4204.9 Stop:4173.0251 Target:4242.3 | Exit:open | 2026-10-18 23:32
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.24 | Tier:REJECT | Entry:81979.86 Stop:81049.014 Target:84062.11 | Exit:open | 2026-10-18 23:32
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.16 | Tier:REJECT | Entry:81979.86 Stop:81015.5811 Target:84062.11 | Exit:open | 2026-10-18 23:32
+  🔄 NQ | VWAP_BOUNCE_BULL | LONG | Conv:55 | RR:2.59 | Tier:MEDIUM | Entry:29623.0 Stop:29197.9314 Target:30725.5 | Exit:open | 2026-10-18 23:42
+  🔄 NQ | BREAK_RETEST_BEAR | SHORT | Conv:18 | RR:2.0 | Tier:REJECT | Entry:29623.0 Stop:29679.1373 Target:29510.7255 | Exit:open | 2026-10-18 23:42
+  🔄 NQ | BB_REVERSION_BULL | LONG | Conv:26 | RR:2.51 | Tier:REJECT | Entry:29623.0 Stop:29183.8971 Target:30725.5 | Exit:open | 2026-10-18 23:42
+  🔄 GC | VWAP_BOUNCE_BULL | LONG | Conv:56 | RR:2.1 | Tier:MEDIUM | Entry:4204.5 Stop:4170.3278 Target:4276.2 | Exit:open | 2026-10-18 23:42
+  🔄 BTC | VWAP_BOUNCE_BULL | LONG | Conv:19 | RR:2.62 | Tier:REJECT | Entry:81935.54 Stop:81049.014 Target:84261.99 | Exit:open | 2026-10-18 23:52
+  🔄 BTC | MACD_CROSS_BULL | LONG | Conv:32 | RR:2.53 | Tier:REJECT | Entry:81935.54 Stop:81015.5811 Target:84261.99 | Exit:open | 2026-10-18 23:52
 
 SETUP BREAKDOWN TODAY:
 ------------------------------
-  BTC:EMA21_PULLBACK_BEAR: 0W / 2L (0% WR)
-  BTC:VWAP_BOUNCE_BULL: 0W / 4L (0% WR)
+  BTC:BB_REVERSION_BULL: 0W / 2L (0% WR)
+  BTC:EMA21_PULLBACK_BEAR: 0W / 10L (0% WR)
+  BTC:MACD_CROSS_BEAR: 0W / 4L (0% WR)
+  BTC:MACD_CROSS_BULL: 0W / 1L (0% WR)
+  BTC:VWAP_BOUNCE_BULL: 0W / 5L (0% WR)
 
 ALL-TIME STATS
 ------------------------------
-Total closed: 539
-All-time W/L: 131W / 381L (25.6% WR)
+Total closed: 558
+All-time W/L: 131W / 400L (24.7% WR)
 
 LEARNING UPDATES TODAY:
 ------------------------------
+  BTC:BB_REVERSION_BULL: 34.4% WR over 221 trades → Conv adj: 0
   BTC:EMA21_PULLBACK_BEAR: 29.8% WR over 161 trades → Conv adj: 0
-  BTC:RSI_DIV_BULL: 28.6% WR over 77 trades → Conv adj: 0
+  BTC:MACD_CROSS_BEAR: 33.8% WR over 74 trades → Conv adj: 0
+  BTC:MACD_CROSS_BULL: 31.6% WR over 215 trades → Conv adj: 0
+  BTC:STOCH_REVERSAL_BULL: 50.7% WR over 136 trades → Conv adj: 0
   BTC:VWAP_BOUNCE_BULL: 18.8% WR over 776 trades → Conv adj: 0
 
 ALL-TIME LEARNING FILE:
@@ -137,7 +173,7 @@ ALL-TIME LEARNING FILE:
 
 STILL OPEN AT END OF DAY:
 ------------------------------
-  No open trades.
+  🔄 NQ | VWAP_BOUNCE_BULL | Entry:29477.25 Target:29885.0 | ID:8822084a59 | 2026-10-18 22:06
 
 ==================================================
 END OF REPORT
