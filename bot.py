@@ -3040,6 +3040,15 @@ def _w143_outcome_lookup(alert_id):
 
 async def scan_market(app, market, frames):
     global DAILY_TRADE_COUNT, DAILY_PROFIT_LOCKED, DAILY_LOSS_GATE
+    # _WAVE271_FRESH_PRICE (Q65 A - Wayne, 6 Oct 2026: "no data should be over a minute old"): a saved 15m frame
+    # older than 45 s is fetched fresh before any setup is looked for, so every call this scan writes - real or
+    # LAB - is priced from bars under a minute old, and Wave 269 brings the 1h / 4h bar up to date from them.
+    # The scan loop's own frames are not changed. On any failure the saved frame is used, as before.
+    try:
+        import data_layer as _w271_dl
+        frames = _w271_dl.w271_fresh_frames(market, frames)
+    except Exception as _w271_e:
+        log.warning(f"[{market}] FRESH-PRICE: entry check skipped ({_w271_e})")
     cfg        = get_market_config(market)
     primary_tf = cfg.ENTRY_TIMEFRAMES[0]
     df_primary = frames.get(primary_tf)
@@ -5560,6 +5569,15 @@ async def force_flatten_futures(app):
         "Topstep rule: flat by 4:10 PM ET."
     )
 
+    # _WAVE271_FRESH_PRICE (Q64 A - Wayne, 6 Oct 2026): fetch each market's 15m frame fresh before anything is
+    # priced, so the flatten price and the Wave 270 stop check below read the market as it is now, not as the last
+    # scan saw it (6 Oct: 33 s old, two stops traded through unseen). At most 6 s; on any failure the rows are
+    # priced exactly as before, from the saved frame, with one "FRESH-PRICE: flatten used the saved frame" line.
+    try:
+        import data_layer as _w271_dl
+        _w271_dl.w271_fetch_fresh_15m([r.get("market") for r in futures_trades], "flatten")
+    except Exception as _w271_e:
+        log.warning(f"FRESH-PRICE: flatten used the saved frames: the fresh fetch was skipped ({_w271_e})")
     _w270_closed = {}   # _WAVE270_FLATTEN_AT_STOP: alert_id -> the stop it was closed at
     for row in futures_trades:
         market = row["market"]
@@ -5593,6 +5611,12 @@ async def force_flatten_futures(app):
                 _w270_at_stop = ""
                 log.warning(f"[{market}] W270: stop check at the flatten skipped ({_w270_e})")
 
+        try:  # _WAVE271_FRESH_PRICE: how old the price this close used is -> data/price_age.jsonl
+            import data_layer as _w271_dl
+            _w271_dl.w271_note_price_age(row.get("alert_id"), "flatten", market, price=cur,
+                                         priced=bool(_w240_priced), at_stop=bool(_w270_at_stop))
+        except Exception:
+            pass
         entry_p = row.get("entry", "?")
         # Wave 44 (May 12, 2026): pre-initialize pts so the exception path
         # doesn't leave it undefined - prevents NameError on the

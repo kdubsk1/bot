@@ -3630,6 +3630,12 @@ def log_alert(row: dict) -> str:
     clean = {k: row.get(k,"") for k in CSV_COLS}
     # Locked atomic append — prevents _write_all from clobbering this row
     safe_io.safe_append_csv(OUTCOMES_CSV, CSV_COLS, clean)
+    try:  # _WAVE271_FRESH_PRICE: how old the price this call was written from is -> data/price_age.jsonl
+        import data_layer as _w271_dl
+        _w271_dl.w271_note_price_age(clean.get("alert_id"), "entry", clean.get("market"), tf=clean.get("tf"),
+                                     lane=clean.get("lane"), entry=clean.get("entry"))
+    except Exception:
+        pass
     return clean["alert_id"]
 
 def _read_all() -> list[dict]:

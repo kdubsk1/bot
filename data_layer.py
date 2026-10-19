@@ -1485,6 +1485,155 @@ def get_current_price(market: str) -> float:
 
 
 # ---------------------------------------------------------------------------
+# _WAVE271_FRESH_PRICE (Q64 A / Q65 A - Wayne, 6 Oct 2026: "no data should be over a minute old")
+# ---------------------------------------------------------------------------
+# A saved 15m frame is re-used for up to 180 s (_get_cached), and get_current_price is its last close. So the
+# 3:55 PM flatten and a call written in a 30-second scan window could use a price up to 3 minutes old - on 6 Oct
+# the flatten closed two NQ longs 13 points above stops the market had traded through in the 27 seconds after the
+# last fetch, and Wave 270 looked at the same saved bars. These fetch the 15m frame fresh at those two moments.
+W271_FETCH_TIMEOUT_S = 6.0       # the longest a fresh fetch is waited for (all markets at once); then the saved frame
+W271_ENTRY_MAX_AGE_S = 45.0      # a scan re-fetches a saved 15m frame older than this before it looks for setups
+W271_AGE_FILE = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "data", "price_age.jsonl")
+_W271_FRESH_TS: Dict[str, float] = {}     # market -> the cache time of the frame w271_fetch_fresh_15m saved
+_W271_INFLIGHT: Dict[str, tuple] = {}     # market -> (thread, started) of a fetch still running past its timeout
+
+
+def w271_saved_age(market):
+    """Seconds since the saved 15m frame of this market was fetched, or None when there is none. Never raises."""
+    try:
+        e = _cache.get(_cache_key(str(market).upper(), "15m"))
+        if not e:
+            return None
+        return max(0.0, time.time() - float(e.get("ts", 0)))
+    except Exception:
+        return None
+
+
+def w271_fetch_fresh_15m(markets, why, timeout_s=None):
+    """Fetch the 15m frame of each market fresh, NOT from the saved frame -> {market: (ok, detail)}.
+    One request per market - NQ / gold: TopstepX only (_fetch_topstepx: no fall-through to another series); BTC /
+    SOL: _fetch_raw (ccxt, as an expired cache does) - all markets at once on daemon
+    threads, waited for at most timeout_s seconds in total (W271_FETCH_TIMEOUT_S). A frame of MIN_BARS bars or more
+    is saved exactly as _fetch_with_cache saves one, so get_current_price and get_frames then return it. Anything
+    else leaves the saved frame alone and logs one line. A fetch still running from an earlier timeout is not
+    started again. Never raises."""
+    out = {}
+    try:
+        import threading as _w271_threading
+        tmo = W271_FETCH_TIMEOUT_S if timeout_s is None else float(timeout_s)
+        jobs = {}
+        for m in dict.fromkeys(str(x).upper() for x in (markets or ()) if x):
+            prev = _W271_INFLIGHT.get(m)
+            if prev is not None and prev[0].is_alive():
+                out[m] = (False, "the fetch started %.0f s ago is still running" % (time.monotonic() - prev[1]))
+                continue
+            _W271_INFLIGHT.pop(m, None)
+            box = {}
+
+            def _job(m=m, box=box):
+                try:
+                    # NQ / gold: TopstepX ONLY - the series the saved frame came from. _fetch_raw would fall
+                    # through to TwelveData (gold = XAU/USD spot) or Yahoo (delayed) and call that "fresh".
+                    box["df"] = (_fetch_topstepx(m, "15m") if m in _FUTURES_MARKETS else _fetch_raw(m, "15m"))
+                except Exception as exc:
+                    box["err"] = "%s: %s" % (type(exc).__name__, exc)
+            th = _w271_threading.Thread(target=_job, name="w271-fresh-" + m, daemon=True)
+            jobs[m] = (th, box, time.monotonic())
+            th.start()
+        end = time.monotonic() + tmo
+        for m, (th, box, st) in jobs.items():
+            th.join(max(0.0, end - time.monotonic()))
+            if th.is_alive():
+                _W271_INFLIGHT[m] = (th, st)
+                out[m] = (False, "no answer within %.0f s" % tmo)
+                continue
+            if "err" in box:
+                out[m] = (False, box["err"])
+                continue
+            df = box.get("df")
+            if df is None or len(df) < MIN_BARS:
+                out[m] = (False, "the provider returned %d bars (need %d)" % (0 if df is None else len(df), MIN_BARS))
+                continue
+            _set_cache(m, "15m", df)
+            _neg_fetch.pop(_cache_key(m, "15m"), None)
+            _W271_FRESH_TS[m] = float(_cache[_cache_key(m, "15m")]["ts"])
+            out[m] = (True, "%d bars, last close %.4f, %.1f s" % (len(df), float(df["Close"].iloc[-1]),
+                                                                  time.monotonic() - st))
+            logger.info("FRESH-PRICE: %s 15m fetched fresh for the %s (%s)", m, why, out[m][1])
+        for m, (ok, detail) in out.items():
+            if not ok:
+                age = w271_saved_age(m)
+                logger.warning("FRESH-PRICE: %s used the saved frame (age %s s) for %s: %s", why,
+                               "?" if age is None else "%.0f" % age, m, detail)
+    except Exception as exc:
+        try:
+            logger.warning("FRESH-PRICE: %s used the saved frames: the fresh fetch failed (%s)", why, exc)
+        except Exception:
+            pass
+    return out
+
+
+def w271_fresh_frames(market, frames, max_age_s=None):
+    """A scan's frames with the 15m frame fetched fresh first when the saved one is older than max_age_s
+    (W271_ENTRY_MAX_AGE_S), so a call written by this scan is priced from bars under a minute old. Returns a NEW
+    dict when it fetched - the caller's dict is never changed - and frames itself otherwise. Never raises."""
+    try:
+        if not isinstance(frames, dict) or "15m" not in frames:
+            return frames
+        m = str(market).upper()
+        lim = W271_ENTRY_MAX_AGE_S if max_age_s is None else float(max_age_s)
+        age = w271_saved_age(m)
+        if age is not None and age <= lim:
+            return frames
+        res = w271_fetch_fresh_15m([m], "entry").get(m)
+        if not res or not res[0]:
+            return frames
+        out = dict(frames)
+        out["15m"] = _cache[_cache_key(m, "15m")]["df"].copy()
+        return out
+    except Exception:
+        return frames
+
+
+def w271_note_price_age(alert_id, what, market, **extra):
+    """One line in data/price_age.jsonl: how old the price a call was written from (what = entry) or closed at
+    (what = flatten) was. age_sec = seconds since the 15m frame it came from was fetched; source = fresh when this
+    item fetched that frame, saved when it is the frame the scan or the cache already had. The 15m frame's last
+    close is written too, so a 1h / 4h entry that is not that close can be told apart. Never raises."""
+    try:
+        import json as _w271_json
+        m = str(market or "").upper()
+        e = _cache.get(_cache_key(m, "15m"))
+        age = w271_saved_age(m)
+        src = "saved"
+        last = None
+        if e:
+            if _W271_FRESH_TS.get(m) == float(e.get("ts", -1)):
+                src = "fresh"
+            try:
+                last = float(e["df"]["Close"].iloc[-1])
+            except Exception:
+                last = None
+        else:
+            src = "none"
+        rec = {"alert_id": alert_id, "what": what, "market": m,
+               "age_sec": None if age is None else round(age, 1), "source": src,
+               "utc": datetime.now(timezone.utc).isoformat(), "last_15m_close": last}
+        for k, v in extra.items():
+            if k not in rec:
+                rec[k] = v
+        _os.makedirs(_os.path.dirname(W271_AGE_FILE), exist_ok=True)
+        with open(W271_AGE_FILE, "a", encoding="utf-8") as fh:
+            fh.write(_w271_json.dumps(rec, default=str) + "\n")
+    except Exception as exc:
+        try:
+            logger.debug("FRESH-PRICE: price_age line not written (%s)", exc)
+        except Exception:
+            pass
+# ---- end _WAVE271_FRESH_PRICE ---------------------------------------------
+
+
+# ---------------------------------------------------------------------------
 # Optional: quick self-test
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
