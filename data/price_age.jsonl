@@ -1,3 +1,12 @@
 {"alert_id": "6b05b7f88c", "what": "entry", "market": "GC", "age_sec": 1.1, "source": "saved", "utc": "2026-10-19T03:17:57.245345+00:00", "last_15m_close": 4200.4, "tf": "4h", "lane": "lab", "entry": 4200.4}
 {"alert_id": "6b6d9f88f7", "what": "entry", "market": "NQ", "age_sec": 1.5, "source": "saved", "utc": "2026-10-19T03:27:59.064238+00:00", "last_15m_close": 29780.25, "tf": "1h", "lane": "lab", "entry": 29780.25}
 {"alert_id": "e5c127de29", "what": "entry", "market": "NQ", "age_sec": 14.8, "source": "saved", "utc": "2026-10-19T03:36:34.439412+00:00", "last_15m_close": 29786.0, "tf": "1h", "lane": "lab", "entry": 29786.0}
+{"alert_id": "43dfc1edc0", "what": "entry", "market": "NQ", "age_sec": 0.8, "source": "saved", "utc": "2026-10-19T03:46:35.587168+00:00", "last_15m_close": 29778.0, "tf": "1h", "lane": "real", "entry": 29778.0}
+{"alert_id": "18343bcb36", "what": "entry", "market": "NQ", "age_sec": 7.2, "source": "saved", "utc": "2026-10-19T03:46:42.044391+00:00", "last_15m_close": 29778.0, "tf": "1h", "lane": "lab", "entry": 29778.0}
+{"alert_id": "de36719217", "what": "entry", "market": "BTC", "age_sec": 7.2, "source": "saved", "utc": "2026-10-19T03:46:42.303319+00:00", "last_15m_close": 82397.64, "tf": "1h", "lane": "lab", "entry": 82397.64}
+{"alert_id": "27244af3d9", "what": "entry", "market": "BTC", "age_sec": 7.2, "source": "saved", "utc": "2026-10-19T03:46:42.308954+00:00", "last_15m_close": 82397.64, "tf": "1h", "lane": "lab", "entry": 82397.64}
+{"alert_id": "fb8c29ce4b", "what": "entry", "market": "GC", "age_sec": 0.9, "source": "saved", "utc": "2026-10-19T03:56:43.548849+00:00", "last_15m_close": 4201.0, "tf": "4h", "lane": "lab", "entry": 4201.0}
+{"alert_id": "4504ff9126", "what": "entry", "market": "GC", "age_sec": 1.1, "source": "saved", "utc": "2026-10-19T04:36:48.465791+00:00", "last_15m_close": 4203.5, "tf": "4h", "lane": "lab", "entry": 4203.5}
+{"alert_id": "741c1a3974", "what": "entry", "market": "GC", "age_sec": 0.8, "source": "saved", "utc": "2026-10-19T05:12:56.183381+00:00", "last_15m_close": 4203.2, "tf": "4h", "lane": "lab", "entry": 4203.2}
+{"alert_id": "d66e435c98", "what": "entry", "market": "GC", "age_sec": 0.6, "source": "saved", "utc": "2026-10-19T05:49:02.012017+00:00", "last_15m_close": 4205.5, "tf": "4h", "lane": "lab", "entry": 4205.5}
+{"alert_id": "94094426a9", "what": "entry", "market": "BTC", "age_sec": 0.3, "source": "saved", "utc": "2026-10-19T07:51:15.863404+00:00", "last_15m_close": 82646.45, "tf": "15m", "lane": "lab", "entry": 82646.45}

@@ -240,7 +240,7 @@
     "losses": 164,
     "total": 340,
     "win_rate": 51.8,
-    "last_updated": "2026-10-19T03:36:33.871578",
+    "last_updated": "2026-10-19T05:00:53.757501",
     "paper_total": 41,
     "paper_losses": 31,
     "paper_win_rate": 24.4,
@@ -251,10 +251,10 @@
     "real_wins": 33,
     "real_avg_rr_win": 2.213,
     "real_expectancy": 0.3771,
-    "lab_total": 102,
+    "lab_total": 103,
     "lab_losses": 72,
-    "lab_win_rate": 29.4,
-    "lab_wins": 30
+    "lab_win_rate": 30.1,
+    "lab_wins": 31
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 146,
@@ -381,7 +381,7 @@
     "losses": 102,
     "total": 115,
     "win_rate": 11.3,
-    "last_updated": "2026-10-14T14:06:14.017914",
+    "last_updated": "2026-10-19T06:37:30.114006",
     "paper_total": 102,
     "paper_losses": 91,
     "paper_win_rate": 10.8,
@@ -392,9 +392,9 @@
     "real_win_rate": 14.3,
     "real_avg_rr_win": 4.61,
     "real_expectancy": -0.1986,
-    "lab_total": 26,
-    "lab_losses": 18,
-    "lab_win_rate": 30.8,
+    "lab_total": 27,
+    "lab_losses": 19,
+    "lab_win_rate": 29.6,
     "lab_wins": 8
   },
   "SOL:VWAP_REJECT_BEAR": {
@@ -616,7 +616,7 @@
     "losses": 220,
     "total": 282,
     "win_rate": 22.0,
-    "last_updated": "2026-10-15T14:46:14.910874",
+    "last_updated": "2026-10-19T07:32:27.700079",
     "real_total": 21,
     "real_losses": 16,
     "real_win_rate": 23.8,
@@ -627,9 +627,9 @@
     "real_wins": 5,
     "real_avg_rr_win": 2.412,
     "real_expectancy": -0.1876,
-    "lab_total": 20,
-    "lab_losses": 17,
-    "lab_win_rate": 15.0,
+    "lab_total": 21,
+    "lab_losses": 18,
+    "lab_win_rate": 14.3,
     "lab_wins": 3
   },
   "NQ:BREAK_RETEST_BULL": {
@@ -1372,5 +1372,15 @@
     "lab_losses": 3,
     "lab_win_rate": 0.0,
     "last_updated": "2026-10-01T15:33:18.995608"
+  },
+  "BTC:VWAP_RECLAIM": {
+    "wins": 0,
+    "losses": 0,
+    "total": 0,
+    "win_rate": 0.0,
+    "lab_total": 1,
+    "lab_wins": 1,
+    "lab_win_rate": 100.0,
+    "last_updated": "2026-10-19T07:32:27.397576"
   }
 }
