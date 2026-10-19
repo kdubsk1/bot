@@ -1040,15 +1040,15 @@
     "losses": 48,
     "total": 57,
     "win_rate": 15.8,
-    "last_updated": "2026-10-19T01:27:08.256377",
+    "last_updated": "2026-10-19T02:07:14.448140",
     "paper_total": 24,
     "paper_losses": 18,
     "paper_win_rate": 25.0,
     "paper_wins": 6,
-    "lab_total": 36,
+    "lab_total": 37,
     "lab_wins": 9,
-    "lab_win_rate": 25.0,
-    "lab_losses": 27
+    "lab_win_rate": 24.3,
+    "lab_losses": 28
   },
   "NQ:VWAP_REJECT_BEAR": {
     "wins": 45,
