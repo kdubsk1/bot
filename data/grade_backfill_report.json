@@ -1,18 +1,18 @@
 {
-  "rows_scanned": 17674,
+  "rows_scanned": 19081,
   "WOULD_WIN": 0,
   "WOULD_LOSE": 0,
   "EXPIRED": 0,
   "rebuilt_targets": 0,
-  "skip_fired": 3,
+  "skip_fired": 1,
   "skip_bad_levels": 0,
-  "skip_no_direction": 3114,
+  "skip_no_direction": 3161,
   "skip_bad_timestamp": 0,
   "skip_too_old": 0,
   "skip_no_target": 0,
-  "skip_no_history": 2665,
-  "skip_no_window": 828,
+  "skip_no_history": 3701,
+  "skip_no_window": 995,
   "total_graded": 0,
   "mode": "write",
-  "generated_at": "2026-10-20T03:36:19.541517+00:00"
+  "generated_at": "2026-10-20T09:36:19.970140+00:00"
 }
