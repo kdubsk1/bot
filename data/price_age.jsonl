@@ -196,3 +196,4 @@
 {"alert_id": "364a62d823", "what": "entry", "market": "NQ", "age_sec": 0.8, "source": "saved", "utc": "2026-10-21T02:23:10.959401+00:00", "last_15m_close": 29964.0, "tf": "15m", "lane": "lab", "entry": 29964.0}
 {"alert_id": "edb4beb945", "what": "entry", "market": "GC", "age_sec": 0.2, "source": "saved", "utc": "2026-10-21T03:37:16.689495+00:00", "last_15m_close": 4141.4, "tf": "1h", "lane": "lab", "entry": 4141.4}
 {"alert_id": "a14560ecd7", "what": "entry", "market": "GC", "age_sec": 0.2, "source": "saved", "utc": "2026-10-21T03:37:16.719385+00:00", "last_15m_close": 4141.4, "tf": "4h", "lane": "lab", "entry": 4141.4}
+{"alert_id": "ecb3c263ba", "what": "entry", "market": "GC", "age_sec": 0.4, "source": "saved", "utc": "2026-10-21T03:47:17.613407+00:00", "last_15m_close": 4139.9, "tf": "4h", "lane": "lab", "entry": 4139.9}
