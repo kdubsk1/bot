@@ -158,3 +158,4 @@
 {"event":"apply","bucket":"adx_min|NQ|STOCH_REVERSAL_BULL","from":22.0,"to":20.0,"evidence":{"n":54,"w":33,"l":21,"wr":61.1,"avg_rr":2.17,"required_wr":39.4},"ts":"2026-10-19T00:02:46.484020+00:00"}
 {"event":"apply","bucket":"vol_floor|BTC|RSI_DIV_BEAR","from":0.25,"to":0.2,"evidence":{"n":52,"w":32,"l":20,"wr":61.5,"avg_rr":2.04,"required_wr":41.1},"ts":"2026-10-20T00:01:46.350397+00:00"}
 {"event":"apply","bucket":"adx_min|NQ|VWAP_REJECT_BEAR","from":16.0,"to":14.0,"evidence":{"n":505,"w":299,"l":206,"wr":59.2,"avg_rr":2.09,"required_wr":40.5},"ts":"2026-10-21T00:04:14.874725+00:00"}
+{"event":"seed_base","bucket":"adx_min|GC|VWAP_RECLAIM","base":18.0,"ts":"2026-10-21T13:06:15.626761+00:00"}

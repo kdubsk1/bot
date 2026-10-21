@@ -1735,6 +1735,10 @@
     "adx_min|BTC|HTF_LEVEL_BOUNCE": {
       "base": 16.0,
       "seeded_at": "2026-10-15T14:22:57.911346+00:00"
+    },
+    "adx_min|GC|VWAP_RECLAIM": {
+      "base": 18.0,
+      "seeded_at": "2026-10-21T13:06:15.624213+00:00"
     }
   }
 }

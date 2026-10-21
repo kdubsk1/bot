@@ -236,3 +236,6 @@
 {"ts": "2026-10-20T12:52:43.941298+00:00", "alert_id": "125d3c1bc6", "market": "NQ", "tf": "15m", "hour": 12, "time_edge_score": 38, "time_expected_R": 0.132, "time_label": "good"}
 {"ts": "2026-10-20T13:56:25.544855+00:00", "alert_id": "41affe20a5", "market": "NQ", "tf": "15m", "hour": 13, "time_edge_score": 43, "time_expected_R": 0.303, "time_label": "good"}
 {"ts": "2026-10-20T13:59:32.644718+00:00", "alert_id": "76b6b2d5cb", "market": "BTC", "tf": "1h", "hour": 13, "time_edge_score": 43, "time_expected_R": 0.303, "time_label": "good"}
+{"ts": "2026-10-21T11:56:30.398383+00:00", "alert_id": "b0e22c6e02", "market": "NQ", "tf": "15m", "hour": 11, "time_edge_score": 38, "time_expected_R": 0.152, "time_label": "good"}
+{"ts": "2026-10-21T13:06:14.980833+00:00", "alert_id": "959c3bdced", "market": "NQ", "tf": "1h", "hour": 13, "time_edge_score": 43, "time_expected_R": 0.276, "time_label": "good"}
+{"ts": "2026-10-21T13:47:43.114238+00:00", "alert_id": "199764a22d", "market": "NQ", "tf": "15m", "hour": 13, "time_edge_score": 43, "time_expected_R": 0.276, "time_label": "good"}
