@@ -2686,6 +2686,186 @@ def w270_flatten_exit(row, frames, cur):
 # ---- end _WAVE270_FLATTEN_AT_STOP ---------------------------------
 
 
+# ---- _WAVE273_GRADING_FIX -------------------------------------------
+# Wave 273 (Wayne, Q55 A, 5 Oct 2026: "Yeah, we can fix how results are booked"; code review F03 / F04 / F05).
+# 1. The grader no longer reads the daily frame: Yahoo stamps it 04:00 UTC but it holds the session from 22:00 UTC,
+#    so for a call fired 22:00-04:00 UTC a price from BEFORE the call counted as after it (NQ cecb90a62a, 26 Aug).
+# 2. Whichever level traded first wins: the target-side Wave 11 guard is gone and "both hit" asks the bars which
+#    came first (BTC e44f010eed, 4 May: target 01:30, stop 10:20, booked LOSS).
+# 3. An expiry books what happened: a stop or target touch since the call, else the last price - never the entry
+#    by default (BTC ad3d674ef6 30 Jun, 1f4ee48504 17 Jul: booked 0, the stop had traded).
+# rules.GRADING_FIX = False brings back the old grading exactly. No such name in rules.py = ON.
+try:
+    from rules import GRADING_FIX as _R273_ON
+except Exception:
+    _R273_ON = True      # rules.py has no switch for it: the fix is on (Q55 A)
+W273_FILE = os.path.join(_BASE_DIR, "data", "expiry_graded.jsonl")
+W273_FRAMES = ("15m", "1h", "4h")     # finest first; never "1d"
+W273_TF_SEC = {"15m": 900, "1h": 3600, "4h": 14400}
+
+
+def _w273_on():
+    try:
+        return bool(_R273_ON)
+    except Exception:
+        return False
+
+
+def _w273_levels_ok(r):
+    """A stop and a target, each on its own side of the entry. Never raises."""
+    try:
+        e, s, t = float(r.get("entry")), float(r.get("stop")), float(r.get("target"))
+        side = 1 if "LONG" in str(r.get("direction", "LONG")) else -1
+        return e == e and s != 0 and t != 0 and (e - s) * side > 0 and (t - e) * side > 0
+    except Exception:
+        return False
+
+
+def w273_first_touch(row, frames, need_hours=None):
+    """Which level traded FIRST since the call? -> (result, price, bar_time, tf).
+    need_hours (the expiry): a frame with no touch must reach call + need_hours to give a last price ("OPEN"); one
+    that stops short is a stale cache (Wave 256's test) and the next frame is tried. A touch it shows still counts.
+    result "WIN" (target first, price = target), "LOSS" (stop first, or both in one bar; price = stop), "OPEN" (the
+    frame covers the call and neither traded; price = that frame's last close), or None (no stop / target, a stop on
+    the wrong side of the entry, or no intraday frame reaches back to the call). The frame is the finest of 15m, 1h,
+    4h whose first bar opens at or before the call; only bars that open strictly after the call are walked (the
+    bar the call fired in is not, Wave 10). The daily frame is never read. Never raises."""
+    none = (None, None, None, None)
+    try:
+        if not _w273_levels_ok(row):
+            return none
+        stop, target = float(row.get("stop")), float(row.get("target"))
+        side = 1 if "LONG" in str(row.get("direction", "LONG")) else -1
+        t0 = pd.Timestamp(str(row.get("timestamp", "")))
+        t0 = t0.tz_localize("UTC") if t0.tzinfo is None else t0.tz_convert("UTC")
+        if not isinstance(frames, dict):
+            return none
+        for tf in W273_FRAMES:
+            df = frames.get(tf)
+            if df is None or getattr(df, "empty", True):
+                continue
+            idx = pd.DatetimeIndex(df.index)
+            idx = idx.tz_localize("UTC") if idx.tz is None else idx.tz_convert("UTC")
+            if idx[0] > t0:
+                continue      # this frame starts after the call: it cannot say what traded first
+            keep = idx > t0
+            his, los = df["High"].values[keep], df["Low"].values[keep]
+            for t, h, l in zip(idx[keep], his, los):
+                h, l = float(h), float(l)
+                if h != h or l != l:
+                    continue
+                s_hit = (l <= stop) if side == 1 else (h >= stop)
+                t_hit = (h >= target) if side == 1 else (l <= target)
+                if s_hit:
+                    return ("LOSS", stop, t, tf)      # (both in one bar: the stop, as the live rule)
+                if t_hit:
+                    return ("WIN", target, t, tf)
+            if need_hours is not None and idx[-1] + pd.Timedelta(seconds=W273_TF_SEC[tf]) < t0 + pd.Timedelta(hours=float(need_hours)):
+                continue      # no touch, and the frame stops before the call's end - a stale cache: no last price
+            last = float(df["Close"].iloc[-1])
+            if last != last:
+                return none
+            return ("OPEN", last, idx[-1], tf)
+        return none
+    except Exception:
+        return none
+
+
+def w273_expiry_prefill(frames_for, max_hours=24, now_utc=None, log=None):
+    """Before the expiry rewrite, OUTSIDE the ledger lock: {alert_id: (result, price, bar_time, tf)} for every OPEN
+    row old enough to expire now. Each market is fetched once. A row the bars cannot place is left out (the
+    expiry then writes UNKNOWN points, never 0). Without frames_for: {}. Never raises."""
+    out = {}
+    try:
+        if frames_for is None:
+            return out
+        now_utc = now_utc or datetime.now(timezone.utc)
+        cache = {}
+        for r in _read_all():
+            if r.get("status") != "OPEN":
+                continue
+            try:
+                t = datetime.fromisoformat(str(r.get("timestamp", "")))
+                if t.tzinfo is None:
+                    t = t.replace(tzinfo=timezone.utc)
+                if (now_utc - t).total_seconds() < max_hours * 3600:
+                    continue
+            except Exception:
+                continue
+            m = str(r.get("market", ""))
+            if m not in cache:
+                try:
+                    cache[m] = frames_for(m)
+                except Exception:
+                    cache[m] = None
+            v = w273_first_touch(r, cache[m], need_hours=max_hours)
+            if v[0] is not None:
+                out[r.get("alert_id")] = v
+        if log is not None and out:
+            log.info("W273: expiry - %d expiring row(s) placed on the bars" % len(out))
+    except Exception:
+        pass
+    return out
+
+
+def w273_book_expiry(r, v, hours=None):
+    """Write an expiring row's result. v = w273_first_touch's answer, or None (no bar covers the call). Touch: the
+    level, as the grader books it. No touch: the last price, WIN / LOSS / SCRATCH by its sign, r_result = r_actual,
+    as the flatten books it. None: SKIP with points_result and r_actual UNKNOWN (Wave 240: no price, no made-up 0).
+    Returns the result written. Never raises: on a failure the row is closed as the old expiry closed it."""
+    entry = r.get("entry", "")
+    try:
+        res, px, when, tf = v if v else (None, None, None, None)
+        r["status"] = "CLOSED"
+        r["bars_to_resolution"] = ""
+        if res in ("WIN", "LOSS"):
+            r["result"], r["exit_price"] = res, px
+            r.update(_w233_outcome_fields(r, res, px))
+            how = "the %s traded first, %s bar %s" % ("target" if res == "WIN" else "stop", tf, when)
+        elif res == "OPEN":
+            side = 1 if "LONG" in str(r.get("direction", "")) else -1
+            pts = (float(px) - float(entry)) * side
+            res = "WIN" if pts > 0 else ("LOSS" if pts < 0 else "SCRATCH")
+            r["result"], r["exit_price"] = res, px
+            f = _w233_outcome_fields(r, res, px)
+            f["r_result"] = f.get("r_actual", "UNKNOWN")
+            r.update(f)
+            how = "no level traded; last %s close %s at %s" % (tf, px, when)
+        else:
+            res = "SKIP"
+            r["result"], r["exit_price"] = res, entry
+            f = _w233_outcome_fields(r, res, entry)
+            f["points_result"] = "UNKNOWN"
+            f["r_actual"] = "UNKNOWN"
+            f["r_result"] = 0.0
+            r.update(f)
+            how = "no intraday bar reaches back to the call: points UNKNOWN"
+        try:
+            os.makedirs(os.path.dirname(W273_FILE), exist_ok=True)
+            with open(W273_FILE, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps({"timestamp": datetime.now(timezone.utc).isoformat(),
+                                     "action": "expiry booked (W273)", "alert_id": r.get("alert_id"),
+                                     "market": r.get("market"), "setup": r.get("setup"),
+                                     "direction": r.get("direction"), "lane": str(r.get("lane", "") or "real"),
+                                     "alert_timestamp": r.get("timestamp"), "hours_open": hours, "entry": entry,
+                                     "stop": r.get("stop"), "target": r.get("target"), "result": res,
+                                     "exit_price": r.get("exit_price"), "how": how}, default=str) + "\n")
+        except Exception:
+            pass
+        return res
+    except Exception:
+        r["status"] = "CLOSED"
+        r["result"] = "SKIP"
+        r["exit_price"] = entry
+        r["bars_to_resolution"] = ""
+        try:
+            r.update(_w233_outcome_fields(r, "SKIP", entry))
+        except Exception:
+            pass
+        return "SKIP"
+# ---- end _WAVE273_GRADING_FIX ---------------------------------------
+
+
 def get_and_clear_phantom_events() -> list:
     """
     bot.py calls this after each scan to pick up any phantom events the
@@ -3143,6 +3323,8 @@ def auto_check_outcomes(live_frames: dict):
             for tf_name, tf_df in frames.items():
                 if tf_df is None or getattr(tf_df, "empty", True):
                     continue
+                if str(tf_name) == "1d" and _w273_on():
+                    continue  # _WAVE273_GRADING_FIX: the daily bar holds prices from before the call (F03)
                 try:
                     # Track the latest close price in this frame
                     try:
@@ -3204,7 +3386,11 @@ def auto_check_outcomes(live_frames: dict):
 
             # If both hit same candle — stop wins (conservative)
             if hit_target and hit_stop:
-                hit_target = False
+                # _WAVE273_GRADING_FIX: the stop wins unless the bars show the target traded first (F04)
+                if _w273_on() and w273_first_touch(row, frames)[0] == "WIN":
+                    hit_stop = False
+                else:
+                    hit_target = False
 
             # ============================================================
             # Wave 11 (May 4): PHANTOM-LOSS GUARD
@@ -3263,7 +3449,7 @@ def auto_check_outcomes(live_frames: dict):
                                         "frames_used": list(frames_used), "old_guard_reason": _w267_div})
                             elif _w267_div:
                                 phantom_reasons.append(_w267_div)
-                        if hit_target:
+                        if hit_target and not _w273_on():  # _WAVE273_GRADING_FIX: a target touch counts (F04)
                             if direction == "LONG" and cc_for_check < target * (1 - _PHANTOM_PRICE_DIVERGE_PCT):
                                 phantom_reasons.append(
                                     f"target_diverge_long_cc{cc_for_check:.2f}_tgt{target:.2f}"
@@ -3938,6 +4124,12 @@ def auto_expire_stale_trades(max_hours: int = 24, frames_for=None) -> list[tuple
         _w256_prefill(frames_for, max_hours, now_utc, _log)
     except Exception as _w256_err:
         _log.warning(f"W256: expiry excursion skipped ({_w256_err})")
+    _w273_due = {}
+    try:  # _WAVE273_GRADING_FIX: where each expiring row stands on the bars, measured outside the ledger lock
+        if _w273_on():
+            _w273_due = w273_expiry_prefill(frames_for, max_hours, now_utc, _log)
+    except Exception as _w273_err:
+        _log.warning(f"W273: expiry measure skipped ({_w273_err})")
 
     def _mut(rows):
         for r in rows:
@@ -3978,6 +4170,13 @@ def auto_expire_stale_trades(max_hours: int = 24, frames_for=None) -> list[tuple
 
             hours    = round(age_seconds / 3600, 1)
 
+            if _w273_on() and _w273_levels_ok(r):
+                # _WAVE273_GRADING_FIX: book what happened since the call, never 0 by default (F05)
+                _w273_res = w273_book_expiry(r, _w273_due.get(alert_id), hours)
+                expired.append((alert_id, market, setup, hours))
+                _log.info(f"Auto-expired stale OPEN trade: {alert_id} {market} {setup} (opened {hours}h ago) "
+                          f"- W273 booked {_w273_res} at {r.get('exit_price')}")
+                continue
             r["status"]             = "CLOSED"
             r["result"]             = "SKIP"
             r["exit_price"]         = entry
