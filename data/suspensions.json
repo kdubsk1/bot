@@ -188,5 +188,10 @@
     "reason": "Wave 47 auto: 0W/4L over last 30 days",
     "suspended_at": "2026-10-21T04:12:45.295253+00:00",
     "source": "wave47_auto"
+  },
+  "NQ:VWAP_RECLAIM": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-10-21T20:00:29.597023+00:00",
+    "source": "wave47_auto"
   }
 }
