@@ -341,7 +341,7 @@
     "losses": 29,
     "total": 31,
     "win_rate": 6.5,
-    "last_updated": "2026-10-20T09:07:53.157096",
+    "last_updated": "2026-10-21T08:52:19.579949",
     "paper_total": 24,
     "paper_losses": 24,
     "paper_win_rate": 0.0,
@@ -351,10 +351,10 @@
     "real_win_rate": 40.0,
     "real_avg_rr_win": 2.25,
     "real_expectancy": 0.3,
-    "lab_total": 39,
+    "lab_total": 40,
     "lab_wins": 13,
-    "lab_win_rate": 33.3,
-    "lab_losses": 26
+    "lab_win_rate": 32.5,
+    "lab_losses": 27
   },
   "GC:BREAK_RETEST_BEAR": {
     "wins": 30,
@@ -382,7 +382,7 @@
     "losses": 102,
     "total": 115,
     "win_rate": 11.3,
-    "last_updated": "2026-10-20T00:26:57.145776",
+    "last_updated": "2026-10-21T08:51:18.642788",
     "paper_total": 102,
     "paper_losses": 91,
     "paper_win_rate": 10.8,
@@ -393,9 +393,9 @@
     "real_win_rate": 14.3,
     "real_avg_rr_win": 4.61,
     "real_expectancy": -0.1986,
-    "lab_total": 28,
-    "lab_losses": 19,
-    "lab_win_rate": 32.1,
+    "lab_total": 35,
+    "lab_losses": 26,
+    "lab_win_rate": 25.7,
     "lab_wins": 9
   },
   "SOL:VWAP_REJECT_BEAR": {
@@ -617,7 +617,7 @@
     "losses": 220,
     "total": 282,
     "win_rate": 22.0,
-    "last_updated": "2026-10-20T15:01:21.921705",
+    "last_updated": "2026-10-21T08:51:18.477550",
     "real_total": 21,
     "real_losses": 16,
     "real_win_rate": 23.8,
@@ -628,9 +628,9 @@
     "real_wins": 5,
     "real_avg_rr_win": 2.412,
     "real_expectancy": -0.1876,
-    "lab_total": 22,
-    "lab_losses": 19,
-    "lab_win_rate": 13.6,
+    "lab_total": 24,
+    "lab_losses": 21,
+    "lab_win_rate": 12.5,
     "lab_wins": 3
   },
   "NQ:BREAK_RETEST_BULL": {
@@ -898,14 +898,14 @@
     "losses": 10,
     "total": 11,
     "win_rate": 9.1,
-    "last_updated": "2026-10-09T13:46:31.686502",
+    "last_updated": "2026-10-21T06:22:20.166495",
     "paper_total": 5,
     "paper_losses": 4,
     "paper_win_rate": 20.0,
     "paper_wins": 1,
-    "lab_total": 5,
-    "lab_wins": 3,
-    "lab_win_rate": 60.0,
+    "lab_total": 6,
+    "lab_wins": 4,
+    "lab_win_rate": 66.7,
     "lab_losses": 2
   },
   "BTC:EMA21_PULLBACK_BULL": {
@@ -913,7 +913,7 @@
     "losses": 415,
     "total": 562,
     "win_rate": 26.2,
-    "last_updated": "2026-10-20T22:17:52.509496",
+    "last_updated": "2026-10-21T08:51:18.684039",
     "paper_total": 525,
     "paper_losses": 378,
     "paper_win_rate": 28.0,
@@ -924,9 +924,9 @@
     "real_win_rate": 20.0,
     "real_avg_rr_win": 3.7,
     "real_expectancy": -0.06,
-    "lab_total": 36,
-    "lab_wins": 9,
-    "lab_win_rate": 25.0,
+    "lab_total": 37,
+    "lab_wins": 10,
+    "lab_win_rate": 27.0,
     "lab_losses": 27
   },
   "NQ:OPENING_RANGE_BREAKOUT": {
@@ -1041,15 +1041,15 @@
     "losses": 48,
     "total": 57,
     "win_rate": 15.8,
-    "last_updated": "2026-10-20T11:33:36.238624",
+    "last_updated": "2026-10-21T10:13:07.738846",
     "paper_total": 24,
     "paper_losses": 18,
     "paper_win_rate": 25.0,
     "paper_wins": 6,
-    "lab_total": 40,
-    "lab_wins": 12,
-    "lab_win_rate": 30.0,
-    "lab_losses": 28
+    "lab_total": 43,
+    "lab_wins": 14,
+    "lab_win_rate": 32.6,
+    "lab_losses": 29
   },
   "NQ:VWAP_REJECT_BEAR": {
     "wins": 45,
@@ -1379,9 +1379,9 @@
     "losses": 0,
     "total": 0,
     "win_rate": 0.0,
-    "lab_total": 1,
-    "lab_wins": 1,
+    "lab_total": 2,
+    "lab_wins": 2,
     "lab_win_rate": 100.0,
-    "last_updated": "2026-10-19T07:32:27.397576"
+    "last_updated": "2026-10-21T08:51:18.272456"
   }
 }
