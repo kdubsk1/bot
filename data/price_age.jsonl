@@ -191,3 +191,8 @@
 {"alert_id": "8545f9b9e9", "what": "flatten", "market": "GC", "age_sec": 0.7, "source": "fresh", "utc": "2026-10-20T19:55:16.389688+00:00", "last_15m_close": 4140.0, "price": 4140.0, "priced": true, "at_stop": false}
 {"alert_id": "8b7ab19c2b", "what": "flatten", "market": "GC", "age_sec": 0.8, "source": "fresh", "utc": "2026-10-20T19:55:16.403450+00:00", "last_15m_close": 4140.0, "price": 4140.0, "priced": true, "at_stop": false}
 {"alert_id": "b38d8ba470", "what": "flatten", "market": "GC", "age_sec": 0.8, "source": "fresh", "utc": "2026-10-20T19:55:16.416603+00:00", "last_15m_close": 4140.0, "price": 4140.0, "priced": true, "at_stop": false}
+{"alert_id": "496390b92f", "what": "entry", "market": "NQ", "age_sec": 0.6, "source": "saved", "utc": "2026-10-21T00:48:27.432167+00:00", "last_15m_close": 29982.25, "tf": "15m", "lane": "lab", "entry": 29982.25}
+{"alert_id": "a751d8281f", "what": "entry", "market": "NQ", "age_sec": 0.6, "source": "saved", "utc": "2026-10-21T00:58:28.332355+00:00", "last_15m_close": 29919.5, "tf": "15m", "lane": "lab", "entry": 29919.5}
+{"alert_id": "364a62d823", "what": "entry", "market": "NQ", "age_sec": 0.8, "source": "saved", "utc": "2026-10-21T02:23:10.959401+00:00", "last_15m_close": 29964.0, "tf": "15m", "lane": "lab", "entry": 29964.0}
+{"alert_id": "edb4beb945", "what": "entry", "market": "GC", "age_sec": 0.2, "source": "saved", "utc": "2026-10-21T03:37:16.689495+00:00", "last_15m_close": 4141.4, "tf": "1h", "lane": "lab", "entry": 4141.4}
+{"alert_id": "a14560ecd7", "what": "entry", "market": "GC", "age_sec": 0.2, "source": "saved", "utc": "2026-10-21T03:37:16.719385+00:00", "last_15m_close": 4141.4, "tf": "4h", "lane": "lab", "entry": 4141.4}
