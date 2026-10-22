@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 52178.92,
+  "peak_balance": 52195.42,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": -16.5,
+  "today_date": "2026-10-22",
+  "session_date": "2026-10-22",
+  "total_pnl": 2178.92,
+  "trades": [
+    {
+      "alert_id": "ca8377b550",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 29545.75,
+      "stop": 29498.370493191702,
+      "target": 29694.0,
+      "contracts": 1,
+      "tier": "MEDIUM",
+      "setup_type": "MACD_CROSS_BULL",
+      "opened_at": "2026-10-22T06:56:36.793239",
+      "status": "CLOSED",
+      "pnl": -16.5,
+      "exit_price": 29537.5,
+      "result": "LOSS",
+      "closed_at": "2026-10-22T06:56:37.738792"
+    }
+  ],
+  "open_sim_trades": []
+}

@@ -1,16 +1,1 @@
-[
-  {
-    "market": "GC",
-    "direction": "LONG",
-    "zone_low": 4085.3134,
-    "zone_high": 4096.2866,
-    "expiry": "2026-10-22T16:02:14.134878+00:00"
-  },
-  {
-    "market": "NQ",
-    "direction": "LONG",
-    "zone_low": 29530.9716,
-    "zone_high": 29589.5284,
-    "expiry": "2026-10-22T16:15:31.314469+00:00"
-  }
-]
+[]

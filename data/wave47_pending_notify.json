@@ -3,8 +3,8 @@
     {
       "market": "BTC",
       "setup": "RSI_DIV_BULL",
-      "losses": 7,
-      "reason": "Wave 47 auto: 0W/7L over last 30 days"
+      "losses": 12,
+      "reason": "Wave 47 auto: 0W/12L over last 30 days"
     },
     {
       "market": "GC",
@@ -39,9 +39,15 @@
     {
       "market": "GC",
       "setup": "BB_REVERSION_BULL",
+      "losses": 7,
+      "reason": "Wave 47 auto: 0W/7L over last 30 days"
+    },
+    {
+      "market": "GC",
+      "setup": "STOCH_REVERSAL_BULL",
       "losses": 3,
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
     }
   ],
-  "ts": "2026-10-21T20:00:29.599302+00:00"
+  "ts": "2026-10-22T20:00:19.826052+00:00"
 }
