@@ -454,3 +454,10 @@
 {"alert_id": "3268c68881", "what": "entry", "market": "BTC", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-24T14:30:52.722873+00:00", "last_15m_close": 80271.22, "tf": "1h", "lane": "lab", "entry": 80271.22}
 {"alert_id": "44cfcaa643", "what": "entry", "market": "BTC", "age_sec": 0.5, "source": "saved", "utc": "2026-10-24T15:35:50.148713+00:00", "last_15m_close": 79458.02, "tf": "15m", "lane": "lab", "entry": 79458.02}
 {"alert_id": "26a16086a9", "what": "entry", "market": "BTC", "age_sec": 0.1, "source": "saved", "utc": "2026-10-24T16:00:53.767392+00:00", "last_15m_close": 79716.93, "tf": "15m", "lane": "lab", "entry": 79716.93}
+{"alert_id": "513c7ffae5", "what": "entry", "market": "BTC", "age_sec": 0.5, "source": "saved", "utc": "2026-10-24T16:46:08.619193+00:00", "last_15m_close": 79793.46, "tf": "15m", "lane": "lab", "entry": 79793.46}
+{"alert_id": "ebc8797b75", "what": "entry", "market": "BTC", "age_sec": 0.2, "source": "saved", "utc": "2026-10-24T16:51:09.108451+00:00", "last_15m_close": 80107.27, "tf": "1h", "lane": "lab", "entry": 80107.27}
+{"alert_id": "e62fd375f4", "what": "entry", "market": "BTC", "age_sec": 0.0, "source": "fresh", "utc": "2026-10-24T17:03:13.686162+00:00", "last_15m_close": 80133.03, "tf": "15m", "lane": "lab", "entry": 80133.03}
+{"alert_id": "753350018e", "what": "entry", "market": "BTC", "age_sec": 0.5, "source": "saved", "utc": "2026-10-24T17:18:16.140452+00:00", "last_15m_close": 80102.81, "tf": "15m", "lane": "lab", "entry": 80102.81}
+{"alert_id": "ce6af954f1", "what": "entry", "market": "BTC", "age_sec": 0.6, "source": "saved", "utc": "2026-10-24T17:28:17.759320+00:00", "last_15m_close": 80122.18, "tf": "1h", "lane": "lab", "entry": 80122.18}
+{"alert_id": "f203f9da9a", "what": "entry", "market": "BTC", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-24T17:58:27.896275+00:00", "last_15m_close": 80175.98, "tf": "1h", "lane": "lab", "entry": 80175.98}
+{"alert_id": "3619d2192d", "what": "entry", "market": "BTC", "age_sec": 0.1, "source": "saved", "utc": "2026-10-24T21:10:26.372439+00:00", "last_15m_close": 80213.29, "tf": "1h", "lane": "lab", "entry": 80213.29}
