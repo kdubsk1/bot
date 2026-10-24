@@ -278,7 +278,17 @@ DAILY_SELF_REVIEW = True           # keep the daily file, as daily_self_review_<
 #
 # VWAP_REJECT_BEAR, measured 20 Sep on the real ledger: 18 calls, 0 wins, r_actual -1.000 with a 95%
 # CI of -1.00 to -1.00 - every single one a full stop-out (BTC 5, SOL 10, GC 2, NQ 1).
-SETUPS_OFF = ("VWAP_REJECT_BEAR",)
+#
+# _WAVE274_BULLS_TO_LAB - two more join the list, both by Wayne:
+# VWAP_BOUNCE_BULL (Wayne, 21 Oct 2026 12:00 AM ET: "Move it to LAB now"). NQ real calls since 15 Sep 2026: 52 calls,
+# 13 won, -569.2 points; this week alone (since Sun 18 Oct 22:00 UTC) 11 calls, 1 won, -757.4 points.
+# MACD_CROSS_BULL (Wayne, 23 Oct 2026 about 5 PM ET, chose "Also to LAB, in 274"). NQ real calls since 15 Sep 2026:
+# 13 calls, 1 won, -741.0 points; it also lost on 19 months of replay.
+# (The chat's count, 23 Oct, GitHub outcomes.csv + data/archive, 8822084a59 excluded as INVALID_GRADE.)
+# NQ was the only market where either could still call real (both 55 against NQ's floor 50): GC scores 56 / 27 and
+# BTC 19 / 32 against their floor 70 (and BTC is control-only), SOL never calls. Both stay LAB-graded in every
+# market (lab_gate "setup_off"); either comes back as a real call only by a wave (PROMOTION_REVIEW.md).
+SETUPS_OFF = ("VWAP_REJECT_BEAR", "VWAP_BOUNCE_BULL", "MACD_CROSS_BULL")
 
 # _WAVE253_LAB_CAPS_PERSIST (item 3b, consolidated prompt 21 Sep): the Telegram gate's thresholds, AS VALUES ONLY.
 # NOTHING READS THESE YET. compute_trust.py scores against them; wiring them into the send path is its own
