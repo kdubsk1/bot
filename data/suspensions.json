@@ -193,5 +193,10 @@
     "reason": "Wave 47 auto: 0W/3L over last 30 days",
     "suspended_at": "2026-10-21T20:00:29.597023+00:00",
     "source": "wave47_auto"
+  },
+  "NQ:STOCH_REVERSAL_BULL": {
+    "reason": "Wave 47 auto: 0W/24L over last 30 days",
+    "suspended_at": "2026-10-24T04:23:43.970281+00:00",
+    "source": "wave47_auto"
   }
 }
