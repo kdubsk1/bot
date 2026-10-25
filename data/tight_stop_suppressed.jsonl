@@ -559,3 +559,4 @@
 {"timestamp": "2026-10-25T17:01:59.588085+00:00", "market": "BTC", "tf": "1h", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 80693.48, "stop": 80364.37041386026, "target": null, "rr": null, "risk_pct": 0.4079, "min_pct": 0.5}
 {"timestamp": "2026-10-25T17:07:00.502684+00:00", "market": "BTC", "tf": "1h", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 80700.27, "stop": 80363.66769957454, "target": null, "rr": null, "risk_pct": 0.4171, "min_pct": 0.5}
 {"timestamp": "2026-10-25T17:21:38.131341+00:00", "market": "BTC", "tf": "1h", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 80737.96, "stop": 80363.62769958966, "target": null, "rr": null, "risk_pct": 0.4636, "min_pct": 0.5}
+{"timestamp": "2026-10-25T17:33:10.415188+00:00", "market": "BTC", "tf": "1h", "setup": "VWAP_BOUNCE_BULL", "direction": "LONG", "entry": 80655.87, "stop": 80361.30341387539, "target": null, "rr": null, "risk_pct": 0.3652, "min_pct": 0.5}
