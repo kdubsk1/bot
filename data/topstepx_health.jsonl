@@ -1,0 +1,5 @@
+{"utc": "2026-10-25T17:21:23.570790+00:00", "market": "NQ", "timeframe": "15m", "kind": "live_true_refused", "live": true, "exception": null, "http_status": 200, "ms": 16, "body": "errorCode=1 errorMessage=None", "market_shut": "weekend", "fetch_ok": true}
+{"utc": "2026-10-25T17:21:29.946784+00:00", "market": "BTC", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-10-25", "before": null}
+{"utc": "2026-10-25T17:21:32.650000+00:00", "market": "NQ", "timeframe": "1d", "kind": "daily_frame", "source": "topstepx", "bars": 141, "newest": "2026-10-23", "before": null}
+{"utc": "2026-10-25T17:21:36.581164+00:00", "market": "GC", "timeframe": "1d", "kind": "daily_frame", "source": "topstepx", "bars": 250, "newest": "2026-10-23", "before": null}
+{"utc": "2026-10-25T17:21:36.974474+00:00", "market": "SOL", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-10-25", "before": null}

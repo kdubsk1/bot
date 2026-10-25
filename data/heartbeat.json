@@ -1,8 +1,8 @@
 {
- "utc": "2026-10-25T17:06:59.607448+00:00",
- "cycle": 445,
- "last_sync": "2026-10-25T11:10:23.104911+00:00",
- "started_utc": "2026-10-25T05:04:50.302142+00:00",
+ "utc": "2026-10-25T17:21:37.827514+00:00",
+ "cycle": 2,
+ "last_sync": null,
+ "started_utc": "2026-10-25T17:21:21.961356+00:00",
  "scanner_on": true,
  "markets": [
   "NQ",
@@ -16,5 +16,23 @@
    "BTC:W266|2026-10-25": 7
   },
   "last": {}
+ },
+ "topstepx": {
+  "ok_last_hour": 10,
+  "failed_last_hour": 0,
+  "last_failure": {
+   "utc": "2026-10-25T17:21:23.570790+00:00",
+   "market": "NQ",
+   "timeframe": "15m",
+   "kind": "live_true_refused",
+   "live": true,
+   "exception": null,
+   "http_status": 200,
+   "ms": 16,
+   "body": "errorCode=1 errorMessage=None",
+   "market_shut": "weekend",
+   "fetch_ok": true
+  },
+  "blocked": []
  }
 }

@@ -1,5 +1,5 @@
 {
-  "total_sessions": 158,
+  "total_sessions": 159,
   "total_trades": 165,
   "total_wins": 50,
   "total_losses": 115,
@@ -134,7 +134,7 @@
       "pnl": -110.32
     }
   },
-  "last_updated": "2026-10-25T05:04:51.551681+00:00",
+  "last_updated": "2026-10-25T17:21:23.286267+00:00",
   "lifetime_starting_balance": 50000.0,
   "combine_started_at": "2026-05-02T23:34:53.904596+00:00",
   "lifetime_balance": 53674.13,
