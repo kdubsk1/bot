@@ -1,0 +1,67 @@
+NQ CALLS DAILY REPORT
+Date: Saturday, October 24, 2026
+Session: 2026-10-26
+Generated: 2026-10-25 00:06 UTC
+==================================================
+
+Real calls: 0 - LAB: 20 (11 setups)
+LAB is graded silently and never sent - it is not a result you got.
+
+REAL CALLS (sent to you) - points at the actual exit
+------------------------------
+  None sent today.
+
+BY MARKET AND SIDE (points are never added across markets)
+------------------------------
+  BTC LONG: real 0 | LAB 8 setups (14 records): 1W 6L, -1753.52 pts, -3.38R
+  BTC SHORT: real 0 | LAB 3 setups (6 records): 4W 2L, +2360.72 pts, +4.12R
+
+LAB SETUPS (graded, never sent) - each setup once, raw record count after the x
+------------------------------
+  BTC:BB_REVERSION_BULL 1h LONG x5: 0W 2L 3 open, -1005.58 pts, -2.00R
+  BTC:EMA21_PULLBACK_BEAR 1h SHORT x4: 3W 1L, +2306.02 pts, +4.09R
+  BTC:RSI_DIV_BULL 15m LONG x2: 0W 0L 2 open
+  BTC:VWAP_BOUNCE_BULL 1h LONG x2: 0W 2L, -1005.58 pts, -2.00R
+  BTC:BB_REVERSION_BULL 15m LONG x1: 0W 0L 1 open
+  BTC:MACD_CROSS_BEAR 15m SHORT x1: 0W 1L, -540.50 pts, -1.00R
+  BTC:MACD_CROSS_BEAR 1h SHORT x1: 1W 0L, +595.20 pts, +1.02R
+  BTC:MACD_CROSS_BULL 15m LONG x1: 0W 0L 1 open
+  BTC:MACD_CROSS_BULL 1h LONG x1: 0W 1L, -407.85 pts, -1.00R
+  BTC:STOCH_REVERSAL_BULL 15m LONG x1: 1W 0L, +1177.77 pts, +2.62R
+  BTC:STOCH_REVERSAL_BULL 1h LONG x1: 0W 1L, -512.28 pts, -1.00R
+
+EVERY RECORD TODAY (raw, 20)
+------------------------------
+  [LAB] LOSS BTC | VWAP_BOUNCE_BULL | 1h | LONG | Conv:19 RR:2.66 | Entry:80799.98 Stop:80287.6996 Target:82164.54 | Exit:80287.6996 | pts:-512.2804 R:-1.0 | 2026-10-24 01:51
+  [LAB] LOSS BTC | BB_REVERSION_BULL | 1h | LONG | Conv:35 RR:2.66 | Entry:80799.98 Stop:80287.6996 Target:82164.54 | Exit:80287.6996 | pts:-512.2804 R:-1.0 | 2026-10-24 01:51
+  [LAB] LOSS BTC | STOCH_REVERSAL_BULL | 1h | LONG | Conv:51 RR:2.66 | Entry:80799.98 Stop:80287.6996 Target:82164.54 | Exit:80287.6996 | pts:-512.2804 R:-1.0 | 2026-10-24 01:51
+  [LAB] LOSS BTC | VWAP_BOUNCE_BULL | 1h | LONG | Conv:19 RR:2.7 | Entry:80830.45 Stop:80337.1504 Target:82164.54 | Exit:80337.1504 | pts:-493.2996 R:-1.0 | 2026-10-24 02:31
+  [LAB] LOSS BTC | BB_REVERSION_BULL | 1h | LONG | Conv:35 RR:2.7 | Entry:80830.45 Stop:80337.1504 Target:82164.54 | Exit:80337.1504 | pts:-493.2996 R:-1.0 | 2026-10-24 02:31
+  [LAB] WIN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.58 | Entry:80636.81 Stop:81246.5246 Target:79676.02 | Exit:79676.02 | pts:960.79 R:1.576 | 2026-10-24 05:24
+  [LAB] WIN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.64 | Entry:80653.25 Stop:81248.6273 Target:79676.02 | Exit:79676.02 | pts:977.23 R:1.641 | 2026-10-24 05:54
+  [LAB] LOSS BTC | MACD_CROSS_BULL | 1h | LONG | Conv:32 RR:2.92 | Entry:80728.19 Stop:80320.3394 Target:81919.62 | Exit:80320.3394 | pts:-407.8506 R:-1.0 | 2026-10-24 12:48
+  [LAB] WIN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.88 | Entry:80475.32 Stop:80900.8825 Target:79676.02 | Exit:79676.02 | pts:799.3 R:1.878 | 2026-10-24 14:14
+  [LAB] LOSS BTC | MACD_CROSS_BEAR | 15m | SHORT | Conv:35 RR:2.5 | Entry:80160.0 Stop:80700.5024 Target:78808.7441 | Exit:80700.5024 | pts:-540.5024 R:-1.0 | 2026-10-24 14:16
+  [LAB] WIN BTC | MACD_CROSS_BEAR | 1h | SHORT | Conv:35 RR:1.02 | Entry:80271.22 Stop:80854.5719 Target:79676.02 | Exit:79676.02 | pts:595.2 R:1.02 | 2026-10-24 14:30
+  [LAB] WIN BTC | STOCH_REVERSAL_BULL | 15m | LONG | Conv:51 RR:2.62 | Entry:79458.02 Stop:79009.0892 Target:80635.79 | Exit:80635.79 | pts:1177.77 R:2.624 | 2026-10-24 15:35
+  [LAB] OPEN BTC | BB_REVERSION_BULL | 15m | LONG | Conv:35 RR:2.74 | Entry:79716.93 Stop:79252.4145 Target:80988.39 | Exit:open | pts: R: | 2026-10-24 16:00
+  [LAB] OPEN BTC | RSI_DIV_BULL | 15m | LONG | Conv:30 RR:2.83 | Entry:79793.46 Stop:79226.0437 Target:81400.0 | Exit:open | pts: R: | 2026-10-24 16:46
+  [LAB] OPEN BTC | BB_REVERSION_BULL | 1h | LONG | Conv:35 RR:2.61 | Entry:80107.27 Stop:78979.819 Target:83052.89 | Exit:open | pts: R: | 2026-10-24 16:51
+  [LAB] OPEN BTC | MACD_CROSS_BULL | 15m | LONG | Conv:32 RR:2.76 | Entry:80133.03 Stop:79673.6135 Target:81400.0 | Exit:open | pts: R: | 2026-10-24 17:03
+  [LAB] OPEN BTC | RSI_DIV_BULL | 15m | LONG | Conv:30 RR:2.54 | Entry:80102.81 Stop:79371.9011 Target:81962.0 | Exit:open | pts: R: | 2026-10-24 17:18
+  [LAB] OPEN BTC | BB_REVERSION_BULL | 1h | LONG | Conv:35 RR:2.66 | Entry:80122.18 Stop:79353.4878 Target:82164.54 | Exit:open | pts: R: | 2026-10-24 17:28
+  [LAB] OPEN BTC | BB_REVERSION_BULL | 1h | LONG | Conv:35 RR:2.89 | Entry:80175.98 Stop:79352.719 Target:82555.08 | Exit:open | pts: R: | 2026-10-24 17:58
+  [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:2.56 | Entry:80213.29 Stop:80644.5924 Target:79107.0 | Exit:80644.5924 | pts:-431.3024 R:-1.0 | 2026-10-24 21:10
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  [LAB] BTC | BB_REVERSION_BULL | Entry:79716.93 Target:80988.39 | ID:26a16086a9 | 2026-10-24 16:00
+  [LAB] BTC | RSI_DIV_BULL | Entry:79793.46 Target:81400.0 | ID:513c7ffae5 | 2026-10-24 16:46
+  [LAB] BTC | BB_REVERSION_BULL | Entry:80107.27 Target:83052.89 | ID:ebc8797b75 | 2026-10-24 16:51
+  [LAB] BTC | MACD_CROSS_BULL | Entry:80133.03 Target:81400.0 | ID:e62fd375f4 | 2026-10-24 17:03
+  [LAB] BTC | RSI_DIV_BULL | Entry:80102.81 Target:81962.0 | ID:753350018e | 2026-10-24 17:18
+  [LAB] BTC | BB_REVERSION_BULL | Entry:80122.18 Target:82164.54 | ID:ce6af954f1 | 2026-10-24 17:28
+  [LAB] BTC | BB_REVERSION_BULL | Entry:80175.98 Target:82555.08 | ID:f203f9da9a | 2026-10-24 17:58
+
+==================================================
+END OF REPORT
