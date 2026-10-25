@@ -3542,6 +3542,22 @@ async def scan_market(app, market, frames):
                     df_e = _w269_df
             except Exception as _w269_e:
                 log.warning(f"[{market}] W269: fresh tail skipped ({_w269_e})")
+        # _WAVE275_REOPEN_FRESH (Q56 / review F01, 5 Oct 2026): never price a call from bars saved before the last
+        # 6 PM ET reopen. No bar from the new session in the 15m frame yet: this market is skipped for this scan,
+        # one log line. A 1h / 4h frame still on the old session: that timeframe is skipped. No wait is added -
+        # the frames are fetched fresh at the reopen. On its own failure the gate says nothing and the scan goes on.
+        try:
+            from data_layer import w275_reopen_gate as _w275_gate
+            _w275_why = _w275_gate(market, entry_tf, df_e, frames.get("15m"))
+        except Exception as _w275_e:
+            _w275_why = None
+            log.warning(f"[{market}] REOPEN-FRESH: gate skipped ({_w275_e})")
+        if _w275_why:
+            if str(_w275_why).startswith("market:"):
+                log.info(f"[{market}] REOPEN-FRESH: market skipped this scan - {str(_w275_why)[7:].strip()}")
+                break
+            log.info(f"[{market}] [{entry_tf}] REOPEN-FRESH: {entry_tf} skipped this scan - {_w275_why}")
+            continue
 
         # _WAVE252_WATCH_LOG_CONTEXT (Q16): hand detect_setups the market and timeframe it is scanning. It was
         # never told, so every suppressed-WATCH row it has written since 8 May carries market "" and

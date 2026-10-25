@@ -127,6 +127,8 @@ def _get_cached(market: str, timeframe: str) -> Optional[pd.DataFrame]:
     ttl = ttl_by_tf.get(timeframe, CACHE_TTL)
     if time.time() - entry["ts"] > ttl:
         return None
+    if _w275_reopen_expired(market, timeframe, entry):   # _WAVE275_REOPEN_FRESH: saved before the reopen
+        return None
     logger.debug("Cache hit for %s %s", market, timeframe)
     return entry["df"].copy()
 
@@ -1322,29 +1324,45 @@ def w269_fresh_tail(df_tf, df_15m, timeframe, market=""):
     Returns a NEW frame - or df_tf itself, untouched, whenever it cannot be sure: an unknown timeframe, an empty
     frame, a 15m frame that does not reach back to the bar's open, a frame fetched after the 15m frame, frames
     from two different providers, a frame more than one bar behind, or two frames that disagree about the bar.
-    Never raises."""
+    Never raises.
+
+    _WAVE275_REOPEN_FRESH (review F01 / F46, 5 Oct 2026): "behind" is counted in TRADED bars - a weekend or a daily
+    break is one bar, not twelve - so the new bar after a reopen is added at its own time; and every path that hands
+    the frame back untouched writes one log line saying why (on 4 Oct it was silent while Friday's 4h frame was
+    scanned for 50 minutes)."""
+    mkt = str(market or "").upper()
+
+    def _as_fetched(why):
+        try:
+            logger.info("W269 fresh tail %s %s: left as fetched - %s", mkt, timeframe, why)
+        except Exception:
+            pass
+        return df_tf
+
     try:
         dur = _W269_BAR_MIN.get(timeframe)
-        if dur is None or df_tf is None or df_15m is None or len(df_tf) == 0 or len(df_15m) == 0:
-            return df_tf
-        mkt = str(market or "").upper()
+        if dur is None:
+            return _as_fetched("not a 1h / 4h frame")
+        if df_tf is None or df_15m is None or len(df_tf) == 0 or len(df_15m) == 0:
+            return _as_fetched("an empty frame")
         e_tf, e_15 = _cache.get(_cache_key(mkt, timeframe)), _cache.get(_cache_key(mkt, "15m"))
         if e_tf and e_15 and e_tf.get("ts", 0) >= e_15.get("ts", 0):
-            return df_tf                                   # fetched after the 15m frame: it is the fresher one
+            return _as_fetched("fetched after the 15m frame, so it is the fresher one")
         if _last_source.get(_cache_key(mkt, timeframe)) != _last_source.get(_cache_key(mkt, "15m")):
-            return df_tf                                   # the two frames came from different providers
+            return _as_fetched("the two frames came from different providers")
         t_last = df_tf.index[-1]
         if df_15m.index[0] > t_last:
-            return df_tf                                   # the 15m frame does not reach back to this bar's open
+            return _as_fetched("the 15m frame does not reach back to this bar's open")
         tail = df_15m[df_15m.index >= t_last]
         if len(tail) == 0:
-            return df_tf
+            return _as_fetched("the 15m frame ends before this bar")
         bucket = np.asarray((tail.index - t_last).total_seconds() // (dur * 60)).astype(int)
-        if int(bucket.max()) > 1:
-            return df_tf                                   # more than one bar behind: too old to patch
+        later = sorted(set(int(b) for b in bucket) - {0})
+        if len(later) > 1:
+            return _as_fetched("%d traded bars behind: too old to patch" % len(later))
         cur = tail[bucket == 0]
         if len(cur) == 0:
-            return df_tf
+            return _as_fetched("the 15m frame has nothing inside this bar")
         last = df_tf.iloc[-1]
         old_h, old_l, old_c = float(last["High"]), float(last["Low"]), float(last["Close"])
         lo0, hi0 = float(cur["Low"].min()), float(cur["High"].max())
@@ -1361,12 +1379,12 @@ def w269_fresh_tail(df_tf, df_15m, timeframe, market=""):
         out.iloc[-1, out.columns.get_loc("Low")] = min(old_l, lo0)
         out.iloc[-1, out.columns.get_loc("Close")] = new_c
         out.iloc[-1, out.columns.get_loc("Volume")] = max(float(last["Volume"]), float(cur["Volume"].sum()))
-        nxt = tail[bucket == 1]
+        nxt = tail[bucket == later[0]] if later else tail.iloc[:0]
         if len(nxt) > 0:                                   # a new bar began since the frame was fetched
             row = pd.DataFrame({"Open": [float(nxt["Open"].iloc[0])], "High": [float(nxt["High"].max())],
                                 "Low": [float(nxt["Low"].min())], "Close": [float(nxt["Close"].iloc[-1])],
                                 "Volume": [float(nxt["Volume"].sum())]},
-                               index=[t_last + pd.Timedelta(minutes=dur)])
+                               index=[t_last + pd.Timedelta(minutes=dur * later[0])])
             row.index.name = out.index.name
             out = pd.concat([out, row.reindex(columns=out.columns)])
             new_c = float(row["Close"].iloc[0])
@@ -1380,6 +1398,142 @@ def w269_fresh_tail(df_tf, df_15m, timeframe, market=""):
         except Exception:
             pass
         return df_tf
+
+
+# ---------------------------------------------------------------------------
+# _WAVE275_REOPEN_FRESH: nothing scanned after a reopen is priced from bars saved before it (Q56 / review F01)
+# ---------------------------------------------------------------------------
+_W275_BAR_MIN = {"15m": 15, "1h": 60, "4h": 240}
+_W275_RETRY_S = {"15m": 25, "1h": 90, "4h": 90}   # re-ask after: 15m on the next scan (a reopen scans every 30 s);
+                               # a 1h / 4h frame after 3 scans - Wave 269 brings it up to date from a newer 15m first
+_W275_RETRY_WINDOW_S = 1800    # ...only in the first 30 minutes after a reopen, so a wrong calendar cannot ask all night
+_W275_TOL = 0.0001             # a bar holding the reopen: its close may sit 0.01% outside the 15m range since the reopen
+_w275_redo = {}                # cache key -> reopen (epoch s): a frame the gate refused, asked for again on the next scan
+_w275_said = {}                # cache key -> reopen (epoch s) already logged as "fetched fresh"
+
+
+def w275_last_reopen(now_utc=None):
+    """The latest CME Globex reopen for NQ / gold at or before `now_utc` (default: now), as a UTC datetime, or None
+    when it cannot be worked out (then nothing here changes anything). The moment is session_clock's
+    FUTURES_SESSION_OPEN - 6:00 PM New York time, Sunday to Thursday - taken in New York time, so the summer / winter
+    change is right: 22:00 UTC in summer, 23:00 UTC in winter. An evening whose next trade date is a full closure in
+    rules.FUTURES_HOLIDAYS is not a reopen (the market stays shut). Never raises."""
+    try:
+        import datetime as _dtm
+        import session_clock as _sc
+        tz = _sc.ET_ZONE
+        if tz is None:
+            return None
+        sched = [s for s in _sc._EVENT_SCHEDULE if s[0] == _sc.SessionEvent.FUTURES_SESSION_OPEN]
+        if len(sched) != 1:
+            return None
+        _ev, hh, mm, days = sched[0]
+        try:
+            from rules import FUTURES_HOLIDAYS as _hol
+        except Exception:
+            _hol = {}
+        if now_utc is None:
+            now_utc = datetime.fromtimestamp(time.time(), timezone.utc)
+        now_et = now_utc.astimezone(tz)
+        for back in range(0, 15):
+            d = now_et.date() - _dtm.timedelta(days=back)
+            if days is not None and d.weekday() not in days:
+                continue
+            cand = datetime(d.year, d.month, d.day, hh, mm, tzinfo=tz)
+            if cand > now_et:
+                continue
+            full = _hol.get((d + _dtm.timedelta(days=1)).strftime("%Y-%m-%d"))
+            if full and full[0] is None:
+                continue
+            return cand.astimezone(timezone.utc)
+    except Exception:
+        return None
+    return None
+
+
+def _w275_reopen_expired(market, timeframe, entry):
+    """_get_cached's extra rule for NQ / gold 15m, 1h, 4h. True = treat the saved frame as expired now:
+    (1) it was saved before the latest reopen - fetched fresh on the first scan at or after it, at once;
+    (2) in the first 30 minutes after the reopen, once it is 25 s old (15m) / 90 s old (1h, 4h): it still has no bar
+        from the new session, or the reopen gate refused it. Never raises (False on any doubt: the normal re-use
+        times then apply)."""
+    try:
+        if market not in _FUTURES_MARKETS or timeframe not in _W275_BAR_MIN:
+            return False
+        reo = w275_last_reopen()
+        if reo is None:
+            return False
+        r, now, key = reo.timestamp(), time.time(), _cache_key(market, timeframe)
+        ts = float(entry.get("ts", 0))
+        if ts < r:
+            if _w275_said.get(key) != r:
+                _w275_said[key] = r
+                logger.info("REOPEN-FRESH %s %s: saved %s UTC, before the %s UTC reopen - fetched fresh now",
+                            market, timeframe, datetime.fromtimestamp(ts, timezone.utc).strftime("%a %H:%M:%S"),
+                            reo.strftime("%a %H:%M"))
+            return True
+        if now - r > _W275_RETRY_WINDOW_S or now - ts < _W275_RETRY_S[timeframe]:
+            return False
+        if _w275_redo.get(key) == r:
+            _w275_redo.pop(key, None)
+            return True
+        df = entry.get("df")
+        if df is not None and len(df) > 0:
+            if df.index[-1] + pd.Timedelta(minutes=_W275_BAR_MIN[timeframe]) <= pd.Timestamp(reo):
+                return True
+        return False
+    except Exception:
+        return False
+
+
+def w275_reopen_gate(market, timeframe, df_e, df_15m):
+    """Called by scan_market for each entry timeframe, after the Wave 269 patch, before any setup is priced.
+    None = scan it. Otherwise the reason it must not be priced this scan; a reason starting "market:" means nothing
+    in this market can be priced this scan (its 15m frame has no bar from the new session yet). BTC / SOL: always
+    None. Never raises: on its own failure it logs a warning and says None (the scan goes on as before)."""
+    try:
+        mkt = str(market or "").upper()
+        if mkt not in _FUTURES_MARKETS:
+            return None
+        reo = w275_last_reopen()
+        if reo is None:
+            return None
+        R = pd.Timestamp(reo)
+        rs = reo.strftime("%a %H:%M UTC")
+        if df_15m is None or len(df_15m) == 0 or df_15m.index[-1] < R:
+            _w275_redo[_cache_key(mkt, "15m")] = reo.timestamp()
+            newest = "none" if (df_15m is None or len(df_15m) == 0) else df_15m.index[-1].strftime("%a %H:%M UTC")
+            return ("market: the provider has no bar from the new session yet (newest 15m bar %s, reopen %s) - "
+                    "not priced from old bars" % (newest, rs))
+        dur = _W275_BAR_MIN.get(timeframe)
+        if dur is None or timeframe == "15m" or df_e is None or len(df_e) == 0:
+            return None
+        key, k15 = _cache_key(mkt, timeframe), _cache_key(mkt, "15m")
+        t_last = df_e.index[-1]
+        end = t_last + pd.Timedelta(minutes=dur)
+        if end <= R:
+            _w275_redo[key] = _w275_redo[k15] = reo.timestamp()     # a newer 15m frame lets Wave 269 catch it up
+            return "its newest bar (%s) is from before the %s reopen" % (t_last.strftime("%a %H:%M UTC"), rs)
+        if t_last < R:                                     # the bar holds the reopen: its close must be a new price
+            post = df_15m[(df_15m.index >= R) & (df_15m.index < end)]
+            c = float(df_e["Close"].iloc[-1])
+            if len(post) == 0:
+                _w275_redo[key] = _w275_redo[k15] = reo.timestamp()
+                return "its bar holding the %s reopen has no 15m bar since the reopen to check against" % rs
+            lo, hi = float(post["Low"].min()), float(post["High"].max())
+            tol = _W275_TOL * abs(c)
+            if not (lo - tol <= c <= hi + tol):
+                _w275_redo[key] = _w275_redo[k15] = reo.timestamp()
+                return ("its close %.4f has not traded since the %s reopen (15m range since then %.4f-%.4f)"
+                        % (c, rs, lo, hi))
+        _w275_redo.pop(key, None)                          # priced fine now: no need to ask for it again
+        return None
+    except Exception as exc:
+        try:
+            logger.warning("REOPEN-FRESH gate failed for %s %s (%s) - scanned as before", market, timeframe, exc)
+        except Exception:
+            pass
+        return None
 
 
 # ---------------------------------------------------------------------------
