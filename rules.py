@@ -388,3 +388,16 @@ EXP_LAB_DUP_MIN = 60            # a LAB parent (GC-SHORT-S20, NQ-SHORT-T50) re-d
 # themselves are unchanged. False = no guard rows.
 LAB_GUARD_ROWS = True
 LAB_GUARD_MAX_PER_DAY = 20      # guard rows per market per UTC day (its own count)
+
+# ---- ALL-TO-LAB (_WAVE280_ALL_TO_LAB) ----
+# Wayne, 25 Oct 2026 ~12:13 PM ET, in the chat: "yes still grade it, but i guess just move them to lab. everything
+# should always be acting real though". Asked to confirm (NQ to LAB, gold keeps calling) he chose "Also gold to LAB":
+# no real calls at all from any market - everything graded in LAB.
+# True = NO market sends a real call (NQ, GC, BTC; SOL is already off above). A setup that passes every gate a real
+# call must pass is still written at the real fire point - the real entry, stop and target, every real guard (one
+# open call per market, the dup-guards, the cooldown marks), graded at its actual exit and flattened at 4:10 PM ET -
+# but as lane "lab", lab_gate "all_lab", channel "lab (not sent)": no call card, no exit card, no flatten card.
+# Never dropped by LAB_MAX_PER_MARKET_PER_DAY or LAB_DUP_MIN. TEST (Wave 278), the twins and guard rows (Wave 277)
+# and the Wave 245 LAB setups are unchanged. Back to real only by a wave, after the weekly review (PROMOTION_REVIEW.md).
+# False = real calls exactly as before.
+ALL_LAB = True

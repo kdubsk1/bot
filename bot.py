@@ -885,6 +885,54 @@ async def _w278_flush_test(app):
         return 0
 # ---- end _WAVE278_TWO_SIDED_TEST ------------------------------------------------------------------------------
 
+# ---- _WAVE280_ALL_TO_LAB --------------------------------------------------------------------------------------
+# ALL-TO-LAB (Wayne, 25 Oct 2026: "everything should always be acting real though"; he chose "Also gold to LAB").
+# rules.ALL_LAB on: no market sends a real call. A setup that reaches the REAL fire point is written there exactly as
+# before - entry, stop, target, timestamp, trade count, cooldown and dup-guard marks - but lane "lab", channel
+# W280_AL_CHANNEL, lab_gate W280_AL_GATE, and no card is sent (a "not sent" LAB row already closes and flattens in
+# silence - Waves 254 / 246). ot.log_alert directly: never the LAB caps (_w246_may_grade), never re-laned TEST. An
+# OPEN one is the market's open call for the one-open-call guard (scan start, Wave 129) and an NQ one is the parent of
+# Wave 277's NQ-T30 twin, as a real NQ call is. Never raises.
+try:
+    from rules import ALL_LAB as _R280_ALL_LAB
+except Exception:   # an older rulebook: real calls exactly as before
+    _R280_ALL_LAB = False
+W280_AL_GATE = "all_lab"
+W280_AL_CHANNEL = "lab (not sent)"
+W280_AL_SCAN_WHY = "ALL-TO-LAB: would have been a real call - graded in LAB (lab_gate all_lab), not sent"
+W280_AL_BANNER = "LAB-only: no real calls from any market since Wave 280 (Wayne 25 Oct) - each would-be call is graded in LAB"
+
+
+def _w280_al_on():
+    """Is ALL-TO-LAB on (rules.ALL_LAB)? Never raises."""
+    try:
+        return bool(_R280_ALL_LAB)
+    except Exception:
+        return False
+
+
+def _w280_al_row(r):
+    """A would-be-real row: lane "lab" and lab_gate exactly W280_AL_GATE. Never raises."""
+    try:
+        return (str((r or {}).get("lane") or "").strip().lower() == "lab"
+                and str((r or {}).get("lab_gate") or "").strip() == W280_AL_GATE)
+    except Exception:
+        return False
+
+
+def _w280_al_open(market):
+    """True when this market has an OPEN would-be-real row - its open call for the one-open-call guard. A ledger read
+    failure is False, as in Wave 129 (a guard failure must not stop the bot). Never raises."""
+    try:
+        return any(r.get("market") == market and _w280_al_row(r) for r in ot.load_open_trades(include_lab=True))
+    except Exception as _w280_ale:
+        try:
+            log.warning("ALL-TO-LAB: open-call check failed (non-fatal): %s" % _w280_ale)
+        except Exception:
+            pass
+        return False
+# ---- end _WAVE280_ALL_TO_LAB ----------------------------------------------------------------------------------
+
 # ---- _WAVE277_LAB_EXPERIMENTS ---------------------------------------------------------------------------------
 # LAB-EXPERIMENTS-1 (Wayne, 5 Oct 2026: "They can use the lab as much as they want. But once ideas are tested, then
 # we'll send them to Telegram"). Two kinds of silent LAB row, graded by the real grader, NEVER sent:
@@ -933,7 +981,8 @@ def _w277_twin(parent, name, spec):
     market, lane, side, pts, stop_rule, suffix = spec
     if str(parent.get("market") or "") != market:
         return None, "market"
-    if str(parent.get("lane") or "").strip().lower() != lane or _w277_is_added(parent):
+    _w280_pl = "real" if _w280_al_row(parent) else str(parent.get("lane") or "").strip().lower()   # _WAVE280_ALL_TO_LAB
+    if _w280_pl != lane or _w277_is_added(parent):
         return None, "lane"
     d = str(parent.get("direction") or "").upper()
     long_ = "LONG" in d
@@ -3173,6 +3222,8 @@ def _market_position_open(market: str) -> bool:
     # opposite direction, which the dup-guards allow) or a row-vs-sim
     # lifecycle drift could double-enter one market (observed on NQ Jul 10).
     # Never blocks on error - a guard failure must not stop the bot.
+    if _w280_al_open(market):   # _WAVE280_ALL_TO_LAB: an open would-be-real row is this market's open call
+        return True
     try:
         for _r in ot.load_open_trades():
             if _r.get("market") == market:
@@ -3475,7 +3526,8 @@ async def scan_market(app, market, frames):
 
     futures_ok = _futures_session_ok(market)
     crypto_ok  = _crypto_session_ok(market)
-    already_in = any(r.get("market") == market for r in ot.load_open_trades())
+    already_in = (any(r.get("market") == market for r in ot.load_open_trades())
+                  or _w280_al_open(market))   # _WAVE280_ALL_TO_LAB: an open would-be-real row counts as the open call
 
     news_flag = ot.in_news_window()
     trend, _  = ot.trend_score(frames, market)
@@ -4796,15 +4848,17 @@ async def scan_market(app, market, frames):
                 continue
 
             _w7_for_log = w7_breakdown if "w7_breakdown" in dir() else {}
+            _w280_al = _w280_al_on() and not _w245_is_lab(stp["type"])   # _WAVE280_ALL_TO_LAB: a would-be real call
             alert_id = ot.log_alert({
+                **({"lab_gate": W280_AL_GATE} if _w280_al else {}),   # _WAVE280_ALL_TO_LAB: apart from every other LAB row
                 # _WAVE245_LAB_LANE: a LAB call records its lane in the ledger's channel column.
-                "channel": "control (LAB)" if _w245_is_lab(stp["type"]) else None,
+                "channel": "control (LAB)" if _w245_is_lab(stp["type"]) else (W280_AL_CHANNEL if _w280_al else None),
                 # _WAVE249_LAB_SILENT: and in the LANE column, which is what every statistic reads. A blank
                 # lane means REAL (the Wave 246 contract), so without this line the first Wave 245 LAB
                 # call to fire would have entered expectancy, the conviction table and the floors as a
                 # whitelisted call. None had fired yet; this closes it before it opens. It applies to
                 # the notifying exception setups too - a voice does not make a row real.
-                "lane": "lab" if _w245_is_lab(stp["type"]) else None,
+                "lane": "lab" if (_w245_is_lab(stp["type"]) or _w280_al) else None,   # _WAVE280_ALL_TO_LAB
                 "market":market, "tf":entry_tf, "setup":stp["type"], "direction":stp["direction"],
                 "entry":round(stp["entry"],4), "stop":round(stp["raw_stop"],4), "target":round(tgt,4),
                 "rr":round(rr,2), "method":method, "trend_score":trend, "conviction":conv, "tier":tier,
@@ -4887,7 +4941,8 @@ async def scan_market(app, market, frames):
             sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                 cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                 trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
-                sl.DECISION_FIRED, "",
+                (sl.DECISION_FIRED if not _w280_al else "LAB_GRADED"),
+                ("" if not _w280_al else W280_AL_SCAN_WHY),   # _WAVE280_ALL_TO_LAB
                 context=snapshot_context,
                 detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                 score_breakdown=bd_final,
@@ -4963,12 +5018,15 @@ async def scan_market(app, market, frames):
                 _w179_full = str(_w179_full) + "\nCall ID `%s`" % _w232_cid
                 if _w179_pub:
                     _w179_pub = str(_w179_pub) + "\nCall ID `%s`" % _w232_cid
-            if _w239_public_ok(market) and not _w245_is_lab(stp["type"]):  # _WAVE225_RULEBOOK / _WAVE239_CONVICTION_MIN; _WAVE245_LAB_LANE: LAB never goes public
+            if _w239_public_ok(market) and not _w245_is_lab(stp["type"]) and not _w280_al:  # _WAVE225_RULEBOOK / _WAVE239_CONVICTION_MIN; _WAVE245_LAB_LANE: LAB never goes public; _WAVE280_ALL_TO_LAB
                 await tg_send_pub(app, _w179_pub or _w179_full, kind="call")  # _WAVE231_CALLS_ONLY
             # _WAVE249_LAB_SILENT: control gets every whitelisted call, and every LAB setup Wayne has named
             # in rules.LAB_NOTIFY_SETUPS. Any other LAB setup is graded and saved in silence: the row is
             # still in the ledger, still graded by the real grader, still flattened at 4:10.
-            if _w249_lab_call and not _w249_notify_lab:
+            if _w280_al:   # _WAVE280_ALL_TO_LAB: no card - every market is LAB-only
+                log.info("[%s] [%s] ALL-TO-LAB: %s %s would have been a real call - graded in LAB (lab_gate %s), not sent (%s)"
+                         % (market, entry_tf, stp["type"], stp["direction"], W280_AL_GATE, _w232_cid or alert_id))
+            elif _w249_lab_call and not _w249_notify_lab:
                 log.info("[%s] [%s] LAB %s %s graded silently (no notification, %s)"
                          % (market, entry_tf, stp["type"], stp["direction"], _w232_cid or alert_id))
             else:
@@ -9162,6 +9220,8 @@ def _build_boot_banner(tsx_result, open_carried, expired_count, suspended_count,
     L = []
     L.append("\U0001f916 *NQ CALLS \u2014 ONLINE*")
     L.append("\u2501" * 18)
+    if _w280_al_on():   # _WAVE280_ALL_TO_LAB
+        L.append(W280_AL_BANNER)
     # Wave 90: honest version stamp - show the real deploy build, or nothing
     try:
         _w90_sha = os.environ.get("RAILWAY_GIT_COMMIT_SHA", "")[:7]

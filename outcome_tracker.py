@@ -5434,6 +5434,33 @@ def build_daily_report() -> tuple[str, str]:
     return full_text, short
 
 
+# ---- _WAVE280_ALL_TO_LAB ----------------------------------------------------------------------------------
+# ALL-TO-LAB (Wayne, 25 Oct 2026: "everything should always be acting real though"; "Also gold to LAB"): with
+# rules.ALL_LAB on, a setup that would have been a real call is written lane "lab", lab_gate W280_AL_GATE. The daily
+# report counts those rows apart from every other LAB row and lists each with its points at the actual exit.
+W280_AL_GATE = "all_lab"
+W280_AL_HEAD = "Real calls: 0 - every market is LAB-only since Wave 280 (Wayne 25 Oct)"
+
+
+def w280_al_on():
+    """rules.ALL_LAB, read when asked. Never raises."""
+    try:
+        from rules import ALL_LAB as _w280_x
+        return bool(_w280_x)
+    except Exception:
+        return False
+
+
+def w280_al_row(r):
+    """A would-be-real row: lane "lab" and lab_gate exactly W280_AL_GATE. Never raises."""
+    try:
+        return (str((r or {}).get("lane") or "").strip().lower() == "lab"
+                and str((r or {}).get("lab_gate") or "").strip() == W280_AL_GATE)
+    except Exception:
+        return False
+# ---- end _WAVE280_ALL_TO_LAB ------------------------------------------------------------------------------
+
+
 W272_SHORT_SETUP_LINES = 25          # LAB setups listed in the Telegram text; the rest are in the full report
 W272_MARKET_ORDER = ("NQ", "GC", "BTC", "SOL")
 
@@ -5530,6 +5557,7 @@ def w272_honest_report(today_rows, today_dt, sid, still_open=()):
 
 def _w272_build(today_rows, today_dt, sid, still_open):
     real, lab, skipped = [], [], {}
+    wbr = []   # _WAVE280_ALL_TO_LAB: the would-be-real rows (lab_gate all_lab), apart from LAB
     for r in (today_rows or []):
         if not isinstance(r, dict):
             skipped["not a ledger record"] = skipped.get("not a ledger record", 0) + 1
@@ -5541,13 +5569,18 @@ def _w272_build(today_rows, today_dt, sid, still_open):
         if not str(r.get("market") or "").strip() or not _w272_side(r):
             skipped["no market or no direction"] = skipped.get("no market or no direction", 0) + 1
             continue
-        (real if lane == "real" else lab).append(r)
+        (real if lane == "real" else wbr if w280_al_row(r) else lab).append(r)   # _WAVE280_ALL_TO_LAB
 
     lab_setups = {}
     for r in lab:
         lab_setups.setdefault(_w272_key(r), []).append(r)
     n_set = len(lab_setups)
     head = "Real calls: %d - LAB: %d (%d setup%s)" % (len(real), len(lab), n_set, "" if n_set == 1 else "s")
+    _w280_on = w280_al_on()
+    if _w280_on or wbr:   # _WAVE280_ALL_TO_LAB
+        head = "%s - would-be-real: %d - LAB: %d (%d setup%s)" % (
+            W280_AL_HEAD if (_w280_on and not real) else "Real calls: %d" % len(real), len(wbr), len(lab), n_set,
+            "" if n_set == 1 else "s")
     markets = _w272_markets(real + lab)
     rt, lt = _w272_tally(real), _w272_tally(lab)
     skip_lines = ["Skipped %d record%s: %s - not counted." % (n, "" if n == 1 else "s", why)
@@ -5623,6 +5656,9 @@ def _w272_build(today_rows, today_dt, sid, still_open):
          "*%s*" % head, _w272_md(lab_says), "",
          "*Real calls - points at the actual exit:*"]
     s += ["  " + real_line(r, True) for r in real] or ["  None sent today."]
+    if _w280_on or wbr:   # _WAVE280_ALL_TO_LAB
+        s += ["", "*Would-be-real calls (graded as if sent, never sent) - points at the actual exit:*"]
+        s += ["  " + real_line(r, True) for r in wbr] or ["  None today."]
     if markets:
         s += ["", "*By market (real | LAB):*"]
         for m in markets:
@@ -5652,6 +5688,15 @@ def _w272_build(today_rows, today_dt, sid, still_open):
             str(r.get("timestamp", ""))[:16].replace("T", " "), r.get("alert_id")))
     if not real:
         f.append("  None sent today.")
+    if _w280_on or wbr:   # _WAVE280_ALL_TO_LAB
+        f += ["", "WOULD-BE-REAL CALLS (LAB lane, lab_gate all_lab: graded as if sent, never sent) - points at the actual exit",
+              "-" * 30]
+        for r in wbr:
+            f.append("  " + real_line(r, False) + " | Entry %s Stop %s Target %s Exit %s | %s | ID %s" % (
+                r.get("entry"), r.get("stop"), r.get("target"), r.get("exit_price") or "open",
+                str(r.get("timestamp", ""))[:16].replace("T", " "), r.get("alert_id")))
+        if not wbr:
+            f.append("  None today.")
     f += ["", "BY MARKET AND SIDE (points are never added across markets)", "-" * 30]
     for m in markets:
         for side in ("LONG", "SHORT"):
