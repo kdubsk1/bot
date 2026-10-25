@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-25T21:48:21.075382+00:00",
- "cycle": 177,
+ "utc": "2026-10-25T22:03:28.120271+00:00",
+ "cycle": 207,
  "last_sync": "2026-10-25T17:38:18.637726+00:00",
  "started_utc": "2026-10-25T17:32:49.446630+00:00",
  "scanner_on": true,
@@ -13,24 +13,27 @@
  "lab_caps": {
   "count": {
    "BTC|2026-10-25": 14,
-   "BTC:W266|2026-10-25": 7
+   "BTC:W266|2026-10-25": 7,
+   "NQ|2026-10-25": 1
   },
-  "last": {}
+  "last": {
+   "NQ|VWAP_BOUNCE_BULL|LONG": "2026-10-25T22:01:26.632238+00:00"
+  }
  },
  "topstepx": {
-  "ok_last_hour": 0,
+  "ok_last_hour": 10,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-10-25T17:32:51.279607+00:00",
+   "utc": "2026-10-25T22:00:25.351054+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 48,
+   "ms": 49,
    "body": "errorCode=1 errorMessage=None",
-   "market_shut": "weekend",
+   "market_shut": null,
    "fetch_ok": true
   },
   "blocked": []
