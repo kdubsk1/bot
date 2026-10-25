@@ -348,3 +348,24 @@ LAB_SYNTH_RESERVE = 10
 # the wave is live; then he decides. LAB_WHILE_OPEN = False switches it off (the old early return comes back).
 LAB_WHILE_OPEN = True
 LAB_OPEN_MAX_PER_DAY = 20
+
+# ---- LAB-EXPERIMENTS-1 (_WAVE277_LAB_EXPERIMENTS; Wayne 5 Oct 2026: "They can use the lab as much as they want.
+# But once ideas are tested, then we'll send them to Telegram") ----
+# LAB TWINS (research\_LAB_STUDY_05OCT.md Part 2): after each scan pass the bot writes a silent LAB row beside each
+# new parent row - same entry, fire time and direction, only the target (and for GC-SHORT-S20 the stop) changed:
+#   NQ-T30        every REAL NQ call            -> target entry +/- 30 points, same stop
+#   GC-SHORT-S20  every LAB/blocked GC SHORT    -> target entry - 20, stop entry + 20 / the parent's reward-to-risk
+#   NQ-SHORT-T50  every LAB/blocked NQ SHORT    -> target entry - 50, same stop
+# Setup "<parent>@T30" etc., lab_gate "exp:<NAME>"; reported BESIDE the lanes, never evidence for the parent setup;
+# never sent. A twin has no meaning as a setup that could fire: promoting one is its own wave. () = all off.
+EXPERIMENTS = ("NQ-T30", "GC-SHORT-S20", "NQ-SHORT-T50")
+EXP_MAX_PER_DAY = 20            # twins per experiment per UTC day (its own count - never the LAB cap above)
+EXP_PARENT_MAX_AGE_MIN = 15     # only parents written in the last 15 minutes are twinned (never old rows)
+EXP_LAB_DUP_MIN = 60            # a LAB parent (GC-SHORT-S20, NQ-SHORT-T50) re-detected within 60 minutes - same setup,
+                                # side and frame - is twinned once, as the study counted them. Real calls: every one.
+# GUARD ROWS (review F12, Q57 part 1): a whitelisted setup dropped by the news floor, the 10-minute same-setup
+# guard, the 30-minute same-direction guard or the news-window 15m skip becomes ONE silent LAB row per setup /
+# direction / frame per guard window (lab_gate "guard:<which>"), graded at its actual exit, never sent. The guards
+# themselves are unchanged. False = no guard rows.
+LAB_GUARD_ROWS = True
+LAB_GUARD_MAX_PER_DAY = 20      # guard rows per market per UTC day (its own count)

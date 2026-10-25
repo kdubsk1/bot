@@ -3599,7 +3599,8 @@ def check_auto_review() -> Optional[str]:
         if os.path.exists(OUTCOMES_CSV):
             with open(OUTCOMES_CSV, newline="") as f:
                 rows = list(csv.DictReader(f))
-        closed = [r for r in rows if r.get("status") == "CLOSED" and r.get("result") in ("WIN","LOSS")]
+        closed = [r for r in w277_drop_added(rows)   # _WAVE277_LAB_EXPERIMENTS: not counted as trades
+                  if r.get("status") == "CLOSED" and r.get("result") in ("WIN","LOSS")]
         total_closed = len(closed)
 
         # Wave 131 (_WAVE131_WEEKLY_REVIEW): weekly cadence, not every 10
@@ -4221,6 +4222,30 @@ def load_open_trades(include_lab: bool = False) -> list[dict]:
 # ------------------------------------------------------------------ #
 # Session-based trade queries and archiving
 # ------------------------------------------------------------------ #
+# ---- _WAVE277_LAB_EXPERIMENTS -------------------------------------------------------------------------------
+# LAB-EXPERIMENTS-1 adds two kinds of LAB row: experiment twins (lab_gate "exp:<NAME>") and guard drops
+# ("guard:<which>"). They are graded like every row, but no summary counts them: they are reported beside the
+# lanes, and a twin sits beside every real NQ call - counting it would double the day. Never raises.
+W277_ADDED_PREFIXES = ("exp", "guard")
+
+
+def w277_added_row(r):
+    """True for an experiment twin or a guard row (lab_gate "exp:..." / "guard:...")."""
+    try:
+        return str((r or {}).get("lab_gate") or "").strip().split(":", 1)[0] in W277_ADDED_PREFIXES
+    except Exception:
+        return False
+
+
+def w277_drop_added(rows):
+    """The rows without experiment twins and guard rows - what every summary counts. Never raises."""
+    try:
+        return [r for r in (rows or []) if not w277_added_row(r)]
+    except Exception:
+        return rows
+# ---- end _WAVE277_LAB_EXPERIMENTS ---------------------------------------------------------------------------
+
+
 def get_session_trades(session_id: str = None) -> list[dict]:
     """Return only trades from the specified session (defaults to current session)."""
     if session_id is None:
@@ -4229,7 +4254,7 @@ def get_session_trades(session_id: str = None) -> list[dict]:
             session_id = get_session_date()
         except Exception:
             session_id = datetime.now().strftime("%Y-%m-%d")
-    rows = _read_all()
+    rows = w277_drop_added(_read_all())   # _WAVE277_LAB_EXPERIMENTS: a summary view - twins and guard rows left out
     live_matches = [r for r in rows if r.get("session_id") == session_id]
     if live_matches:
         return live_matches
@@ -4241,6 +4266,7 @@ def get_session_trades(session_id: str = None) -> list[dict]:
         _arch = os.path.join(_BASE_DIR, "data", "archive", "outcomes_%s.csv" % session_id)
         if os.path.exists(_arch):
             _arch_rows = safe_io.safe_read_csv(_arch)
+            _arch_rows = w277_drop_added(_arch_rows)   # _WAVE277_LAB_EXPERIMENTS
             return [r for r in _arch_rows if r.get("session_id") == session_id] or _arch_rows
     except Exception:
         pass
@@ -4701,7 +4727,7 @@ def performance_text(days: int = 30) -> str:
     cutoff_iso = cutoff_dt.isoformat()
 
     try:
-        rows = _read_all()
+        rows = w277_drop_added(_read_all())   # _WAVE277_LAB_EXPERIMENTS: /performance leaves them out
     except Exception as e:
         return f"*PERFORMANCE*\nFailed to read outcomes: `{e}`"
 
@@ -5112,7 +5138,7 @@ def build_weekly_review() -> str:
     cutoff = (now - timedelta(days=7)).isoformat()
 
     try:
-        rows = _read_all()
+        rows = w277_drop_added(_read_all())   # _WAVE277_LAB_EXPERIMENTS: the weekly review leaves them out
     except Exception as e:
         return f"# Weekly Review\n\nError reading outcomes.csv: {e}\n"
 
@@ -5360,9 +5386,9 @@ def build_daily_report() -> tuple[str, str]:
     # (ADAPTIVE_OFF). Now: real calls apart from LAB, points at the actual exit per market first, R second, each LAB
     # setup counted once with its raw record count beside it, and no win rate alone. Text only: nothing here
     # decides, grades or sends a call, and the ledger is only read.
-    today_rows = [r for r in rows if r.get("session_id", "") == _w127_sid]
+    today_rows = [r for r in w277_drop_added(rows) if r.get("session_id", "") == _w127_sid]   # _WAVE277_LAB_EXPERIMENTS
     try:
-        still_open = load_open_trades(include_lab=True)     # (read only; the report shows real and LAB apart)
+        still_open = w277_drop_added(load_open_trades(include_lab=True))     # (read only; the report shows real and LAB apart)
     except Exception:
         still_open = []
     full_text, short = w272_honest_report(today_rows, today_dt, _w127_sid, still_open)
@@ -5646,7 +5672,7 @@ def print_stats(session_only: bool = True) -> str:
     Print stats. Defaults to current session only.
     Set session_only=False for all-time stats.
     """
-    rows = _read_all()
+    rows = w277_drop_added(_read_all())   # _WAVE277_LAB_EXPERIMENTS: /stats leaves out twins and guard rows
     if not rows:
         return "No alerts logged yet."
 

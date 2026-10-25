@@ -664,6 +664,202 @@ def _w266_grade(market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v
         return ""
 # ---- end _WAVE266_KEEP_LOOKING -------------------------------
 
+# ---- _WAVE277_LAB_EXPERIMENTS ---------------------------------------------------------------------------------
+# LAB-EXPERIMENTS-1 (Wayne, 5 Oct 2026: "They can use the lab as much as they want. But once ideas are tested, then
+# we'll send them to Telegram"). Two kinds of silent LAB row, graded by the real grader, NEVER sent:
+#  - experiment TWINS (research\_LAB_STUDY_05OCT.md Part 2), written by _w277_exp_pass() from the LEDGER after the
+#    whole scan pass - never on the fire path; a failure only logs;
+#  - GUARD rows (review F12, Q57 part 1): a whitelisted setup dropped by a guard, written by _w277_guard_row() just
+#    before the guard's `continue` - the guard itself is unchanged.
+# Both carry lane "lab", channel "lab (not sent)" (Wave 254: no exit card; Wave 246: no flatten card; Wave 246:
+# never an open position) and a setup name / lab_gate that the summaries and the review tools keep beside the lanes.
+try:
+    from rules import (EXPERIMENTS as _R277_EXP, EXP_MAX_PER_DAY as _R277_EXP_MAX,
+                       EXP_PARENT_MAX_AGE_MIN as _R277_EXP_AGE, EXP_LAB_DUP_MIN as _R277_EXP_DUP,
+                       LAB_GUARD_ROWS as _R277_GUARD, LAB_GUARD_MAX_PER_DAY as _R277_GUARD_MAX)
+except Exception:   # an older rulebook: all off
+    _R277_EXP, _R277_EXP_MAX, _R277_EXP_AGE, _R277_EXP_DUP, _R277_GUARD, _R277_GUARD_MAX = (), 0, 15, 60, False, 0
+
+# name -> (market, parent lane, parent side or "" for both, target points, stop rule, setup suffix)
+W277_EXPERIMENTS = {
+    "NQ-T30":       ("NQ", "real", "",      30.0, "same",  "@T30"),
+    "GC-SHORT-S20": ("GC", "lab",  "SHORT", 20.0, "by_rr", "@S20"),
+    "NQ-SHORT-T50": ("NQ", "lab",  "SHORT", 50.0, "same",  "@T50"),
+}
+# copied from the parent unchanged; everything else is the twin's own or left for log_alert / the grader to fill
+W277_COPY = ("timestamp", "fired_at", "symbol", "session", "market", "tf", "direction", "entry", "trend_score",
+             "conviction", "tier", "rsi", "atr", "adx", "htf_bias", "hour", "vol_ratio", "news_flag")
+W277_GUARD_GAP_MIN = 30          # a news window is at most 21 minutes long and the next one starts 40 minutes later
+_W277_GUARD_SEEN = {}            # (market, setup, direction, tf, guard) -> (window id, datetime UTC of the row)
+
+
+def _w277_num(v):
+    try:
+        x = float(v)
+        return x if x == x and x not in (float("inf"), float("-inf")) else None
+    except Exception:
+        return None
+
+
+def _w277_is_added(r):
+    """An experiment twin or a guard row - never a parent."""
+    return str((r or {}).get("lab_gate") or "").strip().split(":", 1)[0] in ("exp", "guard")
+
+
+def _w277_twin(parent, name, spec):
+    """The twin row for this parent, or (None, why). Pure: reads only the parent row."""
+    market, lane, side, pts, stop_rule, suffix = spec
+    if str(parent.get("market") or "") != market:
+        return None, "market"
+    if str(parent.get("lane") or "").strip().lower() != lane or _w277_is_added(parent):
+        return None, "lane"
+    d = str(parent.get("direction") or "").upper()
+    long_ = "LONG" in d
+    if not long_ and "SHORT" not in d:
+        return None, "direction"
+    if side and side not in d:
+        return None, "side"
+    e, s, t = _w277_num(parent.get("entry")), _w277_num(parent.get("stop")), _w277_num(parent.get("target"))
+    if None in (e, s, t):
+        return None, "levels"
+    sg = 1.0 if long_ else -1.0
+    risk, reward = (e - s) * sg, (t - e) * sg
+    if risk <= 0 or reward <= 0:
+        return None, "levels on the wrong side"
+    tgt = e + sg * pts
+    if stop_rule == "by_rr":                 # GC-SHORT-S20: the parent's own reward-to-risk at a 20-point target
+        stop = e - sg * (pts / (reward / risk))
+    else:
+        stop = s
+    twin = {k: parent.get(k, "") for k in W277_COPY}
+    pid = str(parent.get("alert_id") or "")
+    import hashlib as _w277_h
+    twin.update({
+        "alert_id": _w277_h.md5(("%s|%s" % (pid, name)).encode("utf-8")).hexdigest()[:10],
+        "setup": "%s%s" % (parent.get("setup") or "?", suffix),
+        "stop": round(stop, 4), "target": round(tgt, 4), "rr": round(pts / abs(e - stop), 2),
+        "method": "exp:%s twin of %s" % (name, pid),
+        "lane": "lab", "channel": "lab (not sent)", "lab_gate": "exp:%s" % name,
+        "leverage": "", "suggested_hold": "", "r_planned": "",
+    })
+    return twin, ""
+
+
+def _w277_exp_pass(now=None, rows=None):
+    """Write the twins of every new parent row. Returns how many it wrote. Never raises, never sends."""
+    try:
+        names = [n for n in tuple(_R277_EXP or ()) if n in W277_EXPERIMENTS]
+        if not names or int(_R277_EXP_MAX) <= 0:
+            return 0
+        now = now or datetime.now(timezone.utc)
+        rows = ot._read_all() if rows is None else rows
+        have = {str(r.get("alert_id") or "") for r in rows}
+        count, seen = {}, {}
+        for r in rows:
+            g = str(r.get("lab_gate") or "")
+            if g.startswith("exp:"):
+                k = (g[4:], str(r.get("timestamp") or "")[:10])
+                count[k] = count.get(k, 0) + 1
+                seen.setdefault((g[4:], r.get("setup"), r.get("direction"), r.get("tf")), []).append(str(r.get("timestamp") or ""))
+        dup = timedelta(minutes=float(_R277_EXP_DUP))
+        wrote = 0
+        horizon = now - timedelta(minutes=float(_R277_EXP_AGE))
+        for parent in rows:
+            try:
+                ts = datetime.fromisoformat(str(parent.get("timestamp") or ""))
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+                if not (horizon <= ts <= now):
+                    continue
+                for name in names:
+                    twin, _why = _w277_twin(parent, name, W277_EXPERIMENTS[name])
+                    if twin is None or twin["alert_id"] in have:
+                        continue
+                    k = (name, str(twin["timestamp"])[:10])
+                    if count.get(k, 0) >= int(_R277_EXP_MAX):
+                        continue
+                    sk = (name, twin["setup"], twin["direction"], twin["tf"])
+                    if W277_EXPERIMENTS[name][1] == "lab" and any(
+                            x and abs(ts - datetime.fromisoformat(x).astimezone(timezone.utc)) < dup for x in seen.get(sk, ())):
+                        continue                    # the same LAB setup re-detected within the hour: twinned once
+                    aid = ot.log_alert(twin)
+                    seen.setdefault(sk, []).append(str(twin["timestamp"]))
+                    have.add(aid)
+                    count[k] = count.get(k, 0) + 1
+                    wrote += 1
+                    log.info("[%s] [%s] W277 LAB twin %s %s %s target %s stop %s (parent %s) -> %s (not sent)"
+                             % (twin["market"], twin["tf"], name, twin["setup"], twin["direction"], twin["target"],
+                                twin["stop"], parent.get("alert_id"), aid))
+            except Exception as _w277_pe:
+                log.warning("W277: twin of %s skipped (non-fatal): %s" % (parent.get("alert_id"), _w277_pe))
+        return wrote
+    except Exception as _w277_e:
+        try:
+            log.warning("W277: experiment pass failed (non-fatal, nothing sent): %s" % _w277_e)
+        except Exception:
+            pass
+        return 0
+
+
+def _w277_guard_row(guard, market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v,
+                    htf_bias, vol_ratio, news_flag, now=None):
+    """A whitelisted setup this guard just dropped -> one silent LAB row per guard window. Returns the alert_id or "".
+    The guard has already decided; this only records. Never raises, never sends."""
+    try:
+        if not _R277_GUARD or int(_R277_GUARD_MAX) <= 0:
+            return ""
+        setup, side = str(stp["type"]), str(stp["direction"])
+        if _w245_is_lab(setup) or _w251_is_off(setup):
+            return ""                               # a LAB or OFF setup is not a whitelisted call
+        try:
+            from rules import CALLS_OFF_MARKETS as _w277_off
+        except Exception:
+            _w277_off = ()
+        if market in tuple(_w277_off or ()):
+            return ""
+        if _w266_mode(market) or _market_position_open(market):
+            return ""                               # nothing could fire in this scan anyway (Wave 266 / Wave 129)
+        now = now or datetime.now(timezone.utc)
+        if guard == "dup_setup":
+            win = _RECENT_FIRES.get((market, setup, side))
+        elif guard == "dup_dir":
+            win = _RECENT_DIRECTION_FIRES.get((market, side))
+        else:
+            win = None
+        key = (market, setup, side, str(entry_tf), guard)
+        seen = _W277_GUARD_SEEN.get(key)
+        if seen is not None:
+            if win is not None and seen[0] == win:
+                return ""                           # this guard window already has its row
+            if win is None and (now - seen[1]) < timedelta(minutes=W277_GUARD_GAP_MIN):
+                return ""
+        day = now.date().isoformat()
+        n_today = sum(1 for r in ot._read_all() if r.get("market") == market
+                      and str(r.get("lab_gate") or "").startswith("guard:") and str(r.get("timestamp") or "")[:10] == day)
+        if n_today >= int(_R277_GUARD_MAX):
+            _W277_GUARD_SEEN[key] = (win, now)
+            return ""
+        aid = ot.log_alert({
+            "lane": "lab", "channel": "lab (not sent)", "lab_gate": "guard:%s" % guard,
+            "market": market, "tf": entry_tf, "setup": setup, "direction": side,
+            "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
+            "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
+            "tier": tier, "leverage": "", "suggested_hold": "", "rsi": round(rsi_v, 2),
+            "atr": round(atr_v, 4), "adx": round(adx_v, 2), "htf_bias": htf_bias,
+            "hour": now.hour, "vol_ratio": round(vol_ratio, 2), "news_flag": int(news_flag),
+            "timestamp": now.isoformat(),
+        })
+        _W277_GUARD_SEEN[key] = (win, now)
+        log.info("[%s] [%s] W277 guard row (%s) %s %s -> %s (graded, not sent)" % (market, entry_tf, guard, setup, side, aid))
+        return aid
+    except Exception as _w277_ge:
+        try:
+            log.warning("[%s] W277 guard row failed (non-fatal; the guard is unchanged): %s" % (market, _w277_ge))
+        except Exception:
+            pass
+        return ""
+# ---- end _WAVE277_LAB_EXPERIMENTS -----------------------------------------------------------------------------
+
 # ---- _WAVE229_TARGET_CANDIDATES -------------------------------
 # Wave 229: LOG-ONLY. When a call is rejected for its target (no usable swing
 # level) or for its R:R, write one line saying which swing levels existed and
@@ -3147,7 +3343,8 @@ async def scan_market(app, market, frames):
         today_str = _now_et().strftime("%Y-%m-%d")
         today_closed = [r for r in all_rows
                         if r.get("status")=="CLOSED" and r.get("result") in ("WIN","LOSS")
-                        and today_str in r.get("timestamp","")]
+                        and today_str in r.get("timestamp","")
+                        and not _w277_is_added(r)]   # _WAVE277_LAB_EXPERIMENTS: twins / guard rows not counted
         day_w = sum(1 for r in today_closed if r["result"]=="WIN")
         day_l = sum(1 for r in today_closed if r["result"]=="LOSS")
 
@@ -4236,6 +4433,7 @@ async def scan_market(app, market, frames):
                         detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                         score_breakdown=bd_final)
                     _sample_reject_log(market, entry_tf, stp["type"], f"news floor {conv}<{_news_floor}")
+                    _w277_guard_row("news_floor", market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v, htf_bias, vol_ratio, news_flag)   # _WAVE277_LAB_EXPERIMENTS: graded, not sent
                     continue
 
             dd_pct = 0 if ADAPTIVE_OFF else sim_risk.get("daily_used_pct", 0)
@@ -4285,6 +4483,7 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
                 log.info(f"[{market}] [{entry_tf}] DUP-GUARD blocked {stp['type']} {stp['direction']} (within {_RECENT_FIRE_WINDOW_MIN} min)")
+                _w277_guard_row("dup_setup", market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v, htf_bias, vol_ratio, news_flag)   # _WAVE277_LAB_EXPERIMENTS: graded, not sent
                 continue
 
             # May 1 broader dup-guard: block same market+direction (any setup) within 30 min.
@@ -4300,6 +4499,7 @@ async def scan_market(app, market, frames):
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio),
                     score_breakdown=bd_final)
                 log.info(f"[{market}] [{entry_tf}] DUP-GUARD-DIR blocked {stp['type']} {stp['direction']} (within {_RECENT_DIRECTION_WINDOW_MIN} min)")
+                _w277_guard_row("dup_dir", market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v, htf_bias, vol_ratio, news_flag)   # _WAVE277_LAB_EXPERIMENTS: graded, not sent
                 continue
 
             # _WAVE266_KEEP_LOOKING: this setup passed every gate above. In a LAB-only scan - or once a position is
@@ -4353,6 +4553,7 @@ async def scan_market(app, market, frames):
                     log.info(f"[{market}] [15m] W145 NEWS-TF shadow: {stp['type']} {stp['direction']} passed all gates during news")
                 except Exception as _w145e:
                     log.warning(f"W145 news shadow log failed: {_w145e}")
+                _w277_guard_row("news_15m", market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v, atr_v, adx_v, htf_bias, vol_ratio, news_flag)   # _WAVE277_LAB_EXPERIMENTS: graded, not sent
                 continue
 
             _w7_for_log = w7_breakdown if "w7_breakdown" in dir() else {}
@@ -6729,6 +6930,12 @@ async def scan_loop(app):
                 for m in active:
                     try: await scan_market(app, m, frames_by_market[m])
                     except Exception as e: log.error(f"scan {m}: {e}\n{traceback.format_exc()}")
+                # _WAVE277_LAB_EXPERIMENTS: the LAB twins of this pass's new rows - AFTER every market's scan (every
+                # real card of the pass is already sent), from the ledger, silent. A failure here only logs.
+                try:
+                    _w277_exp_pass()
+                except Exception as _w277_le:
+                    log.warning("W277: experiment pass skipped (non-fatal): %s" % _w277_le)
 
                 try:
                     await watch_open_trades(app, frames_by_market)
