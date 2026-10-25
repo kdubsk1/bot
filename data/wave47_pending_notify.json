@@ -2,57 +2,9 @@
   "newly_suspended": [
     {
       "market": "NQ",
-      "setup": "BREAK_RETEST_BULL",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
-    },
-    {
-      "market": "GC",
-      "setup": "STOCH_REVERSAL_BEAR",
-      "losses": 3,
-      "reason": "Wave 47 auto: 0W/3L over last 30 days"
-    },
-    {
-      "market": "GC",
-      "setup": "MACD_CROSS_BULL",
-      "losses": 3,
-      "reason": "Wave 47 auto: 0W/3L over last 30 days"
-    },
-    {
-      "market": "GC",
-      "setup": "RSI_DIV_BEAR",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
-    },
-    {
-      "market": "BTC",
-      "setup": "RSI_DIV_BULL",
-      "losses": 13,
-      "reason": "Wave 47 auto: 0W/13L over last 30 days"
-    },
-    {
-      "market": "NQ",
       "setup": "STOCH_REVERSAL_BULL",
-      "losses": 24,
-      "reason": "Wave 47 auto: 0W/24L over last 30 days"
-    },
-    {
-      "market": "BTC",
-      "setup": "EMA21_PULLBACK_BEAR",
-      "losses": 16,
-      "reason": "Wave 47 auto: 0W/16L over last 30 days"
-    },
-    {
-      "market": "BTC",
-      "setup": "MACD_CROSS_BEAR",
-      "losses": 7,
-      "reason": "Wave 47 auto: 0W/7L over last 30 days"
-    },
-    {
-      "market": "BTC",
-      "setup": "VWAP_REJECT_BEAR",
-      "losses": 4,
-      "reason": "Wave 47 auto: 0W/4L over last 30 days"
+      "losses": 19,
+      "reason": "Wave 47 auto: 0W/19L over last 30 days"
     },
     {
       "market": "GC",
@@ -61,11 +13,23 @@
       "reason": "Wave 47 auto: 0W/7L over last 30 days"
     },
     {
+      "market": "NQ",
+      "setup": "BREAK_RETEST_BULL",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
       "market": "GC",
       "setup": "STOCH_REVERSAL_BULL",
       "losses": 3,
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
+      "market": "BTC",
+      "setup": "RSI_DIV_BULL",
+      "losses": 11,
+      "reason": "Wave 47 auto: 0W/11L over last 30 days"
     }
   ],
-  "ts": "2026-10-24T04:23:43.973164+00:00"
+  "ts": "2026-10-25T04:33:31.144718+00:00"
 }
