@@ -137,7 +137,7 @@ _WAVE66_DAILY_DISK_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file_
 
 
 def _daily_disk_path(market: str) -> str:
-    return os.path.join(_WAVE66_DAILY_DISK_DIR, f"{market.upper()}_1d.csv")
+    return _os.path.join(_WAVE66_DAILY_DISK_DIR, f"{market.upper()}_1d.csv")   # _WAVE276_DAILY_FRAME: was os. (F24)
 
 
 def _save_daily_disk(market: str, df: pd.DataFrame) -> None:
@@ -147,7 +147,7 @@ def _save_daily_disk(market: str, df: pd.DataFrame) -> None:
         _os.makedirs(_WAVE66_DAILY_DISK_DIR, exist_ok=True)
         df.to_csv(_daily_disk_path(market))
     except Exception as exc:
-        logger.debug("daily disk save failed for %s: %s", market, exc)
+        _w276_daily_warn(market, "save", exc)   # _WAVE276_DAILY_FRAME: WARNING once per boot, not DEBUG
 
 
 def _load_daily_disk(market: str) -> Optional[pd.DataFrame]:
@@ -159,7 +159,7 @@ def _load_daily_disk(market: str) -> Optional[pd.DataFrame]:
         if df is not None and len(df) >= MIN_BARS:
             return _normalise_df(df)
     except Exception as exc:
-        logger.debug("daily disk load failed for %s: %s", market, exc)
+        _w276_daily_warn(market, "load", exc)   # _WAVE276_DAILY_FRAME: WARNING once per boot, not DEBUG
     return None
 
 
@@ -167,7 +167,8 @@ def _set_cache(market: str, timeframe: str, df: pd.DataFrame) -> None:
     key = _cache_key(market, timeframe)
     _cache[key] = {"df": df.copy(), "ts": time.time()}
     # Wave 66: also persist healthy daily frames to disk.
-    if timeframe == "1d" and df is not None and len(df) >= MIN_BARS:
+    # _WAVE276_DAILY_FRAME: only a frame Yahoo just delivered - never a TopstepX boot frame or a re-served one.
+    if timeframe == "1d" and df is not None and len(df) >= MIN_BARS and _w276_daily.get(market, {}).get("fresh"):
         _save_daily_disk(market, df)
 
 
@@ -1185,6 +1186,137 @@ def _fetch_crypto(market: str, timeframe: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Unified fetch dispatcher
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# _WAVE276_DAILY_FRAME: where the daily frame really came from, and the last good one kept (review F24)
+# ---------------------------------------------------------------------------
+_W276_DAILY_TTL_S = 14400                         # _get_cached's 1d re-use time (Wave 61): a good day asks every ~4 h
+_W276_DAILY_BACKOFF_S = (1800, 3600, 7200, 14400)  # after the 1st / 2nd / 3rd / later refusal in a row
+_W276_DAILY_MAX_ASKS = 6                          # never more Yahoo asks than this in any 24 hours (a good day: 6)
+_W276_DAILY_NAMES = {"yahoo": "Yahoo", "disk": "the disk copy", "topstepx": "TopstepX front contract",
+                     "twelve_data": "TwelveData"}
+_w276_daily = {}                                  # market -> {"src", "fresh", "refusals", "asks", "pending", "why"}
+_w276_daily_warned = set()                        # (market, "save" / "load"): warned once this boot
+
+
+def _w276_daily_warn(market, what, exc):
+    key = (str(market).upper(), what)
+    if key in _w276_daily_warned:
+        logger.debug("daily disk %s failed for %s: %s", what, market, exc)
+        return
+    _w276_daily_warned.add(key)
+    logger.warning("daily disk %s FAILED for %s: %s (said once per boot; the daily frame cannot survive a restart "
+                   "while this fails)", what, market, exc)
+
+
+def _w276_daily_desc(df):
+    try:
+        return "%d bars, newest daily bar %s" % (len(df), df.index[-1].strftime("%Y-%m-%d"))
+    except Exception:
+        return "%s bars" % (len(df) if df is not None else 0)
+
+
+def _w276_daily_yahoo(market, st):
+    """One Yahoo request for the continuous daily frame: (frame, None), or (None, why). Never raises. Asks only if
+    fewer than _W276_DAILY_MAX_ASKS asks were made in the last 24 hours."""
+    try:
+        now = time.time()
+        st["asks"] = [t for t in st.get("asks", []) if now - t < 86400]
+        if len(st["asks"]) >= _W276_DAILY_MAX_ASKS:
+            return None, "not asked: %d asks in the last 24 h" % len(st["asks"])
+        ticker = _YF_TICKER_MAP.get(market)
+        if ticker is None:
+            return None, "no Yahoo ticker"
+        yf_interval, yf_period = _YF_INTERVAL_MAP["1d"]
+        import yfinance as yf
+        logger.info("yfinance fetch: %s  interval=%s  period=%s", ticker, yf_interval, yf_period)
+        time.sleep(3)                                  # as _fetch_yfinance: give Yahoo room
+        st["asks"].append(time.time())
+        _YF_LAST_FETCH["%s|%s" % (ticker, yf_interval)] = time.time()
+        df = yf.Ticker(ticker).history(interval=yf_interval, period=yf_period, auto_adjust=True)
+        if df is None or len(df) == 0:
+            return None, "Yahoo returned no rows"
+        df = _normalise_df(df)
+        if len(df) < MIN_BARS:
+            return None, "Yahoo returned only %d rows" % len(df)
+        return df, None
+    except Exception as exc:
+        return None, "Yahoo refused: %s" % str(exc)[:120]
+
+
+def _w276_daily_frame(market):
+    """The daily frame for NQ / gold, in order: Yahoo fresh; else the Yahoo or disk frame already held; else the disk
+    copy; else the TopstepX frame already held; else None (the caller tries TopstepX, then TwelveData, as before).
+    Every serve is logged with where it came from, its newest daily bar and its bar count. Never raises."""
+    st = _w276_daily.setdefault(market, {"src": None, "fresh": False, "refusals": 0, "asks": [], "pending": False})
+    st["fresh"], st["pending"] = False, False
+    try:
+        df, why = _w276_daily_yahoo(market, st)
+        key = _cache_key(market, "1d")
+        if df is not None:
+            st.update(src="yahoo", fresh=True, refusals=0, why=None)
+            _last_source[key] = "yfinance"
+            logger.info("Daily frame %s: Yahoo fresh - %s (saved to disk)", market, _w276_daily_desc(df))
+            return df
+        if not str(why).startswith("not asked"):
+            st["refusals"] = st.get("refusals", 0) + 1
+        st["why"] = why
+        mem = _cache.get(key)
+        if mem is not None and st.get("src") in ("yahoo", "disk"):
+            logger.warning("Daily frame %s: %s - the same frame as before (%s, %s)", market, why,
+                           _W276_DAILY_NAMES.get(st["src"], st["src"]), _w276_daily_desc(mem["df"]))
+            return mem["df"].copy()
+        disk = _load_daily_disk(market)
+        if disk is not None:
+            st["src"] = "disk"
+            _last_source[key] = "disk"
+            try:
+                saved = datetime.fromtimestamp(_os.path.getmtime(_daily_disk_path(market)), timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+            except Exception:
+                saved = "UNKNOWN"
+            logger.warning("Daily frame %s: %s - the disk copy (%s; file written %s)", market, why,
+                           _w276_daily_desc(disk), saved)
+            return disk
+        if mem is not None:
+            logger.warning("Daily frame %s: %s - NO disk copy - the same frame as before (%s, %s)", market, why,
+                           _W276_DAILY_NAMES.get(st.get("src"), st.get("src") or "UNKNOWN source"), _w276_daily_desc(mem["df"]))
+            return mem["df"].copy()
+        logger.warning("Daily frame %s: %s - NO disk copy and nothing held - trying TopstepX's front contract "
+                       "(a short history)", market, why)
+        st["pending"] = True
+        return None
+    except Exception as exc:
+        logger.warning("Daily frame %s: the lookup failed (%s) - trying TopstepX as before", market, exc)
+        st["pending"] = True
+        return None
+
+
+def _w276_daily_after_set(market):
+    """Called by _fetch_with_cache right after a daily frame is cached. A frame Yahoo just delivered keeps today's
+    4-hour re-use. Any other frame is NOT stamped fresh: it expires after the back-off (30 min, 1 h, 2 h, then 4 h),
+    or later if 6 asks were already made in the last 24 hours. Never raises."""
+    try:
+        st = _w276_daily.get(market)
+        key = _cache_key(market, "1d")
+        e = _cache.get(key)
+        if not st or e is None or st.get("fresh"):
+            return
+        now = time.time()
+        if st.get("pending"):
+            st["src"] = _last_source.get(key) or "UNKNOWN"
+            st["pending"] = False
+            logger.warning("Daily frame %s: %s - %s", market, _W276_DAILY_NAMES.get(st["src"], st["src"]),
+                           _w276_daily_desc(e["df"]))
+        n = max(1, int(st.get("refusals", 0) or 1))
+        wait = _W276_DAILY_BACKOFF_S[min(n, len(_W276_DAILY_BACKOFF_S)) - 1]
+        asks = sorted(t for t in st.get("asks", []) if now - t < 86400)
+        if len(asks) >= _W276_DAILY_MAX_ASKS:
+            wait = max(wait, asks[-_W276_DAILY_MAX_ASKS] + 86400 - now + 1)
+        e["ts"] = now - _W276_DAILY_TTL_S + wait
+        logger.info("Daily frame %s: Yahoo asked again in %d min", market, int(round(wait / 60.0)))
+    except Exception as exc:
+        logger.warning("Daily frame %s: back-off not set (%s)", market, exc)
+
+
 def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
     """
     Dispatch to data source by market. Source priority (Wave 62):
@@ -1211,14 +1343,13 @@ def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
         fb_key = f"{market_upper}|{timeframe}"
 
         # Wave 62: daily bars come from the continuous contract on yfinance
+        # _WAVE276_DAILY_FRAME (F24): Yahoo fresh -> the frame already held -> the disk copy -> TopstepX, each one
+        # logged by where it really came from, with its newest daily bar and bar count (_w276_daily_frame).
         if timeframe == "1d":
-            df_yf = _fetch_yfinance(market_upper, timeframe)
+            df_yf = _w276_daily_frame(market_upper)
             if df_yf is not None and len(df_yf) >= MIN_BARS:
                 _td_fallback_count[fb_key] = 0
-                _last_source[fb_key] = "yfinance"
-                logger.info("Using yfinance continuous for %s 1d (%d bars)", market_upper, len(df_yf))
                 return df_yf
-            logger.info("yfinance 1d insufficient for %s -- trying TopstepX", market_upper)
 
         # PRIMARY: TopstepX (real CME futures data)
         df_tsx = _fetch_topstepx(market_upper, timeframe)
@@ -1288,6 +1419,8 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
     # Validate
     if df is not None and len(df) >= MIN_BARS:
         _set_cache(market_upper, timeframe, df)
+        if timeframe == "1d":
+            _w276_daily_after_set(market_upper)   # _WAVE276_DAILY_FRAME: a frame served after a refusal is not stamped fresh
         _neg_fetch.pop(_cache_key(market_upper, timeframe), None)  # Wave 95: success clears backoff
         return df.copy()
 
