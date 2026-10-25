@@ -421,7 +421,7 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
         conv = max(0, min(100, int(conv)))
         cmin = _w225_conv_min(market, stp["type"])
         tier = "HIGH" if conv >= 60 else ("MEDIUM" if conv >= 53 else ("LOW" if conv >= cmin else "REJECT"))
-        aid = ot.log_alert({
+        aid = _w278_log_lab({   # _WAVE278_TWO_SIDED_TEST: LAB, or TEST when picked
             "lane": "lab", "channel": "lab (not sent)",
             "lab_gate": _w266_tag(market, gate),  # _WAVE266_KEEP_LOOKING: "<mode>:<gate>" in a LAB-only scan
             "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
@@ -466,6 +466,8 @@ def _w254_closure_silent(orig):
     doubt it returns False: a real call must never lose its exit card."""
     try:
         row = orig or {}
+        if str(row.get("lane", "")).strip().lower() == "test":
+            return True    # _WAVE278_TWO_SIDED_TEST: a TEST row never gets an exit card
         if str(row.get("lane", "")).strip().lower() != "lab":
             return False
         if "not sent" in str(row.get("channel", "")).lower():
@@ -630,7 +632,7 @@ def _w266_grade(market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v
             if "error" in skip:
                 log.warning("[%s] W266: %s" % (market, skip))
             return ""
-        aid = ot.log_alert({
+        aid = _w278_log_lab({   # _WAVE278_TWO_SIDED_TEST: LAB, or TEST when picked
             "lane": "lab", "channel": "lab (not sent)", "lab_gate": why,
             "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
             "entry": round(stp["entry"], 4), "stop": round(stp["raw_stop"], 4), "target": round(tgt, 4),
@@ -663,6 +665,225 @@ def _w266_grade(market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v
             pass
         return ""
 # ---- end _WAVE266_KEEP_LOOKING -------------------------------
+
+# ---- _WAVE278_TWO_SIDED_TEST ----------------------------------------------------------------------------------
+# TWO-SIDED-TEST (Wayne, 15 Oct 2026: "i dont wanna be one sided i want be fair"). The three LAB writers (the
+# conviction-floor / setup_off branch, _w254_lab_grade_gate, _w266_grade) call _w278_log_lab(row) where they called
+# ot.log_alert(row). A row that matches rules.TEST_SETUPS and has room (6 a market a UTC day, the same setup not within
+# 60 minutes - both from the ledger) is written with lane "test" instead of "lab" - same levels, same timestamp, graded
+# exactly like LAB - and sent once, after the scan pass, to the CONTROL chat (Wayne, 23 Oct 2026: "let's just do it to
+# the tele we've been using"): plain text, no buttons, first line W278_HEADER, last line W278_FOOTER. The chat id is
+# read from the Railway variable CONTROL_CHAT_ID itself - never from CONTROL_CHAT_ID above, which falls back to the
+# PUBLIC chat when the variable is unset (Wave 177). Unset, blank or equal to the public CHAT_ID: nothing is sent,
+# logged once. Anything else: the LAB row exactly as before. Every failure here only logs and falls back to the LAB row.
+try:
+    from rules import (TEST_SETUPS as _R278_TEST, TEST_MAX_PER_MARKET_PER_DAY as _R278_TEST_MAX,
+                       TEST_SAME_SETUP_MIN as _R278_TEST_GAP)
+except Exception:   # an older rulebook: no TEST lane, every row stays LAB
+    _R278_TEST, _R278_TEST_MAX, _R278_TEST_GAP = (), 0, 60
+W278_TEST_OPS = {"<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b, "<": lambda a, b: a < b, ">": lambda a, b: a > b}
+W278_OUTBOX_MAX = 50
+W278_HEADER = "*** TEST - NOT A CALL - DO NOT TRADE ***"
+W278_FOOTER = "(TEST row - graded in the TEST lane, never counted as a call)"
+W278_RETRY_WAIT = (1, 2)  # seconds between the three tries of one TEST message
+_W278_OUTBOX = []        # (alert_id, row) - TEST rows written in this scan pass, sent by _w278_flush_test
+_W278_SAID = set()       # warnings already logged once
+
+
+def _w278_test_rule(row):
+    """The rules.TEST_SETUPS line this LAB row matches, or None. Pure: reads only the row and the rulebook."""
+    try:
+        if str(row.get("lane") or "").strip().lower() != "lab":
+            return None
+        trend = row.get("trend_score")
+        if isinstance(trend, bool) or not isinstance(trend, (int, float)):
+            trend = float(str(trend).strip())
+        trend = float(trend)
+        if trend != trend:
+            return None
+        for rule in tuple(_R278_TEST or ()):
+            market, setup, tf, side, cond = rule
+            op, val = cond
+            if (str(row.get("market") or "") == market and str(row.get("setup") or "") == setup
+                    and str(row.get("tf") or "") == tf and str(row.get("direction") or "") == side
+                    and op in W278_TEST_OPS and W278_TEST_OPS[op](trend, float(val))):
+                return rule
+        return None
+    except Exception:
+        return None
+
+
+def _w278_test_mark(market, setup, now=None):
+    """Count one TEST row in the Wave 246 dicts too (keys "<market>:TEST" and "TEST:<setup>", the Wave 266 trick), so
+    Wave 253's heartbeat carries them across a restart: Railway restarts from GitHub, and outcomes.csv reaches GitHub
+    only with the periodic sync (about every 6 hours) - the heartbeat every 15 minutes. Never raises."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        key = (str(market) + ":TEST", now.date().isoformat())
+        _W246_COUNT[key] = _W246_COUNT.get(key, 0) + 1
+        _W246_LAST[(str(market), "TEST:" + str(setup), "ANY")] = now
+    except Exception:
+        pass
+
+
+def _w278_test_room(row, now=None, rows=None):
+    """(True, "") when a TEST row may be written now for this row's market and setup: fewer than
+    rules.TEST_MAX_PER_MARKET_PER_DAY TEST rows in the market this UTC day, and no TEST row of the same setup within
+    rules.TEST_SAME_SETUP_MIN minutes. Counted from the LEDGER and from the heartbeat-persisted memory (the larger
+    count, either window), so neither a restart nor a lost ledger tail can reset them. Never raises."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        if int(_R278_TEST_MAX) <= 0:
+            return False, "TEST cap is 0"
+        rows = ot._read_all() if rows is None else rows
+        market, setup = str(row.get("market") or ""), str(row.get("setup") or "")
+        gap = timedelta(minutes=float(_R278_TEST_GAP))
+        today, n = now.date(), 0
+        last = _W246_LAST.get((market, "TEST:" + setup, "ANY"))
+        if last is not None and abs(now - last) < gap:
+            return False, "same setup within %s min" % _R278_TEST_GAP
+        for r in rows:
+            if str(r.get("lane") or "").strip().lower() != "test" or str(r.get("market") or "") != market:
+                continue
+            ts = datetime.fromisoformat(str(r.get("timestamp") or ""))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            ts = ts.astimezone(timezone.utc)
+            if ts.date() == today:
+                n += 1
+            if str(r.get("setup") or "") == setup and abs(now - ts) < gap:
+                return False, "same setup within %s min" % _R278_TEST_GAP
+        n = max(n, int(_W246_COUNT.get((market + ":TEST", today.isoformat()), 0)))
+        if n >= int(_R278_TEST_MAX):
+            return False, "%s TEST cap reached for today (%s)" % (market, _R278_TEST_MAX)
+        return True, ""
+    except Exception as _e:
+        return False, "TEST room check failed: %s" % _e
+
+
+def _w278_test_chat():
+    """(chat id, "") for the control chat - the Railway variable CONTROL_CHAT_ID itself, where the real calls go - or
+    ("", why) when it is unset, blank, or the same chat as the public CHAT_ID: then nothing is sent. Never reads the
+    module's CONTROL_CHAT_ID, which is the PUBLIC chat when the variable is unset. Never raises."""
+    try:
+        cid = str(os.getenv("CONTROL_CHAT_ID") or "").strip()
+        if not cid:
+            return "", "chat id unset"
+        if cid == str(CHAT_ID or "").strip():
+            return "", "public chat refused"
+        return cid, ""
+    except Exception:
+        return "", "chat id unreadable"
+
+
+def _w278_as_test(row, now=None, rows=None):
+    """(row, rule): the row re-laned "test" when it matches rules.TEST_SETUPS and has room; otherwise the SAME row
+    object, unchanged, and None. Never changes a level, a time or a score."""
+    rule = _w278_test_rule(row)
+    if rule is None:
+        return row, None
+    ok, why = _w278_test_room(row, now=now, rows=rows)
+    if not ok:
+        log.info("[%s] W278 TEST pick %s %s [%s] not taken (%s) - written as LAB, as before"
+                 % (row.get("market"), row.get("setup"), row.get("direction"), row.get("tf"), why))
+        return row, None
+    t = dict(row)
+    t["lane"] = "test"
+    cid, why = _w278_test_chat()
+    t["channel"] = "test (TEST message)" if cid else "test (not sent: %s)" % why
+    t["lab_gate"] = "test:%s" % str(row.get("lab_gate") or "")
+    return t, rule
+
+
+def _w278_log_lab(row):
+    """What the three LAB writers call instead of ot.log_alert: the LAB row as before, or the same row as TEST.
+    Returns the alert_id from ot.log_alert. A TEST row waits in _W278_OUTBOX for the end of the scan pass."""
+    try:
+        out, rule = _w278_as_test(row)
+    except Exception as _w278_e:
+        log.warning("W278: TEST check failed (non-fatal) - the row is written as LAB: %s" % _w278_e)
+        out, rule = row, None
+    aid = ot.log_alert(out)
+    if rule is not None:
+        _w278_test_mark(out.get("market"), out.get("setup"))
+        try:
+            if len(_W278_OUTBOX) < W278_OUTBOX_MAX:
+                _W278_OUTBOX.append((aid, dict(out, alert_id=aid)))
+            log.info("[%s] [%s] W278 TEST row %s %s trend %s -> %s (%s)"
+                     % (out.get("market"), out.get("tf"), out.get("setup"), out.get("direction"),
+                        out.get("trend_score"), aid, out.get("channel")))
+        except Exception:
+            pass
+    return aid
+
+
+def _w278_test_text(row):
+    """The TEST message, ASCII plain text. First line W278_HEADER, last line W278_FOOTER - always. None of a real
+    card's words: no ENTER NOW, no Entry / Stop / Target labels, no size, no tier or conviction, no emoji, no buttons."""
+    def num(v):
+        try:
+            return "{:,.2f}".format(float(v))
+        except Exception:
+            return _md(v)
+    body = [
+        "%s %s idea - %s [%s]" % (_md(row.get("market")), _md(row.get("direction")).lower(), _md(row.get("setup")),
+                                  _md(row.get("tf"))),
+        "Picked because it goes with the trend (trend score %s)." % _md(row.get("trend_score")),
+        "Graded at %s, wrong at %s, aim %s (%sR) - for the record only." % (
+            num(row.get("entry")), num(row.get("stop")), num(row.get("target")), _md(row.get("rr"))),
+        "Nothing to act on: no size, no order.",
+        "ID %s" % _md(row.get("alert_id")),
+    ]
+    body = [str(x).encode("ascii", "replace").decode("ascii") for x in body]
+    return "\n".join([W278_HEADER] + body + [W278_FOOTER])
+
+
+async def _w278_send_plain(app, cid, text):
+    """One TEST message to one chat: plain text (parse_mode None - Markdown would eat the *** of the header), no
+    buttons. Three tries. True when Telegram took it. Never raises."""
+    for attempt in range(3):
+        try:
+            await app.bot.send_message(chat_id=cid, text=text, parse_mode=None)
+            return True
+        except Exception as _w278_se:
+            log.warning("W278: TEST message try %d failed: %s" % (attempt + 1, _w278_se))
+            if attempt < 2:
+                try:
+                    await asyncio.sleep(W278_RETRY_WAIT[attempt])
+                except Exception:
+                    pass
+    return False
+
+
+async def _w278_flush_test(app):
+    """Send each TEST row written in this scan pass once to the control chat. No usable chat id: nothing is sent (the
+    rows are already written), said once in the log. Returns how many were sent. Never raises."""
+    try:
+        if not _W278_OUTBOX:
+            return 0
+        items = list(_W278_OUTBOX)
+        del _W278_OUTBOX[:]
+        cid, why = _w278_test_chat()
+        if not cid:
+            if why not in _W278_SAID:
+                _W278_SAID.add(why)
+                log.warning("W278: TEST rows are written but NOT sent (%s) - never to the public chat. Set CONTROL_CHAT_ID"
+                            " in Railway to the chat the calls go to." % why)
+            return 0
+        sent = 0
+        for aid, row in items:
+            if await _w278_send_plain(app, cid, _w278_test_text(row)):
+                sent += 1
+            else:
+                log.warning("W278: TEST message for %s not sent (non-fatal)" % aid)
+        return sent
+    except Exception as _w278_fe:
+        try:
+            log.warning("W278: TEST flush failed (non-fatal): %s" % _w278_fe)
+        except Exception:
+            pass
+        return 0
+# ---- end _WAVE278_TWO_SIDED_TEST ------------------------------------------------------------------------------
 
 # ---- _WAVE277_LAB_EXPERIMENTS ---------------------------------------------------------------------------------
 # LAB-EXPERIMENTS-1 (Wayne, 5 Oct 2026: "They can use the lab as much as they want. But once ideas are tested, then
@@ -703,7 +924,8 @@ def _w277_num(v):
 
 def _w277_is_added(r):
     """An experiment twin or a guard row - never a parent."""
-    return str((r or {}).get("lab_gate") or "").strip().split(":", 1)[0] in ("exp", "guard")
+    return (str((r or {}).get("lab_gate") or "").strip().split(":", 1)[0] in ("exp", "guard")
+            or str((r or {}).get("lane") or "").strip().lower() == "test")   # _WAVE278_TWO_SIDED_TEST
 
 
 def _w277_twin(parent, name, spec):
@@ -4368,7 +4590,7 @@ async def scan_market(app, market, frames):
                 try:
                     _w246_ok, _w246_why = _w246_may_grade(market, stp["type"], stp["direction"])
                     if _w246_ok:
-                        _w246_id = ot.log_alert({
+                        _w246_id = _w278_log_lab({   # _WAVE278_TWO_SIDED_TEST: LAB, or TEST when picked
                             "lane": "lab", "channel": "lab (not sent)",
                             "lab_gate": _w266_tag(market, "setup_off" if _w251_is_off(stp["type"]) else "conviction"),  # _WAVE254_LAB_GATE_GRADE, _WAVE266_KEEP_LOOKING
                             "market": market, "tf": entry_tf, "setup": stp["type"], "direction": stp["direction"],
@@ -5854,7 +6076,7 @@ async def force_flatten_futures(app):
         ot.update_result_flatten(row["alert_id"], result, cur, priced=_w240_priced)
         # _WAVE246_LAB_GRADE: a LAB close is tagged lab in the honest counter, never real.
         ot.record_trade_result(market, row.get("setup",""), result,
-                              source=("lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"))
+                              source=ot.w278_source(row))   # _WAVE278_TWO_SIDED_TEST: lab / test / real
         if not _w270_at_stop:  # _WAVE270_FLATTEN_AT_STOP: a stopped-out call is over - nothing to watch after the close
             _shadow_log_settle(row, cur, result)  # Wave 86: keep watching in shadow
         # Batch 2A: Log outcome to strategy_log.csv
@@ -5865,7 +6087,7 @@ async def force_flatten_futures(app):
 
         icon = "✅" if result=="WIN" else ("\u2796" if result == "SCRATCH" else "❌")  # _WAVE240_FLATTEN_GRADING
         # _WAVE246_LAB_GRADE: a LAB row is graded by the same flatten, but no card is ever sent for it.
-        _w246_is_lab_row = str(row.get("lane", "")).strip().lower() == "lab"
+        _w246_is_lab_row = str(row.get("lane", "")).strip().lower() in ("lab", "test")   # _WAVE278_TWO_SIDED_TEST: no card
         if _w246_is_lab_row and not _R246_TG:
             log.info(f"[{market}] LAB row flattened and graded at {cur} (no card sent)"
                      + (" - at its stop (W270)" if _w270_at_stop else ""))
@@ -6930,6 +7152,11 @@ async def scan_loop(app):
                 for m in active:
                     try: await scan_market(app, m, frames_by_market[m])
                     except Exception as e: log.error(f"scan {m}: {e}\n{traceback.format_exc()}")
+                # _WAVE278_TWO_SIDED_TEST: the TEST rows of this pass go to the control chat - after every market's scan.
+                try:
+                    await _w278_flush_test(app)
+                except Exception as _w278_le:
+                    log.warning("W278: TEST flush skipped (non-fatal): %s" % _w278_le)
                 # _WAVE277_LAB_EXPERIMENTS: the LAB twins of this pass's new rows - AFTER every market's scan (every
                 # real card of the pass is already sent), from the ledger, silent. A failure here only logs.
                 try:

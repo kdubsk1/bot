@@ -957,7 +957,7 @@ def record_trade_result(market: str, setup_type: str, result: str,
                 perf[key] = {"wins": 0, "losses": 0, "total": 0}
             # _WAVE246_LAB_GRADE: a LAB close is evidence from a call that was never sent. It gets its own
             # lab_* bucket and is kept OUT of the blended wins/losses/total, which stay real + paper.
-            _w246_lab_src = str(source).strip().lower() == "lab"
+            _w246_lab_src = str(source).strip().lower() in ("lab", "test")   # _WAVE278_TWO_SIDED_TEST: test as lab
             if not _w246_lab_src:
                 perf[key]["total"] += 1
             if result == "WIN" and not _w246_lab_src:
@@ -965,7 +965,7 @@ def record_trade_result(market: str, setup_type: str, result: str,
             elif result == "LOSS" and not _w246_lab_src:
                 perf[key]["losses"] += 1
             perf[key]["win_rate"] = round(perf[key]["wins"] / max(1, perf[key]["total"]) * 100, 1)
-            _src = "lab" if _w246_lab_src else ("paper" if source == "paper" else "real")  # _WAVE246_LAB_GRADE
+            _src = (str(source).strip().lower() if _w246_lab_src else ("paper" if source == "paper" else "real"))  # _WAVE246_LAB_GRADE; _WAVE278_TWO_SIDED_TEST: its own test_* counts
             _kw = _src + "_wins"
             _kl = _src + "_losses"
             _kt = _src + "_total"
@@ -3502,7 +3502,7 @@ def auto_check_outcomes(live_frames: dict):
                         _log_resolution_audit(alert_id, market, setup_type, direction, _union_res, _ft_res, entry, stop, target, ts_str)
             except Exception:
                 pass
-            _w246_src = "lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"  # _WAVE246_LAB_GRADE
+            _w246_src = w278_source(row)  # _WAVE246_LAB_GRADE; _WAVE278_TWO_SIDED_TEST: lab / test / real
             if hit_target:
                 update_result(alert_id, "WIN", 0, target)
                 record_trade_result(market, setup_type, "WIN", source=_w246_src)
@@ -3798,7 +3798,8 @@ def log_alert(row: dict) -> str:
     row.setdefault("bars_to_resolution", "")
     row.setdefault("exit_price", "")
     row.setdefault("last_rescore_conviction", row.get("conviction",""))
-    row["lane"] = "lab" if str(row.get("lane", "")).strip().lower() == "lab" else "real"  # _WAVE246_LAB_GRADE
+    row["lane"] = ("lab" if str(row.get("lane", "")).strip().lower() == "lab" else
+                   "test" if str(row.get("lane", "")).strip().lower() == "test" else "real")  # _WAVE246_LAB_GRADE; _WAVE278_TWO_SIDED_TEST keeps "test"
     # Session ID — always compute fresh, never rely on caller passing it in
     try:
         from session_clock import get_session_date
@@ -4209,6 +4210,30 @@ def update_partial_exit(alert_id: str):
         return rows
     _safe_mutate_csv(_mut)
 
+# ---- _WAVE278_TWO_SIDED_TEST ---------------------------------------------------------------------------------
+# TWO-SIDED-TEST: a third lane, "test" - never "real". A TEST row is a LAB row that rules.TEST_SETUPS picked: graded
+# exactly like LAB, sent to the control chat as a TEST message, and kept out of every real number, as LAB is.
+W278_NOT_REAL = ("lab", "test")
+
+
+def w278_is_test(r):
+    """True for a TEST row (lane "test")."""
+    try:
+        return str((r or {}).get("lane") or "").strip().lower() == "test"
+    except Exception:
+        return False
+
+
+def w278_source(row):
+    """The setup_performance source for a closing row: "lab", "test" or "real" (a blank lane is real)."""
+    try:
+        lane = str((row or {}).get("lane") or "").strip().lower()
+        return lane if lane in W278_NOT_REAL else "real"
+    except Exception:
+        return "real"
+# ---- end _WAVE278_TWO_SIDED_TEST -----------------------------------------------------------------------------
+
+
 def load_open_trades(include_lab: bool = False) -> list[dict]:
     """_WAVE246_LAB_GRADE: LAB rows are graded evidence, never positions. They are invisible here by
     default, so the one-position guard, the rescore watcher, /status and every caller written before
@@ -4216,7 +4241,7 @@ def load_open_trades(include_lab: bool = False) -> list[dict]:
     rows = [r for r in _read_all() if r.get("status") == "OPEN"]
     if include_lab:
         return rows
-    return [r for r in rows if str(r.get("lane", "")).strip().lower() != "lab"]
+    return [r for r in rows if str(r.get("lane", "")).strip().lower() not in W278_NOT_REAL]   # _WAVE278_TWO_SIDED_TEST: nor TEST
 
 
 # ------------------------------------------------------------------ #
@@ -4232,7 +4257,8 @@ W277_ADDED_PREFIXES = ("exp", "guard")
 def w277_added_row(r):
     """True for an experiment twin or a guard row (lab_gate "exp:..." / "guard:...")."""
     try:
-        return str((r or {}).get("lab_gate") or "").strip().split(":", 1)[0] in W277_ADDED_PREFIXES
+        return (str((r or {}).get("lab_gate") or "").strip().split(":", 1)[0] in W277_ADDED_PREFIXES
+                or w278_is_test(r))   # _WAVE278_TWO_SIDED_TEST: a TEST row is in no summary either
     except Exception:
         return False
 

@@ -349,6 +349,25 @@ LAB_SYNTH_RESERVE = 10
 LAB_WHILE_OPEN = True
 LAB_OPEN_MAX_PER_DAY = 20
 
+# ---- TWO-SIDED-TEST (_WAVE278_TWO_SIDED_TEST; Wayne 15 Oct 2026: "i dont wanna be one sided i want be fair") ----
+# A third lane, "test" - never "real". A LAB row that matches a line below (market, setup, timeframe and direction
+# exactly, and its own trend_score against the condition) is written with lane "test" instead of "lab", graded exactly
+# like the LAB row it replaces, and SENT to the control chat (CONTROL_CHAT_ID - where the real calls go; Wayne, 23 Oct:
+# "let's just do it to the tele we've been using") under the header "*** TEST - NOT A CALL - DO NOT TRADE ***".
+# Never the public chat, never a real statistic, never the one-open-call guard.
+# Evidence (research\twosided15oct\, 19-month replay, costs in, UNPROVEN): with the trend, NQ BREAK_RETEST_BEAR 1h
+# +15.7 pts a trade (224 rows), EMA21_PULLBACK_BEAR 15m +11.6 (503), VWAP_REJECT_BEAR 15m +9.0 (274) - both halves
+# positive; against the trend VWAP_REJECT_BEAR 15m loses -7.9. Wayne, 17 Oct: "TEST messages first" - promotion only
+# at a Saturday review once a line has 30 graded rows over 20 days. No learning, no scores; only a wave changes this.
+# (market, setup, timeframe, direction, (operator, trend_score value)); operator one of "<=", ">=", "<", ">".
+TEST_SETUPS = (
+    ("NQ", "BREAK_RETEST_BEAR",   "1h",  "SHORT", ("<=", -2)),
+    ("NQ", "EMA21_PULLBACK_BEAR", "15m", "SHORT", ("<=", -2)),
+    ("NQ", "VWAP_REJECT_BEAR",    "15m", "SHORT", ("<=", -2)),   # OFF as a real call (SETUPS_OFF); TEST only
+)
+TEST_MAX_PER_MARKET_PER_DAY = 6   # TEST rows (= TEST messages) per market per UTC day, counted from the ledger
+TEST_SAME_SETUP_MIN = 60          # the same market + setup never twice within this many minutes
+
 # ---- LAB-EXPERIMENTS-1 (_WAVE277_LAB_EXPERIMENTS; Wayne 5 Oct 2026: "They can use the lab as much as they want.
 # But once ideas are tested, then we'll send them to Telegram") ----
 # LAB TWINS (research\_LAB_STUDY_05OCT.md Part 2): after each scan pass the bot writes a silent LAB row beside each
