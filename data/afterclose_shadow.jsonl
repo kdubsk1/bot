@@ -959,3 +959,4 @@
 {"kind": "resolved", "alert_id": "98daecce0d", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 20, "settle_result": "WIN", "ts": "2026-10-23T01:57:32.406897+00:00"}
 {"kind": "resolved", "alert_id": "dff0b938b5", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 70, "settle_result": "WIN", "ts": "2026-10-23T14:29:01.507560+00:00"}
 {"kind": "pending", "alert_id": "58d05f9ca8", "market": "NQ", "direction": "LONG", "setup": "OPENING_RANGE_BREAKOUT", "entry": "29176.0", "stop": "28975.2561", "target": "29594.75", "settle_price": 29114.5, "settle_result": "LOSS", "settle_ts": "2026-10-23T19:55:07.070422+00:00"}
+{"kind": "resolved", "alert_id": "58d05f9ca8", "market": "NQ", "verdict": "SHADOW_NEITHER_36H", "bars_15m_after_close": 4, "settle_result": "LOSS", "ts": "2026-10-25T07:58:15.386642+00:00"}
