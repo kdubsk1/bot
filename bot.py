@@ -3943,6 +3943,23 @@ async def scan_market(app, market, frames):
     # Fall through.
 
     for entry_tf in cfg.ENTRY_TIMEFRAMES:
+        # _WAVE279_TOPSTEPX_HEALTH (Q69 A - Wayne, 8 Oct 2026: no stand-in, ever): NQ / gold write no new call - real,
+        # LAB, TEST, guard or ORB, all written inside this loop - while a TopstepX frame they need is failing and the
+        # kept copy is over 10 minutes old. Open calls were graded above, on the kept frame. One line a scan.
+        try:
+            from data_layer import w279_block_reason as _w279_block
+            _w279_why = _w279_block(market)
+        except Exception as _w279_e:
+            _w279_why = None
+            log.warning(f"[{market}] TOPSTEPX-HEALTH: gate skipped ({_w279_e})")
+        if _w279_why:
+            try:
+                _w279_open = len([r for r in ot.load_open_trades(include_lab=True) if r.get("market") == market])
+            except Exception:
+                _w279_open = "?"
+            log.warning(f"[{market}] TOPSTEPX-HEALTH: no new call this scan (real or LAB) - {_w279_why}; "
+                        f"{_w279_open} open call(s) graded on the kept TopstepX frame")
+            break
         htf_key = cfg.HTF_CONFIRM if entry_tf==cfg.ENTRY_TIMEFRAMES[0] else cfg.HTF_SWING
         _w145_news_15m = bool(entry_tf=="15m" and news_flag)  # Wave 145a (_WAVE145_NEWS_TF_EVIDENCE): the silent 15m news skip, now measured at the fire point
         df_e = frames.get(entry_tf)
@@ -5549,6 +5566,16 @@ _W243_CYCLE = [0]
 _W243_STARTED = datetime.now(timezone.utc).isoformat()
 
 
+def _w279_topstepx_summary():
+    """_WAVE279_TOPSTEPX_HEALTH: the heartbeat's "topstepx" field - {ok_last_hour, failed_last_hour, last_failure,
+    blocked} from data_layer. Never raises."""
+    try:
+        import data_layer as _w279_dl
+        return _w279_dl.w279_health_summary()
+    except Exception:
+        return None
+
+
 def _w243_write_heartbeat():
     """Wave 243: one small file that says the scanner is alive, written every scan cycle.
     A process cannot witness its own death, so this exists to be read from OUTSIDE (the journal,
@@ -5569,6 +5596,7 @@ def _w243_write_heartbeat():
             "markets": [m for m in ALL_MARKETS if SETTINGS["markets"].get(m)],
             "interval_min": SETTINGS.get("scan_interval_min"),
             "lab_caps": _w253_caps_snapshot(),  # _WAVE253_LAB_CAPS_PERSIST: the LAB caps ride the 15-minute push
+            "topstepx": _w279_topstepx_summary(),  # _WAVE279_TOPSTEPX_HEALTH: ok / failed last hour, last failure
         }, indent=1)
     except Exception as _w243e:
         try:
@@ -9147,7 +9175,7 @@ def _build_boot_banner(tsx_result, open_carried, expired_count, suspended_count,
             gc_b = tsx_result.get("gc_bars_15m", 0)
             L.append("\U0001f4e1 TopstepX \u2705 \u00b7 NQ `" + str(nq_b) + "` \u00b7 GC `" + str(gc_b) + "` bars")
         else:
-            L.append("\U0001f4e1 \u26a0\ufe0f Fallback data (TwelveData/yfinance)")
+            L.append("\U0001f4e1 \u26a0\ufe0f TopstepX not answering - NQ / gold make no call until it does (no stand-in)")   # _WAVE279_TOPSTEPX_HEALTH
     except Exception:
         pass
     try:
@@ -9621,7 +9649,7 @@ async def _post_init(app):
             lines.append(f"  NQ: `{_md(nq_c)}` ({nq_b} bars)")
             lines.append(f"  GC: `{_md(gc_c)}` ({gc_b} bars)")
             if not tsx_result.get("auth"):
-                lines.append("  ⚠️ Falling back to TwelveData/yfinance")
+                lines.append("  ⚠️ No stand-in: NQ / gold make no call until TopstepX answers")   # _WAVE279_TOPSTEPX_HEALTH
             lines.append("━━━━━━━━━━━━━━━━━━")
         except Exception as e:
             log.error(f"TopstepX startup banner: {e}")

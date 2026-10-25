@@ -504,7 +504,7 @@ def _get_topstepx_contract_id(market: str, token: str, force_refresh: bool = Fal
     return contract_id
 
 
-def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
+def _w279_fetch_topstepx_raw(market: str, timeframe: str) -> pd.DataFrame:   # _WAVE279_TOPSTEPX_HEALTH: was _fetch_topstepx (now its wrapper)
     """
     Primary fetch for NQ/GC — real CME futures data from TopstepX.
     Returns empty DataFrame on any failure (caller falls back to TwelveData → yfinance).
@@ -539,7 +539,7 @@ def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
 
     body = {
         "contractId":        contract_id,
-        "live":              True,
+        "live":              w279_live_flag(),   # _WAVE279_TOPSTEPX_HEALTH: False once this account refused True (re-tried at each 6 PM ET open)
         "startTime":         start_time,
         "endTime":           end_time,
         "unit":              unit,
@@ -553,8 +553,9 @@ def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
         "accept":        "text/plain",
     }
 
-    def _do_post():
-        return _topstepx_post("/api/History/retrieveBars", headers=headers, body=body, timeout=15)
+    def _do_post():   # _WAVE279_TOPSTEPX_HEALTH: the same request, timed and noted (_w279_rec_post)
+        return _w279_rec_post(body, lambda: _topstepx_post("/api/History/retrieveBars", headers=headers, body=body,
+                                                           timeout=15))
 
     # Attempt with one retry on 401 (token expired) and one retry on 5xx (transient)
     try:
@@ -1352,11 +1353,19 @@ def _fetch_raw(market: str, timeframe: str) -> pd.DataFrame:
                 return df_yf
 
         # PRIMARY: TopstepX (real CME futures data)
-        df_tsx = _fetch_topstepx(market_upper, timeframe)
+        df_tsx = _w279_scan_fetch(market_upper, timeframe)   # _WAVE279_TOPSTEPX_HEALTH: + one retry after a timeout
         if df_tsx is not None and len(df_tsx) >= MIN_BARS:
             _td_fallback_count[fb_key] = 0  # Wave 62: healthy again -> clear streak
             logger.info("Using TopstepX for %s %s (%d bars)", market_upper, timeframe, len(df_tsx))
             return df_tsx
+        # _WAVE279_TOPSTEPX_HEALTH (Q69 A - Wayne, 8 Oct 2026: no stand-in, ever): NQ / gold 15m, 1h, 4h come from
+        # TopstepX ONLY. TwelveData (QQQ / XAU/USD spot) and Yahoo (delayed) are not asked: _fetch_with_cache serves
+        # the kept TopstepX frame with its age, and scan_market writes no new call from one over 10 minutes old
+        # (w279_block_reason). Only the daily frame goes on down the chain below, as before (Wave 276).
+        if timeframe != "1d":
+            logger.warning("TopstepX failed for %s %s - no stand-in: TwelveData and Yahoo are not asked for NQ / "
+                           "gold intraday (data/topstepx_health.jsonl says why)", market_upper, timeframe)
+            return pd.DataFrame(columns=_STANDARD_COLS)
         logger.info("TopstepX insufficient/unavailable for %s %s -- trying TwelveData", market_upper, timeframe)
 
         # FALLBACK 1: TwelveData
@@ -1395,6 +1404,11 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
     cached = _get_cached(market_upper, timeframe)
     if cached is not None:
         return cached
+    # _WAVE279_TOPSTEPX_HEALTH: NQ / gold intraday while CME is shut (5-6 PM ET, the weekend) - the kept TopstepX
+    # frame as it is (its fetch time unchanged), TopstepX not asked, nothing backed off. None otherwise.
+    _w279_k = _w279_shut_frame(market_upper, timeframe)
+    if _w279_k is not None:
+        return _w279_k
 
     # Wave 95: negative-fetch backoff. A frame that just came back
     # insufficient is NOT re-hammered every cycle (the NQ 1d Sept-contract
@@ -1406,6 +1420,7 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
     if _nts is not None and (time.time() - _nts) < _neg_cd:
         _stale = _get_stale_cache(market_upper, timeframe)
         if _stale is not None:
+            _w279_kept(market_upper, timeframe)   # _WAVE279_TOPSTEPX_HEALTH: "kept the TopstepX frame (age N s)"
             return _stale
         return pd.DataFrame(columns=_STANDARD_COLS)
 
@@ -1421,6 +1436,7 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
         _set_cache(market_upper, timeframe, df)
         if timeframe == "1d":
             _w276_daily_after_set(market_upper)   # _WAVE276_DAILY_FRAME: a frame served after a refusal is not stamped fresh
+            _w279_daily_note(market_upper, df)   # _WAVE279_TOPSTEPX_HEALTH: source + bars to the jsonl when they change
         _neg_fetch.pop(_cache_key(market_upper, timeframe), None)  # Wave 95: success clears backoff
         return df.copy()
 
@@ -1432,6 +1448,7 @@ def _fetch_with_cache(market: str, timeframe: str) -> pd.DataFrame:
                     market_upper, timeframe, 0 if df is None else len(df), MIN_BARS)
     stale = _get_stale_cache(market_upper, timeframe)
     if stale is not None:
+        _w279_kept(market_upper, timeframe)   # _WAVE279_TOPSTEPX_HEALTH: "kept the TopstepX frame (age N s)"
         return stale
 
     # Return whatever we got (possibly empty)
@@ -1670,6 +1687,409 @@ def w275_reopen_gate(market, timeframe, df_e, df_15m):
 
 
 # ---------------------------------------------------------------------------
+# _WAVE279_TOPSTEPX_HEALTH (Q69 A - Wayne, 8 Oct 2026: "if Top Step fails, we should see why it failed and fix it")
+# ---------------------------------------------------------------------------
+# NQ / gold 15m, 1h and 4h come from TopstepX ONLY - never QQQ / XAU/USD spot (TwelveData) or Yahoo's delayed bars,
+# which is what _fetch_raw fell through to before (2 Oct 21:49 UTC: 500 QQQ bars served as NQ's 15m chart). When
+# TopstepX fails, the last good TopstepX frame stays in the cache with its age: up to W279_KEEP_MAX_S it is used and
+# the log says "kept the TopstepX frame (age N s)"; older, scan_market writes no new call (real or LAB) in that market
+# until TopstepX answers (w279_block_reason). Every failed TopstepX request is one line in data/topstepx_health.jsonl.
+# The daily frame (1d) keeps Wave 276's chain; its source and bar count are written to the same file when they change.
+import json as _w279_json
+import re as _w279_re
+import threading as _w279_threading
+
+W279_KEEP_MAX_S = 600            # a kept TopstepX frame is used up to this age (s); older: no new call in that market
+W279_TIMEOUT_RETRY_S = 2.0       # a scan fetch that timed out is asked once more after this many seconds
+W279_DEAD_S = 60.0               # a timeout AND its retry: that market's other frames are not asked for this long
+W279_HEALTH_FILE = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "data", "topstepx_health.jsonl")
+_W279_INTRADAY = ("15m", "1h", "4h")
+_W279_LOCK = _w279_threading.RLock()
+_W279_TL = _w279_threading.local()   # this thread's retrieveBars requests (FRESH-PRICE fetches on its own threads)
+_w279_state = {}                 # "NQ|15m" -> {"failing": bool, "since": first failure in a row (epoch s), "why": str}
+_w279_env = {"refused_at": None}  # when this account last refused live=True (None: live=True is asked)
+_w279_fetches = []               # [(epoch s, ok)] - every TopstepX fetch of the last hour (market-shut skips not counted)
+_w279_last = {"failure": None}   # the newest failure line written
+_w279_dead = {}                  # market -> time.monotonic() when a timeout and its retry both timed out
+_w279_said = {}                  # ("shut", market) / ("block", market) -> already said
+_w279_daily_seen = {}            # market -> (source, bars) of the daily frame last written
+_W279_SHUT_NAMES = {"break": "the 5-6 PM ET daily break", "weekend": "the weekend close"}
+
+
+def w279_market_shut(now_utc=None):
+    """"break" (5:00-6:00 PM New York time, Monday to Thursday) or "weekend" (Friday 5:00 PM to Sunday 6:00 PM New York
+    time) while CME Globex is shut for NQ and gold, else None. New York time, so summer and winter are both right. No
+    holiday calendar: on a holiday TopstepX is asked as on any day. Never raises (None on any doubt)."""
+    try:
+        import session_clock as _sc
+        tz = _sc.ET_ZONE
+        if tz is None:
+            return None
+        if now_utc is None:
+            now_utc = datetime.fromtimestamp(time.time(), timezone.utc)
+        et = now_utc.astimezone(tz)
+        wd, hm = et.weekday(), et.hour * 60 + et.minute
+        if wd == 5 or (wd == 4 and hm >= 1020) or (wd == 6 and hm < 1080):
+            return "weekend"
+        if wd in (0, 1, 2, 3) and 1020 <= hm < 1080:
+            return "break"
+        return None
+    except Exception:
+        return None
+
+
+def w279_live_flag():
+    """The live flag for the next retrieveBars: False once this account refused live=True, until the first fetch after
+    the next 6 PM ET reopen (w275_last_reopen), which asks live=True once again. Never raises (True on any doubt)."""
+    try:
+        ra = _w279_env.get("refused_at")
+        if ra is None:
+            return True
+        reo = w275_last_reopen()
+        if reo is not None and float(ra) < reo.timestamp():
+            return True
+        return False
+    except Exception:
+        return True
+
+
+def _w279_redact(s, n=200):
+    """A short, one-line snippet for the jsonl: anything that looks like a token, a key or a password is replaced
+    first, then it is cut to n characters. Never raises."""
+    try:
+        t = str("" if s is None else s)
+        t = _w279_re.sub(r"eyJ[A-Za-z0-9_\-]{4,}(?:\.[A-Za-z0-9_\-]*){0,2}", "[redacted]", t)
+        t = _w279_re.sub(r"(?i)(bearer\s+)\S+", r"\1[redacted]", t)
+        t = _w279_re.sub(r"(?i)(\"?(?:token|apikey|api_key|key|password|username)\"?\s*[:=]\s*)\"?[^\",}\s]+\"?",
+                         r"\1[redacted]", t)
+        for k in ("TOPSTEPX_API_KEY", "TOPSTEPX_USERNAME"):
+            v = _os.environ.get(k, "").strip()
+            if len(v) >= 4:
+                t = t.replace(v, "[redacted]")
+        return " ".join(t.split())[:n]
+    except Exception:
+        return ""
+
+
+def _w279_rec_post(body, post):
+    """One retrieveBars request, exactly as before (an exception is raised again, the response returned), timed and
+    noted for this thread: the live flag it asked with, the status, success, the number of bars, or the exception."""
+    rec = {"live": body.get("live"), "ms": None, "status": None, "exc": None, "msg": "", "success": None, "bars": None}
+    reqs = getattr(_W279_TL, "reqs", None)
+    if reqs is not None:
+        reqs.append(rec)
+    t0 = time.monotonic()
+    try:
+        resp = post()
+    except Exception as exc:
+        rec.update(ms=int(round((time.monotonic() - t0) * 1000)), exc=type(exc).__name__, msg=_w279_redact(exc))
+        raise
+    rec["ms"] = int(round((time.monotonic() - t0) * 1000))
+    try:
+        rec["status"] = int(resp.status_code)
+        if rec["status"] == 200:
+            try:
+                d = resp.json()
+                rec["success"] = bool(d.get("success"))
+                rec["bars"] = len(d.get("bars") or [])
+                if not rec["success"]:
+                    rec["msg"] = _w279_redact("errorCode=%s errorMessage=%s" % (d.get("errorCode"), d.get("errorMessage")))
+            except Exception as exc:
+                rec["exc"] = type(exc).__name__
+                rec["msg"] = _w279_redact(getattr(resp, "text", ""))
+        else:
+            rec["msg"] = _w279_redact(getattr(resp, "text", ""))
+    except Exception:
+        pass
+    return resp
+
+
+def _w279_req_kind(r):
+    """Why one request failed, or None when it brought bars."""
+    if r.get("exc"):
+        return "exception"
+    if r.get("status") is None:
+        return "no_answer"
+    if r.get("status") != 200:
+        return "http_%s" % r.get("status")
+    if r.get("success") is False:
+        return "live_true_refused" if r.get("live") is True else "refused"
+    if not r.get("bars"):
+        return "empty"
+    return None
+
+
+def _w279_is_timeout(r):
+    return bool(r) and ("timeout" in str(r.get("exc") or "").lower() or "timed out" in str(r.get("msg") or "").lower())
+
+
+def _w279_note(rec):
+    """Append one line to data/topstepx_health.jsonl. Never raises."""
+    try:
+        line = _w279_json.dumps(rec, default=str)
+        with _W279_LOCK:
+            _os.makedirs(_os.path.dirname(W279_HEALTH_FILE), exist_ok=True)
+            with open(W279_HEALTH_FILE, "a", encoding="utf-8") as fh:
+                fh.write(line + "\n")
+            if rec.get("kind") != "daily_frame":
+                _w279_last["failure"] = dict(rec)
+    except Exception as exc:
+        try:
+            logger.warning("TOPSTEPX-HEALTH: jsonl line not written (%s)", exc)
+        except Exception:
+            pass
+
+
+def _w279_line(m, tf, kind, r, ok, shut):
+    r = r or {}
+    return {"utc": datetime.fromtimestamp(time.time(), timezone.utc).isoformat(), "market": m, "timeframe": tf,
+            "kind": kind, "live": r.get("live"), "exception": r.get("exc"), "http_status": r.get("status"),
+            "ms": r.get("ms"), "body": _w279_redact(r.get("msg") or ""), "market_shut": shut, "fetch_ok": bool(ok)}
+
+
+def _w279_after_fetch(m, tf, ok, reqs, raised, shut):
+    """The bookkeeping after one TopstepX fetch: the account's environment, the hour's counts, one jsonl line per
+    failed request (or one for a fetch that failed before a request was sent), and the frame's failing state."""
+    now = time.time()
+    key = _cache_key(m, tf)
+    refused = [r for r in reqs if _w279_req_kind(r) == "live_true_refused"]
+    with _W279_LOCK:
+        if refused:
+            _w279_env["refused_at"] = now
+            logger.info("TopstepX: live=True refused (%s %s) - this account is on the Combine sim feed; live=False is "
+                        "asked straight away from now on (one request a fetch), and live=True once again at the next "
+                        "6 PM ET open", m, tf)
+        elif ok and reqs and reqs[-1].get("live") is True and _w279_env.get("refused_at") is not None:
+            _w279_env["refused_at"] = None
+            logger.warning("TopstepX: live=True answered (%s %s) - the funded-environment feed; asked from now on", m, tf)
+        elif (not ok) and reqs and _w279_req_kind(reqs[-1]) == "refused":
+            _w279_env["refused_at"] = None     # live=False refused too: the next fetch asks live=True first
+        _w279_fetches.append((now, bool(ok)))
+        while _w279_fetches and _w279_fetches[0][0] < now - 3600:
+            _w279_fetches.pop(0)
+        _w279_said.pop(("shut", m), None)
+    failed = [r for r in reqs if _w279_req_kind(r)]
+    for r in failed:
+        _w279_note(_w279_line(m, tf, _w279_req_kind(r), r, ok, shut))
+    why = ""
+    if not ok and not failed:
+        if raised is not None:
+            why = "raised"
+            _w279_note(_w279_line(m, tf, why, {"exc": type(raised).__name__, "msg": _w279_redact(raised)}, ok, shut))
+        elif not reqs:
+            why = "no_token" if _TOPSTEPX_TOKEN is None else "no_contract"
+            _w279_note(_w279_line(m, tf, why, {"msg": "no retrieveBars request was sent (%s) - see the TopstepX auth / "
+                                               "contract line in the log" % why.replace("_", " ")}, ok, shut))
+        else:
+            why = "too_few_bars"
+            _w279_note(_w279_line(m, tf, why, reqs[-1], ok, shut))
+    elif failed:
+        why = _w279_req_kind(failed[-1])
+    _W279_TL.timed_out = (not ok) and bool(reqs) and _w279_is_timeout(reqs[-1])
+    with _W279_LOCK:
+        st = _w279_state.setdefault(key, {"failing": False, "since": None, "why": None})
+        if ok:
+            was = st["failing"]
+            st.update(failing=False, since=None, why=None)
+            _w279_dead.pop(m, None)
+            if was:
+                logger.warning("TopstepX %s %s: answers again", m, tf)
+            for t2 in _W279_INTRADAY:   # TopstepX answers: the market's other failing frames are asked on the next scan
+                if t2 != tf and (_w279_state.get(_cache_key(m, t2)) or {}).get("failing"):
+                    _neg_fetch.pop(_cache_key(m, t2), None)
+        else:
+            if not st["failing"]:
+                st["since"] = now
+            st.update(failing=True, why=why or "failed")
+
+
+def _w279_say_shut(m, shut):
+    with _W279_LOCK:
+        if _w279_said.get(("shut", m)):
+            return
+        _w279_said[("shut", m)] = True
+    logger.info("TopstepX %s: market shut (%s) - no new bars asked until it reopens at 6 PM ET; the kept TopstepX "
+                "frames are used as they are", m, _W279_SHUT_NAMES.get(shut, shut))
+
+
+def _fetch_topstepx(market: str, timeframe: str) -> pd.DataFrame:
+    """_WAVE279_TOPSTEPX_HEALTH: the TopstepX fetch (_w279_fetch_topstepx_raw - its own code, but for the live flag
+    and the request notes), with: no intraday bars asked while CME is shut when a kept frame exists; every failed
+    request written to data/topstepx_health.jsonl; the fetch counted for the heartbeat. Returns what the raw fetch
+    returns (an empty frame on any failure); an exception it raises is raised again after it is written down."""
+    m = str(market).upper()
+    _W279_TL.timed_out = False
+    if m not in _TOPSTEPX_SYMBOL_FILTER or timeframe not in _TOPSTEPX_TF_MAP:
+        return _w279_fetch_topstepx_raw(market, timeframe)
+    shut = w279_market_shut()
+    if shut and timeframe in _W279_INTRADAY and _cache_key(m, timeframe) in _cache:
+        _w279_say_shut(m, shut)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+    _W279_TL.reqs = []
+    df, raised = None, None
+    try:
+        df = _w279_fetch_topstepx_raw(market, timeframe)
+    except Exception as exc:
+        raised = exc
+    reqs = list(getattr(_W279_TL, "reqs", None) or [])
+    _W279_TL.reqs = None
+    ok = df is not None and len(df) >= MIN_BARS
+    try:
+        _w279_after_fetch(m, timeframe, ok, reqs, raised, shut)
+    except Exception as exc:
+        logger.warning("TOPSTEPX-HEALTH: bookkeeping failed for %s %s (%s)", m, timeframe, exc)
+    if raised is not None:
+        raise raised
+    return df
+
+
+def _w279_scan_fetch(market, timeframe):
+    """_fetch_raw's TopstepX fetch. NQ / gold 15m, 1h, 4h: a fetch that TIMED OUT is asked once more after
+    W279_TIMEOUT_RETRY_S; when the retry times out too, that market's other frames are not asked for W279_DEAD_S, so a
+    dead TopstepX holds the scan up once a pass, not once a frame. The daily frame: _fetch_topstepx, as before."""
+    if timeframe not in _W279_INTRADAY:
+        return _fetch_topstepx(market, timeframe)
+    d = _w279_dead.get(market)
+    if d is not None and time.monotonic() - d < W279_DEAD_S:
+        with _W279_LOCK:
+            st = _w279_state.setdefault(_cache_key(market, timeframe), {"failing": False, "since": None, "why": None})
+            if not st["failing"]:
+                st["since"] = time.time()
+            st.update(failing=True, why="not asked: timed out twice")
+        logger.warning("TopstepX %s %s: not asked - TopstepX timed out twice for %s %.0f s ago (the scan is not held "
+                       "up again for %.0f s)", market, timeframe, market, time.monotonic() - d, W279_DEAD_S)
+        return pd.DataFrame(columns=_STANDARD_COLS)
+    df = _fetch_topstepx(market, timeframe)
+    if (df is not None and len(df) >= MIN_BARS) or not getattr(_W279_TL, "timed_out", False):
+        return df
+    logger.warning("TopstepX %s %s: timed out - asked once more in %.0f s", market, timeframe, W279_TIMEOUT_RETRY_S)
+    time.sleep(W279_TIMEOUT_RETRY_S)
+    df = _fetch_topstepx(market, timeframe)
+    if (df is None or len(df) < MIN_BARS) and getattr(_W279_TL, "timed_out", False):
+        _w279_dead[market] = time.monotonic()
+        logger.warning("TopstepX %s %s: timed out again - %s's other frames are not asked for %.0f s",
+                       market, timeframe, market, W279_DEAD_S)
+    return df
+
+
+def _w279_shut_frame(market, timeframe):
+    """_fetch_with_cache, NQ / gold 15m, 1h, 4h, the saved frame past its re-use time: while CME is shut the kept
+    TopstepX frame is served as it is (its fetch time unchanged, so its age stays true) and TopstepX is not asked.
+    None otherwise (and when no frame is kept - a boot while shut asks once). Never raises."""
+    try:
+        if market not in _FUTURES_MARKETS or timeframe not in _W279_INTRADAY:
+            return None
+        e = _cache.get(_cache_key(market, timeframe))
+        if e is None:
+            return None
+        shut = w279_market_shut()
+        if not shut:
+            return None
+        _w279_say_shut(market, shut)
+        return e["df"].copy()
+    except Exception:
+        return None
+
+
+def _w279_kept(market, timeframe):
+    """_fetch_with_cache is serving the kept frame after a failed fetch: say its age, and whether it may still be used
+    for a new call. Never raises."""
+    try:
+        if market not in _FUTURES_MARKETS or timeframe not in _W279_INTRADAY:
+            return
+        e = _cache.get(_cache_key(market, timeframe))
+        if e is None:
+            return
+        age = max(0.0, time.time() - float(e.get("ts", 0)))
+        if age <= W279_KEEP_MAX_S:
+            logger.warning("TopstepX %s %s: kept the TopstepX frame (age %d s)", market, timeframe, int(age))
+        else:
+            logger.warning("TopstepX %s %s: kept the TopstepX frame (age %d s) - over %d s: no new %s call until "
+                           "TopstepX answers; open calls are graded on it", market, timeframe, int(age),
+                           W279_KEEP_MAX_S, market)
+    except Exception:
+        pass
+
+
+def w279_block_reason(market):
+    """None = this market may write new calls. Otherwise why not: one of its 15m / 1h / 4h TopstepX fetches is failing
+    and the kept frame is over W279_KEEP_MAX_S old (or there is none). One DATA ALERT line when a market blocks, one
+    when it is free again. BTC / SOL: always None. Never raises (None on its own failure)."""
+    try:
+        m = str(market or "").upper()
+        if m not in _FUTURES_MARKETS:
+            return None
+        now = time.time()
+        worst = None
+        with _W279_LOCK:
+            for tf in _W279_INTRADAY:
+                st = _w279_state.get(_cache_key(m, tf))
+                if not st or not st.get("failing"):
+                    continue
+                e = _cache.get(_cache_key(m, tf))
+                age = None if e is None else max(0.0, now - float(e.get("ts", 0)))
+                if age is None or age > W279_KEEP_MAX_S:
+                    worst = (tf, age, dict(st))
+                    break
+        if worst is None:
+            with _W279_LOCK:
+                was = _w279_said.pop(("block", m), None)
+            if was:
+                logger.error("DATA ALERT: TopstepX answers again for %s - new %s calls may be written again", m, m)
+            return None
+        tf, age, st = worst
+        since = datetime.fromtimestamp(float(st.get("since") or now), timezone.utc).strftime("%H:%M:%S")
+        why = ("TopstepX has not answered for %s %s since %s UTC (%s); %s" % (
+            m, tf, since, st.get("why") or "failed",
+            "no TopstepX frame is kept" if age is None else
+            "the kept frame is %d s old - over the %d s limit" % (int(age), W279_KEEP_MAX_S)))
+        with _W279_LOCK:
+            first = not _w279_said.get(("block", m))
+            _w279_said[("block", m)] = True
+        if first:
+            logger.error("DATA ALERT: %s - no new %s call (real or LAB) until TopstepX answers", why, m)
+        return why
+    except Exception:
+        return None
+
+
+def w279_health_summary():
+    """The heartbeat's "topstepx" field: TopstepX fetches that brought bars / failed in the last hour (since the last
+    boot at most), the newest failure line, and the markets blocked now. Never raises."""
+    try:
+        now = time.time()
+        with _W279_LOCK:
+            recent = [ok for t, ok in _w279_fetches if now - t <= 3600]
+            last = _w279_last.get("failure")
+            blocked = sorted(m for (k, m), v in _w279_said.items() if k == "block" and v)
+        return {"ok_last_hour": sum(1 for x in recent if x), "failed_last_hour": sum(1 for x in recent if not x),
+                "last_failure": dict(last) if last else None, "blocked": blocked}
+    except Exception:
+        return {"ok_last_hour": None, "failed_last_hour": None, "last_failure": None, "blocked": None}
+
+
+def _w279_daily_note(market, df):
+    """The daily frame's source and bar count, one jsonl line when either changes (log only). Never raises."""
+    try:
+        src = _last_source.get(_cache_key(market, "1d")) or "UNKNOWN"
+        bars = 0 if df is None else int(len(df))
+        prev = _w279_daily_seen.get(market)
+        if prev == (src, bars):
+            return
+        _w279_daily_seen[market] = (src, bars)
+        try:
+            newest = df.index[-1].strftime("%Y-%m-%d")
+        except Exception:
+            newest = None
+        _w279_note({"utc": datetime.fromtimestamp(time.time(), timezone.utc).isoformat(), "market": market,
+                    "timeframe": "1d", "kind": "daily_frame", "source": src, "bars": bars, "newest": newest,
+                    "before": list(prev) if prev else None})
+    except Exception:
+        pass
+# ---- end _WAVE279_TOPSTEPX_HEALTH ------------------------------------------
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 _ALL_TIMEFRAMES = ["15m", "1h", "4h", "1d"]
@@ -1871,6 +2291,8 @@ def w271_fresh_frames(market, frames, max_age_s=None):
         lim = W271_ENTRY_MAX_AGE_S if max_age_s is None else float(max_age_s)
         age = w271_saved_age(m)
         if age is not None and age <= lim:
+            return frames
+        if m in _FUTURES_MARKETS and age is not None and w279_market_shut():   # _WAVE279_TOPSTEPX_HEALTH: CME shut
             return frames
         res = w271_fetch_fresh_15m([m], "entry").get(m)
         if not res or not res[0]:
