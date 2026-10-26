@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-26T21:52:42.195094+00:00",
- "cycle": 985,
+ "utc": "2026-10-26T22:07:27.794778+00:00",
+ "cycle": 1014,
  "last_sync": "2026-10-26T17:39:15.051691+00:00",
  "started_utc": "2026-10-25T17:32:49.446630+00:00",
  "scanner_on": true,
@@ -21,17 +21,17 @@
   "last": {}
  },
  "topstepx": {
-  "ok_last_hour": 2,
+  "ok_last_hour": 18,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-10-25T22:00:25.351054+00:00",
+   "utc": "2026-10-26T22:00:22.545177+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 49,
+   "ms": 55,
    "body": "errorCode=1 errorMessage=None",
    "market_shut": null,
    "fetch_ok": true
