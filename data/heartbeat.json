@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-26T00:47:32.589527+00:00",
- "cycle": 305,
+ "utc": "2026-10-26T01:03:36.897590+00:00",
+ "cycle": 309,
  "last_sync": "2026-10-25T23:38:29.291859+00:00",
  "started_utc": "2026-10-25T17:32:49.446630+00:00",
  "scanner_on": true,
@@ -16,12 +16,11 @@
    "BTC|2026-10-26": 3
   },
   "last": {
-   "BTC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-26T00:41:30.929042+00:00",
-   "NQ|RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-26T00:26:26.970042+00:00"
+   "BTC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-26T00:41:30.929042+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 42,
+  "ok_last_hour": 40,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-25T22:00:25.351054+00:00",
