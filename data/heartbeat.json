@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-26T02:11:30.795842+00:00",
- "cycle": 328,
+ "utc": "2026-10-26T02:31:33.406604+00:00",
+ "cycle": 330,
  "last_sync": "2026-10-25T23:38:29.291859+00:00",
  "started_utc": "2026-10-25T17:32:49.446630+00:00",
  "scanner_on": true,
@@ -12,18 +12,19 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "NQ|2026-10-26": 9,
-   "BTC|2026-10-26": 7,
-   "GC|2026-10-26": 3
+   "NQ|2026-10-26": 10,
+   "BTC|2026-10-26": 9,
+   "GC|2026-10-26": 4
   },
   "last": {
-   "NQ|VWAP_BOUNCE_BULL|LONG": "2026-10-26T01:58:28.527343+00:00",
-   "NQ|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-26T01:58:28.535599+00:00",
-   "NQ|RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-26T01:58:28.499921+00:00"
+   "NQ|RRGATE:VWAP_REJECT_BEAR|SHORT": "2026-10-26T02:21:33.111047+00:00",
+   "BTC|BB_REVERSION_BULL|LONG": "2026-10-26T02:11:31.958745+00:00",
+   "GC|STOCH_REVERSAL_BULL|LONG": "2026-10-26T02:11:31.825856+00:00",
+   "BTC|STOCH_REVERSAL_BULL|LONG": "2026-10-26T02:11:31.984717+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 38,
+  "ok_last_hour": 30,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-25T22:00:25.351054+00:00",
