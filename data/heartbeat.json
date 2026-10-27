@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-27T12:17:06.470224+00:00",
- "cycle": 226,
+ "utc": "2026-10-27T12:32:20.514743+00:00",
+ "cycle": 238,
  "last_sync": "2026-10-27T12:06:52.196803+00:00",
  "started_utc": "2026-10-27T06:01:14.090579+00:00",
  "scanner_on": true,
@@ -12,26 +12,24 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "BTC|2026-10-27": 10,
+   "BTC|2026-10-27": 11,
    "NQ|2026-10-27": 21,
    "GC|2026-10-27": 3,
-   "NQ:DROP|2026-10-27": 14,
+   "NQ:DROP|2026-10-27": 15,
    "BTC:W266|2026-10-27": 8,
    "NQ:TEST|2026-10-27": 1,
    "BTC:DROP|2026-10-27": 2,
    "NQ:W266|2026-10-27": 9
   },
   "last": {
-   "NQ|VWAP_BOUNCE_BULL|LONG": "2026-10-27T11:52:59.977157+00:00",
-   "BTC|VWAP_BOUNCE_BULL|LONG": "2026-10-27T11:47:59.500210+00:00",
+   "BTC|VWAP_BOUNCE_BULL|LONG": "2026-10-27T12:28:13.912406+00:00",
    "NQ|OPEN:EMA21_PULLBACK_BULL|LONG": "2026-10-27T12:08:03.985674+00:00",
-   "NQ|RRGATE:BREAK_RETEST_BULL|LONG": "2026-10-27T11:52:59.945806+00:00",
-   "BTC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-27T11:53:00.244329+00:00",
+   "NQ|ADX:BREAK_RETEST_BULL|LONG": "2026-10-27T12:27:10.531784+00:00",
    "NQ|OPEN:RRGATE:EMA21_PULLBACK_BULL|LONG": "2026-10-27T12:03:02.521537+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 34,
+  "ok_last_hour": 44,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-27T06:01:15.817147+00:00",
