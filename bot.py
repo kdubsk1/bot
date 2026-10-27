@@ -808,6 +808,9 @@ def _w278_as_test(row, now=None, rows=None):
 def _w278_log_lab(row):
     """What the three LAB writers call instead of ot.log_alert: the LAB row as before, or the same row as TEST.
     Returns the alert_id from ot.log_alert. A TEST row waits in _W278_OUTBOX for the end of the scan pass."""
+    row, _w282_over = _w282_overflow(row)   # _WAVE282_GRADE_EVERYTHING: past a cap's old value - LAB, never TEST
+    if _w282_over:
+        return ot.log_alert(row)
     try:
         out, rule = _w278_as_test(row)
     except Exception as _w278_e:
@@ -943,6 +946,236 @@ def _w280_al_open(market):
         return False
 # ---- end _WAVE280_ALL_TO_LAB ----------------------------------------------------------------------------------
 
+# ---- _WAVE282_GRADE_EVERYTHING -------------------------------------------------------------------------------
+# GRADE-EVERYTHING (Wayne, 26 Oct 2026, Q92: "grades and reads everything it sees"). A setup the ADX gate drops, or
+# the R cap drops, used to end as a REJECTED scan row and nothing else. It is now graded ONCE in LAB: the ADX drop at
+# the levels the real path would have computed (the Wave 64 crypto stop, the Wave 248 floor and the picker, in that
+# order, on a copy; then Wave 254 / 255 / the nearest level where the real path stops), the R-cap drop on its nearest
+# level as it is. ot.log_alert directly (never the TEST lane), lane "lab", "lab (not sent)", one row per market /
+# setup / direction per LAB_DUP_MIN in its own cell, its own daily count (<market>:DROP - Wave 253 persists it).
+# Never a twin parent (Wave 277). The gate has already decided; this only grades. Never raises, never sends.
+try:
+    from rules import LAB_GRADE_DROPS as _R282_ON, LAB_DROP_MAX_PER_DAY as _R282_MAX
+except Exception:   # an older rulebook: no such rows
+    _R282_ON, _R282_MAX = False, 0
+try:
+    from rules import LAB_OLD_CAPS as _R282_OLD
+except Exception:   # an older rulebook: the caps were never raised, so no row is past them
+    _R282_OLD = {}
+W282_GATES = ("adx", "adx_rr_low", "adx_synth", "adx_r_cap", "adx_rr_floor", "r_cap",
+              "lab_cap", "w266_cap", "lab_synth_cap")   # the last three: rows past a cap's old value
+W282_CELL = {"adx": "ADX:", "r_cap": "RCAP:"}
+W282_SKIP_HEAD = "LAB row not written - "   # the words of LOG-EVERY-DROP's rows
+
+
+def _w282_on():
+    """Is GRADE-EVERYTHING on (rules.LAB_GRADE_DROPS, a positive cap, the LAB lane)? Never raises."""
+    try:
+        return bool(_R282_ON) and int(_R282_MAX) > 0 and bool(_R246_ON)
+    except Exception:
+        return False
+
+
+def _w282_new_row(r):
+    """A row this wave writes (lane lab, lab_gate in W282_GATES, with or without a Wave 266 mode). Never raises."""
+    try:
+        g = str((r or {}).get("lab_gate") or "").strip()
+        head, _, tail = g.partition(":")
+        if head in ("open_call", "crypto_dead_zone") and tail:
+            g = tail
+        return str((r or {}).get("lane") or "").strip().lower() == "lab" and g in W282_GATES
+    except Exception:
+        return False
+
+
+def _w282_overflow(row, now=None):
+    """(a copy with the cap's name as lab_gate, True) when this LAB row is written PAST the value its cap had before
+    this wave (rules.LAB_OLD_CAPS) - the count is read before the writer marks it, so the old cap's last row is
+    still the old gate; otherwise (the same row, False). The pools are the live ones: in a LAB-only scan Wave 266's
+    own count; else the shared count (Wave 246 / 254), and for a synthesized row also its own count and the old
+    reserve. Never raises."""
+    try:
+        if not _R282_OLD:
+            return row, False
+        g = str(row.get("lab_gate") or "").strip()
+        head, _, tail = g.partition(":")
+        mode = head if head in ("open_call", "crypto_dead_zone") else ""
+        base = tail if mode else g
+        if g in ("open_call", "crypto_dead_zone"):
+            mode, base = g, ""
+        market = str(row.get("market") or "")
+        day = (now or datetime.now(timezone.utc)).date().isoformat()
+        shared = int(_W246_COUNT.get((market, day), 0))
+        lab_old = int(_R282_OLD["lab_cap"])
+        if mode:
+            over = int(_W246_COUNT.get((market + ":W266", day), 0)) >= int(_R282_OLD["w266_cap"])
+            name = "w266_cap"
+        elif base in ("conviction", "setup_off", "rr_too_low", "rr_floor"):
+            over, name = shared >= lab_old, "lab_cap"
+        elif base == "no_target":
+            over = (int(_W255_COUNT.get((market, day), 0)) >= int(_R282_OLD["lab_synth_cap"])
+                    or shared >= lab_old - int(_R255_RESERVE))
+            name = "lab_synth_cap"
+        else:
+            return row, False
+        if not over:
+            return row, False
+        out = dict(row)
+        out["lab_gate"] = ("%s:%s" % (mode, name)) if mode else name
+        return out, True
+    except Exception:
+        return row, False
+
+
+def _w282_skip(market, entry_tf, stp, token, cur_price, trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag, context):
+    """One REJECTED scan row saying why no row was written (target 0: born NO_LEVELS). Never raises."""
+    try:
+        sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+            cur_price, stp["entry"], stp["raw_stop"], 0, 0, 0, "REJECT",
+            trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+            sl.DECISION_REJECTED, W282_SKIP_HEAD + str(token), context=context)
+    except Exception:
+        pass
+
+
+def _w282_nearest(stp, cands):
+    """(target, rr, method) on the NEAREST swing level for a setup whose levels all sit above the R cap: the picker's
+    own candidate list (Wave 229 - each level's R from this entry and stop), target = entry +/- R x risk. Pure."""
+    try:
+        rrs = [float(x) for x in ((cands or {}).get("candidates") or []) if float(x) > 0]
+        e, s = float(stp["entry"]), float(stp["raw_stop"])
+        risk = abs(e - s)
+        if not rrs or risk <= 0:
+            return 0.0, 0.0, "rr_too_high"
+        r0 = min(rrs)
+        sg = 1.0 if "LONG" in str(stp.get("direction", "")).upper() else -1.0
+        return round(e + sg * r0 * risk, 4), round(r0, 2), "nearest_level_above_cap"
+    except Exception:
+        return 0.0, 0.0, "rr_too_high"
+
+
+def _w282_adx_levels(market, cfg, stp, df_e, atr_v, trend, news_flag):
+    """(gate, setup copy, target, rr, method) for an ADX-dropped setup: what the real path would have computed, by the
+    same functions in the same order (scan_market: Wave 64, then Wave 248 and the picker), then the LAB rule where the
+    real path stops. target 0 = nothing to grade (method says why). Never changes stp."""
+    s = dict(stp)
+    if market in ("BTC", "SOL") and atr_v > 0:      # Wave 64, as in scan_market
+        try:
+            _min_stop_dist = 1.2 * atr_v
+            if abs(s["entry"] - s["raw_stop"]) < _min_stop_dist:
+                if "LONG" in str(s["direction"]):
+                    s["raw_stop"] = s["entry"] - _min_stop_dist
+                else:
+                    s["raw_stop"] = s["entry"] + _min_stop_dist
+        except Exception:
+            pass
+    try:                                             # Wave 248, as in scan_market
+        _sf = ot.get_rr_floor(s["type"], market)
+        _gl = (max(cfg.NEWS_MIN_RR, _w225_min_rr(market)) if news_flag else _w225_min_rr(market))
+        floor = _w225_floor(_sf, _gl)
+    except Exception:
+        floor = None
+    if floor is None:
+        tgt, rr, method = ot.structure_target(df_e, s["direction"], s["entry"], s["raw_stop"], atr_v,
+                                              market=market, trend_score_val=trend)
+    else:
+        tgt, rr, method = ot.structure_target(df_e, s["direction"], s["entry"], s["raw_stop"], atr_v,
+                                              min_rr=float(floor), market=market, trend_score_val=trend)
+    cands = ot.w229_take_candidates()
+    lab_min = float(_R254_MIN_RR)
+    if method == "rr_too_high":
+        tgt, rr, m2 = _w282_nearest(s, cands)
+        return "adx_r_cap", s, tgt, rr, m2
+    if method == "rr_too_low":                      # Wave 254's rule
+        tgt, rr, m2 = ot.structure_target(df_e, s["direction"], s["entry"], s["raw_stop"], atr_v, min_rr=lab_min,
+                                          market=market, trend_score_val=trend)
+        ot.w229_take_candidates()
+        if (not tgt) or float(rr) < lab_min or m2 in ("no_target", "rr_too_low", "rr_too_high"):
+            return "adx_rr_low", s, 0.0, 0.0, "no level at %sR" % lab_min
+        return "adx_rr_low", s, tgt, rr, m2
+    if method == "no_target" or not tgt:             # Wave 255's rule
+        tgt, rr, m2 = _w255_synth_target(s, market)
+        return "adx_synth", s, tgt, rr, m2
+    if floor is not None and float(rr) < float(floor):
+        return ("adx_rr_floor", s, tgt, rr, method) if float(rr) >= lab_min else (
+            "adx_rr_floor", s, 0.0, 0.0, "below %sR" % lab_min)
+    return "adx", s, tgt, rr, method
+
+
+def _w282_grade_drop(gate, market, cfg, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v, vol_ratio,
+                     htf_bias, cur_price, snapshot_context, why="", cands=None, now=None):
+    """LAB-grade a setup the ADX gate ("adx") or the R cap ("r_cap") just dropped. Returns the alert_id, or "" when
+    nothing was written (a scan row says why). Never raises, never sends."""
+    def _say(token):
+        _w282_skip(market, entry_tf, stp, token, cur_price, trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                   snapshot_context)
+    try:
+        if not _w282_on():
+            return ""
+        if market in tuple(_R239_CALLS_OFF or ()):
+            _say("market_off %s" % market)
+            return ""
+        if gate == "adx" and str(stp.get("type")) in ("APPROACH_SUPPORT", "APPROACH_RESIST"):
+            _say("adx_detection_only (Wave 27: APPROACH never fires)")
+            return ""
+        now = now or datetime.now(timezone.utc)
+        cell = W282_CELL[gate] + str(stp["type"])
+        day = now.date().isoformat()
+        n = int(_W246_COUNT.get((market + ":DROP", day), 0))
+        if n >= int(_R282_MAX):
+            _say("lab_drop_cap %s %d/%d %s" % (market, n, int(_R282_MAX), gate))
+            return ""
+        last = _W246_LAST.get((market, cell, stp["direction"]))
+        if last is not None and (now - last) < timedelta(minutes=float(_R246_DUP_MIN)):
+            _say("lab_drop_window %sm %s" % (_R246_DUP_MIN, gate))
+            return ""
+        if gate == "adx":
+            g, s, tgt, rr, method = _w282_adx_levels(market, cfg, stp, df_e, atr_v, trend, news_flag)
+        else:
+            g, s = "r_cap", stp
+            tgt, rr, method = _w282_nearest(s, cands)
+        if not tgt:
+            _say("lab_no_level %s (%s)" % (g, method))
+            return ""
+        conv, _tier, _bd = ot.conviction_score(s, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio,
+                                               abs(tgt - s["entry"]) / max(1e-9, atr_v))
+        conv = max(0, min(100, int(conv)))
+        cmin = _w225_conv_min(market, s["type"])
+        tier = "HIGH" if conv >= 60 else ("MEDIUM" if conv >= 53 else ("LOW" if conv >= cmin else "REJECT"))
+        aid = ot.log_alert({
+            "lane": "lab", "channel": "lab (not sent)", "lab_gate": _w266_tag(market, g),
+            "market": market, "tf": entry_tf, "setup": s["type"], "direction": s["direction"],
+            "entry": round(s["entry"], 4), "stop": round(s["raw_stop"], 4), "target": round(tgt, 4),
+            "rr": round(rr, 2), "method": method, "trend_score": trend, "conviction": conv,
+            "tier": tier, "leverage": "", "suggested_hold": "", "rsi": round(rsi_v, 2),
+            "atr": round(atr_v, 4), "adx": round(adx_v, 2), "htf_bias": htf_bias,
+            "hour": now.hour, "vol_ratio": round(vol_ratio, 2), "news_flag": int(news_flag),
+        })
+        _W246_LAST[(market, cell, stp["direction"])] = now
+        _W246_COUNT[(market + ":DROP", day)] = n + 1
+        try:
+            sl.log_scan_decision(market, entry_tf, s["type"], s["direction"],
+                cur_price, s["entry"], s["raw_stop"], tgt, rr, conv, tier,
+                trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+                "LAB_GRADED",
+                "LAB graded (%s): %s - target %s at %sR (%s); graded as evidence, not sent"
+                % (g, why or gate, round(tgt, 4), round(rr, 2), method),
+                context=snapshot_context,
+                detection_reason=_build_detection_reason(s, snapshot_context, adx_v, rsi_v, vol_ratio))
+        except Exception:
+            pass
+        log.info("[%s] [%s] LAB-GRADED (%s) %s %s %.2fR conv %s -> %s"
+                 % (market, entry_tf, g, s["type"], s["direction"], float(rr), conv, aid))
+        return aid
+    except Exception as _w282_e:
+        try:
+            log.warning("[%s] GRADE-EVERYTHING: %s row failed (non-fatal; the gate is unchanged): %s"
+                        % (market, gate, _w282_e))
+        except Exception:
+            pass
+        return ""
+# ---- end _WAVE282_GRADE_EVERYTHING ---------------------------------------------------------------------------
+
 # ---- _WAVE281_LOG_EVERY_DROP ---------------------------------------------------------------------------------
 # LOG-EVERY-DROP (Wayne, 26 Oct 2026, Q92: "we have to fix it 'skipping' thoes 55 to 100 setups"). PHASE1-CHECK-C
 # found 417 detections on 5 days that left no trace after their DETECTED row (Wave 266's cap / window return in
@@ -1058,7 +1291,7 @@ def _w277_twin(parent, name, spec):
     if str(parent.get("market") or "") != market:
         return None, "market"
     _w280_pl = "real" if _w280_al_row(parent) else str(parent.get("lane") or "").strip().lower()   # _WAVE280_ALL_TO_LAB
-    if _w280_pl != lane or _w277_is_added(parent):
+    if _w280_pl != lane or _w277_is_added(parent) or _w282_new_row(parent):   # _WAVE282_GRADE_EVERYTHING: not a parent
         return None, "lane"
     d = str(parent.get("direction") or "").upper()
     long_ = "LONG" in d
@@ -4468,6 +4701,9 @@ async def scan_market(app, market, frames):
                     context=snapshot_context,
                     detection_reason=_build_detection_reason(stp, snapshot_context, adx_v, rsi_v, vol_ratio))
                 _sample_reject_log(market, entry_tf, stp["type"], f"ADX {round(adx_v,1)} < {required_adx}")
+                _w282_grade_drop("adx", market, cfg, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v,
+                                 vol_ratio, htf_bias, cur_price, snapshot_context,
+                                 why="ADX %s below %s" % (round(adx_v, 1), required_adx))   # _WAVE282_GRADE_EVERYTHING
                 continue
 
             # Pre-Batch Follow-up Part A 2026-04-20: Per-setup cooldown REMOVED.
@@ -4607,6 +4843,10 @@ async def scan_market(app, market, frames):
                 elif method == "no_target":  # _WAVE255_LAB_NO_SWING_LEVEL: no level at all - LAB-grade a fixed-R target
                     _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v,
                                          vol_ratio, htf_bias, cur_price, snapshot_context, "no_target")
+                elif method == "rr_too_high":  # _WAVE282_GRADE_EVERYTHING: every level above the R cap - the nearest one
+                    _w282_grade_drop("r_cap", market, cfg, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v,
+                                     rsi_v, vol_ratio, htf_bias, cur_price, snapshot_context,
+                                     why="every level above the %.1fR cap" % _w225_rr_cap(market), cands=_w229_c)
                 continue
 
             sim_risk = sim.check_risk_limits()

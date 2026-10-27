@@ -169,7 +169,8 @@ LAB_TO_TELEGRAM = False
 
 # Safety cap. On 16 Sep the live scan log holds 867 conviction rejections in one day, 592 of them one
 # GC setup re-detected every scan. Hitting the cap is logged loudly, never silent.
-LAB_MAX_PER_MARKET_PER_DAY = 40
+LAB_MAX_PER_MARKET_PER_DAY = 200   # GRADE-EVERYTHING (_WAVE282_GRADE_EVERYTHING, Wayne 26 Oct): was 40 - a safety cap,
+                                   # not a sampling rule; LAB_DUP_MIN below is what makes a setup "one setup"
 
 # One LAB row per market:setup:direction per this many minutes - the same duplicate discipline a real
 # call gets, in its own memory, so it can never affect a real call's guard.
@@ -336,7 +337,7 @@ FLATTEN_AT_STOP = True
 # LAB_GRADE_GATES = False switches it off with the rest of the gate grading; LAB_SYNTH_MAX_PER_DAY = 0 alone
 # switches off just this.
 LAB_SYNTH_RR = 2.0
-LAB_SYNTH_MAX_PER_DAY = 10
+LAB_SYNTH_MAX_PER_DAY = 200   # GRADE-EVERYTHING: was 10
 LAB_SYNTH_RESERVE = 10
 
 # ---- Wave 266 (24 Sep 2026, Phase 1.5: keep looking during a call) - _WAVE266_KEEP_LOOKING ----
@@ -347,7 +348,7 @@ LAB_SYNTH_RESERVE = 10
 # never crowd out the rows Trust counts. Q24 (Wayne, 24 Sep): reported BESIDE Trust, not in it, for one week after
 # the wave is live; then he decides. LAB_WHILE_OPEN = False switches it off (the old early return comes back).
 LAB_WHILE_OPEN = True
-LAB_OPEN_MAX_PER_DAY = 20
+LAB_OPEN_MAX_PER_DAY = 200   # GRADE-EVERYTHING: was 20 (PHASE1-CHECK-C: 417 detections dropped by it in silence)
 
 # ---- TWO-SIDED-TEST (_WAVE278_TWO_SIDED_TEST; Wayne 15 Oct 2026: "i dont wanna be one sided i want be fair") ----
 # A third lane, "test" - never "real". A LAB row that matches a line below (market, setup, timeframe and direction
@@ -387,7 +388,7 @@ EXP_LAB_DUP_MIN = 60            # a LAB parent (GC-SHORT-S20, NQ-SHORT-T50) re-d
 # direction / frame per guard window (lab_gate "guard:<which>"), graded at its actual exit, never sent. The guards
 # themselves are unchanged. False = no guard rows.
 LAB_GUARD_ROWS = True
-LAB_GUARD_MAX_PER_DAY = 20      # guard rows per market per UTC day (its own count)
+LAB_GUARD_MAX_PER_DAY = 200     # guard rows per market per UTC day (its own count). GRADE-EVERYTHING: was 20
 
 # ---- ALL-TO-LAB (_WAVE280_ALL_TO_LAB) ----
 # Wayne, 25 Oct 2026 ~12:13 PM ET, in the chat: "yes still grade it, but i guess just move them to lab. everything
@@ -401,3 +402,19 @@ LAB_GUARD_MAX_PER_DAY = 20      # guard rows per market per UTC day (its own cou
 # and the Wave 245 LAB setups are unchanged. Back to real only by a wave, after the weekly review (PROMOTION_REVIEW.md).
 # False = real calls exactly as before.
 ALL_LAB = True
+
+# ---- GRADE-EVERYTHING (_WAVE282_GRADE_EVERYTHING) ----
+# Wayne, 26 Oct 2026 10:56 AM ET (Q92): "lets make it so it does not do that and grades and reads everything it sees
+# maybe we are just 'skipping' over something very very importnat". True = a setup the ADX gate drops ("market too
+# choppy") or the R cap drops (every level above it) is graded ONCE in LAB - lab_gate adx / adx_rr_low / adx_synth /
+# adx_r_cap / adx_rr_floor / r_cap - at the levels the real path would use (an R-cap drop on its nearest level), never
+# sent, never a call, kept beside Trust. One row per market / setup / direction per LAB_DUP_MIN, at most
+# LAB_DROP_MAX_PER_DAY a market a UTC day, counted apart from every cap above. The gates themselves are unchanged.
+# False = no such rows (the caps above stay raised).
+LAB_GRADE_DROPS = True
+LAB_DROP_MAX_PER_DAY = 200
+# The values the caps above had before this wave. A LAB row written PAST one of them exists only because the cap was
+# raised: it gets the cap's name as its lab_gate (lab_cap / w266_cap / lab_synth_cap, with the Wave 266 mode in a
+# LAB-only scan), is never re-laned TEST (Wave 278) and never sends, is never a twin parent (Wave 277), and is kept
+# beside Trust - so TEST, the twins and Trust see exactly the rows they saw before. Holds whatever LAB_GRADE_DROPS is.
+LAB_OLD_CAPS = {"lab_cap": 40, "w266_cap": 20, "lab_synth_cap": 10}
