@@ -53,6 +53,10 @@ DATA SAFETY (rule 11: the data is sacred)
   * Writes via safe_io.safe_rewrite_csv where available (lock + fresh read), so
     a concurrent append from the live scanner is never clobbered.
   * Idempotent: re-running only fills whatever is still ungraded.
+  * _WAVE283_GRADER_FIX (GRADER-FIX, 27 Oct 2026): the safe_io bullet above was NOT true until this wave - the
+    write handed safe_io the old snapshot, so a row appended between the read and the write was overwritten.
+    Now the grades are merged into the fresh rows by row key. The history cache is refreshed per sweep, and a
+    row is EXPIRED only once its whole horizon has traded (before that it stays open and is retried).
 
 KNOWN LIMITS (stated honestly)
 ==============================
@@ -81,6 +85,7 @@ import glob
 import json
 import shutil
 import logging
+import time   # _WAVE283_GRADER_FIX: the history cache age
 from datetime import datetime, timezone, timedelta
 
 _log = logging.getLogger(__name__)
@@ -106,6 +111,17 @@ _FALLBACK_RR = 2.0
 
 # yfinance history limits (days) by interval.
 _MAX_AGE_DAYS = {"15m": 58, "1h": 720, "4h": 720, "1d": 720}
+
+# _WAVE283_GRADER_FIX (GRADER-FIX, 27 Oct 2026).
+# resolve() says WINDOW_OPEN (never written to a row) when nothing touched yet and the horizon is not over.
+WINDOW_OPEN = "WINDOW_OPEN"
+# One scan row. Unique in all 284,944 rows of the live log and the 11 archive parts (measured 27 Oct 2026).
+_KEY = ("timestamp", "market", "tf", "setup_type", "direction", "decision")
+# The only fields the merge copies into a fresh row (plus the fb:w173 tag on detection_reason).
+_GRADE_FIELDS = ("result", "result_checked_at", "result_source")
+# A cached history frame older than this is loaded again. The boot drain passes run 10 s apart (one load per
+# frame, as before); the sweep runs every 3 h (a fresh load per frame it needs).
+_HISTORY_MAX_AGE_S = 3600
 
 
 def _f(v, d=0.0):
@@ -146,6 +162,9 @@ def resolve(candles, ts, entry, stop, target, direction, horizon):
         return None
     if window is None or len(window) == 0:
         return None
+    # _WAVE283_GRADER_FIX: EXPIRED only once the whole horizon has traded - a bar AFTER the horizon must exist, so
+    # the horizon's last bar is closed, not still forming
+    full = len(window) > horizon
     window = window.iloc[:horizon]
     for _idx, bar in window.iterrows():
         hi = float(bar["High"])
@@ -162,6 +181,8 @@ def resolve(candles, ts, entry, stop, target, direction, horizon):
             return "WOULD_WIN"
         if hit_s:
             return "WOULD_LOSE"
+    if not full:
+        return WINDOW_OPEN   # _WAVE283_GRADER_FIX: no touch yet, horizon not over - the row stays open
     return "EXPIRED"
 
 
@@ -196,8 +217,75 @@ def load_history(market, tf, stats):
         except Exception:
             pass
     cache[key] = df
+    load_history._loaded_at[key] = time.monotonic()   # _WAVE283_GRADER_FIX
     return df
 load_history._cache = {}
+load_history._loaded_at = {}   # _WAVE283_GRADER_FIX: (market, tf) -> when it was loaded
+
+
+def _w283_refresh_history(stats, now_s=None):
+    """_WAVE283_GRADER_FIX: drop every cached frame - and every cached refusal (None) - loaded more than
+    _HISTORY_MAX_AGE_S ago, so the 3-hour sweep grades against candles that reach the sweep, not the last boot.
+    A refused download is therefore retried at the next sweep; the row waits, it is never guessed."""
+    now_s = time.monotonic() if now_s is None else now_s
+    dropped = 0
+    for key in list(load_history._cache):
+        t = load_history._loaded_at.get(key)
+        if t is None or now_s - t > _HISTORY_MAX_AGE_S:
+            load_history._cache.pop(key, None)
+            load_history._loaded_at.pop(key, None)
+            dropped += 1
+    stats["history_refreshed"] = stats.get("history_refreshed", 0) + dropped
+    return dropped
+
+
+def _w283_row_key(r):
+    return tuple((r.get(k) or "").strip() for k in _KEY)
+
+
+def _w283_merge_fn(graded, stale_rows):
+    """_WAVE283_GRADER_FIX: the mutator for safe_io.safe_rewrite_csv. `graded` is [(row, rebuilt)] from
+    grade_rows on the snapshot `stale_rows`. Runs on the FRESH rows read under the lock: copies only the grade
+    fields into the fresh row with the same key, and only while that fresh row is still open. A new row, a row
+    graded meanwhile, and a key seen twice (in the snapshot or the fresh rows) are left exactly as they are."""
+    stale_n = {}
+    for r in stale_rows:
+        k = _w283_row_key(r)
+        stale_n[k] = stale_n.get(k, 0) + 1
+    want = {}
+    for r, rebuilt in graded:
+        want[_w283_row_key(r)] = (r, rebuilt)
+
+    def merge(fresh):
+        merge.applied = merge.dup = merge.final = 0
+        seen = {}
+        for r in fresh:
+            k = _w283_row_key(r)
+            if k in want:
+                seen[k] = seen.get(k, 0) + 1
+        for r in fresh:
+            k = _w283_row_key(r)
+            if k not in want:
+                continue
+            if seen[k] > 1 or stale_n.get(k, 0) > 1:
+                merge.dup += 1
+                continue
+            if (r.get("result") or "").strip() not in _OPEN:
+                merge.final += 1
+                continue
+            g, rebuilt = want[k]
+            for f in _GRADE_FIELDS:
+                if f in g and f in r:
+                    r[f] = g[f]
+            if rebuilt and "detection_reason" in r:
+                base = (r.get("detection_reason") or "")
+                if "fb:w173" not in base:
+                    r["detection_reason"] = (base + " fb:w173").strip()
+            merge.applied += 1
+        merge.gone = sum(1 for k in want if k not in seen)
+        return fresh
+    merge.applied = merge.dup = merge.final = merge.gone = 0
+    return merge
 
 
 def _yf_symbol(market):
@@ -245,8 +333,9 @@ def _load_crypto(market, tf):
 
 
 # ----------------------------------------------------------------------------
-def grade_rows(rows, stats, limit=None, now=None):
-    """Mutate rows in place. Returns number graded."""
+def grade_rows(rows, stats, limit=None, now=None, graded_out=None):
+    """Mutate rows in place. Returns number graded. _WAVE283_GRADER_FIX: each graded row is also appended to
+    graded_out as (row, rebuilt) when a list is given."""
     import pandas as pd
     now = now or datetime.now(timezone.utc)
     graded = 0
@@ -310,6 +399,9 @@ def grade_rows(rows, stats, limit=None, now=None):
         if verdict is None:
             stats["skip_no_window"] += 1
             continue
+        if verdict == WINDOW_OPEN:   # _WAVE283_GRADER_FIX: retried at the next sweep
+            stats["skip_window_open"] = stats.get("skip_window_open", 0) + 1
+            continue
 
         row["result"] = verdict
         row["result_checked_at"] = now.isoformat()
@@ -322,6 +414,8 @@ def grade_rows(rows, stats, limit=None, now=None):
         stats[verdict] += 1
         stats["rebuilt_targets"] += 1 if rebuilt else 0
         graded += 1
+        if graded_out is not None:   # _WAVE283_GRADER_FIX
+            graded_out.append((row, rebuilt))
     return graded
 
 
@@ -331,27 +425,35 @@ def process_file(path, stats, dry_run=True, limit=None):
         cols = reader.fieldnames or []
         rows = list(reader)
     stats["rows_scanned"] += len(rows)
-    n = grade_rows(rows, stats, limit=limit)
+    graded = []   # _WAVE283_GRADER_FIX: [(row, rebuilt)] for the merge
+    n = grade_rows(rows, stats, limit=limit, graded_out=graded)
     if n and not dry_run:
         bak = path + ".pre_w173.bak"
         if not os.path.exists(bak):
             shutil.copy2(path, bak)
         wrote = False
+        merge = _w283_merge_fn(graded, rows)   # _WAVE283_GRADER_FIX: grades into the FRESH rows, by row key
         try:
             import safe_io
             if hasattr(safe_io, "safe_rewrite_csv"):
-                safe_io.safe_rewrite_csv(path, cols, lambda _existing: rows)
+                safe_io.safe_rewrite_csv(path, cols, merge)
                 wrote = True
         except Exception as e:
             _log.warning("grade_backfill: safe_io path failed (%s), using atomic fallback", e)
         if not wrote:
+            with open(path, newline="", encoding="utf-8", errors="replace") as f:   # _WAVE283_GRADER_FIX: fresh
+                fresh = merge(list(csv.DictReader(f)))
             tmp = path + ".tmp"
             with open(tmp, "w", newline="", encoding="utf-8") as f:
                 w = csv.DictWriter(f, fieldnames=cols)
                 w.writeheader()
-                for r in rows:
+                for r in fresh:
                     w.writerow({k: r.get(k, "") for k in cols})
             os.replace(tmp, path)
+        for _k, _v in (("merge_applied", merge.applied), ("merge_dup_key", merge.dup),
+                       ("merge_already_final", merge.final), ("merge_row_gone", merge.gone)):
+            stats[_k] = stats.get(_k, 0) + _v
+        n = merge.applied   # the grades actually written (the boot drain stops at 0)
     return n
 
 
@@ -372,6 +474,7 @@ def main(argv=None):
                             "skip_no_direction", "skip_bad_timestamp", "skip_too_old",
                             "skip_no_target", "skip_no_history", "skip_no_window")}
 
+    _w283_refresh_history(stats)   # _WAVE283_GRADER_FIX: the sweep grades against candles that reach today
     targets = []
     if os.path.exists(LIVE_LOG):
         targets.append(LIVE_LOG)
