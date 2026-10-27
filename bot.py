@@ -391,9 +391,14 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
     """LAB-grade a setup that a target gate just dropped. Returns the ledger alert_id, or "" when nothing was
     written. Never raises, never sends anything."""
     try:
+        def _w281_say(token):   # _WAVE281_LOG_EVERY_DROP: a skip below says why, in the scan log
+            _w281_drop(market, entry_tf, stp, token, cur_price, 0, "REJECT", trend, adx_v, rsi_v, vol_ratio,
+                       htf_bias, news_flag, snapshot_context)
         if not (_R254_ON and _R246_ON):
+            _w281_say("lab_gate_off %s" % gate)
             return ""
         if market in tuple(_R239_CALLS_OFF or ()):
+            _w281_say("market_off %s" % market)
             return ""
         lab_min = float(_R254_MIN_RR)
         if gate == "rr_too_low":
@@ -401,11 +406,13 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
                                                   min_rr=lab_min, market=market, trend_score_val=trend)
         elif gate == "no_target":  # _WAVE255_LAB_NO_SWING_LEVEL: nothing to aim at - a fixed-R target, LAB only
             if not _w255_room(market):
+                _w281_say(_w281_synth_why(market))   # _WAVE281_LOG_EVERY_DROP
                 return ""
             tgt, rr, method = _w255_synth_target(stp, market)
         elif gate != "rr_floor":
             return ""
         if (not tgt) or float(rr) < lab_min or method in ("no_target", "rr_too_low", "rr_too_high"):
+            _w281_say("lab_no_level %s %sR (%s)" % (gate, lab_min, method or "none"))   # _WAVE281_LOG_EVERY_DROP
             return ""
         # Its own duplicate window: "RRGATE:" + setup, so a gate row never blocks the Wave 246 conviction-floor
         # row for the same cell (that one is the evidence Trust counts; gate rows are kept out of every cell).
@@ -415,6 +422,7 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
         if not ok:
             if why and "cap reached" in why:
                 log.warning("[%s] LAB grading skipped: %s" % (market, why))
+            _w281_say(_w281_cap_why(market, why))   # _WAVE281_LOG_EVERY_DROP
             return ""
         conv, _tier, _bd = ot.conviction_score(stp, trend, df_e, df_h, news_flag, adx_v, rsi_v, vol_ratio,
                                                abs(tgt - stp["entry"]) / max(1e-9, atr_v))
@@ -631,6 +639,8 @@ def _w266_grade(market, entry_tf, stp, tgt, rr, method, trend, conv, tier, rsi_v
         if not ok:
             if "error" in skip:
                 log.warning("[%s] W266: %s" % (market, skip))
+            _w281_drop(market, entry_tf, stp, _w281_cap_why(market, skip), cur_price, conv, tier, trend, adx_v,
+                       rsi_v, vol_ratio, htf_bias, news_flag, snapshot_context)   # _WAVE281_LOG_EVERY_DROP
             return ""
         aid = _w278_log_lab({   # _WAVE278_TWO_SIDED_TEST: LAB, or TEST when picked
             "lane": "lab", "channel": "lab (not sent)", "lab_gate": why,
@@ -933,6 +943,72 @@ def _w280_al_open(market):
         return False
 # ---- end _WAVE280_ALL_TO_LAB ----------------------------------------------------------------------------------
 
+# ---- _WAVE281_LOG_EVERY_DROP ---------------------------------------------------------------------------------
+# LOG-EVERY-DROP (Wayne, 26 Oct 2026, Q92: "we have to fix it 'skipping' thoes 55 to 100 setups"). PHASE1-CHECK-C
+# found 417 detections on 5 days that left no trace after their DETECTED row (Wave 266's cap / window return in
+# silence) and LAB caps that only ever reach log.warning. Every place a LAB writer drops a detected setup without
+# writing its row now writes ONE scan-log row through sl.log_scan_decision (the existing writer, under its lock):
+# decision REJECTED, target 0 - so the writer stamps it NO_LEVELS at birth, like every other REJECTED row without a
+# target - and reject_reason W281_DROP_HEAD + "<token> <count>". Logging only: no ledger row, no message, no
+# decision changes. Never raises.
+W281_DROP_HEAD = "LAB row not written - "
+_W281_DROP_SAID = set()   # warnings already logged once
+
+
+def _w281_cap_why(market, why, now=None):
+    """The drop token, with its count, for a (False, why) from _w246_may_grade / _w266_room. Never raises."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        day = now.date().isoformat()
+        w = str(why or "")
+        if "W266 cap full" in w:
+            return "w266_cap %s %d/%d" % (market, int(_W246_COUNT.get((market + ":W266", day), 0)), int(_R266_MAX))
+        if "same LAB-only cell" in w:
+            return "w266_window %sm" % _R246_DUP_MIN
+        if "daily LAB cap reached" in w:
+            return "lab_cap %s %d/%d" % (market, int(_W246_COUNT.get((market, day), 0)), int(_R246_MAX))
+        if "same LAB cell" in w:
+            return "lab_dup %sm" % _R246_DUP_MIN
+        if "LAB_GRADE_EVERYTHING is off" in w:
+            return "lab_off"
+        return "lab_skip %s" % w[:120]
+    except Exception:
+        return "lab_skip"
+
+
+def _w281_synth_why(market, now=None):
+    """Why _w255_room said no: the synthesized rows' own cap, or the shared count inside the reserve. Never raises."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        key = (market, now.date().isoformat())
+        shared, mine = int(_W246_COUNT.get(key, 0)), int(_W255_COUNT.get(key, 0))
+        if mine >= int(_R255_MAX):
+            return "lab_synth_cap %s %d/%d" % (market, mine, int(_R255_MAX))
+        return "lab_synth_reserve %s %d/%d" % (market, shared, int(_R246_MAX) - int(_R255_RESERVE))
+    except Exception:
+        return "lab_synth_room"
+
+
+def _w281_drop(market, entry_tf, stp, token, cur_price=0.0, conv=0, tier="REJECT", trend=0, adx_v=0.0, rsi_v=0.0,
+               vol_ratio=0.0, htf_bias="", news_flag=0, context=None):
+    """One REJECTED scan-log row saying why a LAB row was not written. Target 0: born NO_LEVELS. Returns True when
+    written. Never raises, never writes the ledger, never sends."""
+    try:
+        sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
+            cur_price, stp["entry"], stp["raw_stop"], 0, 0, conv, tier,
+            trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
+            sl.DECISION_REJECTED, W281_DROP_HEAD + str(token), context=context)
+        return True
+    except Exception as _w281_e:
+        try:
+            if "drop" not in _W281_DROP_SAID:
+                _W281_DROP_SAID.add("drop")
+                log.warning("LOG-EVERY-DROP: drop row not written (non-fatal, said once): %s" % _w281_e)
+        except Exception:
+            pass
+        return False
+# ---- end _WAVE281_LOG_EVERY_DROP -----------------------------------------------------------------------------
+
 # ---- _WAVE277_LAB_EXPERIMENTS ---------------------------------------------------------------------------------
 # LAB-EXPERIMENTS-1 (Wayne, 5 Oct 2026: "They can use the lab as much as they want. But once ideas are tested, then
 # we'll send them to Telegram"). Two kinds of silent LAB row, graded by the real grader, NEVER sent:
@@ -1077,18 +1153,25 @@ def _w277_guard_row(guard, market, entry_tf, stp, tgt, rr, method, trend, conv, 
     """A whitelisted setup this guard just dropped -> one silent LAB row per guard window. Returns the alert_id or "".
     The guard has already decided; this only records. Never raises, never sends."""
     try:
+        def _w281_gsay(token):   # _WAVE281_LOG_EVERY_DROP: a skip below says why, in the scan log
+            _w281_drop(market, entry_tf, stp, "%s %s" % (token, guard), 0.0, conv, tier, trend, adx_v, rsi_v,
+                       vol_ratio, htf_bias, news_flag)
         if not _R277_GUARD or int(_R277_GUARD_MAX) <= 0:
+            _w281_gsay("guard_off")
             return ""
         setup, side = str(stp["type"]), str(stp["direction"])
         if _w245_is_lab(setup) or _w251_is_off(setup):
+            _w281_gsay("guard_not_whitelisted")   # _WAVE281_LOG_EVERY_DROP
             return ""                               # a LAB or OFF setup is not a whitelisted call
         try:
             from rules import CALLS_OFF_MARKETS as _w277_off
         except Exception:
             _w277_off = ()
         if market in tuple(_w277_off or ()):
+            _w281_gsay("market_off")   # _WAVE281_LOG_EVERY_DROP
             return ""
         if _w266_mode(market) or _market_position_open(market):
+            _w281_gsay("guard_open_call")   # _WAVE281_LOG_EVERY_DROP
             return ""                               # nothing could fire in this scan anyway (Wave 266 / Wave 129)
         now = now or datetime.now(timezone.utc)
         if guard == "dup_setup":
@@ -1101,14 +1184,17 @@ def _w277_guard_row(guard, market, entry_tf, stp, tgt, rr, method, trend, conv, 
         seen = _W277_GUARD_SEEN.get(key)
         if seen is not None:
             if win is not None and seen[0] == win:
+                _w281_gsay("lab_guard_window")   # _WAVE281_LOG_EVERY_DROP
                 return ""                           # this guard window already has its row
             if win is None and (now - seen[1]) < timedelta(minutes=W277_GUARD_GAP_MIN):
+                _w281_gsay("lab_guard_window %sm" % W277_GUARD_GAP_MIN)   # _WAVE281_LOG_EVERY_DROP
                 return ""
         day = now.date().isoformat()
         n_today = sum(1 for r in ot._read_all() if r.get("market") == market
                       and str(r.get("lab_gate") or "").startswith("guard:") and str(r.get("timestamp") or "")[:10] == day)
         if n_today >= int(_R277_GUARD_MAX):
             _W277_GUARD_SEEN[key] = (win, now)
+            _w281_gsay("lab_guard_cap %s %d/%d" % (market, n_today, int(_R277_GUARD_MAX)))   # _WAVE281_LOG_EVERY_DROP
             return ""
         aid = ot.log_alert({
             "lane": "lab", "channel": "lab (not sent)", "lab_gate": "guard:%s" % guard,
@@ -4685,8 +4771,11 @@ async def scan_market(app, market, frames):
                         if _R246_TG:
                             await tg_send(app, "\U0001f9ea LAB graded (not a call): %s %s %s conv %s" % (
                                 market, stp["type"], stp["direction"], conv), kind="report")
-                    elif _w246_why and "cap reached" in _w246_why:
-                        log.warning(f"[{market}] LAB grading skipped: {_w246_why}")
+                    else:   # _WAVE281_LOG_EVERY_DROP: every skip says why, in the scan log
+                        if _w246_why and "cap reached" in _w246_why:
+                            log.warning(f"[{market}] LAB grading skipped: {_w246_why}")
+                        _w281_drop(market, entry_tf, stp, _w281_cap_why(market, _w246_why), cur_price, conv, tier,
+                                   trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag, snapshot_context)
                 except Exception as _w246e:
                     log.warning(f"[{market}] LAB grading failed (non-fatal): {_w246e}")
                 decision = sl.DECISION_ALMOST if conv >= _WAVE60_MIN_CONV-5 else sl.DECISION_REJECTED
