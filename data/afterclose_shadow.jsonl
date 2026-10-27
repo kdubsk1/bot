@@ -981,3 +981,4 @@
 {"kind": "pending", "alert_id": "106ba98550", "market": "NQ", "direction": "LONG", "setup": "BREAK_RETEST_BULL", "entry": "29403.75", "stop": "29354.9589", "target": "29572.0", "settle_price": 29450.25, "settle_result": "WIN", "settle_ts": "2026-10-26T19:55:33.167056+00:00"}
 {"kind": "pending", "alert_id": "87626f5118", "market": "NQ", "direction": "SHORT", "setup": "RSI_DIV_BEAR", "entry": "29506.75", "stop": "29584.6505", "target": "29417.0", "settle_price": 29450.25, "settle_result": "WIN", "settle_ts": "2026-10-26T19:55:33.577563+00:00"}
 {"kind": "resolved", "alert_id": "87626f5118", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 9, "settle_result": "WIN", "ts": "2026-10-26T23:11:27.061253+00:00"}
+{"kind": "resolved", "alert_id": "106ba98550", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 13, "settle_result": "WIN", "ts": "2026-10-27T00:11:42.842770+00:00"}
