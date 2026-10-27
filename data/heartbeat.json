@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-27T14:17:55.788498+00:00",
- "cycle": 402,
+ "utc": "2026-10-27T14:22:33.390004+00:00",
+ "cycle": 411,
  "last_sync": "2026-10-27T12:06:52.196803+00:00",
  "started_utc": "2026-10-27T06:01:14.090579+00:00",
  "scanner_on": true,
@@ -23,7 +23,6 @@
   },
   "last": {
    "NQ|RCAP:VWAP_BOUNCE_BULL|LONG": "2026-10-27T14:03:57.338667+00:00",
-   "NQ|OPEN:EMA21_PULLBACK_BULL|LONG": "2026-10-27T13:48:02.233248+00:00",
    "NQ|OPEN:VWAP_BOUNCE_BULL|LONG": "2026-10-27T14:01:54.197598+00:00",
    "NQ|ADX:BREAK_RETEST_BULL|LONG": "2026-10-27T13:58:18.356626+00:00",
    "NQ|OPEN:RRGATE:BREAK_RETEST_BULL|LONG": "2026-10-27T14:00:52.668020+00:00",
@@ -36,7 +35,7 @@
   }
  },
  "topstepx": {
-  "ok_last_hour": 110,
+  "ok_last_hour": 118,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-27T06:01:15.817147+00:00",
