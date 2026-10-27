@@ -1041,15 +1041,15 @@
     "losses": 48,
     "total": 57,
     "win_rate": 15.8,
-    "last_updated": "2026-10-23T14:51:45.342524",
+    "last_updated": "2026-10-27T05:33:57.706919",
     "paper_total": 24,
     "paper_losses": 18,
     "paper_win_rate": 25.0,
     "paper_wins": 6,
-    "lab_total": 58,
-    "lab_wins": 20,
-    "lab_win_rate": 34.5,
-    "lab_losses": 38
+    "lab_total": 60,
+    "lab_wins": 21,
+    "lab_win_rate": 35.0,
+    "lab_losses": 39
   },
   "NQ:VWAP_REJECT_BEAR": {
     "wins": 45,
@@ -1488,5 +1488,15 @@
     "lab_wins": 1,
     "lab_win_rate": 100.0,
     "last_updated": "2026-10-26T17:43:07.393199"
+  },
+  "NQ:BREAK_RETEST_BEAR@T50": {
+    "wins": 0,
+    "losses": 0,
+    "total": 0,
+    "win_rate": 0.0,
+    "lab_total": 1,
+    "lab_losses": 1,
+    "lab_win_rate": 0.0,
+    "last_updated": "2026-10-27T05:13:54.342300"
   }
 }
