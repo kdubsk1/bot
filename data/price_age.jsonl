@@ -654,3 +654,4 @@
 {"alert_id": "7cd874f36c", "what": "entry", "market": "NQ", "age_sec": 10.1, "source": "saved", "utc": "2026-10-27T05:54:03.101460+00:00", "last_15m_close": 29370.75, "tf": "15m", "lane": "lab", "entry": 29370.75}
 {"alert_id": "b1d89c22c3", "what": "entry", "market": "GC", "age_sec": 6.4, "source": "saved", "utc": "2026-10-27T05:54:03.291025+00:00", "last_15m_close": 4021.5, "tf": "1h", "lane": "lab", "entry": 4021.5}
 {"alert_id": "6b1ef94f1b", "what": "entry", "market": "BTC", "age_sec": 7.4, "source": "saved", "utc": "2026-10-27T05:54:03.488552+00:00", "last_15m_close": 79869.33, "tf": "1h", "lane": "lab", "entry": 79869.33}
+{"alert_id": "3b12186c0f", "what": "entry", "market": "NQ", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-27T06:02:27.230688+00:00", "last_15m_close": 29385.75, "tf": "15m", "lane": "lab", "entry": 29385.75}
