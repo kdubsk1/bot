@@ -384,6 +384,10 @@ try:
     from rules import LAB_GRADE_GATES as _R254_ON, LAB_GATE_MIN_RR as _R254_MIN_RR
 except Exception:
     _R254_ON, _R254_MIN_RR = False, 1.0
+try:
+    from rules import LAB_GRADE_NO_LEVEL as _R286_NO_LEVEL   # _WAVE286_NO_LEVEL
+except Exception:   # an older rulebook: the no-level skip, exactly as before
+    _R286_NO_LEVEL = False
 
 
 def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_flag, adx_v, rsi_v, vol_ratio,
@@ -411,6 +415,18 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
             tgt, rr, method = _w255_synth_target(stp, market)
         elif gate != "rr_floor":
             return ""
+        if (gate == "rr_too_low" and _w286_no_level_on()
+                and ((not tgt) or float(rr) < lab_min or method in ("no_target", "rr_too_low", "rr_too_high"))):
+            # _WAVE286_NO_LEVEL: levels exist, none reaches lab_min - grade it at Wave 255's synthesized target,
+            # inside the synthesized rows' room, as no_target is. Its own name; the RRGATE cell below.
+            if not _w255_room(market):
+                _w281_say(_w281_synth_why(market))
+                return ""
+            tgt, rr, method = _w255_synth_target(stp, market)
+            if not tgt:
+                _w281_say("lab_not_gradeable %s (stop on the wrong side of entry, or no risk)" % W286_GATE)
+                return ""
+            gate = W286_GATE
         if (not tgt) or float(rr) < lab_min or method in ("no_target", "rr_too_low", "rr_too_high"):
             _w281_say("lab_no_level %s %sR (%s)" % (gate, lab_min, method or "none"))   # _WAVE281_LOG_EVERY_DROP
             return ""
@@ -441,14 +457,16 @@ def _w254_lab_grade_gate(market, entry_tf, stp, df_e, df_h, atr_v, trend, news_f
             "news_flag": int(news_flag),
         })
         _w246_mark(market, cell, stp["direction"])
-        if gate == "no_target":  # _WAVE255_LAB_NO_SWING_LEVEL: its own daily count
+        if gate in ("no_target", W286_GATE):  # _WAVE255_LAB_NO_SWING_LEVEL: its own daily count; _WAVE286_NO_LEVEL
             _w255_mark(market)
         try:
             sl.log_scan_decision(market, entry_tf, stp["type"], stp["direction"],
                 cur_price, stp["entry"], stp["raw_stop"], tgt, rr, conv, tier,
                 trend, adx_v, rsi_v, vol_ratio, htf_bias, news_flag,
                 "LAB_GRADED",
-                ("LAB graded (%s): no swing level in range - synthesized target %s at %sR (fixed, rules.LAB_SYNTH_RR); graded as evidence, not sent"  # _WAVE255_LAB_NO_SWING_LEVEL
+                ("LAB graded (%s): no level reaches " + str(lab_min) + "R - synthesized target %s at %sR (fixed, rules.LAB_SYNTH_RR); graded as evidence, not sent"  # _WAVE286_NO_LEVEL
+                 if gate == W286_GATE else
+                 "LAB graded (%s): no swing level in range - synthesized target %s at %sR (fixed, rules.LAB_SYNTH_RR); graded as evidence, not sent"  # _WAVE255_LAB_NO_SWING_LEVEL
                  if gate == "no_target" else
                  "LAB graded (%s): target %s at %sR, below the R:R floor; graded as evidence, not sent")
                 % (gate, round(tgt, 4), round(rr, 2)),
@@ -553,6 +571,35 @@ def _w255_mark(market, now=None):
     except Exception:
         pass
 # ---- end _WAVE255_LAB_NO_SWING_LEVEL -------------------------
+
+# ---- _WAVE286_NO_LEVEL -----------------------------------------------------------------------------------------
+# NO-LEVEL (28 Oct 2026; Wayne 27 Oct "do what you think is best"). An rr_too_low setup with no swing level at
+# rules.LAB_GATE_MIN_RR either used to end as the skip "lab_no_level rr_too_low 1.0R" and no row (262 scan rows,
+# 23 setups on 27 Oct). _w254_lab_grade_gate now grades it at _w255_synth_target, lab_gate W286_GATE. Such a row is
+# never TEST (_w278_log_lab writes it straight to the ledger) and never a Wave 277 twin parent (_w277_twin).
+# rules.LAB_GRADE_NO_LEVEL = False: the skip, exactly as before.
+W286_GATE = "rr_too_low_synth"
+
+
+def _w286_no_level_on():
+    """Is NO-LEVEL switched on (rules.LAB_GRADE_NO_LEVEL)? Never raises."""
+    try:
+        return bool(_R286_NO_LEVEL)
+    except Exception:
+        return False
+
+
+def _w286_synth_row(r):
+    """A row NO-LEVEL writes: lane lab, lab_gate W286_GATE, with or without a Wave 266 mode. Never raises."""
+    try:
+        g = str((r or {}).get("lab_gate") or "").strip()
+        head, _, tail = g.partition(":")
+        if head in ("open_call", "crypto_dead_zone") and tail:
+            g = tail
+        return str((r or {}).get("lane") or "").strip().lower() == "lab" and g == W286_GATE
+    except Exception:
+        return False
+# ---- end _WAVE286_NO_LEVEL -------------------------------------------------------------------------------------
 
 # ---- _WAVE266_KEEP_LOOKING -----------------------------------
 # Wave 266 (24 Sep 2026, Phase 1.5, plan item A2). A REAL call open in a market, or the crypto 2-5 AM ET dead zone,
@@ -808,6 +855,8 @@ def _w278_as_test(row, now=None, rows=None):
 def _w278_log_lab(row):
     """What the three LAB writers call instead of ot.log_alert: the LAB row as before, or the same row as TEST.
     Returns the alert_id from ot.log_alert. A TEST row waits in _W278_OUTBOX for the end of the scan pass."""
+    if _w286_synth_row(row):   # _WAVE286_NO_LEVEL: a fixed-R row - LAB, never TEST, keeps its own name
+        return ot.log_alert(row)
     row, _w282_over = _w282_overflow(row)   # _WAVE282_GRADE_EVERYTHING: past a cap's old value - LAB, never TEST
     if _w282_over:
         return ot.log_alert(row)
@@ -1291,7 +1340,8 @@ def _w277_twin(parent, name, spec):
     if str(parent.get("market") or "") != market:
         return None, "market"
     _w280_pl = "real" if _w280_al_row(parent) else str(parent.get("lane") or "").strip().lower()   # _WAVE280_ALL_TO_LAB
-    if _w280_pl != lane or _w277_is_added(parent) or _w282_new_row(parent):   # _WAVE282_GRADE_EVERYTHING: not a parent
+    if (_w280_pl != lane or _w277_is_added(parent) or _w282_new_row(parent)   # _WAVE282_GRADE_EVERYTHING: not a parent
+            or _w286_synth_row(parent)):   # _WAVE286_NO_LEVEL: a fixed-R row is never a twin parent
         return None, "lane"
     d = str(parent.get("direction") or "").upper()
     long_ = "LONG" in d

@@ -306,6 +306,13 @@ TRUST_MIN_N = 30
 # silence for LAB rows (Wave 254 part A) does not depend on it.
 LAB_GRADE_GATES = True
 LAB_GATE_MIN_RR = 1.0
+# NO-LEVEL (_WAVE286_NO_LEVEL, 28 Oct 2026; Wayne 27 Oct "do what you think is best"): when no swing level reaches
+# LAB_GATE_MIN_RR either, the setup is LAB-graded against Wave 255's synthesized target (the market's R:R floor, at
+# least LAB_SYNTH_RR) - lab_gate 'rr_too_low_synth', method 'synthesized', inside the synthesized rows' room and
+# count, never sent, never TEST, never a twin parent, kept beside Trust. A fixed-R target is not a structure level:
+# judge these rows on points at the actual exit and MFE / MAE, never on win rate.
+# False = the skip "lab_no_level rr_too_low 1.0R" and no row, exactly as before.
+LAB_GRADE_NO_LEVEL = True
 
 # Wave 262 (_WAVE262_TIGHT_STOP_MARKET, 24 Sep 2026): the tight-stop floor per market. A setup whose stop is
 # closer to entry than this fraction of price is dropped before it is scored (Wave 16's guard). Since 28 Jul
