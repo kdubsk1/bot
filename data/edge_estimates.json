@@ -535,15 +535,15 @@
   },
   "VWAP_RECLAIM|||ALL": {
     "wins": 2,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 5.2724655426588924,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "VWAP_RECLAIM|||HH_HL": {
     "wins": 0,
-    "losses": 1,
+    "losses": 2,
     "total_win_r": 0.0,
-    "total_loss_r": 1.0
+    "total_loss_r": 2.0
   },
   "VWAP_RECLAIM|||MIXED": {
     "wins": 2,
