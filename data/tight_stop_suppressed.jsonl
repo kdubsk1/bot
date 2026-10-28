@@ -165,3 +165,4 @@
 {"timestamp": "2026-10-28T03:22:26.989294+00:00", "market": "BTC", "tf": "15m", "setup": "EMA21_PULLBACK_BULL", "direction": "LONG", "entry": 80880.81, "stop": 80719.62191844257, "target": null, "rr": null, "risk_pct": 0.1993, "min_pct": 0.5}
 {"timestamp": "2026-10-28T03:22:26.989436+00:00", "market": "BTC", "tf": "15m", "setup": "MACD_CROSS_BULL", "direction": "LONG", "entry": 80880.81, "stop": 80733.90744925014, "target": null, "rr": null, "risk_pct": 0.1816, "min_pct": 0.5}
 {"timestamp": "2026-10-28T03:22:27.000899+00:00", "market": "BTC", "tf": "1h", "setup": "BREAK_RETEST_BULL", "direction": "LONG", "entry": 80880.81, "stop": 80587.67321108351, "target": null, "rr": null, "risk_pct": 0.3624, "min_pct": 0.5}
+{"timestamp": "2026-10-28T03:55:06.173598+00:00", "market": "BTC", "tf": "15m", "setup": "EMA21_PULLBACK_BULL", "direction": "LONG", "entry": 81024.24, "stop": 80776.10724231355, "target": null, "rr": null, "risk_pct": 0.3062, "min_pct": 0.5}

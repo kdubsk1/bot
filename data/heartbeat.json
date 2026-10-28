@@ -1,8 +1,8 @@
 {
- "utc": "2026-10-28T03:42:28.448343+00:00",
- "cycle": 811,
- "last_sync": "2026-10-28T00:07:31.156002+00:00",
- "started_utc": "2026-10-27T06:01:14.090579+00:00",
+ "utc": "2026-10-28T03:55:04.635261+00:00",
+ "cycle": 2,
+ "last_sync": null,
+ "started_utc": "2026-10-28T03:54:52.300984+00:00",
  "scanner_on": true,
  "markets": [
   "NQ",
@@ -21,22 +21,21 @@
    "GC:W266|2026-10-28": 2
   },
   "last": {
-   "NQ|EMA21_PULLBACK_BULL|LONG": "2026-10-28T03:22:26.611303+00:00",
    "GC|OPEN:VWAP_REJECT_BEAR|SHORT": "2026-10-28T03:32:28.242817+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 16,
+  "ok_last_hour": 8,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-10-27T22:00:16.373994+00:00",
+   "utc": "2026-10-28T03:54:53.963415+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 68,
+   "ms": 11,
    "body": "errorCode=1 errorMessage=None",
    "market_shut": null,
    "fetch_ok": true

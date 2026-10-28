@@ -9,8 +9,8 @@
     {
       "market": "BTC",
       "setup": "BB_REVERSION_BEAR",
-      "losses": 12,
-      "reason": "Wave 47 auto: 0W/12L over last 30 days"
+      "losses": 13,
+      "reason": "Wave 47 auto: 0W/13L over last 30 days"
     },
     {
       "market": "GC",
@@ -19,5 +19,5 @@
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
     }
   ],
-  "ts": "2026-10-27T20:00:02.890616+00:00"
+  "ts": "2026-10-28T03:54:53.723474+00:00"
 }
