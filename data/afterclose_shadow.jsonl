@@ -1015,3 +1015,11 @@
 {"kind": "pending", "alert_id": "85dec774cf", "market": "NQ", "direction": "LONG", "setup": "EMA21_PULLBACK_BULL", "entry": "29783.25", "stop": "29726.9583", "target": "29902.5", "settle_price": 29818.5, "settle_result": "WIN", "settle_ts": "2026-10-27T19:55:27.524082+00:00"}
 {"kind": "pending", "alert_id": "a9481ea7c2", "market": "GC", "direction": "SHORT", "setup": "STOCH_REVERSAL_BEAR", "entry": "4069.8", "stop": "4090.4474", "target": "4019.0", "settle_price": 4074.7, "settle_result": "LOSS", "settle_ts": "2026-10-27T19:55:27.999687+00:00"}
 {"kind": "pending", "alert_id": "4a4ce434a4", "market": "NQ", "direction": "LONG", "setup": "EMA21_PULLBACK_BULL", "entry": "29826.25", "stop": "29741.0956", "target": "30010.25", "settle_price": 29818.5, "settle_result": "LOSS", "settle_ts": "2026-10-27T19:55:28.478059+00:00"}
+{"kind": "resolved", "alert_id": "ac33d386ab", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 20, "settle_result": "WIN", "ts": "2026-10-28T01:58:23.469677+00:00"}
+{"kind": "resolved", "alert_id": "cd4b6f4276", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 20, "settle_result": "WIN", "ts": "2026-10-28T01:58:23.471279+00:00"}
+{"kind": "resolved", "alert_id": "85dec774cf", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 20, "settle_result": "WIN", "ts": "2026-10-28T01:58:23.471624+00:00"}
+{"kind": "resolved", "alert_id": "55a474aee6", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 116, "settle_result": "WIN", "ts": "2026-10-28T02:52:17.709511+00:00"}
+{"kind": "resolved", "alert_id": "46211754b4", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 24, "settle_result": "WIN", "ts": "2026-10-28T02:52:17.710440+00:00"}
+{"kind": "resolved", "alert_id": "03f7d90450", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 24, "settle_result": "WIN", "ts": "2026-10-28T02:52:17.711223+00:00"}
+{"kind": "resolved", "alert_id": "1d33138373", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 26, "settle_result": "WIN", "ts": "2026-10-28T03:22:23.363570+00:00"}
+{"kind": "resolved", "alert_id": "301b20e1b6", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 26, "settle_result": "WIN", "ts": "2026-10-28T03:22:23.363988+00:00"}
