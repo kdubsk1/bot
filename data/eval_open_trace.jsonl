@@ -328,3 +328,9 @@
 {"ts": "2026-10-28T01:42:19.396128+00:00", "market": "NQ", "alert_id": "a0c73b8983", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
 {"ts": "2026-10-28T02:22:13.257283+00:00", "market": "GC", "alert_id": "e0e128136b", "outcome": "attempt", "detail": "tier=HIGH"}
 {"ts": "2026-10-28T02:22:13.259309+00:00", "market": "GC", "alert_id": "e0e128136b", "outcome": "opened", "detail": "contracts=1 dir=SHORT", "contracts": 1, "direction": "SHORT"}
+{"ts": "2026-10-28T05:22:43.911107+00:00", "market": "NQ", "alert_id": "0ed7107854", "outcome": "attempt", "detail": "tier=HIGH"}
+{"ts": "2026-10-28T05:22:43.913303+00:00", "market": "NQ", "alert_id": "0ed7107854", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
+{"ts": "2026-10-28T07:07:14.692804+00:00", "market": "NQ", "alert_id": "c0119c13eb", "outcome": "attempt", "detail": "tier=HIGH"}
+{"ts": "2026-10-28T07:07:14.694651+00:00", "market": "NQ", "alert_id": "c0119c13eb", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}
+{"ts": "2026-10-28T07:54:24.648143+00:00", "market": "NQ", "alert_id": "83cd5a7367", "outcome": "attempt", "detail": "tier=HIGH"}
+{"ts": "2026-10-28T07:54:24.649675+00:00", "market": "NQ", "alert_id": "83cd5a7367", "outcome": "opened", "detail": "contracts=1 dir=LONG", "contracts": 1, "direction": "LONG"}

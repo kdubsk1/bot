@@ -1023,3 +1023,9 @@
 {"kind": "resolved", "alert_id": "03f7d90450", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 24, "settle_result": "WIN", "ts": "2026-10-28T02:52:17.711223+00:00"}
 {"kind": "resolved", "alert_id": "1d33138373", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 26, "settle_result": "WIN", "ts": "2026-10-28T03:22:23.363570+00:00"}
 {"kind": "resolved", "alert_id": "301b20e1b6", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 26, "settle_result": "WIN", "ts": "2026-10-28T03:22:23.363988+00:00"}
+{"kind": "resolved", "alert_id": "f8db01838b", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 41, "settle_result": "WIN", "ts": "2026-10-28T07:12:15.725111+00:00"}
+{"kind": "resolved", "alert_id": "92160af136", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 41, "settle_result": "WIN", "ts": "2026-10-28T07:12:15.725438+00:00"}
+{"kind": "resolved", "alert_id": "396002f843", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 41, "settle_result": "WIN", "ts": "2026-10-28T07:12:15.725741+00:00"}
+{"kind": "resolved", "alert_id": "9b3b3c2a95", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 41, "settle_result": "WIN", "ts": "2026-10-28T07:12:15.726022+00:00"}
+{"kind": "resolved", "alert_id": "cd78916eea", "market": "NQ", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 41, "settle_result": "WIN", "ts": "2026-10-28T07:12:15.726328+00:00"}
+{"kind": "resolved", "alert_id": "81c5b49d48", "market": "NQ", "verdict": "SHADOW_NEITHER_36H", "bars_15m_after_close": 136, "settle_result": "LOSS", "ts": "2026-10-28T07:56:25.109746+00:00"}

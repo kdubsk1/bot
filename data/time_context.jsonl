@@ -255,3 +255,6 @@
 {"ts": "2026-10-27T17:53:00.956875+00:00", "alert_id": "cd4b6f4276", "market": "NQ", "tf": "15m", "hour": 17, "time_edge_score": 43, "time_expected_R": 0.298, "time_label": "good"}
 {"ts": "2026-10-28T01:42:17.149751+00:00", "alert_id": "a0c73b8983", "market": "NQ", "tf": "15m", "hour": 1, "time_edge_score": 36, "time_expected_R": 0.076, "time_label": "neutral"}
 {"ts": "2026-10-28T02:21:32.108663+00:00", "alert_id": "e0e128136b", "market": "GC", "tf": "1h", "hour": 2, "time_edge_score": 43, "time_expected_R": 0.283, "time_label": "good"}
+{"ts": "2026-10-28T05:22:41.318150+00:00", "alert_id": "0ed7107854", "market": "NQ", "tf": "15m", "hour": 5, "time_edge_score": 38, "time_expected_R": 0.142, "time_label": "good"}
+{"ts": "2026-10-28T07:06:17.703194+00:00", "alert_id": "c0119c13eb", "market": "NQ", "tf": "15m", "hour": 7, "time_edge_score": 36, "time_expected_R": 0.093, "time_label": "neutral"}
+{"ts": "2026-10-28T07:54:24.369818+00:00", "alert_id": "83cd5a7367", "market": "NQ", "tf": "1h", "hour": 7, "time_edge_score": 36, "time_expected_R": 0.093, "time_label": "neutral"}
