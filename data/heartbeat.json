@@ -1,7 +1,7 @@
 {
- "utc": "2026-10-28T10:13:46.605819+00:00",
- "cycle": 6,
- "last_sync": null,
+ "utc": "2026-10-28T10:21:49.753541+00:00",
+ "cycle": 10,
+ "last_sync": "2026-10-28T10:14:58.278372+00:00",
  "started_utc": "2026-10-28T10:09:23.907310+00:00",
  "scanner_on": true,
  "markets": [
@@ -22,15 +22,13 @@
   },
   "last": {
    "GC|OPEN:VWAP_BOUNCE_BULL|LONG": "2026-10-28T09:52:27.996270+00:00",
-   "NQ|OPEN:RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-28T09:47:27.103802+00:00",
-   "NQ|ADX:EMA21_PULLBACK_BULL|LONG": "2026-10-28T09:47:27.106973+00:00",
    "NQ|OPEN:RRGATE:BREAK_RETEST_BULL|LONG": "2026-10-28T10:09:43.943589+00:00",
    "NQ|OPEN:BREAK_RETEST_BULL|LONG": "2026-10-28T10:10:44.474531+00:00",
    "GC|RCAP:VWAP_BOUNCE_BULL|LONG": "2026-10-28T10:12:46.293309+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 14,
+  "ok_last_hour": 22,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-28T10:09:25.888069+00:00",
