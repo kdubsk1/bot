@@ -30,6 +30,9 @@ except Exception:
 _BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 _DATA_DIR    = os.path.join(_BASE_DIR, "data")
 STRATEGY_LOG = os.path.join(_DATA_DIR, "strategy_log.csv")
+# _WAVE284_TAIL_PUSH: every scan row since the last full push of the scan log, pushed every 15 minutes (auto_sync)
+SCAN_TAIL = os.path.join(_DATA_DIR, "scan_log_tail.csv")
+_W284_TAIL_FAILS = [0]
 CANDIDATE_FILE = os.path.join(_DATA_DIR, "strategy_candidates.txt")
 
 os.makedirs(_DATA_DIR, exist_ok=True)
@@ -166,6 +169,15 @@ def update_fired_row_result(market: str, setup_type: str, direction: str,
     except Exception:
         return False
 
+def _w284_tail_append(row):
+    """_WAVE284_TAIL_PUSH: the same row, the same header, the same locked append, into the tail. Never raises:
+    a failure is counted (the scan row is already in the scan log)."""
+    try:
+        safe_io.safe_append_csv(SCAN_TAIL, COLS, row)
+    except Exception:
+        _W284_TAIL_FAILS[0] += 1
+
+
 def log_scan_decision(
     market: str, tf: str, setup_type: str, direction: str,
     price: float, entry: float, stop: float, target: float, rr: float,
@@ -250,6 +262,7 @@ def log_scan_decision(
     # Locked atomic append. Prevents check_missed_setups from clobbering
     # this row by rewriting the file with a stale snapshot.
     safe_io.safe_append_csv(STRATEGY_LOG, COLS, row)
+    _w284_tail_append(row)   # _WAVE284_TAIL_PUSH
 
     return row["timestamp"]
 
