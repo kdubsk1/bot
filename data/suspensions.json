@@ -203,5 +203,10 @@
     "reason": "Wave 47 auto: 0W/9L over last 30 days",
     "suspended_at": "2026-10-27T05:53:52.326501+00:00",
     "source": "wave47_auto"
+  },
+  "GC:EMA21_PULLBACK_BEAR@S20": {
+    "reason": "Wave 47 auto: 0W/5L over last 30 days",
+    "suspended_at": "2026-10-28T10:09:25.634336+00:00",
+    "source": "wave47_auto"
   }
 }

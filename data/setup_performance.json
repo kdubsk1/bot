@@ -240,7 +240,7 @@
     "losses": 174,
     "total": 351,
     "win_rate": 50.4,
-    "last_updated": "2026-10-28T07:12:15.862290",
+    "last_updated": "2026-10-28T10:09:43.762723",
     "paper_total": 41,
     "paper_losses": 31,
     "paper_win_rate": 24.4,
@@ -251,9 +251,9 @@
     "real_wins": 34,
     "real_avg_rr_win": 2.213,
     "real_expectancy": 0.3771,
-    "lab_total": 197,
-    "lab_losses": 123,
-    "lab_win_rate": 37.6,
+    "lab_total": 198,
+    "lab_losses": 124,
+    "lab_win_rate": 37.4,
     "lab_wins": 74
   },
   "BTC:VWAP_BOUNCE_BULL": {

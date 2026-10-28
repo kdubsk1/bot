@@ -9,15 +9,21 @@
     {
       "market": "BTC",
       "setup": "BB_REVERSION_BEAR",
-      "losses": 6,
-      "reason": "Wave 47 auto: 0W/6L over last 30 days"
+      "losses": 8,
+      "reason": "Wave 47 auto: 0W/8L over last 30 days"
     },
     {
       "market": "GC",
       "setup": "BREAK_RETEST_BEAR",
       "losses": 3,
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
+      "market": "GC",
+      "setup": "EMA21_PULLBACK_BEAR@S20",
+      "losses": 5,
+      "reason": "Wave 47 auto: 0W/5L over last 30 days"
     }
   ],
-  "ts": "2026-10-28T04:01:56.674566+00:00"
+  "ts": "2026-10-28T10:09:25.668755+00:00"
 }

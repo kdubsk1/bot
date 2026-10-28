@@ -40,3 +40,8 @@
 {"utc": "2026-10-28T04:02:04.784818+00:00", "market": "GC", "timeframe": "1d", "kind": "daily_frame", "source": "disk", "bars": 502, "newest": "2026-10-26", "before": null}
 {"utc": "2026-10-28T04:02:08.863529+00:00", "market": "BTC", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-10-28", "before": null}
 {"utc": "2026-10-28T04:02:10.180703+00:00", "market": "SOL", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-10-28", "before": null}
+{"utc": "2026-10-28T10:09:25.888069+00:00", "market": "NQ", "timeframe": "15m", "kind": "live_true_refused", "live": true, "exception": null, "http_status": 200, "ms": 18, "body": "errorCode=1 errorMessage=None", "market_shut": null, "fetch_ok": true}
+{"utc": "2026-10-28T10:09:30.689404+00:00", "market": "NQ", "timeframe": "1d", "kind": "daily_frame", "source": "disk", "bars": 502, "newest": "2026-10-26", "before": null}
+{"utc": "2026-10-28T10:09:34.447055+00:00", "market": "GC", "timeframe": "1d", "kind": "daily_frame", "source": "disk", "bars": 502, "newest": "2026-10-26", "before": null}
+{"utc": "2026-10-28T10:09:41.411659+00:00", "market": "BTC", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-10-28", "before": null}
+{"utc": "2026-10-28T10:09:42.109751+00:00", "market": "SOL", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-10-28", "before": null}
