@@ -57,6 +57,10 @@ DATA SAFETY (rule 11: the data is sacred)
     write handed safe_io the old snapshot, so a row appended between the read and the write was overwritten.
     Now the grades are merged into the fresh rows by row key. The history cache is refreshed per sweep, and a
     row is EXPIRED only once its whole horizon has traded (before that it stays open and is retried).
+  * _WAVE285_GRADER_SOURCE (GRADER-SOURCE, 27 Oct 2026): an NQ / gold row Yahoo cannot serve (refused, empty, or
+    no bar after the row) is graded from the bot's own frame (data_layer.get_frames - disk + TopstepX, ~500 bars)
+    when that frame covers the row; else it waits (skip_no_history). One source per row, never mixed.
+    FIX 1: the same coverage rule for BTC / SOL - a crypto frame that starts after the row does not grade it.
 
 KNOWN LIMITS (stated honestly)
 ==============================
@@ -122,6 +126,10 @@ _GRADE_FIELDS = ("result", "result_checked_at", "result_source")
 # A cached history frame older than this is loaded again. The boot drain passes run 10 s apart (one load per
 # frame, as before); the sweep runs every 3 h (a fresh load per frame it needs).
 _HISTORY_MAX_AGE_S = 3600
+
+# _WAVE285_GRADER_SOURCE (GRADER-SOURCE, 27 Oct 2026). The bot's own NQ / gold frames, used for a row only when Yahoo
+# has no frame or no bar after the row (BTC / SOL are graded from the bot's frames already, by _load_crypto).
+_BOT_MARKETS = ("NQ", "GC")
 
 
 def _f(v, d=0.0):
@@ -332,6 +340,56 @@ def _load_crypto(market, tf):
     return None
 
 
+def _w285_bot_frame(market, tf, stats):
+    """_WAVE285_GRADER_SOURCE: the bot's own frame for market+tf (High / Low, UTC index, sorted, one bar per time),
+    or None. One data_layer.get_frames call fills all four timeframes; cached beside Yahoo's frames under
+    (market, tf, "bot"), so _w283_refresh_history drops it with them."""
+    cache = load_history._cache
+    key = (market, tf, "bot")
+    if key in cache:
+        return cache[key]
+    try:
+        import data_layer
+        frames = data_layer.get_frames(market) or {}
+    except Exception as e:
+        stats.setdefault("history_errors", []).append("%s bot frames: %s" % (market, e))
+        frames = {}
+    for t in _HORIZON_BARS:
+        df = frames.get(t)
+        try:
+            if df is None or not len(df) or not {"High", "Low"}.issubset(df.columns):
+                df = None
+            else:
+                df = df[["High", "Low"]].copy()
+                if df.index.tz is None:
+                    df.index = df.index.tz_localize("UTC")
+                else:
+                    df.index = df.index.tz_convert("UTC")
+                df = df[~df.index.duplicated(keep="last")].sort_index()
+        except Exception as e:
+            stats.setdefault("history_errors", []).append("%s %s bot frame: %s" % (market, t, e))
+            df = None
+        cache[(market, t, "bot")] = df
+        load_history._loaded_at[(market, t, "bot")] = time.monotonic()
+    return cache.get(key)
+
+
+def _w285_bot_candles(market, tf, ts, stats):
+    """_WAVE285_GRADER_SOURCE: the bot's frame for ONE row, or None when it cannot grade it. It must cover the row
+    (first bar at or before ts) - else resolve() would grade an old row from bars days later. Its last
+    bar is dropped ALWAYS, not only by the clock: data_layer serves cached frames (1h up to 15 min, 4h up to 60, a
+    kept frame all weekend, a stale one after a failed fetch), so a last bar closed by the clock can still be a
+    snapshot taken mid-bar - a target touch whose stop touch came later. Cost: one bar of delay, never a wrong grade."""
+    df = _w285_bot_frame(market, tf, stats)
+    if df is None or not len(df):
+        return None
+    if df.index[0] > ts:
+        stats["bot_frame_starts_after_row"] = stats.get("bot_frame_starts_after_row", 0) + 1
+        return None
+    df = df.iloc[:-1]
+    return df if len(df) else None
+
+
 # ----------------------------------------------------------------------------
 def grade_rows(rows, stats, limit=None, now=None, graded_out=None):
     """Mutate rows in place. Returns number graded. _WAVE283_GRADER_FIX: each graded row is also appended to
@@ -390,12 +448,31 @@ def grade_rows(rows, stats, limit=None, now=None, graded_out=None):
                 continue
 
         candles = load_history(market, tf, stats)
-        if candles is None or not len(candles):
+        horizon = _HORIZON_BARS.get(tf, _DEFAULT_HORIZON)
+        # _WAVE285_GRADER_SOURCE: Yahoo first, as before; the bot's frame only when Yahoo has no frame or no bar
+        # after the row. One source per row. BTC / SOL come from the bot's frames already (_load_crypto).
+        source = "yahoo" if market in _BOT_MARKETS else "bot"
+        have = candles is not None and len(candles) > 0
+        if have and market not in _BOT_MARKETS:
+            # _WAVE285_GRADER_SOURCE FIX 1 - one rule for every market: a frame grades a row only if it covers
+            # it (first bar at or before the row), else an old BTC / SOL row is graded from bars days later.
+            try:
+                starts_after = bool(candles.index[0] > ts)
+            except Exception:
+                starts_after = False   # no usable index: today's behaviour for this row
+            if starts_after:
+                stats["bot_frame_starts_after_row"] = stats.get("bot_frame_starts_after_row", 0) + 1
+                stats["skip_no_history"] += 1
+                continue
+        verdict = resolve(candles, ts, entry, stop, target, direction, horizon) if have else None
+        if verdict is None and market in _BOT_MARKETS:
+            bot = _w285_bot_candles(market, tf, ts, stats)
+            if bot is not None:
+                have, source = True, "bot"
+                verdict = resolve(bot, ts, entry, stop, target, direction, horizon)
+        if not have:
             stats["skip_no_history"] += 1
             continue
-
-        horizon = _HORIZON_BARS.get(tf, _DEFAULT_HORIZON)
-        verdict = resolve(candles, ts, entry, stop, target, direction, horizon)
         if verdict is None:
             stats["skip_no_window"] += 1
             continue
@@ -413,6 +490,9 @@ def grade_rows(rows, stats, limit=None, now=None, graded_out=None):
                 row["detection_reason"] = (base + " fb:w173").strip()
         stats[verdict] += 1
         stats["rebuilt_targets"] += 1 if rebuilt else 0
+        stats["history_source_" + source] = stats.get("history_source_" + source, 0) + 1   # _WAVE285_GRADER_SOURCE
+        if source == "bot" and market in _BOT_MARKETS:
+            stats["history_source_bot_futures"] = stats.get("history_source_bot_futures", 0) + 1
         graded += 1
         if graded_out is not None:   # _WAVE283_GRADER_FIX
             graded_out.append((row, rebuilt))
@@ -472,7 +552,9 @@ def main(argv=None):
     stats = {k: 0 for k in ("rows_scanned", "WOULD_WIN", "WOULD_LOSE", "EXPIRED",
                             "rebuilt_targets", "skip_fired", "skip_bad_levels",
                             "skip_no_direction", "skip_bad_timestamp", "skip_too_old",
-                            "skip_no_target", "skip_no_history", "skip_no_window")}
+                            "skip_no_target", "skip_no_history", "skip_no_window",
+                            "history_source_yahoo", "history_source_bot",   # _WAVE285_GRADER_SOURCE
+                            "history_source_bot_futures", "bot_frame_starts_after_row")}
 
     _w283_refresh_history(stats)   # _WAVE283_GRADER_FIX: the sweep grades against candles that reach today
     targets = []
