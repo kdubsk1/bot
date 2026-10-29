@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-29T01:44:03.925640+00:00",
- "cycle": 609,
+ "utc": "2026-10-29T01:59:13.807214+00:00",
+ "cycle": 619,
  "last_sync": "2026-10-28T22:15:31.652469+00:00",
  "started_utc": "2026-10-28T10:09:23.907310+00:00",
  "scanner_on": true,
@@ -17,16 +17,12 @@
    "GC:W266|2026-10-29": 10
   },
   "last": {
-   "GC|OPEN:RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-29T01:15:53.102557+00:00",
-   "GC|VWAP_BOUNCE_BULL|LONG": "2026-10-29T01:28:57.850192+00:00",
    "GC|RRGATE:STOCH_REVERSAL_BEAR|SHORT": "2026-10-29T01:43:03.221059+00:00",
-   "GC|OPEN:MACD_CROSS_BULL|LONG": "2026-10-29T01:26:57.104570+00:00",
-   "GC|MACD_CROSS_BULL|LONG": "2026-10-29T01:28:57.869342+00:00",
    "GC|RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-10-29T01:43:03.140885+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 32,
+  "ok_last_hour": 44,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-28T22:00:18.179058+00:00",
