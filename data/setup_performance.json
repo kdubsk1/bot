@@ -4,7 +4,7 @@
     "losses": 117,
     "total": 157,
     "win_rate": 25.5,
-    "last_updated": "2026-10-29T01:56:39.529288",
+    "last_updated": "2026-10-29T02:37:23.274344",
     "paper_total": 114,
     "paper_wins": 30,
     "paper_win_rate": 26.3,
@@ -15,9 +15,9 @@
     "real_win_rate": 46.2,
     "real_avg_rr_win": 2.493,
     "real_expectancy": 0.6123,
-    "lab_total": 79,
-    "lab_losses": 55,
-    "lab_win_rate": 30.4,
+    "lab_total": 80,
+    "lab_losses": 56,
+    "lab_win_rate": 30.0,
     "lab_wins": 24
   },
   "SOL:BREAK_RETEST_BULL": {

@@ -1083,3 +1083,10 @@
 {"alert_id": "4e3345fb2f", "what": "entry", "market": "GC", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-29T02:13:18.815671+00:00", "last_15m_close": 4063.1, "tf": "1h", "lane": "lab", "entry": 4063.1}
 {"alert_id": "c3791a17c8", "what": "entry", "market": "GC", "age_sec": 0.5, "source": "fresh", "utc": "2026-10-29T02:13:19.198898+00:00", "last_15m_close": 4063.1, "tf": "1h", "lane": "lab", "entry": "4063.1"}
 {"alert_id": "c166c7b3da", "what": "entry", "market": "GC", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-29T02:15:19.771462+00:00", "last_15m_close": 4065.2, "tf": "1h", "lane": "lab", "entry": 4065.2}
+{"alert_id": "9c0b39a334", "what": "entry", "market": "NQ", "age_sec": 0.7, "source": "saved", "utc": "2026-10-29T02:27:21.669783+00:00", "last_15m_close": 29544.5, "tf": "15m", "lane": "lab", "entry": 29544.5}
+{"alert_id": "7c2baa7318", "what": "entry", "market": "NQ", "age_sec": 0.7, "source": "saved", "utc": "2026-10-29T02:27:21.690018+00:00", "last_15m_close": 29544.5, "tf": "15m", "lane": "lab", "entry": 29544.5}
+{"alert_id": "4b30f02b5f", "what": "entry", "market": "GC", "age_sec": 1.4, "source": "saved", "utc": "2026-10-29T02:37:23.752305+00:00", "last_15m_close": 4052.5, "tf": "1h", "lane": "lab", "entry": 4052.5}
+{"alert_id": "0bf07bf0ac", "what": "entry", "market": "GC", "age_sec": 1.5, "source": "saved", "utc": "2026-10-29T02:37:23.832282+00:00", "last_15m_close": 4052.5, "tf": "4h", "lane": "lab", "entry": 4052.5}
+{"alert_id": "3a58fdfb37", "what": "entry", "market": "GC", "age_sec": 1.7, "source": "saved", "utc": "2026-10-29T02:37:24.022053+00:00", "last_15m_close": 4052.5, "tf": "4h", "lane": "lab", "entry": "4052.5"}
+{"alert_id": "0a9615bb6c", "what": "entry", "market": "GC", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-29T02:43:25.870063+00:00", "last_15m_close": 4055.7, "tf": "1h", "lane": "lab", "entry": 4055.7}
+{"alert_id": "cce840e938", "what": "entry", "market": "NQ", "age_sec": 1.0, "source": "saved", "utc": "2026-10-29T02:57:29.112915+00:00", "last_15m_close": 29562.5, "tf": "15m", "lane": "lab", "entry": 29562.5}
