@@ -1090,3 +1090,7 @@
 {"alert_id": "3a58fdfb37", "what": "entry", "market": "GC", "age_sec": 1.7, "source": "saved", "utc": "2026-10-29T02:37:24.022053+00:00", "last_15m_close": 4052.5, "tf": "4h", "lane": "lab", "entry": "4052.5"}
 {"alert_id": "0a9615bb6c", "what": "entry", "market": "GC", "age_sec": 0.1, "source": "fresh", "utc": "2026-10-29T02:43:25.870063+00:00", "last_15m_close": 4055.7, "tf": "1h", "lane": "lab", "entry": 4055.7}
 {"alert_id": "cce840e938", "what": "entry", "market": "NQ", "age_sec": 1.0, "source": "saved", "utc": "2026-10-29T02:57:29.112915+00:00", "last_15m_close": 29562.5, "tf": "15m", "lane": "lab", "entry": 29562.5}
+{"alert_id": "d941b1c57e", "what": "entry", "market": "GC", "age_sec": 7.4, "source": "saved", "utc": "2026-10-29T03:18:08.462034+00:00", "last_15m_close": 4051.5, "tf": "1h", "lane": "lab", "entry": 4051.5}
+{"alert_id": "98644a2861", "what": "entry", "market": "GC", "age_sec": 7.5, "source": "saved", "utc": "2026-10-29T03:18:08.554344+00:00", "last_15m_close": 4051.5, "tf": "4h", "lane": "lab", "entry": 4051.5}
+{"alert_id": "bd8b0afec4", "what": "entry", "market": "GC", "age_sec": 7.6, "source": "saved", "utc": "2026-10-29T03:18:08.571551+00:00", "last_15m_close": 4051.5, "tf": "4h", "lane": "lab", "entry": 4051.5}
+{"alert_id": "0806d2b77c", "what": "entry", "market": "GC", "age_sec": 7.6, "source": "saved", "utc": "2026-10-29T03:18:08.664937+00:00", "last_15m_close": 4051.5, "tf": "1h", "lane": "lab", "entry": "4051.5"}

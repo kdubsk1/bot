@@ -3,14 +3,20 @@
     {
       "market": "NQ",
       "setup": "RSI_DIV_BULL",
-      "losses": 7,
-      "reason": "Wave 47 auto: 0W/7L over last 30 days"
+      "losses": 8,
+      "reason": "Wave 47 auto: 0W/8L over last 30 days"
     },
     {
       "market": "BTC",
       "setup": "BB_REVERSION_BEAR",
       "losses": 8,
       "reason": "Wave 47 auto: 0W/8L over last 30 days"
+    },
+    {
+      "market": "GC",
+      "setup": "MACD_CROSS_BEAR@S20",
+      "losses": 3,
+      "reason": "Wave 47 auto: 0W/3L over last 30 days"
     },
     {
       "market": "GC",
@@ -21,8 +27,8 @@
     {
       "market": "GC",
       "setup": "EMA21_PULLBACK_BEAR@S20",
-      "losses": 5,
-      "reason": "Wave 47 auto: 0W/5L over last 30 days"
+      "losses": 6,
+      "reason": "Wave 47 auto: 0W/6L over last 30 days"
     },
     {
       "market": "NQ",
@@ -37,5 +43,5 @@
       "reason": "Wave 47 auto: 0W/4L over last 30 days"
     }
   ],
-  "ts": "2026-10-28T20:00:26.748414+00:00"
+  "ts": "2026-10-29T03:17:56.501245+00:00"
 }
