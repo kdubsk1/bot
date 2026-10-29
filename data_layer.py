@@ -2089,6 +2089,209 @@ def _w279_daily_note(market, df):
 # ---- end _WAVE279_TOPSTEPX_HEALTH ------------------------------------------
 
 
+# ---- _WAVE287_DAILY_FILL ----------------------------------------------------------------------------------------
+# DAILY-FILL (Q99 A - Wayne, 28 Oct 2026: "lets fix that"). While Yahoo refuses, Wave 276 hands out the held Yahoo
+# frame or the disk copy as it is - days old, and its newest row is a session Yahoo caught part-way (on 27 Oct the
+# disk copy's "2026-10-26" row was the 27 Oct session's first 2.5 hours). get_frames now hands out a COPY filled from
+# this bot's own TopstepX 1h frame (from _cache - never a new request): that newest row rebuilt, every later session
+# added, so iloc[-1] = the newest session (in progress) and iloc[-2] = the last finished one, as in a fresh Yahoo
+# frame. The session rule was measured on the journal's TopstepX 5-minute bars against Yahoo's, Aug-Oct 2026: the bar
+# dated D is the Globex day 18:00 ET (D-1) -> 17:00 ET D (Open / High / Low equal to the point on every same-contract
+# day). Nothing is written to _cache or the disk copy. rules.DAILY_FILL_FROM_TOPSTEPX = False: the frame as given.
+_W287_NY = "America/New_York"
+_W287_SOURCES = ("yahoo", "disk")      # Wave 276's held Yahoo frame and the disk copy - the frames filled
+_w287_said = {}                        # market -> the last line logged (one line per change)
+
+
+def _w287_rules():
+    """(on, {market: close hour ET}, {fold date 'YYYY-MM-DD'}) from rules.py; an older rulebook: off. Never raises."""
+    on, close_et, fold = False, {"NQ": 16, "GC": 13}, set()
+    try:
+        from rules import DAILY_FILL_FROM_TOPSTEPX as _on
+        on = bool(_on)
+    except Exception:
+        return False, close_et, fold
+    try:
+        from rules import DAILY_FILL_CLOSE_ET as _c
+        close_et = dict(_c)
+    except Exception:
+        pass
+    try:
+        from rules import DAILY_FILL_FOLD_DATES as _f
+        fold = set(str(x) for x in _f)
+    except Exception:
+        pass
+    try:   # the full closures in the house calendar (Wave 275's): a weekday with no session - skipped, never waited for
+        from rules import FUTURES_HOLIDAYS as _h
+        fold |= set(str(k) for k, v in dict(_h).items() if v and v[0] is None)
+    except Exception:
+        pass
+    return on, close_et, fold
+
+
+def _w287_trade_date(ts_ny, fold):
+    """The trade date (datetime.date) of a 1h bar starting at ts_ny (New York time): from 6 PM it is the next day's;
+    a Saturday / Sunday or a fold date moves on to the next weekday that is not a fold date."""
+    import datetime as _dtm
+    d = ts_ny.date()
+    if ts_ny.hour >= 18:
+        d = d + _dtm.timedelta(days=1)
+    while d.weekday() >= 5 or d.isoformat() in fold:
+        d = d + _dtm.timedelta(days=1)
+    return d
+
+
+def _w287_next_day(d, fold):
+    """The trading date after d: the next weekday that is not a fold date."""
+    import datetime as _dtm
+    d = d + _dtm.timedelta(days=1)
+    while d.weekday() >= 5 or d.isoformat() in fold:
+        d = d + _dtm.timedelta(days=1)
+    return d
+
+
+def _w287_raw_date(ts_ny):
+    """The Globex session a 1h bar starting at ts_ny belongs to, before any fold: its 6 PM ET evening's next day."""
+    import datetime as _dtm
+    return ts_ny.date() + _dtm.timedelta(days=1) if ts_ny.hour >= 18 else ts_ny.date()
+
+
+def w287_fill(d1, h1, close_hour=16, fold=(), now_utc=None):
+    """(frame, info). frame = d1 filled from the 1h frame h1 (a new DataFrame), or d1 itself when it cannot be filled;
+    info = {"filled", "replaced", "added", "newest", "in_progress", "why"}. Pure: reads nothing else, never raises."""
+    info = {"filled": False, "replaced": None, "added": 0, "newest": None, "in_progress": False, "why": None}
+    try:
+        fold = set(str(x) for x in (fold or ()))
+        if d1 is None or len(d1) < 2:
+            info["why"] = "no daily frame to fill"
+            return d1, info
+        if h1 is None or len(h1) == 0:
+            info["why"] = "no TopstepX 1h frame in the cache"
+            return d1, info
+        if now_utc is None:
+            now_utc = datetime.fromtimestamp(time.time(), timezone.utc)
+        now = pd.Timestamp(now_utc)
+        now = now.tz_localize("UTC") if now.tzinfo is None else now.tz_convert("UTC")
+        last = pd.Timestamp(d1.index[-1])
+        last = (last.tz_localize("UTC") if last.tzinfo is None else last).tz_convert(_W287_NY).date()
+        h = h1[["Open", "High", "Low", "Close", "Volume"]].dropna(subset=["Open", "High", "Low", "Close"])
+        h = h[h.index <= now].sort_index()
+        h = h[~h.index.duplicated(keep="last")]
+        if len(h) == 0:
+            info["why"] = "no TopstepX 1h bar up to now"
+            return d1, info
+        ny = h.index.tz_convert(_W287_NY)
+        td = [_w287_trade_date(t, fold) for t in ny]
+        raw = [_w287_raw_date(t) for t in ny]
+        sessions = sorted(set(td))
+        if sessions[-1] <= last:
+            info["why"] = "the daily frame already reaches the newest TopstepX session (%s)" % sessions[-1]
+            return d1, info
+        if sessions[0] > last:
+            info["why"] = ("the 1h frame starts %s ET, after the session dated %s began - its newest bar cannot be "
+                           "rebuilt, so nothing is added (no gap)" % (ny[0].strftime("%Y-%m-%d %H:%M"), last))
+            return d1, info
+        rows, idx, stop = [], [], None
+        want = last
+        for s in [x for x in sessions if x >= last]:
+            if s != want:
+                stop = "session %s: no 1h bars of it" % want
+                break
+            want = _w287_next_day(s, fold)
+            pos = [i for i, d in enumerate(td) if d == s]
+            segs = {}
+            for i in pos:
+                segs.setdefault(raw[i], []).append(i)
+            bad = None
+            for r_date in sorted(segs):
+                ii = segs[r_date]
+                if ny[ii[0]].hour != 18:
+                    bad = "its 1h bars start %s ET, not at the 6 PM open" % ny[ii[0]].strftime("%Y-%m-%d %H:%M")
+                    break
+                gaps = [j for j in range(1, len(ii)) if (h.index[ii[j]] - h.index[ii[j - 1]]) != pd.Timedelta(hours=1)]
+                if gaps:
+                    g = ii[gaps[0]]
+                    bad = "the 1h frame misses the hour(s) before %s ET" % ny[g].strftime("%Y-%m-%d %H:%M")
+                    break
+            if bad:
+                stop = "session %s: %s" % (s, bad)
+                break
+            seg = h.iloc[pos]
+            seg_ny = ny[pos]
+            end_et = pd.Timestamp(s.isoformat() + " 17:00", tz=_W287_NY)
+            in_prog = (s == sessions[-1]) and now < end_et.tz_convert("UTC")
+            if in_prog:
+                close = float(seg["Close"].iloc[-1])
+            else:
+                lim = pd.Timestamp(s.isoformat() + " %02d:00" % int(close_hour), tz=_W287_NY) - pd.Timedelta(hours=1)
+                upto = seg[(seg_ny <= lim)]
+                close = float((upto if len(upto) else seg)["Close"].iloc[-1])
+            rows.append({"Open": float(seg["Open"].iloc[0]), "High": float(seg["High"].max()),
+                         "Low": float(seg["Low"].min()), "Close": close, "Volume": float(seg["Volume"].fillna(0).sum())})
+            idx.append(pd.Timestamp(s.isoformat(), tz=_W287_NY).tz_convert("UTC"))
+            info["in_progress"] = bool(in_prog)
+        if not rows or idx[0].tz_convert(_W287_NY).date() != last:
+            info["why"] = ("the newest bar's session (%s) cannot be rebuilt - %s - so nothing is added (no gap)"
+                           % (last, stop or "no 1h bars of it"))
+            return d1, info
+        add = pd.DataFrame(rows, index=pd.DatetimeIndex(idx, name=d1.index.name))
+        dix = pd.DatetimeIndex(d1.index)
+        dix = dix.tz_localize("UTC") if dix.tz is None else dix
+        keep = d1[np.array([d < last for d in dix.tz_convert(_W287_NY).date], dtype=bool)]
+        cols = list(d1.columns)
+        for c in cols:
+            if c not in add.columns:
+                add[c] = np.nan
+        out = pd.concat([keep, add[cols]])
+        info.update(filled=True, replaced=str(last), added=len(rows) - 1,
+                    newest=str(idx[-1].tz_convert(_W287_NY).date()), why=stop)
+        return out, info
+    except Exception as exc:
+        info.update(filled=False, why="the fill failed (%s: %s)" % (type(exc).__name__, str(exc)[:120]))
+        return d1, info
+
+
+def w287_daily_fill(market, d1, now_utc=None):
+    """get_frames' daily frame for NQ / gold: filled from the TopstepX 1h frame in _cache when Wave 276 says it is the
+    held Yahoo frame or the disk copy (not Yahoo-fresh); otherwise d1 as it is. One log line per change. Never
+    raises (d1 on any doubt)."""
+    try:
+        m = str(market).upper()
+        on, close_et, fold = _w287_rules()
+        if not on or m not in _FUTURES_MARKETS or d1 is None or len(d1) == 0:
+            return d1
+        st = _w276_daily.get(m) or {}
+        if st.get("fresh") or st.get("src") not in _W287_SOURCES:
+            return d1
+        e = _cache.get(_cache_key(m, "1h"))
+        h1 = None if e is None else e.get("df")
+        out, info = w287_fill(d1, h1, close_et.get(m, 16), fold, now_utc)
+        src = _W276_DAILY_NAMES.get(st.get("src"), st.get("src"))
+        why = str(st.get("why") or "Yahoo not fresh")
+        if info["filled"]:
+            line = ("Daily frame %s: %s - %s (newest %s, that bar rebuilt from TopstepX: Yahoo caught it part-way) + %d "
+                    "session(s) from TopstepX 1h (front contract) - newest daily bar %s (%s); TopstepX volume%s"
+                    % (m, why[:80], src, info["replaced"], info["added"], info["newest"],
+                       "in progress" if info["in_progress"] else "finished",
+                       ("; stopped at " + info["why"]) if info["why"] else ""))
+            key = ("filled", info["newest"], info["in_progress"], info["added"], info["why"])
+        else:
+            line = "Daily frame %s: NOT filled from TopstepX - %s - %s handed out as it is (%s)" % (
+                m, info["why"], src, _w276_daily_desc(d1))
+            key = ("as_is", info["why"])
+        if _w287_said.get(m) != key:
+            _w287_said[m] = key
+            logger.warning(line)
+        return out
+    except Exception as exc:
+        try:
+            logger.warning("Daily frame %s: the TopstepX fill failed (%s) - handed out as it is", market, exc)
+        except Exception:
+            pass
+        return d1
+# ---- end _WAVE287_DAILY_FILL ------------------------------------------------------------------------------------
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -2122,6 +2325,9 @@ def get_frames(market: str) -> Dict[str, pd.DataFrame]:
         except Exception as exc:
             logger.error("  %s %s: failed (%s)", market_upper, tf, exc)
             frames[tf] = pd.DataFrame(columns=_STANDARD_COLS)
+
+    if market_upper in _FUTURES_MARKETS and "1d" in frames:   # _WAVE287_DAILY_FILL: a held / disk frame, filled
+        frames["1d"] = w287_daily_fill(market_upper, frames["1d"])
 
     # Task 9: Summary log line per market
     bar_counts = "/".join(f"{tf}:{len(frames.get(tf, []))}bars" for tf in _ALL_TIMEFRAMES)

@@ -425,3 +425,23 @@ LAB_DROP_MAX_PER_DAY = 200
 # LAB-only scan), is never re-laned TEST (Wave 278) and never sends, is never a twin parent (Wave 277), and is kept
 # beside Trust - so TEST, the twins and Trust see exactly the rows they saw before. Holds whatever LAB_GRADE_DROPS is.
 LAB_OLD_CAPS = {"lab_cap": 40, "w266_cap": 20, "lab_synth_cap": 10}
+
+# ---- DAILY-FILL (_WAVE287_DAILY_FILL) ----
+# Wayne, 28 Oct 2026 8:16 PM ET (Q99): "lets fix that". While Yahoo refuses, NQ / gold's daily frame is the held
+# Yahoo frame or the disk copy, days old - the prior-day / prior-week levels and the daily ATR were from the wrong
+# days. True = data_layer.get_frames hands out that frame filled from the bot's own TopstepX 1h frame (never a new
+# request): its newest bar rebuilt, every later session added, the newest session in progress last - the shape
+# of a fresh Yahoo frame. Never written to the disk copy. A Yahoo-fresh frame is never touched.
+# False = the frame exactly as before.
+DAILY_FILL_FROM_TOPSTEPX = True
+# A filled bar's Close: the close of the 1h bar ending at this New York hour (Yahoo's Close is the settlement:
+# NQ ~4:00 PM ET, gold 1:30 PM ET). Measured on 5-minute bars, Aug-Oct 2026: median 4.5 points from Yahoo's (NQ),
+# 2.8 (gold). A session that ends before this hour (an early close) uses its last close.
+DAILY_FILL_CLOSE_ET = {"NQ": 16, "GC": 13}
+# New York dates whose Globex session halts with no settlement: Yahoo has no bar for them and folds the session into
+# the next trading day's bar (measured: Labor Day, 7 Sep 2026, inside Yahoo's 8 Sep bar). The full closures in
+# FUTURES_HOLIDAYS (no close time: Christmas, New Year's Day) are added to these by data_layer - the fill skips that
+# day. A closed weekday on NEITHER list stops the fill there (logged; no bar invented) until it is added - Good
+# Friday 2027 (26 Mar) is the next one. Check against CME's calendar each year; 2027 here is the usual US holidays.
+DAILY_FILL_FOLD_DATES = ("2026-09-07", "2026-11-26", "2027-01-18", "2027-02-15", "2027-05-31", "2027-06-18",
+                         "2027-07-05", "2027-09-06", "2027-11-25")
