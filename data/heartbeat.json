@@ -1,8 +1,8 @@
 {
- "utc": "2026-10-29T05:18:22.556856+00:00",
- "cycle": 18,
- "last_sync": "2026-10-29T05:17:15.929904+00:00",
- "started_utc": "2026-10-29T03:17:55.262213+00:00",
+ "utc": "2026-10-29T05:28:53.653748+00:00",
+ "cycle": 2,
+ "last_sync": null,
+ "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
  "markets": [
   "NQ",
@@ -20,23 +20,22 @@
   },
   "last": {
    "GC|VWAP_REJECT_BEAR|SHORT": "2026-10-29T05:12:20.747053+00:00",
-   "BTC|MACD_CROSS_BULL|LONG": "2026-10-29T04:58:18.769458+00:00",
    "BTC|VWAP_BOUNCE_BULL|LONG": "2026-10-29T05:12:20.857897+00:00",
    "GC|EMA21_PULLBACK_BEAR|SHORT": "2026-10-29T05:14:21.547250+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 24,
+  "ok_last_hour": 8,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-10-29T03:17:56.794378+00:00",
+   "utc": "2026-10-29T05:28:43.304794+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 50,
+   "ms": 46,
    "body": "errorCode=1 errorMessage=None",
    "market_shut": null,
    "fetch_ok": true
