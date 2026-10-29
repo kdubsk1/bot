@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-29T03:58:11.363602+00:00",
- "cycle": 6,
+ "utc": "2026-10-29T04:18:13.271357+00:00",
+ "cycle": 8,
  "last_sync": "2026-10-29T03:23:21.616288+00:00",
  "started_utc": "2026-10-29T03:17:55.262213+00:00",
  "scanner_on": true,
@@ -17,18 +17,10 @@
    "GC:W266|2026-10-29": 10,
    "NQ:DROP|2026-10-29": 5
   },
-  "last": {
-   "GC|VWAP_REJECT_BEAR|SHORT": "2026-10-29T03:48:11.227544+00:00",
-   "GC|RRGATE:VWAP_REJECT_BEAR|SHORT": "2026-10-29T03:48:11.258345+00:00",
-   "GC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-29T03:48:11.268535+00:00",
-   "NQ|ADX:STOCH_REVERSAL_BULL|LONG": "2026-10-29T03:38:10.292737+00:00",
-   "NQ|BB_REVERSION_BULL|LONG": "2026-10-29T03:38:10.332344+00:00",
-   "NQ|STOCH_REVERSAL_BULL|LONG": "2026-10-29T03:38:10.340976+00:00",
-   "NQ|ADX:MACD_CROSS_BULL|LONG": "2026-10-29T03:48:11.089840+00:00"
-  }
+  "last": {}
  },
  "topstepx": {
-  "ok_last_hour": 16,
+  "ok_last_hour": 14,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-29T03:17:56.794378+00:00",
