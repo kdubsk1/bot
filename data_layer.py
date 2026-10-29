@@ -2292,6 +2292,78 @@ def w287_daily_fill(market, d1, now_utc=None):
 # ---- end _WAVE287_DAILY_FILL ------------------------------------------------------------------------------------
 
 
+# ---- _WAVE288_DAILY_FILL_2 --------------------------------------------------------------------------------------
+# DAILY-FILL-2 (the chat, 29 Oct 2026). Wave 287 fills only a held / disk frame. A FRESH Yahoo frame has the same hole
+# in the evening: from 6 PM ET Yahoo's newest row is the session in progress, dated with the day it started on, and
+# the session that just finished is not in the frame (seen 26 Oct 8:30 PM ET and 28 Oct 11:18 PM ET) - so
+# _build_level_map's iloc[-2] is the session before it. Such a frame is now filled by Wave 287's own w287_fill (the
+# same session rule, the same 1h frame from _cache). A fresh frame that already reaches the newest TopstepX session
+# (the daytime) is handed out as it is, with no line. Nothing is written to _cache or the disk copy.
+# rules.DAILY_FILL_YAHOO_FRESH = False, or DAILY_FILL_FROM_TOPSTEPX = False: Wave 287 exactly.
+_w288_said = {}                        # market -> the last fresh-path line logged (one line per change)
+
+
+def _w288_fresh_on():
+    """rules.DAILY_FILL_YAHOO_FRESH; an older rulebook: off. Never raises."""
+    try:
+        from rules import DAILY_FILL_YAHOO_FRESH as _yf
+        return bool(_yf)
+    except Exception:
+        return False
+
+
+def w288_daily_fill(market, d1, now_utc=None):
+    """get_frames' daily frame for NQ / gold. A Yahoo-fresh frame (rules.DAILY_FILL_YAHOO_FRESH): filled by w287_fill
+    when it does not reach the newest TopstepX session, else d1 as it is. Any other frame: w287_daily_fill, exactly as
+    Wave 287. Never raises (d1 on any doubt)."""
+    try:
+        m = str(market).upper()
+        st = _w276_daily.get(m) or {}
+        if not (st.get("fresh") and st.get("src") == "yahoo" and _w288_fresh_on()):
+            return w287_daily_fill(market, d1, now_utc)
+        on, close_et, fold = _w287_rules()
+        if not on or m not in _FUTURES_MARKETS or d1 is None or len(d1) == 0:
+            return d1
+        e = _cache.get(_cache_key(m, "1h"))
+        h1 = None if e is None else e.get("df")
+        out, info = w287_fill(d1, h1, close_et.get(m, 16), fold, now_utc)
+        if info["filled"]:
+            y_open = float(d1["Open"].iloc[-1])
+            r_open = float(out["Open"].iloc[-(info["added"] + 1)])
+            n_open = float(out["Open"].iloc[-info["added"]]) if info["added"] >= 1 else r_open
+            if info["added"] >= 1 and abs(y_open - n_open) < abs(y_open - r_open):
+                nxt = str(pd.Timestamp(out.index[-info["added"]]).tz_convert(_W287_NY).date())
+                what = ("is the %s session in progress (O %s = TopstepX's 6 PM ET open of it), dated a day early; "
+                        "the finished %s session is not in Yahoo's frame" % (nxt, round(y_open, 4), info["replaced"]))
+            else:
+                what = "is the session in progress when Yahoo answered, short of the newest TopstepX session"
+            line = ("Daily frame %s: Yahoo FRESH, but its newest row (dated %s) %s - that row rebuilt from TopstepX as "
+                    "the %s session + %d session(s) from TopstepX 1h (front contract) - newest daily bar %s (%s); "
+                    "TopstepX volume; _cache and the disk copy stay Yahoo's%s"
+                    % (m, info["replaced"], what, info["replaced"], info["added"], info["newest"],
+                       "in progress" if info["in_progress"] else "finished",
+                       ("; stopped at " + info["why"]) if info["why"] else ""))
+            key = ("filled", info["newest"], info["in_progress"], info["added"], info["why"])
+        elif str(info["why"] or "").startswith("the daily frame already reaches"):
+            line, key = None, ("reaches",)
+        else:
+            line = "Daily frame %s: Yahoo FRESH, NOT filled from TopstepX - %s - Yahoo's frame handed out as it is (%s)" % (
+                m, info["why"], _w276_daily_desc(d1))
+            key = ("as_is", info["why"])
+        if _w288_said.get(m) != key:
+            _w288_said[m] = key
+            if line:
+                logger.warning(line)
+        return out
+    except Exception as exc:
+        try:
+            logger.warning("Daily frame %s: the fresh-frame TopstepX fill failed (%s) - handed out as it is", market, exc)
+        except Exception:
+            pass
+        return d1
+# ---- end _WAVE288_DAILY_FILL_2 ----------------------------------------------------------------------------------
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -2327,7 +2399,7 @@ def get_frames(market: str) -> Dict[str, pd.DataFrame]:
             frames[tf] = pd.DataFrame(columns=_STANDARD_COLS)
 
     if market_upper in _FUTURES_MARKETS and "1d" in frames:   # _WAVE287_DAILY_FILL: a held / disk frame, filled
-        frames["1d"] = w287_daily_fill(market_upper, frames["1d"])
+        frames["1d"] = w288_daily_fill(market_upper, frames["1d"])   # _WAVE288_DAILY_FILL_2: + Yahoo-fresh
 
     # Task 9: Summary log line per market
     bar_counts = "/".join(f"{tf}:{len(frames.get(tf, []))}bars" for tf in _ALL_TIMEFRAMES)

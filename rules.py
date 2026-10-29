@@ -445,3 +445,12 @@ DAILY_FILL_CLOSE_ET = {"NQ": 16, "GC": 13}
 # Friday 2027 (26 Mar) is the next one. Check against CME's calendar each year; 2027 here is the usual US holidays.
 DAILY_FILL_FOLD_DATES = ("2026-09-07", "2026-11-26", "2027-01-18", "2027-02-15", "2027-05-31", "2027-06-18",
                          "2027-07-05", "2027-09-06", "2027-11-25")
+
+# ---- DAILY-FILL-2 (_WAVE288_DAILY_FILL_2) ----
+# The chat, 29 Oct 2026: a FRESH Yahoo frame has Wave 287's hole too. In the evening Yahoo's newest row is the
+# session in progress (from 6 PM ET) dated with the day it started on, and the session that just finished is not
+# in the frame (28 Oct 11:18 PM ET: NQ prior_day_high 29881.25 = 27 Oct's, not 28 Oct's 30178.0). True = such a
+# frame is filled exactly as Wave 287 fills a held one; a fresh frame that already reaches the newest TopstepX
+# session (the daytime) stays Yahoo's, untouched. Never written to the disk copy. Works only while
+# DAILY_FILL_FROM_TOPSTEPX = True. False = Wave 287 exactly.
+DAILY_FILL_YAHOO_FRESH = True
