@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-30T14:51:25.599415+00:00",
- "cycle": 1252,
+ "utc": "2026-10-30T15:07:30.874273+00:00",
+ "cycle": 1257,
  "last_sync": "2026-10-30T11:35:32.261549+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -25,12 +25,11 @@
   "last": {
    "NQ|SYNTH:EMA21_PULLBACK_BEAR|SHORT": "2026-10-30T14:45:23.451625+00:00",
    "NQ|SYNTH:BREAK_RETEST_BEAR|SHORT": "2026-10-30T14:43:21.770033+00:00",
-   "NQ|SYNTH:VWAP_REJECT_BEAR|SHORT": "2026-10-30T14:45:23.432417+00:00",
-   "NQ|SYNTH:OPENING_RANGE_BREAKOUT|SHORT": "2026-10-30T14:22:35.449607+00:00"
+   "NQ|SYNTH:VWAP_REJECT_BEAR|SHORT": "2026-10-30T14:45:23.432417+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 100,
+  "ok_last_hour": 78,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-29T22:00:01.633436+00:00",
