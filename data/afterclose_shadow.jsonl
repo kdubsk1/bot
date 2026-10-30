@@ -1388,3 +1388,5 @@
 {"kind": "resolved", "alert_id": "44fb4d0f15", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 68, "settle_result": "WIN", "ts": "2026-10-30T13:48:45.781594+00:00"}
 {"kind": "resolved", "alert_id": "951db7c14b", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 68, "settle_result": "WIN", "ts": "2026-10-30T13:50:48.262114+00:00"}
 {"kind": "resolved", "alert_id": "0905bf4487", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 68, "settle_result": "WIN", "ts": "2026-10-30T13:53:53.139408+00:00"}
+{"kind": "pending", "alert_id": "3aa4613573", "market": "NQ", "direction": "SHORT", "setup": "OPENING_RANGE_BREAKOUT", "entry": "28652.5", "stop": "28874.0813", "target": "28209.3374", "settle_price": 28521.0, "settle_result": "WIN", "settle_ts": "2026-10-30T19:55:29.268961+00:00"}
+{"kind": "pending", "alert_id": "a471c1acbf", "market": "NQ", "direction": "SHORT", "setup": "MACD_CROSS_BEAR", "entry": "28633.25", "stop": "28900.4937", "target": "28098.7625", "settle_price": 28521.0, "settle_result": "WIN", "settle_ts": "2026-10-30T19:55:29.655128+00:00"}
