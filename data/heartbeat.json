@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-30T02:32:50.587473+00:00",
- "cycle": 811,
+ "utc": "2026-10-30T02:42:52.357097+00:00",
+ "cycle": 812,
  "last_sync": "2026-10-29T23:34:53.886201+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -18,14 +18,11 @@
    "NQ:DROP|2026-10-30": 1
   },
   "last": {
-   "GC|RRGATE:VWAP_REJECT_BEAR|SHORT": "2026-10-30T02:22:50.358128+00:00",
-   "GC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-30T02:12:49.040820+00:00",
-   "GC|RCAP:VWAP_BOUNCE_BULL|LONG": "2026-10-30T02:12:49.015516+00:00",
-   "NQ|RCAP:BB_REVERSION_BULL|LONG": "2026-10-30T02:12:48.779810+00:00"
+   "GC|RRGATE:VWAP_REJECT_BEAR|SHORT": "2026-10-30T02:22:50.358128+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 18,
+  "ok_last_hour": 19,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-29T22:00:01.633436+00:00",
