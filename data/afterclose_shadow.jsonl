@@ -1379,3 +1379,12 @@
 {"kind": "resolved", "alert_id": "eeae8ac1e5", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 40, "settle_result": "LOSS", "ts": "2026-10-30T06:47:34.896215+00:00"}
 {"kind": "resolved", "alert_id": "d5449eb1a5", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 40, "settle_result": "LOSS", "ts": "2026-10-30T06:47:34.896489+00:00"}
 {"kind": "resolved", "alert_id": "f00a976f93", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 40, "settle_result": "LOSS", "ts": "2026-10-30T06:47:34.896781+00:00"}
+{"kind": "resolved", "alert_id": "fa57baffca", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 65, "settle_result": "LOSS", "ts": "2026-10-30T13:08:29.766573+00:00"}
+{"kind": "resolved", "alert_id": "6cfa7c3232", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 65, "settle_result": "LOSS", "ts": "2026-10-30T13:08:29.767835+00:00"}
+{"kind": "resolved", "alert_id": "50cce25d13", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 65, "settle_result": "LOSS", "ts": "2026-10-30T13:11:32.098427+00:00"}
+{"kind": "resolved", "alert_id": "feed4ba8f1", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 67, "settle_result": "LOSS", "ts": "2026-10-30T13:33:22.973930+00:00"}
+{"kind": "resolved", "alert_id": "b663da3708", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 67, "settle_result": "WIN", "ts": "2026-10-30T13:34:25.619243+00:00"}
+{"kind": "resolved", "alert_id": "f0615ac16e", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 67, "settle_result": "LOSS", "ts": "2026-10-30T13:34:25.620321+00:00"}
+{"kind": "resolved", "alert_id": "44fb4d0f15", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 68, "settle_result": "WIN", "ts": "2026-10-30T13:48:45.781594+00:00"}
+{"kind": "resolved", "alert_id": "951db7c14b", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 68, "settle_result": "WIN", "ts": "2026-10-30T13:50:48.262114+00:00"}
+{"kind": "resolved", "alert_id": "0905bf4487", "market": "GC", "verdict": "SHADOW_TARGET_FIRST", "bars_15m_after_close": 68, "settle_result": "WIN", "ts": "2026-10-30T13:53:53.139408+00:00"}
