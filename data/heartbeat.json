@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-30T15:23:38.926726+00:00",
- "cycle": 1262,
+ "utc": "2026-10-30T15:37:42.774978+00:00",
+ "cycle": 1266,
  "last_sync": "2026-10-30T11:35:32.261549+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -12,7 +12,7 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "NQ|2026-10-30": 42,
+   "NQ|2026-10-30": 43,
    "GC|2026-10-30": 22,
    "GC:DROP|2026-10-30": 6,
    "NQ:DROP|2026-10-30": 23,
@@ -23,13 +23,14 @@
    "BTC:DROP|2026-10-30": 1
   },
   "last": {
+   "NQ|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-30T15:30:41.565576+00:00",
    "NQ|SYNTH:EMA21_PULLBACK_BEAR|SHORT": "2026-10-30T15:16:35.786612+00:00",
    "NQ|SYNTH:BREAK_RETEST_BEAR|SHORT": "2026-10-30T15:18:37.650268+00:00",
    "NQ|SYNTH:MACD_CROSS_BEAR|SHORT": "2026-10-30T15:14:34.414859+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 56,
+  "ok_last_hour": 48,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-29T22:00:01.633436+00:00",
