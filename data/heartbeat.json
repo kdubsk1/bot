@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-30T01:42:39.835287+00:00",
- "cycle": 806,
+ "utc": "2026-10-30T02:02:45.502166+00:00",
+ "cycle": 808,
  "last_sync": "2026-10-29T23:34:53.886201+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -16,13 +16,10 @@
    "GC|2026-10-30": 6,
    "GC:DROP|2026-10-30": 1
   },
-  "last": {
-   "GC|RRGATE:VWAP_REJECT_BEAR|SHORT": "2026-10-30T01:29:38.237854+00:00",
-   "GC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-30T01:25:36.800823+00:00"
-  }
+  "last": {}
  },
  "topstepx": {
-  "ok_last_hour": 44,
+  "ok_last_hour": 28,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-29T22:00:01.633436+00:00",
