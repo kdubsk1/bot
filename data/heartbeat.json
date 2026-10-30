@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-30T00:47:54.183349+00:00",
- "cycle": 787,
+ "utc": "2026-10-30T01:01:59.263374+00:00",
+ "cycle": 792,
  "last_sync": "2026-10-29T23:34:53.886201+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -13,12 +13,17 @@
  "lab_caps": {
   "count": {
    "NQ|2026-10-30": 1,
-   "GC|2026-10-30": 2
+   "GC|2026-10-30": 4,
+   "GC:DROP|2026-10-30": 1
   },
-  "last": {}
+  "last": {
+   "GC|RRGATE:VWAP_REJECT_BEAR|SHORT": "2026-10-30T00:57:56.234713+00:00",
+   "GC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-30T00:47:54.727421+00:00",
+   "GC|ADX:VWAP_REJECT_BEAR|SHORT": "2026-10-30T00:59:57.875977+00:00"
+  }
  },
  "topstepx": {
-  "ok_last_hour": 40,
+  "ok_last_hour": 42,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-10-29T22:00:01.633436+00:00",
