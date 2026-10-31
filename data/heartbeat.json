@@ -1,6 +1,6 @@
 {
- "utc": "2026-10-31T02:11:39.469065+00:00",
- "cycle": 1582,
+ "utc": "2026-10-31T02:21:40.459346+00:00",
+ "cycle": 1583,
  "last_sync": "2026-10-30T23:36:00.807248+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -11,8 +11,12 @@
  ],
  "interval_min": 5,
  "lab_caps": {
-  "count": {},
-  "last": {}
+  "count": {
+   "BTC|2026-10-31": 1
+  },
+  "last": {
+   "BTC|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-10-31T02:11:40.431322+00:00"
+  }
  },
  "topstepx": {
   "ok_last_hour": 0,
