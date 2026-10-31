@@ -1701,3 +1701,8 @@
 {"alert_id": "3aa4613573", "what": "flatten", "market": "NQ", "age_sec": 0.0, "source": "fresh", "utc": "2026-10-30T19:55:29.242871+00:00", "last_15m_close": 28521.0, "price": 28521.0, "priced": true, "at_stop": false}
 {"alert_id": "a471c1acbf", "what": "flatten", "market": "NQ", "age_sec": 0.4, "source": "fresh", "utc": "2026-10-30T19:55:29.633900+00:00", "last_15m_close": 28521.0, "price": 28521.0, "priced": true, "at_stop": false}
 {"alert_id": "804517a73e", "what": "entry", "market": "BTC", "age_sec": 0.9, "source": "saved", "utc": "2026-10-30T21:07:25.759576+00:00", "last_15m_close": 76533.89, "tf": "15m", "lane": "lab", "entry": 76533.89}
+{"alert_id": "5383497aad", "what": "entry", "market": "BTC", "age_sec": 0.8, "source": "saved", "utc": "2026-10-31T02:11:40.431196+00:00", "last_15m_close": 77242.91, "tf": "1h", "lane": "lab", "entry": 77242.91}
+{"alert_id": "a4e6801159", "what": "entry", "market": "BTC", "age_sec": 0.8, "source": "saved", "utc": "2026-10-31T03:41:51.610757+00:00", "last_15m_close": 77056.06, "tf": "1h", "lane": "lab", "entry": 77056.06}
+{"alert_id": "29c13bdef5", "what": "entry", "market": "BTC", "age_sec": 0.8, "source": "saved", "utc": "2026-10-31T03:41:51.624342+00:00", "last_15m_close": 77056.06, "tf": "1h", "lane": "lab", "entry": 77056.06}
+{"alert_id": "a6f52d215f", "what": "entry", "market": "BTC", "age_sec": 1.0, "source": "saved", "utc": "2026-10-31T04:11:54.657761+00:00", "last_15m_close": 77078.36, "tf": "1h", "lane": "lab", "entry": 77078.36}
+{"alert_id": "3dc209c1ce", "what": "entry", "market": "BTC", "age_sec": 0.7, "source": "saved", "utc": "2026-10-31T04:41:57.625275+00:00", "last_15m_close": 77039.94, "tf": "1h", "lane": "lab", "entry": 77039.94}
