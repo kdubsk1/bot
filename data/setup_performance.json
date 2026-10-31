@@ -538,7 +538,7 @@
     "losses": 49,
     "total": 74,
     "win_rate": 33.8,
-    "last_updated": "2026-10-30T18:56:34.577828",
+    "last_updated": "2026-10-31T12:37:23.261389",
     "paper_total": 48,
     "paper_losses": 28,
     "paper_win_rate": 41.7,
@@ -549,9 +549,9 @@
     "real_win_rate": 33.3,
     "real_avg_rr_win": 2.42,
     "real_expectancy": 0.14,
-    "lab_total": 41,
-    "lab_losses": 35,
-    "lab_win_rate": 14.6,
+    "lab_total": 43,
+    "lab_losses": 37,
+    "lab_win_rate": 14.0,
     "lab_wins": 6
   },
   "GC:EMA21_PULLBACK_BEAR": {
