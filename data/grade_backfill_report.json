@@ -1,9 +1,9 @@
 {
-  "rows_scanned": 18368,
+  "rows_scanned": 18369,
   "WOULD_WIN": 0,
   "WOULD_LOSE": 0,
-  "EXPIRED": 50,
-  "rebuilt_targets": 50,
+  "EXPIRED": 0,
+  "rebuilt_targets": 0,
   "skip_fired": 0,
   "skip_bad_levels": 0,
   "skip_no_direction": 128,
@@ -13,16 +13,12 @@
   "skip_no_history": 0,
   "skip_no_window": 0,
   "history_source_yahoo": 0,
-  "history_source_bot": 50,
+  "history_source_bot": 0,
   "history_source_bot_futures": 0,
   "bot_frame_starts_after_row": 0,
   "history_refreshed": 1,
-  "skip_window_open": 20,
-  "merge_applied": 50,
-  "merge_dup_key": 0,
-  "merge_already_final": 0,
-  "merge_row_gone": 0,
-  "total_graded": 50,
+  "skip_window_open": 14,
+  "total_graded": 0,
   "mode": "write",
-  "generated_at": "2026-10-31T17:29:38.533592+00:00"
+  "generated_at": "2026-10-31T23:29:39.788690+00:00"
 }
