@@ -59,3 +59,5 @@
 {"utc": "2026-10-29T22:00:01.633436+00:00", "market": "NQ", "timeframe": "15m", "kind": "live_true_refused", "live": true, "exception": null, "http_status": 200, "ms": 15, "body": "errorCode=1 errorMessage=None", "market_shut": null, "fetch_ok": true}
 {"utc": "2026-10-31T05:42:05.586153+00:00", "market": "GC", "timeframe": "1d", "kind": "daily_frame", "source": "yfinance", "bars": 503, "newest": "2026-10-30", "before": ["yfinance", 504]}
 {"utc": "2026-10-31T05:52:09.755736+00:00", "market": "NQ", "timeframe": "1d", "kind": "daily_frame", "source": "yfinance", "bars": 503, "newest": "2026-10-30", "before": ["yfinance", 504]}
+{"utc": "2026-11-01T05:49:04.253253+00:00", "market": "GC", "timeframe": "1d", "kind": "daily_frame", "source": "yfinance", "bars": 502, "newest": "2026-10-30", "before": ["yfinance", 503]}
+{"utc": "2026-11-01T05:59:07.583512+00:00", "market": "NQ", "timeframe": "1d", "kind": "daily_frame", "source": "yfinance", "bars": 502, "newest": "2026-10-30", "before": ["yfinance", 503]}
