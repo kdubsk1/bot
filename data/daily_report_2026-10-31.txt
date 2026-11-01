@@ -1,0 +1,53 @@
+NQ CALLS DAILY REPORT
+Date: Saturday, October 31, 2026
+Session: 2026-11-02
+Generated: 2026-11-01 00:02 UTC
+==================================================
+
+Real calls: 0 - every market is LAB-only since Wave 280 (Wayne 25 Oct) - would-be-real: 0 - LAB: 6 (3 setups)
+LAB is graded silently and never sent - it is not a result you got.
+
+REAL CALLS (sent to you) - points at the actual exit
+------------------------------
+  None sent today.
+
+WOULD-BE-REAL CALLS (LAB lane, lab_gate all_lab: graded as if sent, never sent) - points at the actual exit
+------------------------------
+  None today.
+
+BY MARKET AND SIDE (points are never added across markets)
+------------------------------
+  BTC LONG: real 0 | LAB 0 setups (0 records)
+  BTC SHORT: real 0 | LAB 3 setups (6 records): 0W 2L, -1052.13 pts, -2.00R
+
+LAB SETUPS (graded, never sent) - each setup once, raw record count after the x
+------------------------------
+  BTC:EMA21_PULLBACK_BEAR 1h SHORT x4: 0W 1L 3 open, -598.75 pts, -1.00R
+  BTC:EMA21_PULLBACK_BEAR 15m SHORT x1: 0W 1L, -453.38 pts, -1.00R
+  BTC:VWAP_REJECT_BEAR 1h SHORT x1: 0W 0L 1 open
+
+EVERY RECORD TODAY (raw, 6)
+------------------------------
+  [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 15m | SHORT | Conv:30 RR:2.5 | Entry:76533.89 Stop:76987.2731 Target:75400.4323 | Exit:76987.2731 | pts:-453.3831 R:-1.0 | 2026-10-30 21:07
+  [LAB] OPEN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.5 | Entry:77242.91 Stop:77872.3659 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 02:11
+  [LAB] OPEN BTC | VWAP_REJECT_BEAR | 1h | SHORT | Conv:31 RR:1.22 | Entry:77056.06 Stop:77673.3646 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 03:41
+  [LAB] OPEN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.22 | Entry:77056.06 Stop:77673.3646 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 03:41
+  [LAB] OPEN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.32 | Entry:77078.36 Stop:77666.1622 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 04:11
+  [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.23 | Entry:77039.94 Stop:77638.6871 Target:76301.02 | Exit:77638.6871 | pts:-598.7471 R:-1.0 | 2026-10-31 04:41
+
+STILL OPEN AT END OF DAY:
+------------------------------
+  [LAB] BTC | EMA50_BREAKDOWN | Entry:79153.62 Target:75123.2006 | ID:6532ae5033 | 2026-10-29 20:43
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:79153.62 Target:74499.3826 | ID:a79faa22e9 | 2026-10-29 20:43
+  [LAB] BTC | MACD_CROSS_BEAR | Entry:79153.62 Target:74499.3826 | ID:b3dd9728e9 | 2026-10-29 20:43
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:79059.79 Target:74350.1722 | ID:87d46af503 | 2026-10-29 21:13
+  [LAB] BTC | VWAP_REJECT_BEAR | Entry:79247.59 Target:75157.9529 | ID:fdf1433091 | 2026-10-29 21:15
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:79372.6 Target:75431.1778 | ID:325931af42 | 2026-10-29 21:17
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:79180.6 Target:74742.1206 | ID:3d87c4f497 | 2026-10-29 21:43
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:77242.91 Target:76301.02 | ID:5383497aad | 2026-10-31 02:11
+  [LAB] BTC | VWAP_REJECT_BEAR | Entry:77056.06 Target:76301.02 | ID:a4e6801159 | 2026-10-31 03:41
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:77056.06 Target:76301.02 | ID:29c13bdef5 | 2026-10-31 03:41
+  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:77078.36 Target:76301.02 | ID:a6f52d215f | 2026-10-31 04:11
+
+==================================================
+END OF REPORT
