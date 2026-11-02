@@ -1,10 +1,10 @@
 NQ CALLS DAILY REPORT
-Date: Saturday, October 31, 2026
+Date: Sunday, November 01, 2026
 Session: 2026-11-02
-Generated: 2026-11-01 00:02 UTC
+Generated: 2026-11-02 01:06 UTC
 ==================================================
 
-Real calls: 0 - every market is LAB-only since Wave 280 (Wayne 25 Oct) - would-be-real: 0 - LAB: 6 (3 setups)
+Real calls: 0 - every market is LAB-only since Wave 280 (Wayne 25 Oct) - would-be-real: 0 - LAB: 22 (13 setups)
 LAB is graded silently and never sent - it is not a result you got.
 
 REAL CALLS (sent to you) - points at the actual exit
@@ -17,23 +17,51 @@ WOULD-BE-REAL CALLS (LAB lane, lab_gate all_lab: graded as if sent, never sent) 
 
 BY MARKET AND SIDE (points are never added across markets)
 ------------------------------
-  BTC LONG: real 0 | LAB 0 setups (0 records)
-  BTC SHORT: real 0 | LAB 3 setups (6 records): 0W 2L, -1052.13 pts, -2.00R
+  NQ LONG: real 0 | LAB 0 setups (0 records)
+  NQ SHORT: real 0 | LAB 4 setups (9 records): 0W 3L, -174.42 pts, -3.00R
+  BTC LONG: real 0 | LAB 4 setups (5 records)
+  BTC SHORT: real 0 | LAB 5 setups (8 records): 0W 6L, -3504.00 pts, -6.00R
 
 LAB SETUPS (graded, never sent) - each setup once, raw record count after the x
 ------------------------------
-  BTC:EMA21_PULLBACK_BEAR 1h SHORT x4: 0W 1L 3 open, -598.75 pts, -1.00R
+  BTC:EMA21_PULLBACK_BEAR 1h SHORT x4: 0W 4L, -2433.31 pts, -4.00R
+  NQ:STOCH_REVERSAL_BEAR 15m SHORT x3: 0W 1L 2 open, -73.39 pts, -1.00R
+  NQ:VWAP_REJECT_BEAR 15m SHORT x3: 0W 1L 2 open, -58.07 pts, -1.00R
+  BTC:VWAP_BOUNCE_BULL 1h LONG x2: 0W 0L 2 open
+  NQ:VWAP_REJECT_BEAR 1h SHORT x2: 0W 1L 1 open, -42.96 pts, -1.00R
+  BTC:BB_REVERSION_BEAR 15m SHORT x1: 0W 0L 1 open
   BTC:EMA21_PULLBACK_BEAR 15m SHORT x1: 0W 1L, -453.38 pts, -1.00R
-  BTC:VWAP_REJECT_BEAR 1h SHORT x1: 0W 0L 1 open
+  BTC:MACD_CROSS_BULL 15m LONG x1: 0W 0L 1 open
+  BTC:MACD_CROSS_BULL 1h LONG x1: 0W 0L 1 open
+  BTC:VWAP_RECLAIM 1h LONG x1: 0W 0L 1 open
+  BTC:VWAP_REJECT_BEAR 15m SHORT x1: 0W 0L 1 open
+  BTC:VWAP_REJECT_BEAR 1h SHORT x1: 0W 1L, -617.30 pts, -1.00R
+  NQ:BREAK_RETEST_BEAR 1h SHORT x1: 0W 0L 1 open
 
-EVERY RECORD TODAY (raw, 6)
+EVERY RECORD TODAY (raw, 22)
 ------------------------------
   [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 15m | SHORT | Conv:30 RR:2.5 | Entry:76533.89 Stop:76987.2731 Target:75400.4323 | Exit:76987.2731 | pts:-453.3831 R:-1.0 | 2026-10-30 21:07
-  [LAB] OPEN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.5 | Entry:77242.91 Stop:77872.3659 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 02:11
-  [LAB] OPEN BTC | VWAP_REJECT_BEAR | 1h | SHORT | Conv:31 RR:1.22 | Entry:77056.06 Stop:77673.3646 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 03:41
-  [LAB] OPEN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.22 | Entry:77056.06 Stop:77673.3646 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 03:41
-  [LAB] OPEN BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.32 | Entry:77078.36 Stop:77666.1622 Target:76301.02 | Exit:open | pts: R: | 2026-10-31 04:11
+  [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.5 | Entry:77242.91 Stop:77872.3659 Target:76301.02 | Exit:77872.3659 | pts:-629.4559 R:-1.0 | 2026-10-31 02:11
+  [LAB] LOSS BTC | VWAP_REJECT_BEAR | 1h | SHORT | Conv:31 RR:1.22 | Entry:77056.06 Stop:77673.3646 Target:76301.02 | Exit:77673.3646 | pts:-617.3046 R:-1.0 | 2026-10-31 03:41
+  [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.22 | Entry:77056.06 Stop:77673.3646 Target:76301.02 | Exit:77673.3646 | pts:-617.3046 R:-1.0 | 2026-10-31 03:41
+  [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.32 | Entry:77078.36 Stop:77666.1622 Target:76301.02 | Exit:77666.1622 | pts:-587.8022 R:-1.0 | 2026-10-31 04:11
   [LAB] LOSS BTC | EMA21_PULLBACK_BEAR | 1h | SHORT | Conv:30 RR:1.23 | Entry:77039.94 Stop:77638.6871 Target:76301.02 | Exit:77638.6871 | pts:-598.7471 R:-1.0 | 2026-10-31 04:41
+  [LAB] OPEN BTC | VWAP_BOUNCE_BULL | 1h | LONG | Conv:19 RR:1.94 | Entry:77855.99 Stop:77455.2823 Target:78634.8 | Exit:open | pts: R: | 2026-11-01 23:08
+  [LAB] OPEN BTC | MACD_CROSS_BULL | 15m | LONG | Conv:32 RR:1.31 | Entry:78055.72 Stop:77614.8561 Target:78634.8 | Exit:open | pts: R: | 2026-11-01 23:13
+  [LAB] OPEN BTC | VWAP_BOUNCE_BULL | 1h | LONG | Conv:19 RR:3.63 | Entry:78055.72 Stop:77451.8573 Target:80248.34 | Exit:open | pts: R: | 2026-11-01 23:13
+  [LAB] LOSS NQ | VWAP_REJECT_BEAR | 15m | SHORT | Conv:26 RR:6.91 | Entry:28634.25 Stop:28692.3179 Target:28232.75 | Exit:28692.3179 | pts:-58.0679 R:-1.0 | 2026-11-01 23:18
+  [LAB] LOSS NQ | STOCH_REVERSAL_BEAR | 15m | SHORT | Conv:26 RR:5.47 | Entry:28634.25 Stop:28707.6358 Target:28232.75 | Exit:28707.6358 | pts:-73.3858 R:-1.0 | 2026-11-01 23:18
+  [LAB] OPEN BTC | VWAP_RECLAIM | 1h | LONG | Conv:45 RR:2.5 | Entry:78200.0 Stop:77736.9469 Target:79357.6327 | Exit:open | pts: R: | 2026-11-01 23:40
+  [LAB] OPEN BTC | MACD_CROSS_BULL | 1h | LONG | Conv:32 RR:2.72 | Entry:78241.06 Stop:77424.0254 Target:80462.78 | Exit:open | pts: R: | 2026-11-01 23:52
+  [LAB] OPEN NQ | STOCH_REVERSAL_BEAR | 15m | SHORT | Conv:26 RR:6.47 | Entry:28659.75 Stop:28725.7876 Target:28232.75 | Exit:open | pts: R: | 2026-11-01 23:55
+  [LAB] OPEN NQ | VWAP_REJECT_BEAR | 15m | SHORT | Conv:26 RR:8.86 | Entry:28681.0 Stop:28731.5661 Target:28232.75 | Exit:open | pts: R: | 2026-11-02 00:26
+  [LAB] OPEN NQ | STOCH_REVERSAL_BEAR | 15m | SHORT | Conv:26 RR:6.88 | Entry:28681.0 Stop:28746.1322 Target:28232.75 | Exit:open | pts: R: | 2026-11-02 00:26
+  [LAB] LOSS NQ | VWAP_REJECT_BEAR | 1h | SHORT | Conv:26 RR:2.0 | Entry:28681.0 Stop:28723.9629 Target:28595.0742 | Exit:28723.9629 | pts:-42.9629 R:-1.0 | 2026-11-02 00:26
+  [LAB] OPEN BTC | VWAP_REJECT_BEAR | 15m | SHORT | Conv:31 RR:2.68 | Entry:78028.36 Stop:78429.4851 Target:76954.57 | Exit:open | pts: R: | 2026-11-02 00:26
+  [LAB] OPEN BTC | BB_REVERSION_BEAR | 15m | SHORT | Conv:13 RR:2.57 | Entry:78028.36 Stop:78445.8476 Target:76954.57 | Exit:open | pts: R: | 2026-11-02 00:26
+  [LAB] OPEN NQ | BREAK_RETEST_BEAR | 1h | SHORT | Conv:18 RR:2.0 | Entry:28691.0 Stop:28817.9758 Target:28437.0484 | Exit:open | pts: R: | 2026-11-02 00:46
+  [LAB] OPEN NQ | VWAP_REJECT_BEAR | 15m | SHORT | Conv:26 RR:17.66 | Entry:28686.25 Stop:28711.9264 Target:28232.75 | Exit:open | pts: R: | 2026-11-02 00:56
+  [LAB] OPEN NQ | VWAP_REJECT_BEAR | 1h | SHORT | Conv:26 RR:2.0 | Entry:28686.25 Stop:28724.0308 Target:28610.6885 | Exit:open | pts: R: | 2026-11-02 00:56
 
 STILL OPEN AT END OF DAY:
 ------------------------------
@@ -44,10 +72,19 @@ STILL OPEN AT END OF DAY:
   [LAB] BTC | VWAP_REJECT_BEAR | Entry:79247.59 Target:75157.9529 | ID:fdf1433091 | 2026-10-29 21:15
   [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:79372.6 Target:75431.1778 | ID:325931af42 | 2026-10-29 21:17
   [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:79180.6 Target:74742.1206 | ID:3d87c4f497 | 2026-10-29 21:43
-  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:77242.91 Target:76301.02 | ID:5383497aad | 2026-10-31 02:11
-  [LAB] BTC | VWAP_REJECT_BEAR | Entry:77056.06 Target:76301.02 | ID:a4e6801159 | 2026-10-31 03:41
-  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:77056.06 Target:76301.02 | ID:29c13bdef5 | 2026-10-31 03:41
-  [LAB] BTC | EMA21_PULLBACK_BEAR | Entry:77078.36 Target:76301.02 | ID:a6f52d215f | 2026-10-31 04:11
+  [LAB] BTC | VWAP_BOUNCE_BULL | Entry:77855.99 Target:78634.8 | ID:043e35b155 | 2026-11-01 23:08
+  [LAB] BTC | MACD_CROSS_BULL | Entry:78055.72 Target:78634.8 | ID:d9d38f7c5e | 2026-11-01 23:13
+  [LAB] BTC | VWAP_BOUNCE_BULL | Entry:78055.72 Target:80248.34 | ID:6539015bba | 2026-11-01 23:13
+  [LAB] BTC | VWAP_RECLAIM | Entry:78200.0 Target:79357.6327 | ID:952eb20e6e | 2026-11-01 23:40
+  [LAB] BTC | MACD_CROSS_BULL | Entry:78241.06 Target:80462.78 | ID:cfe09ac84a | 2026-11-01 23:52
+  [LAB] NQ | STOCH_REVERSAL_BEAR | Entry:28659.75 Target:28232.75 | ID:6c7081626b | 2026-11-01 23:55
+  [LAB] NQ | VWAP_REJECT_BEAR | Entry:28681.0 Target:28232.75 | ID:2b2ed8dec8 | 2026-11-02 00:26
+  [LAB] NQ | STOCH_REVERSAL_BEAR | Entry:28681.0 Target:28232.75 | ID:36e3d793ee | 2026-11-02 00:26
+  [LAB] BTC | VWAP_REJECT_BEAR | Entry:78028.36 Target:76954.57 | ID:f9377c0aac | 2026-11-02 00:26
+  [LAB] BTC | BB_REVERSION_BEAR | Entry:78028.36 Target:76954.57 | ID:c75a8e018c | 2026-11-02 00:26
+  [LAB] NQ | BREAK_RETEST_BEAR | Entry:28691.0 Target:28437.0484 | ID:cfbcba1960 | 2026-11-02 00:46
+  [LAB] NQ | VWAP_REJECT_BEAR | Entry:28686.25 Target:28232.75 | ID:1401dcd93e | 2026-11-02 00:56
+  [LAB] NQ | VWAP_REJECT_BEAR | Entry:28686.25 Target:28610.6885 | ID:1efea35ab7 | 2026-11-02 00:56
 
 ==================================================
 END OF REPORT

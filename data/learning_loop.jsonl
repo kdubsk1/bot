@@ -171,3 +171,4 @@
 {"event":"apply","bucket":"adx_min|BTC|STOCH_REVERSAL_BEAR","from":14.0,"to":12.0,"evidence":{"n":97,"w":74,"l":23,"wr":76.3,"avg_rr":2.31,"required_wr":37.8},"ts":"2026-10-30T00:01:37.012772+00:00"}
 {"event":"apply","bucket":"adx_min|NQ|EMA21_PULLBACK_BEAR","from":18.0,"to":16.0,"evidence":{"n":265,"w":146,"l":119,"wr":55.1,"avg_rr":2.19,"required_wr":39.1},"ts":"2026-10-31T00:01:19.378328+00:00"}
 {"event":"apply","bucket":"vol_confirm|GC|MACD_CROSS_BEAR","from":0.8,"to":0.75,"evidence":{"n":26,"w":22,"l":4,"wr":84.6,"avg_rr":2.3,"required_wr":37.9},"ts":"2026-11-01T00:02:21.111246+00:00"}
+{"event":"apply","bucket":"conv_min|GC|BB_REVERSION_BULL","from":46.0,"to":44.0,"evidence":{"n":25,"w":25,"l":0,"wr":100.0,"avg_rr":3.17,"required_wr":29.9},"ts":"2026-11-02T01:06:38.542614+00:00"}
