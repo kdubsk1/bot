@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-02T00:16:28.126597+00:00",
- "cycle": 3159,
+ "utc": "2026-11-02T00:26:28.890055+00:00",
+ "cycle": 3160,
  "last_sync": "2026-11-01T23:37:20.829119+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -16,14 +16,12 @@
    "NQ|2026-11-02": 1
   },
   "last": {
-   "BTC|MACD_CROSS_BULL|LONG": "2026-11-01T23:52:19.934180+00:00",
    "NQ|TEST:BREAK_RETEST_BEAR|ANY": "2026-11-02T00:11:24.831182+00:00",
-   "NQ|SYNTH:BREAK_RETEST_BEAR|SHORT": "2026-11-02T00:11:24.831299+00:00",
-   "NQ|RCAP:STOCH_REVERSAL_BEAR|SHORT": "2026-11-01T23:55:20.476812+00:00"
+   "NQ|SYNTH:BREAK_RETEST_BEAR|SHORT": "2026-11-02T00:11:24.831299+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 74,
+  "ok_last_hour": 60,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-01T23:00:07.134097+00:00",
