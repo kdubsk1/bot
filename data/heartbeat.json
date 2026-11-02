@@ -1,7 +1,7 @@
 {
- "utc": "2026-11-02T23:37:12.139467+00:00",
- "cycle": 3930,
- "last_sync": "2026-11-02T17:38:11.923869+00:00",
+ "utc": "2026-11-02T23:52:15.844847+00:00",
+ "cycle": 3935,
+ "last_sync": "2026-11-02T23:38:29.236194+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
  "markets": [
@@ -12,8 +12,8 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "NQ:TEST|2026-11-02": 1,
-   "NQ|2026-11-02": 22,
+   "NQ:TEST|2026-11-02": 2,
+   "NQ|2026-11-02": 23,
    "NQ:DROP|2026-11-02": 70,
    "BTC:DROP|2026-11-02": 13,
    "BTC|2026-11-02": 22,
@@ -24,13 +24,14 @@
   },
   "last": {
    "NQ|MACD_CROSS_BULL|LONG": "2026-11-02T23:22:33.577317+00:00",
+   "NQ|RRGATE:EMA21_PULLBACK_BEAR|SHORT": "2026-11-02T23:37:12.547714+00:00",
    "NQ|RCAP:STOCH_REVERSAL_BULL|LONG": "2026-11-02T23:29:39.743990+00:00",
-   "NQ|RCAP:MACD_CROSS_BULL|LONG": "2026-11-02T23:12:24.622046+00:00",
-   "NQ|RCAP:BREAK_RETEST_BEAR|SHORT": "2026-11-02T23:29:39.725774+00:00"
+   "NQ|RCAP:BREAK_RETEST_BEAR|SHORT": "2026-11-02T23:29:39.725774+00:00",
+   "NQ|TEST:EMA21_PULLBACK_BEAR|ANY": "2026-11-02T23:37:12.547598+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 72,
+  "ok_last_hour": 84,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-02T23:00:12.325000+00:00",
