@@ -213,5 +213,10 @@
     "reason": "Wave 47 auto: 0W/3L over last 30 days",
     "suspended_at": "2026-10-29T03:17:56.499157+00:00",
     "source": "wave47_auto"
+  },
+  "BTC:VWAP_RECLAIM": {
+    "reason": "Wave 47 auto: 0W/3L over last 30 days",
+    "suspended_at": "2026-11-02T21:00:01.318553+00:00",
+    "source": "wave47_auto"
   }
 }
