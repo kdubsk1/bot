@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-02T22:53:37.052299+00:00",
- "cycle": 3854,
+ "utc": "2026-11-02T23:08:51.248423+00:00",
+ "cycle": 3884,
  "last_sync": "2026-11-02T17:38:11.923869+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -14,7 +14,7 @@
   "count": {
    "NQ:TEST|2026-11-02": 1,
    "NQ|2026-11-02": 21,
-   "NQ:DROP|2026-11-02": 66,
+   "NQ:DROP|2026-11-02": 67,
    "BTC:DROP|2026-11-02": 13,
    "BTC|2026-11-02": 22,
    "GC:DROP|2026-11-02": 16,
@@ -22,20 +22,22 @@
    "BTC:W266|2026-11-02": 3,
    "GC:W266|2026-11-02": 1
   },
-  "last": {}
+  "last": {
+   "NQ|RCAP:RSI_DIV_BULL|LONG": "2026-11-02T23:03:16.337114+00:00"
+  }
  },
  "topstepx": {
-  "ok_last_hour": 4,
+  "ok_last_hour": 22,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-11-01T23:00:07.134097+00:00",
+   "utc": "2026-11-02T23:00:12.325000+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 13,
+   "ms": 50,
    "body": "errorCode=1 errorMessage=None",
    "market_shut": null,
    "fetch_ok": true
