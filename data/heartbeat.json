@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-03T22:43:46.791246+00:00",
- "cycle": 4607,
+ "utc": "2026-11-03T23:01:31.660394+00:00",
+ "cycle": 4637,
  "last_sync": "2026-11-03T17:39:15.812433+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
@@ -13,7 +13,7 @@
  "lab_caps": {
   "count": {
    "GC:DROP|2026-11-03": 3,
-   "NQ:DROP|2026-11-03": 41,
+   "NQ:DROP|2026-11-03": 42,
    "BTC|2026-11-03": 24,
    "NQ|2026-11-03": 86,
    "NQ:TEST|2026-11-03": 6,
@@ -23,21 +23,22 @@
    "NQ:W266|2026-11-03": 12
   },
   "last": {
-   "BTC|STOCH_REVERSAL_BEAR|SHORT": "2026-11-03T22:40:46.766486+00:00"
+   "BTC|STOCH_REVERSAL_BEAR|SHORT": "2026-11-03T22:40:46.766486+00:00",
+   "NQ|RCAP:BREAK_RETEST_BULL|LONG": "2026-11-03T23:00:30.694773+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 8,
+  "ok_last_hour": 6,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-11-02T23:00:12.325000+00:00",
+   "utc": "2026-11-03T23:00:30.203536+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 50,
+   "ms": 16,
    "body": "errorCode=1 errorMessage=None",
    "market_shut": null,
    "fetch_ok": true
