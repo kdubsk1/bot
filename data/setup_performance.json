@@ -240,7 +240,7 @@
     "losses": 174,
     "total": 351,
     "win_rate": 50.4,
-    "last_updated": "2026-11-03T13:32:29.144532",
+    "last_updated": "2026-11-03T16:01:18.303640",
     "paper_total": 41,
     "paper_losses": 31,
     "paper_win_rate": 24.4,
@@ -251,10 +251,10 @@
     "real_wins": 34,
     "real_avg_rr_win": 2.213,
     "real_expectancy": 0.3771,
-    "lab_total": 266,
+    "lab_total": 269,
     "lab_losses": 183,
-    "lab_win_rate": 31.2,
-    "lab_wins": 83
+    "lab_win_rate": 32.0,
+    "lab_wins": 86
   },
   "BTC:VWAP_BOUNCE_BULL": {
     "wins": 146,
@@ -320,7 +320,7 @@
     "losses": 66,
     "total": 83,
     "win_rate": 20.5,
-    "last_updated": "2026-11-03T06:17:21.065012",
+    "last_updated": "2026-11-03T15:56:14.305930",
     "paper_total": 66,
     "paper_losses": 53,
     "paper_win_rate": 19.7,
@@ -331,9 +331,9 @@
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
     "real_expectancy": -1.0,
-    "lab_total": 28,
-    "lab_losses": 21,
-    "lab_win_rate": 25.0,
+    "lab_total": 30,
+    "lab_losses": 23,
+    "lab_win_rate": 23.3,
     "lab_wins": 7
   },
   "NQ:RSI_DIV_BULL": {
@@ -638,7 +638,7 @@
     "losses": 63,
     "total": 168,
     "win_rate": 62.5,
-    "last_updated": "2026-11-03T15:01:31.371070",
+    "last_updated": "2026-11-03T16:01:18.861222",
     "paper_total": 9,
     "paper_losses": 5,
     "paper_win_rate": 44.4,
@@ -649,10 +649,10 @@
     "real_losses": 27,
     "real_avg_rr_win": 2.894,
     "real_expectancy": 0.5074,
-    "lab_total": 88,
+    "lab_total": 93,
     "lab_losses": 56,
-    "lab_win_rate": 36.4,
-    "lab_wins": 32
+    "lab_win_rate": 39.8,
+    "lab_wins": 37
   },
   "GC:VWAP_REJECT_BEAR": {
     "wins": 38,
@@ -903,15 +903,15 @@
     "losses": 10,
     "total": 11,
     "win_rate": 9.1,
-    "last_updated": "2026-10-26T19:55:33.574579",
+    "last_updated": "2026-11-03T16:01:18.495665",
     "paper_total": 5,
     "paper_losses": 4,
     "paper_win_rate": 20.0,
     "paper_wins": 1,
-    "lab_total": 7,
+    "lab_total": 8,
     "lab_wins": 5,
-    "lab_win_rate": 71.4,
-    "lab_losses": 2
+    "lab_win_rate": 62.5,
+    "lab_losses": 3
   },
   "BTC:EMA21_PULLBACK_BULL": {
     "wins": 147,
@@ -981,14 +981,14 @@
     "losses": 45,
     "total": 48,
     "win_rate": 6.2,
-    "last_updated": "2026-11-03T12:03:14.343314",
+    "last_updated": "2026-11-03T16:06:20.043647",
     "paper_total": 10,
     "paper_losses": 7,
     "paper_win_rate": 30.0,
     "paper_wins": 3,
-    "lab_total": 31,
-    "lab_losses": 22,
-    "lab_win_rate": 29.0,
+    "lab_total": 33,
+    "lab_losses": 24,
+    "lab_win_rate": 27.3,
     "lab_wins": 9
   },
   "NQ:STOCH_REVERSAL_BEAR": {
@@ -996,14 +996,14 @@
     "losses": 35,
     "total": 46,
     "win_rate": 23.9,
-    "last_updated": "2026-11-02T15:59:35.744283",
+    "last_updated": "2026-11-03T16:01:16.039116",
     "paper_total": 24,
     "paper_losses": 14,
     "paper_win_rate": 41.7,
     "paper_wins": 10,
-    "lab_total": 53,
-    "lab_losses": 33,
-    "lab_win_rate": 37.7,
+    "lab_total": 55,
+    "lab_losses": 35,
+    "lab_win_rate": 36.4,
     "lab_wins": 20
   },
   "BTC:EMA50_RECLAIM": {
@@ -1031,14 +1031,14 @@
     "losses": 31,
     "total": 41,
     "win_rate": 24.4,
-    "last_updated": "2026-11-03T12:24:22.332319",
+    "last_updated": "2026-11-03T17:11:33.953704",
     "paper_total": 28,
     "paper_losses": 23,
     "paper_win_rate": 17.9,
     "paper_wins": 5,
-    "lab_total": 27,
-    "lab_losses": 14,
-    "lab_win_rate": 48.1,
+    "lab_total": 28,
+    "lab_losses": 15,
+    "lab_win_rate": 46.4,
     "lab_wins": 13
   },
   "NQ:BREAK_RETEST_BEAR": {
@@ -1065,7 +1065,7 @@
     "losses": 132,
     "total": 177,
     "win_rate": 25.4,
-    "last_updated": "2026-11-03T12:24:22.429590",
+    "last_updated": "2026-11-03T16:01:17.463739",
     "paper_total": 78,
     "paper_losses": 62,
     "paper_win_rate": 20.5,
@@ -1076,9 +1076,9 @@
     "real_win_rate": 0.0,
     "real_avg_rr_win": 0.0,
     "real_expectancy": -1.0,
-    "lab_total": 157,
-    "lab_losses": 101,
-    "lab_win_rate": 35.7,
+    "lab_total": 159,
+    "lab_losses": 103,
+    "lab_win_rate": 35.2,
     "lab_wins": 56,
     "test_total": 3,
     "test_losses": 2,
@@ -1408,11 +1408,11 @@
     "losses": 0,
     "total": 0,
     "win_rate": 0.0,
-    "lab_total": 13,
+    "lab_total": 14,
     "lab_wins": 8,
-    "lab_win_rate": 61.5,
-    "last_updated": "2026-11-02T16:18:18.108270",
-    "lab_losses": 5
+    "lab_win_rate": 57.1,
+    "last_updated": "2026-11-03T16:01:17.272820",
+    "lab_losses": 6
   },
   "NQ:EMA21_PULLBACK_BEAR@T50": {
     "wins": 0,
@@ -1452,11 +1452,11 @@
     "losses": 0,
     "total": 0,
     "win_rate": 0.0,
-    "lab_total": 14,
+    "lab_total": 15,
     "lab_losses": 8,
-    "lab_win_rate": 42.9,
-    "last_updated": "2026-11-03T15:00:29.873820",
-    "lab_wins": 6
+    "lab_win_rate": 46.7,
+    "last_updated": "2026-11-03T15:26:02.082112",
+    "lab_wins": 7
   },
   "GC:EMA21_PULLBACK_BEAR@S20": {
     "wins": 0,
@@ -1506,10 +1506,11 @@
     "losses": 0,
     "total": 0,
     "win_rate": 0.0,
-    "lab_total": 1,
+    "lab_total": 2,
     "lab_wins": 1,
-    "lab_win_rate": 100.0,
-    "last_updated": "2026-10-26T17:43:07.393199"
+    "lab_win_rate": 50.0,
+    "last_updated": "2026-11-03T16:01:18.681010",
+    "lab_losses": 1
   },
   "NQ:BREAK_RETEST_BEAR@T50": {
     "wins": 0,
@@ -1537,11 +1538,11 @@
     "losses": 0,
     "total": 0,
     "win_rate": 0.0,
-    "lab_total": 8,
+    "lab_total": 9,
     "lab_losses": 5,
-    "lab_win_rate": 37.5,
-    "last_updated": "2026-11-03T01:15:33.984939",
-    "lab_wins": 3
+    "lab_win_rate": 44.4,
+    "last_updated": "2026-11-03T15:22:58.526243",
+    "lab_wins": 4
   },
   "GC:VWAP_RECLAIM": {
     "wins": 0,
@@ -1573,5 +1574,15 @@
     "lab_losses": 1,
     "lab_win_rate": 0.0,
     "last_updated": "2026-11-03T07:46:08.226096"
+  },
+  "GC:EMA50_BREAKDOWN@S20": {
+    "wins": 0,
+    "losses": 0,
+    "total": 0,
+    "win_rate": 0.0,
+    "lab_total": 1,
+    "lab_losses": 1,
+    "lab_win_rate": 0.0,
+    "last_updated": "2026-11-03T15:41:10.999214"
   }
 }
