@@ -267,3 +267,4 @@
 {"ts": "2026-10-30T08:06:45.864670+00:00", "alert_id": "9f78b3ad07", "market": "GC", "tf": "1h", "hour": 8, "time_edge_score": 37, "time_expected_R": 0.104, "time_label": "good"}
 {"ts": "2026-11-02T13:46:11.299898+00:00", "alert_id": "09f23cbbd1", "market": "GC", "tf": "1h", "hour": 13, "time_edge_score": 41, "time_expected_R": 0.219, "time_label": "good"}
 {"ts": "2026-11-03T04:07:04.796950+00:00", "alert_id": "6a910e4bd3", "market": "GC", "tf": "1h", "hour": 4, "time_edge_score": 29, "time_expected_R": -0.118, "time_label": "dead"}
+{"ts": "2026-11-03T09:08:36.532378+00:00", "alert_id": "a4df5330fb", "market": "NQ", "tf": "15m", "hour": 9, "time_edge_score": 44, "time_expected_R": 0.335, "time_label": "good"}
