@@ -1,7 +1,7 @@
 {
- "utc": "2026-11-04T05:39:16.921778+00:00",
- "cycle": 4824,
- "last_sync": "2026-11-03T23:39:33.172317+00:00",
+ "utc": "2026-11-04T05:45:55.251440+00:00",
+ "cycle": 4837,
+ "last_sync": "2026-11-04T05:39:51.902415+00:00",
  "started_utc": "2026-10-29T05:28:41.647136+00:00",
  "scanner_on": true,
  "markets": [
@@ -23,14 +23,11 @@
   "last": {
    "BTC|VWAP_BOUNCE_BULL|LONG": "2026-11-04T05:17:10.316783+00:00",
    "GC|RCAP:VWAP_BOUNCE_BULL|LONG": "2026-11-04T05:17:10.034383+00:00",
-   "NQ|TEST:BREAK_RETEST_BEAR|ANY": "2026-11-04T05:13:07.061009+00:00",
-   "GC|VWAP_BOUNCE_BULL|LONG": "2026-11-04T05:27:11.691198+00:00",
-   "GC|RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-11-04T05:15:09.288606+00:00",
-   "NQ|SYNTH:BREAK_RETEST_BEAR|SHORT": "2026-11-04T05:13:07.061123+00:00"
+   "GC|VWAP_BOUNCE_BULL|LONG": "2026-11-04T05:27:11.691198+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 30,
+  "ok_last_hour": 46,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-03T23:00:30.203536+00:00",
