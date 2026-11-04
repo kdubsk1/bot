@@ -1,8 +1,8 @@
 {
- "utc": "2026-11-04T15:07:07.115940+00:00",
- "cycle": 5205,
- "last_sync": "2026-11-04T11:40:07.340054+00:00",
- "started_utc": "2026-10-29T05:28:41.647136+00:00",
+ "utc": "2026-11-04T15:13:42.430441+00:00",
+ "cycle": 11,
+ "last_sync": null,
+ "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
  "markets": [
   "NQ",
@@ -16,7 +16,7 @@
    "BTC:DROP|2026-11-04": 4,
    "NQ|2026-11-04": 25,
    "BTC|2026-11-04": 33,
-   "GC|2026-11-04": 48,
+   "GC|2026-11-04": 49,
    "NQ:TEST|2026-11-04": 2,
    "GC:DROP|2026-11-04": 5,
    "BTC:W266|2026-11-04": 6
@@ -25,23 +25,22 @@
    "GC|RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-11-04T14:53:47.795875+00:00",
    "GC|STOCH_REVERSAL_BEAR|SHORT": "2026-11-04T14:47:37.174495+00:00",
    "GC|BB_REVERSION_BEAR|SHORT": "2026-11-04T14:52:43.456340+00:00",
-   "BTC|SYNTH:MACD_CROSS_BULL|LONG": "2026-11-04T14:41:25.939703+00:00",
-   "NQ|RRGATE:RSI_DIV_BEAR|SHORT": "2026-11-04T14:42:27.657387+00:00",
-   "NQ|RRGATE:BB_REVERSION_BEAR|SHORT": "2026-11-04T14:50:40.087306+00:00"
+   "NQ|RRGATE:BB_REVERSION_BEAR|SHORT": "2026-11-04T14:50:40.087306+00:00",
+   "GC|RRGATE:BB_REVERSION_BEAR|SHORT": "2026-11-04T15:09:07.881466+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 94,
+  "ok_last_hour": 16,
   "failed_last_hour": 0,
   "last_failure": {
-   "utc": "2026-11-03T23:00:30.203536+00:00",
+   "utc": "2026-11-04T15:08:52.973373+00:00",
    "market": "NQ",
    "timeframe": "15m",
    "kind": "live_true_refused",
    "live": true,
    "exception": null,
    "http_status": 200,
-   "ms": 16,
+   "ms": 14,
    "body": "errorCode=1 errorMessage=None",
    "market_shut": null,
    "fetch_ok": true

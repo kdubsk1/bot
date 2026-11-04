@@ -5,7 +5,13 @@
       "setup": "VWAP_RECLAIM",
       "losses": 3,
       "reason": "Wave 47 auto: 0W/3L over last 30 days"
+    },
+    {
+      "market": "GC",
+      "setup": "BB_REVERSION_BULL",
+      "losses": 5,
+      "reason": "Wave 47 auto: 0W/5L over last 30 days"
     }
   ],
-  "ts": "2026-11-03T21:00:09.640237+00:00"
+  "ts": "2026-11-04T15:08:52.629982+00:00"
 }
