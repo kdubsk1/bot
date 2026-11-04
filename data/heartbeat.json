@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-04T19:51:32.914804+00:00",
- "cycle": 169,
+ "utc": "2026-11-04T20:06:36.234388+00:00",
+ "cycle": 172,
  "last_sync": "2026-11-04T15:14:20.903218+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -22,12 +22,11 @@
    "BTC:W266|2026-11-04": 6
   },
   "last": {
-   "GC|STOCH_REVERSAL_BEAR|SHORT": "2026-11-04T19:46:32.707890+00:00",
-   "GC|BB_REVERSION_BEAR|SHORT": "2026-11-04T19:31:29.100937+00:00"
+   "GC|STOCH_REVERSAL_BEAR|SHORT": "2026-11-04T19:46:32.707890+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 76,
+  "ok_last_hour": 54,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-04T15:08:52.973373+00:00",
