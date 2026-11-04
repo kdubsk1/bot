@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-04T15:51:15.222412+00:00",
- "cycle": 51,
+ "utc": "2026-11-04T16:08:21.370479+00:00",
+ "cycle": 57,
  "last_sync": "2026-11-04T15:14:20.903218+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -12,9 +12,9 @@
  "interval_min": 5,
  "lab_caps": {
   "count": {
-   "NQ:DROP|2026-11-04": 15,
+   "NQ:DROP|2026-11-04": 17,
    "BTC:DROP|2026-11-04": 4,
-   "NQ|2026-11-04": 29,
+   "NQ|2026-11-04": 30,
    "BTC|2026-11-04": 33,
    "GC|2026-11-04": 50,
    "NQ:TEST|2026-11-04": 2,
@@ -22,15 +22,13 @@
    "BTC:W266|2026-11-04": 6
   },
   "last": {
-   "GC|BB_REVERSION_BEAR|SHORT": "2026-11-04T15:36:06.727741+00:00",
-   "NQ|RRGATE:BB_REVERSION_BEAR|SHORT": "2026-11-04T15:22:23.297785+00:00",
-   "NQ|RRGATE:STOCH_REVERSAL_BEAR|SHORT": "2026-11-04T15:23:24.538437+00:00",
-   "NQ|ADX:BB_REVERSION_BEAR|SHORT": "2026-11-04T15:23:55.399216+00:00",
-   "NQ|ADX:STOCH_REVERSAL_BEAR|SHORT": "2026-11-04T15:26:28.968504+00:00"
+   "NQ|ADX:BB_REVERSION_BEAR|SHORT": "2026-11-04T15:56:17.657163+00:00",
+   "NQ|ADX:STOCH_REVERSAL_BEAR|SHORT": "2026-11-04T15:58:18.291407+00:00",
+   "NQ|MACD_CROSS_BEAR|SHORT": "2026-11-04T16:06:20.942271+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 64,
+  "ok_last_hour": 78,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-04T15:08:52.973373+00:00",
