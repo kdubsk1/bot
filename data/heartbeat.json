@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-04T16:37:34.798969+00:00",
- "cycle": 67,
+ "utc": "2026-11-04T16:51:49.478093+00:00",
+ "cycle": 73,
  "last_sync": "2026-11-04T15:14:20.903218+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -23,12 +23,11 @@
   },
   "last": {
    "NQ|RRGATE:RSI_DIV_BEAR|SHORT": "2026-11-04T16:28:32.828829+00:00",
-   "NQ|ADX:BB_REVERSION_BEAR|SHORT": "2026-11-04T16:30:33.373275+00:00",
-   "NQ|RSI_DIV_BEAR|SHORT": "2026-11-04T16:16:29.632720+00:00"
+   "NQ|ADX:BB_REVERSION_BEAR|SHORT": "2026-11-04T16:30:33.373275+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 50,
+  "ok_last_hour": 52,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-04T15:08:52.973373+00:00",
