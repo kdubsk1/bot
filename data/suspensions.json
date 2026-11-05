@@ -218,5 +218,10 @@
     "reason": "Wave 47 auto: 0W/3L over last 30 days",
     "suspended_at": "2026-11-02T21:00:01.318553+00:00",
     "source": "wave47_auto"
+  },
+  "GC:EMA21_PULLBACK_BULL": {
+    "reason": "Wave 47 auto: 0W/7L over last 30 days",
+    "suspended_at": "2026-11-05T21:00:18.685109+00:00",
+    "source": "wave47_auto"
   }
 }

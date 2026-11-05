@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "mode": "eval",
+  "preset": "50k",
+  "balance": 51987.28,
+  "peak_balance": 52195.42,
+  "starting_balance": 50000,
+  "daily_loss_limit": 1000,
+  "max_drawdown": 2000,
+  "profit_target": 3000,
+  "max_contracts_NQ": 10,
+  "max_contracts_GC": 5,
+  "use_mnq": true,
+  "account_risk_pct": 1.5,
+  "today_pnl": -50.16,
+  "today_date": "2026-11-05",
+  "session_date": "2026-11-05",
+  "total_pnl": 1987.28,
+  "trades": [
+    {
+      "alert_id": "08e32c2012",
+      "market": "NQ",
+      "direction": "LONG",
+      "entry": 28347.25,
+      "stop": 28322.17219045792,
+      "target": 28426.5,
+      "contracts": 1,
+      "tier": "REJECT",
+      "setup_type": "VWAP_RECLAIM",
+      "opened_at": "2026-11-05T07:12:51.564913",
+      "status": "CLOSED",
+      "pnl": -50.16,
+      "exit_price": 28322.1722,
+      "result": "LOSS",
+      "closed_at": "2026-11-05T07:15:55.494050"
+    }
+  ],
+  "open_sim_trades": []
+}
