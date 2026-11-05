@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-05T01:25:54.537163+00:00",
- "cycle": 395,
+ "utc": "2026-11-05T01:41:32.012770+00:00",
+ "cycle": 402,
  "last_sync": "2026-11-04T21:14:41.691697+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -13,19 +13,16 @@
  "lab_caps": {
   "count": {
    "NQ|2026-11-05": 4,
-   "NQ:DROP|2026-11-05": 9,
+   "NQ:DROP|2026-11-05": 10,
    "BTC|2026-11-05": 1,
    "GC|2026-11-05": 1
   },
   "last": {
-   "NQ|RSI_DIV_BEAR|SHORT": "2026-11-05T00:56:12.915499+00:00",
-   "NQ|ADX:VWAP_REJECT_BEAR|SHORT": "2026-11-05T00:56:12.884951+00:00",
-   "NQ|ADX:MACD_CROSS_BEAR|SHORT": "2026-11-05T00:56:12.917630+00:00",
-   "NQ|RCAP:BREAK_RETEST_BEAR|SHORT": "2026-11-05T01:08:19.040527+00:00"
+   "NQ|ADX:VWAP_REJECT_BEAR|SHORT": "2026-11-05T01:26:58.523593+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 46,
+  "ok_last_hour": 48,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-04T23:00:29.772796+00:00",
