@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-05T23:32:10.061672+00:00",
- "cycle": 1174,
+ "utc": "2026-11-05T23:47:13.680249+00:00",
+ "cycle": 1179,
  "last_sync": "2026-11-05T21:15:44.955710+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -21,13 +21,11 @@
   },
   "last": {
    "GC|BREAK_RETEST_BULL|LONG": "2026-11-05T23:28:06.357993+00:00",
-   "NQ|SYNTH:BREAK_RETEST_BEAR|SHORT": "2026-11-05T23:02:30.613298+00:00",
-   "NQ|SYNTH:MACD_CROSS_BEAR|SHORT": "2026-11-05T23:10:47.126331+00:00",
    "GC|STOCH_REVERSAL_BULL|LONG": "2026-11-05T23:28:06.303627+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 70,
+  "ok_last_hour": 80,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-05T23:00:28.022007+00:00",
