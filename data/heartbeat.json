@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-05T07:28:08.777303+00:00",
- "cycle": 489,
+ "utc": "2026-11-05T07:43:24.022373+00:00",
+ "cycle": 519,
  "last_sync": "2026-11-05T03:14:57.136477+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -19,14 +19,13 @@
    "NQ:TEST|2026-11-05": 3
   },
   "last": {
-   "NQ|VWAP_BOUNCE_BULL|LONG": "2026-11-05T07:07:38.540422+00:00",
    "NQ|TEST:VWAP_REJECT_BEAR|ANY": "2026-11-05T07:15:55.539435+00:00",
    "NQ|VWAP_REJECT_BEAR|SHORT": "2026-11-05T07:15:55.539539+00:00",
    "NQ|EMA21_PULLBACK_BEAR|SHORT": "2026-11-05T07:21:00.925122+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 56,
+  "ok_last_hour": 86,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-04T23:00:29.772796+00:00",
