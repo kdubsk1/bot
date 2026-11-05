@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-05T02:18:48.378546+00:00",
- "cycle": 415,
+ "utc": "2026-11-05T02:38:50.518755+00:00",
+ "cycle": 417,
  "last_sync": "2026-11-04T21:14:41.691697+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -20,12 +20,11 @@
   "last": {
    "NQ|VWAP_BOUNCE_BULL|LONG": "2026-11-05T02:12:42.843961+00:00",
    "NQ|ADX:STOCH_REVERSAL_BULL|LONG": "2026-11-05T02:12:42.872328+00:00",
-   "NQ|ADX:VWAP_REJECT_BEAR|SHORT": "2026-11-05T01:58:39.025976+00:00",
    "NQ|RRGATE:VWAP_BOUNCE_BULL|LONG": "2026-11-05T02:14:47.136538+00:00"
   }
  },
  "topstepx": {
-  "ok_last_hour": 48,
+  "ok_last_hour": 40,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-04T23:00:29.772796+00:00",
