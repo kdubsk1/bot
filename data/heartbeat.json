@@ -1,6 +1,6 @@
 {
- "utc": "2026-11-06T00:02:17.790873+00:00",
- "cycle": 1184,
+ "utc": "2026-11-06T00:16:23.170768+00:00",
+ "cycle": 1189,
  "last_sync": "2026-11-05T21:15:44.955710+00:00",
  "started_utc": "2026-11-04T15:08:50.550713+00:00",
  "scanner_on": true,
@@ -11,11 +11,16 @@
  ],
  "interval_min": 5,
  "lab_caps": {
-  "count": {},
-  "last": {}
+  "count": {
+   "GC|2026-11-06": 2
+  },
+  "last": {
+   "GC|VWAP_BOUNCE_BULL|LONG": "2026-11-06T00:12:20.405555+00:00",
+   "GC|BREAK_RETEST_BULL|LONG": "2026-11-06T00:12:20.450791+00:00"
+  }
  },
  "topstepx": {
-  "ok_last_hour": 84,
+  "ok_last_hour": 70,
   "failed_last_hour": 0,
   "last_failure": {
    "utc": "2026-11-05T23:00:28.022007+00:00",
