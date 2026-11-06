@@ -78,3 +78,4 @@
 {"utc": "2026-11-04T15:09:02.329971+00:00", "market": "BTC", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-11-04", "before": null}
 {"utc": "2026-11-04T15:09:03.544187+00:00", "market": "SOL", "timeframe": "1d", "kind": "daily_frame", "source": "UNKNOWN", "bars": 300, "newest": "2026-11-04", "before": null}
 {"utc": "2026-11-04T23:00:29.772796+00:00", "market": "NQ", "timeframe": "15m", "kind": "live_true_refused", "live": true, "exception": null, "http_status": 200, "ms": 19, "body": "errorCode=1 errorMessage=None", "market_shut": null, "fetch_ok": true}
+{"utc": "2026-11-05T23:00:28.022007+00:00", "market": "NQ", "timeframe": "15m", "kind": "live_true_refused", "live": true, "exception": null, "http_status": 200, "ms": 56, "body": "errorCode=1 errorMessage=None", "market_shut": null, "fetch_ok": true}
